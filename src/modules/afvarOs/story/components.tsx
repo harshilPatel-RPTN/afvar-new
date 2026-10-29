@@ -138,6 +138,7 @@ export function StoryRail<Id extends string>({
                 type="button"
                 onClick={() => go(id)}
                 aria-current={on ? "step" : undefined}
+                aria-label={`Go to ${story.labels[id]}`}
                 className="group flex items-center gap-3 py-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E9B44C]"
               >
                 <span

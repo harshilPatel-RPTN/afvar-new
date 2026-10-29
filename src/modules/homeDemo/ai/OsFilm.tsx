@@ -404,7 +404,7 @@ function BeatCaption({ mv, at, index, title, body }: { mv: MotionValue<number>; 
     <motion.div className="absolute inset-x-0 bottom-0" style={{ opacity: o, y }}>
       <p className={EYEBROW}>06 · The OS · {String(index + 1).padStart(2, "0")}</p>
       <div className="mt-2 flex items-baseline gap-6">
-        <h3 className={`${H3} shrink-0`}>{title}</h3>
+        <h2 className={`${H3} shrink-0`}>{title}</h2>
         <p className="max-w-[34rem] text-[14px] leading-snug text-[#A3AAAC]">{body}</p>
       </div>
     </motion.div>

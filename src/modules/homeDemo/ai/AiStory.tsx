@@ -12,7 +12,7 @@
 // never jumps when the client decides which cut to play.
 import { MotionConfig, motion, useMotionValue, useTransform, type MotionValue } from "framer-motion";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useSyncExternalStore, type ReactNode, type RefObject } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode, type RefObject } from "react";
 import { useLiveMarket } from "@/modules/home/kit";
 import { MONO, StoryAct, StoryRail, ramp, scheduleAvatarBuild, useAfvarReducedMotion, useStep, useStory, type Window4 } from "@/modules/afvarOs";
 import {
@@ -41,6 +41,28 @@ import { COMPACT_FILM, DESKTOP_FILM, type ActId, type Film } from "./aiConfig";
 const AiCoreScene = dynamic(() => import("./AiCoreScene"), { ssr: false });
 
 /* ------------------------------------------------------------ media hooks */
+
+/** True once the site's intro splash is gone (or 6 s passed) and the browser is idle. */
+function useSceneReady(): boolean {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+    let idle = 0;
+    const started = performance.now();
+    const go = () => setReady(true);
+    const poll = window.setInterval(() => {
+      if (document.querySelector("[data-afvar-splash]") && performance.now() - started < 6000) return;
+      window.clearInterval(poll);
+      idle = w.requestIdleCallback ? w.requestIdleCallback(go, { timeout: 1200 }) : window.setTimeout(go, 200);
+    }, 200);
+    return () => {
+      window.clearInterval(poll);
+      if (w.cancelIdleCallback) w.cancelIdleCallback(idle);
+      else window.clearTimeout(idle);
+    };
+  }, []);
+  return ready;
+}
 
 function useMedia(query: string): boolean | null {
   return useSyncExternalStore(
@@ -79,8 +101,13 @@ export function AiStory() {
   const portrait = mode === "compact" && portraitMq === true;
   const lite = mode === "compact" || coarse === true;
 
-  // Build the 292k-triangle avatar once, while the visitor reads the hero.
-  useEffect(() => scheduleAvatarBuild(3000), []);
+  // The 3D stage starts after first paint and the site's intro splash, in idle time —
+  // the headline and poster paint first, the WebGL work never competes with them.
+  const sceneReady = useSceneReady();
+  // The 292k-triangle avatar is built once the visitor starts scrolling (never during page
+  // load), in idle time — many screens before the avatar act needs it.
+  const scrolled = useStep(progress, [0.004]) >= 0;
+  useEffect(() => (webgl && !reduced && sceneReady && scrolled ? scheduleAvatarBuild(1500) : undefined), [webgl, reduced, sceneReady, scrolled]);
 
   // The OS owns the avatar (its own overlay) while it is on screen; the 3D stage rests behind it.
   const hasOs = film.has("os");
@@ -103,7 +130,7 @@ export function AiStory() {
   }, [active, mode]);
 
   const scene = (still: boolean, run: boolean) =>
-    webgl !== false && mounted ? (
+    webgl !== false && mounted && sceneReady ? (
       <AiCoreScene film={film} progress={progressRef} active={run} still={still} portrait={portrait} lite={lite} avatarHere={!avatarInOs} priceTexts={priceTexts} />
     ) : null;
 

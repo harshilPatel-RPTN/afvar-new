@@ -8,7 +8,7 @@
 // (damped progress, clock), so scrolling back replays cleanly.
 import { Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { createContext, useContext, useEffect, useMemo, useRef, type RefObject } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import * as THREE from "three";
 import {
   AiCore,
@@ -72,10 +72,16 @@ export default function AiCoreScene({ film, progress, active, still, portrait, l
       <FilmCtx.Provider value={ctx}>
         <AiCore drive={drive} />
         <Satellites />
-        <Streams priceTexts={priceTexts} />
+        <Near acts={["stream"]}>
+          <Streams priceTexts={priceTexts} />
+        </Near>
         <Reasoning />
-        <ClockRing />
-        <PolicyGate />
+        <Near acts={["always"]}>
+          <ClockRing />
+        </Near>
+        <Near acts={["trust"]}>
+          <PolicyGate />
+        </Near>
         {avatarHere ? <SceneAvatar /> : null}
       </FilmCtx.Provider>
     </CoreCanvas>
@@ -97,6 +103,34 @@ function makeCoreDrive(film: Film) {
     out.sparks = 1 - inside;
     return out;
   };
+}
+
+/* --------------------------------------------------------- mount gating */
+
+/**
+ * Mount a part of the scene only while the film is near its acts. Each mounted
+ * label is its own React root, so far-away acts stay unmounted until needed.
+ */
+function useNear(acts: ActId[], margin = 0.04): boolean {
+  const { film } = useFilm();
+  const { smoothed } = useStoryFrame();
+  const present = acts.filter((a) => film.has(a));
+  const lo = present.length ? Math.min(...present.map((a) => film.story.range[a][0])) - margin : 2;
+  const hi = present.length ? Math.max(...present.map((a) => film.story.range[a][1])) + margin : -1;
+  const [near, setNear] = useState(() => {
+    const p = smoothed.current ?? 0;
+    return p >= lo && p <= hi;
+  });
+  useFrame(() => {
+    const p = smoothed.current ?? 0;
+    const n = p >= lo && p <= hi;
+    if (n !== near) setNear(n);
+  });
+  return near;
+}
+
+function Near({ acts, margin, children }: { acts: ActId[]; margin?: number; children: ReactNode }) {
+  return useNear(acts, margin) ? <>{children}</> : null;
 }
 
 /* ----------------------------------------------------------- the avatar */
@@ -237,6 +271,7 @@ function Satellites() {
     });
   }, -4);
 
+  const labelsNear = useNear(["cores", "stream", "think"]);
   const labelShow = (p: number) =>
     Math.max(window4(p, [film.at("cores", 0.3), film.at("cores", 0.42), film.at("cores", 0.9), film.at("cores", 1)]), film.weight(p, "stream") * 0.95, film.weight(p, "think"));
 
@@ -259,9 +294,11 @@ function Satellites() {
             <torusGeometry args={[ORBIT.size * 1.7, 0.006, 8, 48]} />
             <meshBasicMaterial color={COLORS.gold} transparent opacity={0.5} toneMapped={false} />
           </mesh>
-          <SceneLabel position={[0, ORBIT.size + 0.3, 0]} show={labelShow} tone="gold">
-            {sat.label}
-          </SceneLabel>
+          {labelsNear ? (
+            <SceneLabel position={[0, ORBIT.size + 0.3, 0]} show={labelShow} tone="gold">
+              {sat.label}
+            </SceneLabel>
+          ) : null}
         </group>
       ))}
     </group>

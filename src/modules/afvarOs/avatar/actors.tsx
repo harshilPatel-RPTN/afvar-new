@@ -9,14 +9,42 @@
 import { Environment, Lightformer } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import type { MotionValue } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import type { AvatarRig } from "./rig";
 import { AVATAR_HEIGHT, avatarFrame, useAvatarRig, type AvatarFrame } from "./rig";
 
 export type AvatarTrack = (p: number, t: number, out: AvatarFrame) => AvatarFrame;
 
+/** Compile the avatar's shaders once per renderer, in idle time, so its first appearance never stutters. */
+function usePrecompile(rig: AvatarRig | null) {
+  const gl = useThree((s) => s.gl);
+  const scene = useThree((s) => s.scene);
+  const camera = useThree((s) => s.camera);
+  useEffect(() => {
+    if (!rig) return;
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+    const run = () => {
+      // compileAsync builds the programs synchronously, then waits for the driver;
+      // the avatar is only "visible" during that synchronous call, never in a frame.
+      const was = rig.root.visible;
+      rig.root.visible = true;
+      const done = gl.compileAsync(rig.root, camera, scene);
+      rig.root.visible = was;
+      done.catch(() => {});
+    };
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(run, { timeout: 2000 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(run, 300);
+    return () => window.clearTimeout(id);
+  }, [rig, gl, scene, camera]);
+}
+
 /** The avatar inside an existing R3F scene. `track` returns the frame for progress p at time t. */
 export function AvatarActor({ track, getP, still = false, quality = "balanced" }: { track: AvatarTrack; getP: () => number; still?: boolean; quality?: "balanced" | "performance" }) {
   const rig = useAvatarRig();
+  usePrecompile(rig);
   const out = useRef(avatarFrame());
   useFrame((s, dt) => {
     if (!rig) return;
@@ -62,6 +90,7 @@ export function AvatarOverlay({
 
 function OverlayActor({ mv, track, design, still }: { mv: MotionValue<number>; track: AvatarTrack; design: readonly [number, number]; still: boolean }) {
   const rig = useAvatarRig();
+  usePrecompile(rig);
   const size = useThree((s) => s.size);
   const out = useRef(avatarFrame());
   const placed = useRef(avatarFrame());
