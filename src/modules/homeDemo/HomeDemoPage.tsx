@@ -8,7 +8,8 @@ import { BTN_PRIMARY, HOME_SCOPE, HomeStyles } from "@/modules/home/kit";
 import { HomeSoundToggle } from "./HomeSoundToggle";
 import { SiteFooter, SiteNav } from "@/modules/markets";
 import { EarthHorizon } from "@/modules/platform/kit";
-import { AI_CSS, AiStory } from "./ai/AiStory";
+import { AfvarStyles } from "@/modules/afvarOs";
+import { AiStory } from "./ai/AiStory";
 import { DemoHeader } from "./DemoHeader";
 import { LaunchQueue } from "./LaunchQueue";
 import { LaunchReminder } from "./LaunchReminder";
@@ -19,7 +20,8 @@ export function HomeDemoPage() {
   return (
     <div className={`${HOME_SCOPE} min-h-svh bg-[#050607] text-[#F5F7F7]`}>
       <HomeStyles />
-      <style>{DEMO_CSS + AI_CSS}</style>
+      <style>{DEMO_CSS}</style>
+      <AfvarStyles />
       {/* The site-wide navbar (same as every page), with the live ticker under it. */}
       <SiteNav />
       <DemoHeader />
