@@ -114,7 +114,7 @@ export function AiStory() {
   const osStep = useStep(progress, hasOs ? [film.at("os", 0.07), film.at("os", 0.95)] : [2, 3]);
   const overlayStep = useStep(progress, hasOs ? [film.at("os", 0.07), film.at("os", 0.975)] : [2, 3]);
   const osCovered = mode === "desktop" && osStep === 0;
-  const avatarInOs = mode === "desktop" && overlayStep === 0;
+  const avatarInOs = mode === "desktop" && overlayStep === 0 && webgl === true;
 
   // The site's floating avatar launcher steps aside while the film's avatar is on screen.
   const avatarActStep = useStep(progress, [film.at("avatar", 0), hasOs ? film.at("os", 1) : film.at("avatar", 1)]);
