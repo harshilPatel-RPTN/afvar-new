@@ -1,0 +1,406 @@
+/*
+ * Platform pages theme. Colours: AFVAR gold palette from the product owner,
+ * on DESIGN-GUIDE §2 token names. Look: macOS materials (window, menu bar,
+ * Spotlight, Dock, System Settings lists) with Apple-style restraint —
+ * solid surfaces, one accent, glass only on chrome (guide §5.1).
+ */
+/* Doubled class (specificity 0,3,0): must beat tokens.css's dark-mode block
+   `.ds-theme:not([data-theme="light"])` (0,2,0), which would otherwise turn the
+   accent Apple-blue on dark-mode machines whenever it happens to load later. */
+.ds-theme.pf-theme.pf-theme {
+  color-scheme: dark;
+
+  /* Values mirror markets.css (`.mk`): var(--mk-*) where a token exists,
+     warm derived shades where the platform needs more steps. */
+  --canvas: var(--mk-page, #05060a);
+  --surface-inset: #050607;
+  --surface-1: var(--mk-surface, #080a0b);
+  --surface-2: var(--mk-raised, #111416);
+  --surface-3: #171b1d;
+  --surface-hover: #1d2327;
+  --surface-active: #262d32;
+
+  --text-primary: var(--mk-text, #f4f2ee);
+  --text-secondary: var(--mk-dim, #b3ada3);
+  --text-tertiary: #938d82;
+  --text-muted: var(--mk-faint, #6f6a62);
+  --text-disabled: #57534b;
+  --text-inverse: var(--mk-on-primary, #1a1206);
+  --text-link: var(--mk-primary, #ecc574);
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: var(--mk-line, rgba(255, 236, 200, 0.1));
+  --border-strong: rgba(255, 255, 255, 0.22);
+
+  --accent: var(--mk-primary, #ecc574);
+  --accent-hover: var(--mk-primary-bright, #f7dc9c);
+  --accent-pressed: #00A85A;
+  --accent-highlight: var(--mk-primary-bright, #f7dc9c);
+  --accent-dark: #00753F;
+  --accent-border: rgba(0, 230, 118, 0.45);
+  --accent-subtle: rgba(0, 230, 118, 0.35);
+  --accent-soft: rgba(0, 230, 118, 0.12);
+
+  --info: #69f0ae;
+  --ai: #69F0AE;
+  --ai-bg: #0d2a1d;
+
+  /* Markets convention: cyan up-moves, hydrogen-red down-moves. */
+  --positive: var(--mk-up, #00E676);
+  --positive-soft: rgba(0, 230, 118, 0.12);
+  --negative: var(--mk-accent, #e5484d);
+  --negative-soft: #3a1518;
+  --chart-purple: #FF6464;
+  --chart-grid: #1b2024;
+
+  --focus-ring: var(--mk-primary, #ecc574);
+
+  /* macOS materials, tinted to the warm mk blacks */
+  --mac-window: #111416;
+  --mac-sidebar: rgba(17, 20, 22, 0.72);
+  --mac-chrome: rgba(8, 10, 11, 0.6);
+  --mac-hairline: rgba(255, 255, 255, 0.08);
+  --mac-edge: rgba(0, 0, 0, 0.85);
+  --mac-select: rgba(0, 230, 118, 0.16);
+
+  /* Shared surfaces (sampled from the About "Product Principles" window):
+     desktop windows are --mac-window, cards everywhere are --card. */
+  --card: #191c1e;
+  --card-hover: #1e2124;
+  --card-edge: rgba(255, 255, 255, 0.08);
+
+  --segment-fill: var(--mk-raised, #111416);
+  --segment-active: #262d32;
+
+  /* macOS window controls (decorative) */
+  --light-close: #ff5f57;
+  --light-minimize: #febc2e;
+  --light-zoom: #28c840;
+
+  background: var(--canvas);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+.pf-theme ::selection {
+  background: var(--accent-subtle);
+  color: var(--text-primary);
+}
+
+/* ------------------------------------------------------------ type */
+
+/* Apple marketing scale: large, tight, solid colour — no gradient text. */
+.pf-hero-title {
+  font-size: clamp(2.75rem, 6vw, 5.25rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  font-weight: 650;
+}
+.pf-title {
+  font-size: clamp(2.1rem, 4.2vw, 3.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  font-weight: 650;
+}
+.pf-lede {
+  font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  color: var(--text-secondary);
+}
+
+/* ---------------------------------------------------------- surfaces */
+
+.pf-tile {
+  position: relative;
+  border-radius: 28px;
+  background: var(--card);
+  box-shadow: inset 0 0 0 0.5px var(--card-edge);
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------- mac: window */
+
+.pf-window {
+  position: relative;
+  border-radius: 12px;
+  background: var(--mac-window);
+  box-shadow:
+    0 0 0 0.5px var(--mac-edge),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.14),
+    0 22px 70px 4px rgba(0, 0, 0, 0.56);
+  overflow: hidden;
+}
+.pf-window-toolbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 46px;
+  padding: 0 16px;
+  border-bottom: 0.5px solid var(--mac-edge);
+  box-shadow: 0 0.5px 0 var(--mac-hairline);
+}
+.pf-window-sm .pf-window-toolbar {
+  height: 28px;
+  padding: 0 10px;
+  gap: 8px;
+}
+
+.pf-lights {
+  display: flex;
+  gap: 8px;
+}
+.pf-light {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.3);
+  transition: background-color 200ms ease-out;
+}
+.pf-window-sm .pf-light {
+  width: 9px;
+  height: 9px;
+}
+.pf-light-close {
+  background: var(--light-close);
+}
+.pf-light-min {
+  background: var(--light-minimize);
+}
+.pf-light-zoom {
+  background: var(--light-zoom);
+}
+.pf-window-inactive .pf-light {
+  background: #3a3f42;
+}
+.pf-light svg {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 8px;
+  height: 8px;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+.pf-lights:hover .pf-light svg {
+  opacity: 0.75;
+}
+
+/* Source-list sidebar with vibrancy, as in Finder / Settings. */
+.pf-sidebar {
+  background: var(--mac-sidebar);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  backdrop-filter: blur(30px) saturate(160%);
+  border-right: 0.5px solid var(--mac-edge);
+}
+
+/* ----------------------------------------------------- mac: menu bar */
+
+.pf-menubar {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 12px;
+  gap: 18px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(245, 247, 250, 0.92);
+  background: var(--mac-chrome);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  backdrop-filter: blur(40px) saturate(180%);
+  box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* ------------------------------------------------ mac: glass panels */
+
+.pf-vibrant {
+  background: rgba(20, 24, 27, 0.78);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  backdrop-filter: blur(40px) saturate(180%);
+  box-shadow:
+    0 0 0 0.5px var(--mac-edge),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.16),
+    0 18px 50px rgba(0, 0, 0, 0.5);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .pf-vibrant,
+  .pf-menubar,
+  .pf-sidebar {
+    background: var(--surface-2);
+  }
+}
+
+/* --------------------------------------- mac: settings grouped list */
+
+.pf-group {
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: inset 0 0 0 0.5px var(--mac-hairline);
+}
+.pf-group > * + * {
+  border-top: 0.5px solid var(--mac-hairline);
+}
+
+/* ------------------------------------------------------- wallpaper */
+
+/* Original abstract wallpaper (no Apple assets): soft palette dunes. */
+.pf-wallpaper {
+  background:
+    radial-gradient(120% 80% at 10% 110%, rgba(0, 230, 118, 0.26), transparent 55%),
+    radial-gradient(90% 70% at 95% 105%, rgba(255, 59, 59, 0.2), transparent 55%),
+    linear-gradient(180deg, #0c1012 0%, #070909 100%);
+}
+
+/* ------------------------------------------------------- app icons */
+
+.pf-app-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 22.37%;
+  color: #fff;
+  box-shadow:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -0.5px 0 rgba(0, 0, 0, 0.3),
+    0 0.5px 1.5px rgba(0, 0, 0, 0.45),
+    0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.pf-tone-gold {
+  background: linear-gradient(180deg, #f7dc9c 0%, #d9a24a 100%);
+  color: #2a1f08;
+}
+.pf-tone-cyan {
+  background: linear-gradient(180deg, #69F0AE 0%, #00A85A 100%);
+}
+.pf-tone-purple {
+  background: linear-gradient(180deg, #FF8A8A 0%, #C62828 100%);
+}
+.pf-tone-red {
+  background: linear-gradient(180deg, #ff8a9a 0%, #e5485f 100%);
+}
+.pf-tone-green {
+  background: linear-gradient(180deg, #5fe3b6 0%, #1fa77c 100%);
+}
+.pf-tone-slate {
+  background: linear-gradient(180deg, #3a4247 0%, #1d2326 100%);
+}
+
+/* ------------------------------------------------------------ dock */
+
+.pf-dock {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 20px;
+}
+.pf-dock-item:focus-visible {
+  outline: none;
+}
+.pf-dock-item:focus-visible .pf-app-icon {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.pf-dock-tooltip {
+  white-space: nowrap;
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------ misc */
+
+.pf-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: pf-blink 1s steps(1) infinite;
+}
+@keyframes pf-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.pf-bar {
+  display: block;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Slow Ken Burns drift for section backdrops (mac/Backdrop). */
+.pf-drift {
+  animation: pf-drift 40s ease-in-out infinite alternate;
+}
+@keyframes pf-drift {
+  from {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-caret,
+  .pf-drift {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------- dynamic wallpaper (#5) */
+
+/* Original artwork per time of day; phase chosen from the visitor's clock. */
+.pf-wall-dawn {
+  background:
+    radial-gradient(120% 80% at 15% 110%, rgba(246, 166, 91, 0.42), transparent 55%),
+    radial-gradient(90% 70% at 90% 0%, rgba(255,59,59, 0.22), transparent 60%),
+    linear-gradient(180deg, #161a1b 0%, #0b0d0e 100%);
+}
+.pf-wall-day {
+  background:
+    radial-gradient(120% 80% at 10% 110%, rgba(236, 197, 116, 0.4), transparent 55%),
+    radial-gradient(90% 70% at 95% 105%, rgba(105,240,174, 0.28), transparent 55%),
+    linear-gradient(180deg, #112019 0%, #0a120e 100%);
+}
+.pf-wall-dusk {
+  background:
+    radial-gradient(120% 80% at 50% 115%, rgba(229, 72, 77, 0.32), transparent 55%),
+    radial-gradient(90% 70% at 10% 0%, rgba(236, 197, 116, 0.3), transparent 60%),
+    linear-gradient(180deg, #1a1414 0%, #0d0c0c 100%);
+}
+.pf-wall-night {
+  background:
+    radial-gradient(120% 80% at 10% 110%, rgba(236, 197, 116, 0.28), transparent 55%),
+    radial-gradient(90% 70% at 95% 105%, rgba(105,240,174, 0.14), transparent 55%),
+    radial-gradient(80% 60% at 70% -10%, rgba(255,59,59, 0.14), transparent 60%),
+    linear-gradient(180deg, #171a18 0%, #101211 100%);
+}
+.pf-wall-layer {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1.2s ease;
+}
+
+/* Closing block: stars twinkle (opacity only); steady under reduced motion. */
+.pf-twinkle {
+  opacity: 0.55;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pf-twinkle {
+    animation-name: pf-twinkle;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+}
+@keyframes pf-twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 1; }
+}

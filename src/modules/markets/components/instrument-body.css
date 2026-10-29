@@ -1,0 +1,68 @@
+/*
+ * Instrument body (chart stage): abstract, value-free motion only.
+ * Transform and opacity only; nothing runs under prefers-reduced-motion.
+ */
+
+/* Static fallbacks (reduced motion): the beam stays hidden, the rings rest faintly. */
+.mk-insbody-beam {
+  opacity: 0;
+}
+.mk-insbody-ring {
+  opacity: 0.22;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mk-insbody-beam {
+    animation: mk-insbody-beam 7.5s cubic-bezier(0.45, 0, 0.25, 1) 0.4s infinite both;
+  }
+  .mk-insbody-ring {
+    animation: mk-insbody-ring 4.8s cubic-bezier(0.22, 1, 0.36, 1) infinite both;
+  }
+  .mk-insbody-ring-late {
+    animation-delay: 2.4s;
+  }
+  .mk-insbody-haze {
+    animation: mk-insbody-haze 16s ease-in-out infinite alternate both;
+  }
+}
+
+@keyframes mk-insbody-beam {
+  0% {
+    transform: translateX(-140%) skewX(-14deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  62% {
+    transform: translateX(330%) skewX(-14deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(330%) skewX(-14deg);
+    opacity: 0;
+  }
+}
+
+@keyframes mk-insbody-ring {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@keyframes mk-insbody-haze {
+  from {
+    transform: translate3d(-8%, 4%, 0);
+  }
+  to {
+    transform: translate3d(8%, -4%, 0);
+  }
+}

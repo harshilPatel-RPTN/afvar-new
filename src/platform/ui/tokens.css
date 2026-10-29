@@ -1,0 +1,225 @@
+/*
+ * Design tokens — DESIGN-GUIDE §2.1 (light) and §2.2 (dark), verbatim.
+ * Opt in with `.ds-theme` on a route root. Theme follows the OS preference
+ * (guide §13 default "system"); `data-theme="light|dark"` forces one.
+ * app/globals.css is left untouched: its placeholder tokens are still used
+ * by older dashboard panels.
+ */
+.ds-theme {
+  color-scheme: light;
+
+  --canvas: #f5f5f7;
+  --surface-1: #ffffff;
+  --surface-2: #f0f0f2;
+  --surface-3: #e8e8ed;
+  --surface-inset: #f7f7f9;
+
+  --text-primary: #1d1d1f;
+  --text-secondary: #626269;
+  --text-tertiary: #86868b;
+  --text-inverse: #ffffff;
+
+  --border-subtle: rgba(29, 29, 31, 0.08);
+  --border-default: rgba(29, 29, 31, 0.12);
+  --border-strong: rgba(29, 29, 31, 0.18);
+
+  --accent: #0071e3;
+  --accent-hover: #0077ed;
+  --accent-pressed: #0066cc;
+  --accent-soft: rgba(0, 113, 227, 0.1);
+
+  --positive: #16803c;
+  --positive-soft: rgba(22, 128, 60, 0.1);
+  --negative: #d92d20;
+  --negative-soft: rgba(217, 45, 32, 0.1);
+  --warning: #a15c00;
+  --warning-soft: rgba(245, 158, 11, 0.14);
+  --info: #1769aa;
+  --focus-ring: rgba(0, 113, 227, 0.42);
+
+  --glass-fill-panel: rgba(255, 255, 255, 0.72);
+  --glass-fill-panel-scrolled: rgba(255, 255, 255, 0.85);
+  --glass-fill-overlay: rgba(250, 250, 252, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.72);
+  --glass-shadow: 0 12px 36px rgba(20, 20, 30, 0.1);
+
+  /* macOS segmented-control fills (derived; not in the guide table). */
+  --segment-fill: rgba(118, 118, 128, 0.12);
+  --segment-active: #ffffff;
+
+  --shadow-card: 0 2px 8px rgba(20, 20, 30, 0.04), 0 12px 30px rgba(20, 20, 30, 0.035);
+  --shadow-popover: 0 12px 36px rgba(0, 0, 0, 0.14);
+  --shadow-dialog: 0 24px 80px rgba(0, 0, 0, 0.22);
+
+  --topbar-height: 52px;
+  --content-max-width: 1600px;
+
+  --font-ui: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "SFMono-Regular", ui-monospace, Consolas, "Liberation Mono", monospace;
+
+  font-family: var(--font-ui);
+  color: var(--text-primary);
+  background: var(--canvas);
+}
+
+.ds-theme[data-theme="dark"] {
+  color-scheme: dark;
+
+  --canvas: #0b0b0d;
+  --surface-1: #151518;
+  --surface-2: #1c1c20;
+  --surface-3: #25252a;
+  --surface-inset: #101013;
+
+  --text-primary: #f5f5f7;
+  --text-secondary: #b4b4bc;
+  --text-tertiary: #85858f;
+  --text-inverse: #111114;
+
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-default: rgba(255, 255, 255, 0.11);
+  --border-strong: rgba(255, 255, 255, 0.18);
+
+  --accent: #2997ff;
+  --accent-hover: #49a5ff;
+  --accent-pressed: #1687f0;
+  --accent-soft: rgba(41, 151, 255, 0.14);
+
+  --positive: #4dd181;
+  --positive-soft: rgba(77, 209, 129, 0.12);
+  --negative: #ff6b6b;
+  --negative-soft: rgba(255, 107, 107, 0.12);
+  --warning: #ffbe55;
+  --warning-soft: rgba(255, 190, 85, 0.12);
+  --info: #69b7ff;
+  --focus-ring: rgba(41, 151, 255, 0.5);
+
+  --glass-fill-panel: rgba(27, 27, 31, 0.78);
+  --glass-fill-panel-scrolled: rgba(27, 27, 31, 0.9);
+  --glass-fill-overlay: rgba(21, 21, 25, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+
+  --segment-fill: rgba(118, 118, 128, 0.24);
+  --segment-active: #636366;
+
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.14), 0 12px 30px rgba(0, 0, 0, 0.16);
+  --shadow-popover: 0 12px 36px rgba(0, 0, 0, 0.36);
+  --shadow-dialog: 0 24px 80px rgba(0, 0, 0, 0.48);
+}
+
+/* System preference applies unless a theme is forced. Kept in sync with the block above. */
+@media (prefers-color-scheme: dark) {
+  .ds-theme:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --canvas: #0b0b0d;
+    --surface-1: #151518;
+    --surface-2: #1c1c20;
+    --surface-3: #25252a;
+    --surface-inset: #101013;
+
+    --text-primary: #f5f5f7;
+    --text-secondary: #b4b4bc;
+    --text-tertiary: #85858f;
+    --text-inverse: #111114;
+
+    --border-subtle: rgba(255, 255, 255, 0.07);
+    --border-default: rgba(255, 255, 255, 0.11);
+    --border-strong: rgba(255, 255, 255, 0.18);
+
+    --accent: #2997ff;
+    --accent-hover: #49a5ff;
+    --accent-pressed: #1687f0;
+    --accent-soft: rgba(41, 151, 255, 0.14);
+
+    --positive: #4dd181;
+    --positive-soft: rgba(77, 209, 129, 0.12);
+    --negative: #ff6b6b;
+    --negative-soft: rgba(255, 107, 107, 0.12);
+    --warning: #ffbe55;
+    --warning-soft: rgba(255, 190, 85, 0.12);
+    --info: #69b7ff;
+    --focus-ring: rgba(41, 151, 255, 0.5);
+
+    --glass-fill-panel: rgba(27, 27, 31, 0.78);
+    --glass-fill-panel-scrolled: rgba(27, 27, 31, 0.9);
+    --glass-fill-overlay: rgba(21, 21, 25, 0.88);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+
+    --segment-fill: rgba(118, 118, 128, 0.24);
+    --segment-active: #636366;
+
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.14), 0 12px 30px rgba(0, 0, 0, 0.16);
+    --shadow-popover: 0 12px 36px rgba(0, 0, 0, 0.36);
+    --shadow-dialog: 0 24px 80px rgba(0, 0, 0, 0.48);
+  }
+}
+
+.ds-theme :focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.ds-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+/* ---------------------------------------------------------- materials (§5) */
+
+.ds-glass-panel {
+  background: var(--glass-fill-panel);
+  -webkit-backdrop-filter: saturate(145%) blur(18px);
+  backdrop-filter: saturate(145%) blur(18px);
+}
+
+.ds-glass-overlay {
+  position: relative;
+  isolation: isolate;
+  background: var(--glass-fill-overlay);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-dialog);
+  -webkit-backdrop-filter: saturate(160%) blur(24px);
+  backdrop-filter: saturate(160%) blur(24px);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ds-glass-panel,
+  .ds-glass-overlay {
+    background: var(--surface-1);
+  }
+}
+
+.ds-scroll-row {
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.ds-scroll-row::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes ds-shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+.ds-skeleton {
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface-3) 50%, var(--surface-2) 100%);
+  background-size: 200% 100%;
+  animation: ds-shimmer 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-skeleton {
+    animation: none;
+  }
+}

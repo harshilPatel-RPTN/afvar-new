@@ -1,0 +1,12 @@
+import type { Metadata } from "next";
+import { HelpPage } from "@/modules/resources";
+
+export const metadata: Metadata = {
+  title: "Help & Support · Resources — AFVAR",
+  description: "Troubleshooting topics, account and launch-status help, and one shared AFVAR support destination.",
+  alternates: { canonical: "/resources/help" },
+};
+
+export default function Page() {
+  return <HelpPage />;
+}
