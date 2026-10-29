@@ -25,6 +25,8 @@ interface StoryFrame {
   smoothed: RefObject<number>;
   /** Static frame (reduced motion): no clock-driven motion. */
   still: boolean;
+  /** Fixed DOM parent for <Html> labels (prevents remounts when R3F connects events). */
+  labels: RefObject<HTMLDivElement | null>;
 }
 
 const StoryFrameContext = createContext<StoryFrame | null>(null);
@@ -50,6 +52,8 @@ export interface CoreCanvasProps<C extends string> {
   cues?: readonly SceneCue<C>[];
   onCue?: (cue: C) => void;
   bloom?: number;
+  /** Device-pixel-ratio range (lower on phones). */
+  dpr?: [number, number];
   children: ReactNode;
 }
 
@@ -65,13 +69,17 @@ export function CoreCanvas<C extends string>({
   cues,
   onCue,
   bloom = 0.75,
+  dpr = [1, 1.75],
   children,
 }: CoreCanvasProps<C>) {
   const smoothed = useRef(still ? settledP : 0);
-  const ctx = useMemo(() => ({ smoothed, still }), [still]);
+  const labels = useRef<HTMLDivElement | null>(null);
+  const ctx = useMemo(() => ({ smoothed, still, labels }), [still]);
   return (
+    <div className="relative h-full w-full">
+    <div ref={labels} className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" />
     <Canvas
-      dpr={[1, 1.75]}
+      dpr={dpr}
       frameloop={active && !still ? "always" : "demand"}
       camera={{ position: [...camera[0].pos], fov }}
       gl={{ antialias: true, powerPreference: "high-performance" }}
@@ -101,6 +109,7 @@ export function CoreCanvas<C extends string>({
         </EffectComposer>
       </StoryFrameContext.Provider>
     </Canvas>
+    </div>
   );
 }
 
@@ -226,7 +235,7 @@ export function SceneLabel({
   tone?: "neutral" | "gold" | "up" | "down";
   children: ReactNode;
 }) {
-  const { smoothed } = useStoryFrame();
+  const { smoothed, labels } = useStoryFrame();
   const ref = useRef<HTMLDivElement>(null);
   useFrame(() => {
     const p = smoothed.current ?? 0;
@@ -239,7 +248,7 @@ export function SceneLabel({
   const color = tone === "up" ? COLORS.up : tone === "down" ? COLORS.down : tone === "gold" ? COLORS.gold : COLORS.ink;
   const border = tone === "neutral" ? "rgba(255,255,255,0.18)" : color;
   return (
-    <Html position={position as [number, number, number]} center zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
+    <Html position={position as [number, number, number]} portal={labels as RefObject<HTMLElement>} center zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
       <div
         ref={ref}
         style={{ opacity: 0, visibility: "hidden", color, borderColor: border }}

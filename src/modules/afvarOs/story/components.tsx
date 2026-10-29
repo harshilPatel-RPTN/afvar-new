@@ -75,19 +75,22 @@ export function StoryAct({
   at,
   className,
   rise = 28,
+  name,
   children,
 }: {
   mv: MotionValue<number>;
   at: Window4;
   className?: string;
   rise?: number;
+  /** Act id, exposed as data-act for tests and analytics. */
+  name?: string;
   children: ReactNode;
 }) {
   const opacity = useTransform(mv, (p) => window4(p, at));
   const y = useTransform(mv, (p) => (p < at[2] ? (1 - ramp(p, at[0], at[1])) * rise : -ramp(p, at[2], at[3]) * rise * 0.6));
   const ref = useInertWhileHidden(opacity);
   return (
-    <motion.div ref={ref} className={className} style={{ opacity, y }}>
+    <motion.div ref={ref} className={className} style={{ opacity, y }} data-act={name}>
       <div className="pointer-events-auto">{children}</div>
     </motion.div>
   );

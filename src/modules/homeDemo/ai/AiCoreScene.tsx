@@ -8,66 +8,165 @@
 // (damped progress, clock), so scrolling back replays cleanly.
 import { Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, type RefObject } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
-import { AiCore, COLORS, CoreCanvas, SceneLabel, easeInOut, easeOut, ramp, useStoryFrame, window4, type CoreDrive } from "@/modules/afvarOs";
+import {
+  AiCore,
+  AvatarActor,
+  COLORS,
+  CoreCanvas,
+  SceneLabel,
+  easeInOut,
+  easeOut,
+  ramp,
+  useStoryFrame,
+  window4,
+  type AvatarFrame,
+  type CoreDrive,
+  type Window4,
+} from "@/modules/afvarOs";
 import { playCue } from "../audio";
 import { MachinedArc } from "../MachinedArc";
-import {
-  CAMERA_KEYS,
-  CHIPS_PER_SOURCE,
-  GATE,
-  ORBIT,
-  PLAN,
-  RING,
-  SATELLITES,
-  SETTLED_P,
-  SOUND,
-  SOURCES,
-  STORY,
-  THINK,
-  THINK_OUT,
-  actWeight,
-  columnPos,
-  type Layout,
-} from "./aiConfig";
+import { AVATAR, GATE, ORBIT, RING, SATELLITES, SOURCES, THINK, THINK_OUT, columnPos, type ActId, type Film, type Layout } from "./aiConfig";
 
 export interface AiCoreSceneProps {
+  film: Film;
   progress: RefObject<number>;
   active: boolean;
   still: boolean;
+  /** Portrait framing (phones, tablets upright). */
+  portrait: boolean;
+  /** Lighter scene for small / mobile GPUs. */
+  lite: boolean;
+  /** The avatar is on stage here (false while the OS overlay owns it). */
+  avatarHere: boolean;
   /** Real price chips for the price source, e.g. "XAU/USD 4,012.10 ▼0.41%". */
   priceTexts: readonly string[];
 }
 
-const S = STORY.at;
+const FilmCtx = createContext<{ film: Film; lite: boolean; portrait: boolean } | null>(null);
+function useFilm() {
+  const ctx = useContext(FilmCtx);
+  if (!ctx) throw new Error("useFilm outside AiCoreScene");
+  return ctx;
+}
+const win = (film: Film, id: ActId, w: Window4): Window4 => [film.at(id, w[0]), film.at(id, w[1]), film.at(id, w[2]), film.at(id, w[3])];
 
-export default function AiCoreScene({ progress, active, still, priceTexts }: AiCoreSceneProps) {
+export default function AiCoreScene({ film, progress, active, still, portrait, lite, avatarHere, priceTexts }: AiCoreSceneProps) {
+  const ctx = useMemo(() => ({ film, lite, portrait }), [film, lite, portrait]);
+  const drive = useMemo(() => makeCoreDrive(film), [film]);
   return (
-    <CoreCanvas progress={progress} active={active} still={still} settledP={SETTLED_P} camera={CAMERA_KEYS} cues={SOUND} onCue={playCue}>
-      <AiCore drive={coreDrive} />
-      <Satellites />
-      <Streams priceTexts={priceTexts} />
-      <Reasoning />
-      <ClockRing />
-      <VoiceRings />
-      <PolicyGate />
+    <CoreCanvas
+      progress={progress}
+      active={active}
+      still={still}
+      settledP={film.settledP}
+      camera={portrait ? film.cameraPortrait : film.camera}
+      fov={portrait ? 50 : 38}
+      parallax={portrait ? 0.04 : 0.12}
+      bloom={lite ? 0.55 : 0.75}
+      dpr={lite ? [1, 1.4] : [1, 1.75]}
+      cues={film.sound}
+      onCue={playCue}
+    >
+      <FilmCtx.Provider value={ctx}>
+        <AiCore drive={drive} />
+        <Satellites />
+        <Streams priceTexts={priceTexts} />
+        <Reasoning />
+        <ClockRing />
+        <PolicyGate />
+        {avatarHere ? <SceneAvatar /> : null}
+      </FilmCtx.Provider>
     </CoreCanvas>
   );
 }
 
-const driveOut: CoreDrive = { glow: 1, scale: 1, think: 0, sparks: 1 };
-function coreDrive(p: number): CoreDrive {
-  const stream = actWeight(p, "stream");
-  const think = actWeight(p, "think");
-  const ask = actWeight(p, "ask");
-  const os = ramp(p, S("os", 0.02), S("os", 0.05)) * (1 - ramp(p, S("os", 0.95), S("os", 0.99)));
-  const verdict = window4(p, [S("think", THINK_OUT - 0.04), S("think", THINK_OUT), S("think", 0.92), S("think", 1)]);
-  driveOut.glow = 0.95 + 0.35 * stream + 0.3 * think + 0.6 * verdict + 0.35 * ramp(p, S("finale", 0.3), S("finale", 0.9)) + 1.2 * os;
-  driveOut.think = Math.max(think, ask);
-  driveOut.scale = 1;
-  driveOut.sparks = 1 - os;
-  return driveOut;
+function makeCoreDrive(film: Film) {
+  const out: CoreDrive = { glow: 1, scale: 1, think: 0, sparks: 1 };
+  const A = (f: number) => film.at("avatar", f);
+  return (p: number): CoreDrive => {
+    const stream = film.weight(p, "stream");
+    const think = film.weight(p, "think");
+    const verdict = window4(p, [film.at("think", THINK_OUT - 0.04), film.at("think", THINK_OUT), film.at("think", 0.92), film.at("think", 1)]);
+    // The core becomes the avatar's heart: it shrinks inside the assembling body and returns for trust.
+    const inside = easeInOut(ramp(p, A(0.18), A(0.32))) * (1 - easeOut(ramp(p, film.at("trust", 0.0), film.at("trust", 0.15))));
+    out.glow = 0.95 + 0.35 * stream + 0.3 * think + 0.6 * verdict + 0.35 * ramp(p, film.at("finale", 0.3), film.at("finale", 0.9));
+    out.think = Math.max(think, window4(p, [A(0.56), A(0.6), A(0.64), A(0.68)]));
+    out.scale = Math.max(0.0001, 1 - inside);
+    out.sparks = 1 - inside;
+    return out;
+  };
+}
+
+/* ----------------------------------------------------------- the avatar */
+
+function SceneAvatar() {
+  const { film, portrait, lite } = useFilm();
+  const { smoothed, still } = useStoryFrame();
+  const track = useMemo(() => makeAvatarTrack(film, portrait), [film, portrait]);
+  return <AvatarActor track={track} getP={() => smoothed.current ?? 0} still={still} quality={lite ? "performance" : "balanced"} />;
+}
+
+function makeAvatarTrack(film: Film, portrait: boolean) {
+  const A = (f: number) => film.at("avatar", f);
+  const actEnd = film.has("os") ? film.at("os", 0.06) : film.at("trust", 0.04);
+  const fin = (f: number) => film.at("finale", f);
+  const P = AVATAR.place;
+  return (p: number, _t: number, out: AvatarFrame): AvatarFrame => {
+    const inAct = p >= A(AVATAR.assemble[0]) && p < actEnd;
+    const inFinale = p >= fin(0.12);
+    out.visible = inAct || inFinale;
+    if (!out.visible) return out;
+    out.talk = 0;
+    out.turn = portrait ? 0 : 0.18;
+    out.lean = 0;
+    out.z = 0;
+    if (inFinale) {
+      const k = easeOut(ramp(p, fin(0.12), fin(0.45)));
+      out.x = portrait ? 1.05 : 1.75;
+      out.y = -1.05;
+      out.scale = 0.42 * Math.max(0.001, k);
+      out.explode = 1 - k;
+      out.gesture = "wave";
+      out.emotion = "happy";
+      out.aura = "idle";
+      out.turn = portrait ? -0.15 : -0.25;
+      return out;
+    }
+    const grow = easeOut(ramp(p, A(0.08), A(0.16)));
+    out.x = P.x;
+    out.y = P.y;
+    out.scale = P.scale * Math.max(0.001, grow);
+    out.explode = 1 - easeInOut(ramp(p, A(0.1), A(AVATAR.assemble[1])));
+    if (p < A(AVATAR.wave[0])) {
+      out.gesture = "idle";
+      out.emotion = "curious";
+      out.aura = "connecting";
+    } else if (p < A(AVATAR.listen[0])) {
+      out.gesture = "wave";
+      out.emotion = "happy";
+      out.aura = "idle";
+    } else if (p < A(AVATAR.think[0])) {
+      out.gesture = "listen";
+      out.emotion = "focused";
+      out.aura = "listening";
+    } else if (p < A(AVATAR.answer[0])) {
+      out.gesture = "think";
+      out.emotion = "thinking";
+      out.aura = "thinking";
+    } else if (p < A(AVATAR.answer[1])) {
+      out.gesture = "explain";
+      out.emotion = "confident";
+      out.aura = "speaking";
+      out.talk = 1;
+    } else {
+      out.gesture = "acknowledge";
+      out.emotion = "happy";
+      out.aura = "idle";
+    }
+    return out;
+  };
 }
 
 /* ------------------------------------------------------- seven satellites */
@@ -100,14 +199,15 @@ function place(layout: Layout, i: number, t: number, out: THREE.Vector3) {
 }
 
 /** Index of the core speaking in the think act, or −1. */
-function speakingCore(p: number): number {
-  if (p < S("think", THINK[0].at) || p > S("think", THINK_OUT)) return -1;
+function speakingCore(film: Film, p: number): number {
+  if (p < film.at("think", THINK[0].at) || p > film.at("think", THINK_OUT)) return -1;
   let k = 0;
-  for (let i = 0; i < THINK.length; i++) if (p >= S("think", THINK[i].at)) k = i;
+  for (let i = 0; i < THINK.length; i++) if (p >= film.at("think", THINK[i].at)) k = i;
   return THINK[k].core;
 }
 
 function Satellites() {
+  const { film } = useFilm();
   const { smoothed, still } = useStoryFrame();
   const nodes = useRef<(THREE.Group | null)[]>([]);
   const mats = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
@@ -115,19 +215,19 @@ function Satellites() {
   useFrame((s) => {
     const p = smoothed.current ?? 0;
     const t = still ? 0 : s.clock.elapsedTime;
-    const seg = PLAN.find((x) => p >= x.a && p < x.b) ?? PLAN[PLAN.length - 1];
+    const seg = film.plan.find((x) => p >= x.a && p < x.b) ?? film.plan[film.plan.length - 1];
     const k = easeInOut(ramp(p, seg.a, seg.b));
-    const speaking = speakingCore(p);
-    const quiet = 1 - 0.35 * actWeight(p, "trust") - 0.2 * actWeight(p, "ask");
+    const speaking = speakingCore(film, p);
+    const quiet = 1 - 0.35 * film.weight(p, "trust") - 0.2 * film.weight(p, "avatar");
     nodes.current.forEach((g, i) => {
       place(seg.from, i, t, scratchA);
       place(seg.to, i, t, scratchB);
       satPos[i].copy(scratchA.lerp(scratchB, seg.from === seg.to ? 0 : k));
       if (!g) return;
       g.position.copy(satPos[i]);
-      const born = easeOut(ramp(p, S("cores", 0.1) + i * 0.002, S("cores", 0.3) + i * 0.002));
-      const merged = 1 - easeOut(ramp(p, S("os", 0.0), S("os", 0.04))) * (1 - ramp(p, S("trust", 0.0), S("trust", 0.15)));
-      const back = 1 - easeOut(ramp(p, S("finale", 0.15), S("finale", 0.6)));
+      const born = easeOut(ramp(p, film.at("cores", 0.1) + i * 0.002, film.at("cores", 0.3) + i * 0.002));
+      const merged = 1 - easeOut(ramp(p, film.at("avatar", 0.0), film.at("avatar", 0.1))) * (1 - ramp(p, film.at("trust", 0.0), film.at("trust", 0.15)));
+      const back = 1 - easeOut(ramp(p, film.at("finale", 0.15), film.at("finale", 0.6)));
       const pop = speaking === i ? 1.55 : 1;
       const size = born * merged * back * quiet * pop;
       g.scale.setScalar(Math.max(0.0001, size));
@@ -138,7 +238,7 @@ function Satellites() {
   }, -4);
 
   const labelShow = (p: number) =>
-    Math.max(window4(p, [S("cores", 0.3), S("cores", 0.42), S("cores", 0.9), S("cores", 1)]), actWeight(p, "stream") * 0.95, actWeight(p, "think"));
+    Math.max(window4(p, [film.at("cores", 0.3), film.at("cores", 0.42), film.at("cores", 0.9), film.at("cores", 1)]), film.weight(p, "stream") * 0.95, film.weight(p, "think"));
 
   return (
     <group name="Satellites">
@@ -172,11 +272,14 @@ function Satellites() {
 
 /** Five sources; labelled packets travel along each line into the core that reads them. */
 function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
+  const { film, lite } = useFilm();
+  const { labels } = useStoryFrame();
+  const CHIPS = lite ? 2 : 3;
   const { smoothed, still } = useStoryFrame();
   const group = useRef<THREE.Group>(null);
   const chips = useRef<(THREE.Group | null)[]>([]);
   const chipEls = useRef<(HTMLDivElement | null)[]>([]);
-  const lastText = useRef<number[]>(SOURCES.flatMap(() => Array(CHIPS_PER_SOURCE).fill(-1)));
+  const lastText = useRef<number[]>(SOURCES.flatMap(() => Array(CHIPS).fill(-1)));
   const priceRef = useRef(priceTexts);
   useEffect(() => {
     priceRef.current = priceTexts;
@@ -195,7 +298,7 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
 
   useFrame((s) => {
     const p = smoothed.current ?? 0;
-    const w = actWeight(p, "stream", 0.1);
+    const w = film.weight(p, "stream", 0.1);
     if (group.current) group.current.visible = w > 0.002;
     if (w <= 0.002) {
       // Html chips live in the DOM: a hidden group does not hide them.
@@ -217,13 +320,13 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
       if (lm) lm.opacity = 0.42 * w;
 
       const texts = src.id === "price" ? priceRef.current : src.samples;
-      for (let k = 0; k < CHIPS_PER_SOURCE; k++) {
-        const idx = j * CHIPS_PER_SOURCE + k;
+      for (let k = 0; k < CHIPS; k++) {
+        const idx = j * CHIPS + k;
         const g = chips.current[idx];
         const el = chipEls.current[idx];
         if (!g || !el) continue;
         const speed = 0.16 + j * 0.012;
-        const phase = t * speed + k / CHIPS_PER_SOURCE + j * 0.13;
+        const phase = t * speed + k / CHIPS + j * 0.13;
         const u = phase % 1;
         g.position.copy(origins[j]).lerp(target, easeInOut(u));
         const edge = ramp(u, 0, 0.12) * (1 - ramp(u, 0.82, 0.97));
@@ -238,7 +341,7 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
     });
   });
 
-  const showSources = (p: number) => actWeight(p, "stream", 0.1);
+  const showSources = (p: number) => film.weight(p, "stream", 0.1);
   return (
     <group ref={group} name="Streams" visible={false}>
       {SOURCES.map((src, j) => (
@@ -253,11 +356,11 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
           <SceneLabel position={[src.pos[0] + 0.55, src.pos[1] + 0.3, src.pos[2]]} show={showSources} tone="neutral">
             {src.label}
           </SceneLabel>
-          {Array.from({ length: CHIPS_PER_SOURCE }, (_, k) => {
-            const idx = j * CHIPS_PER_SOURCE + k;
+          {Array.from({ length: CHIPS }, (_, k) => {
+            const idx = j * CHIPS + k;
             return (
               <group key={k} ref={(el) => void (chips.current[idx] = el)}>
-                <Html center zIndexRange={[18, 0]} style={{ pointerEvents: "none" }}>
+                <Html center portal={labels as RefObject<HTMLElement>} zIndexRange={[18, 0]} style={{ pointerEvents: "none" }}>
                   <div
                     ref={(el) => void (chipEls.current[idx] = el)}
                     style={{ opacity: 0 }}
@@ -281,6 +384,7 @@ const PULSES_PER = 3;
 
 /** Gold pulses from every core into the centre while it streams and thinks; the speaking core burns brightest. */
 function Reasoning() {
+  const { film } = useFilm();
   const { smoothed, still } = useStoryFrame();
   const mesh = useRef<THREE.InstancedMesh>(null);
   const m4 = useMemo(() => new THREE.Matrix4(), []);
@@ -291,13 +395,13 @@ function Reasoning() {
 
   useFrame((s) => {
     const p = smoothed.current ?? 0;
-    const w = Math.max(actWeight(p, "stream") * 0.55, actWeight(p, "think"));
+    const w = Math.max(film.weight(p, "stream") * 0.55, film.weight(p, "think"));
     const im = mesh.current;
     if (!im) return;
     im.visible = w > 0.002;
     if (!im.visible) return;
     const t = still ? 0.6 : s.clock.elapsedTime;
-    const speaking = speakingCore(p);
+    const speaking = speakingCore(film, p);
     let n = 0;
     for (let i = 0; i < SATELLITES.length; i++) {
       for (let k = 0; k < PULSES_PER; k++) {
@@ -334,6 +438,7 @@ const SESSIONS = [
 const hourAngle = (h: number) => Math.PI / 2 - (h / 24) * Math.PI * 2;
 
 function ClockRing() {
+  const { film } = useFilm();
   const { smoothed, still } = useStoryFrame();
   const group = useRef<THREE.Group>(null);
   const hand = useRef<THREE.Group>(null);
@@ -348,16 +453,16 @@ function ClockRing() {
 
   useFrame((s) => {
     const p = smoothed.current ?? 0;
-    const w = actWeight(p, "always");
+    const w = film.weight(p, "always");
     if (group.current) {
       group.current.visible = w > 0.002;
       group.current.scale.setScalar(0.85 + 0.15 * w);
     }
-    const day = ramp(p, S("always", 0.15), S("always", 0.95)) * Math.PI * 2 + (still ? 0 : s.clock.elapsedTime * 0.05);
+    const day = ramp(p, film.at("always", 0.15), film.at("always", 0.95)) * Math.PI * 2 + (still ? 0 : s.clock.elapsedTime * 0.05);
     if (hand.current) hand.current.rotation.z = -day;
   });
 
-  const labelWindow = STORY.win("always", [0.25, 0.35, 0.85, 0.95]);
+  const labelWindow = win(film, "always", [0.25, 0.35, 0.85, 0.95]);
   return (
     <group ref={group} name="ClockRing" visible={false}>
       <mesh>
@@ -406,38 +511,10 @@ function ClockRing() {
   );
 }
 
-/* ----------------------------------------------------------- voice rings */
-
-function VoiceRings() {
-  const { smoothed, still } = useStoryFrame();
-  const rings = useRef<(THREE.Mesh | null)[]>([]);
-  useFrame((s) => {
-    const p = smoothed.current ?? 0;
-    const w = actWeight(p, "ask");
-    const t = still ? 0.35 : s.clock.elapsedTime;
-    rings.current.forEach((m, i) => {
-      if (!m) return;
-      const phase = (t * 0.55 + i / 3) % 1;
-      m.visible = w > 0.002;
-      m.scale.setScalar(1.1 + phase * 1.6);
-      (m.material as THREE.MeshBasicMaterial).opacity = w * (1 - phase) * 0.7;
-    });
-  });
-  return (
-    <group name="VoiceRings">
-      {[0, 1, 2].map((i) => (
-        <mesh key={i} ref={(el) => void (rings.current[i] = el)} visible={false}>
-          <torusGeometry args={[0.82, 0.01, 8, 120]} />
-          <meshBasicMaterial color={COLORS.goldHot} transparent opacity={0} toneMapped={false} depthWrite={false} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
 /* --------------------------------------------------------- policy gate */
 
 function PolicyGate() {
+  const { film } = useFilm();
   const { smoothed, still } = useStoryFrame();
   const group = useRef<THREE.Group>(null);
   const packets = useRef<(THREE.Mesh | null)[]>([]);
@@ -446,7 +523,7 @@ function PolicyGate() {
 
   useFrame((s) => {
     const p = smoothed.current ?? 0;
-    const w = actWeight(p, "trust");
+    const w = film.weight(p, "trust");
     if (group.current) {
       group.current.visible = w > 0.002;
       group.current.scale.setScalar(0.6 + 0.4 * w);
@@ -460,16 +537,16 @@ function PolicyGate() {
       m.scale.setScalar(0.07 * w * (u < 0.92 ? 1 : (1 - u) / 0.08));
     });
     if (refused.current) {
-      const u = ramp(p, S("trust", 0.3), S("trust", 0.45));
-      const fade = 1 - ramp(p, S("trust", 0.75), S("trust", 0.88));
+      const u = ramp(p, film.at("trust", 0.3), film.at("trust", 0.45));
+      const fade = 1 - ramp(p, film.at("trust", 0.75), film.at("trust", 0.88));
       refused.current.position.set(0.9 + u * (GATE.x - 1.25), -0.05, 0);
       const flash = u >= 1 && !still ? 0.6 + 0.4 * Math.abs(Math.sin(t * 6)) : 1;
-      refused.current.scale.setScalar(Math.max(0.0001, 0.11 * fade * flash * ramp(p, S("trust", 0.22), S("trust", 0.3))));
+      refused.current.scale.setScalar(Math.max(0.0001, 0.11 * fade * flash * ramp(p, film.at("trust", 0.22), film.at("trust", 0.3))));
     }
   });
 
-  const gateLabel = STORY.win("trust", [0.15, 0.25, 0.85, 0.95]);
-  const refuseLabel = STORY.win("trust", [0.42, 0.48, 0.75, 0.86]);
+  const gateLabel = win(film, "trust", [0.15, 0.25, 0.85, 0.95]);
+  const refuseLabel = win(film, "trust", [0.42, 0.48, 0.75, 0.86]);
   return (
     <group ref={group} name="PolicyGate" visible={false}>
       <group position={[GATE.x, 0, 0]} rotation={[0, Math.PI / 2 - GATE.tilt, 0]}>

@@ -11,6 +11,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useFilmOnScreen } from "./filmPresence";
 import { HAIR, MONO, REGISTER_HREF } from "./ui";
 
 const DISMISS_KEY = "afvar-demo-reminder-dismissed";
@@ -73,7 +74,9 @@ export function LaunchReminder() {
     }
   };
 
-  const show = pastHero && !nearEnd && !dismissed && !scrolling;
+  // The home film carries its own Register buttons; the reminder waits until it is over.
+  const filmOnScreen = useFilmOnScreen();
+  const show = pastHero && !nearEnd && !dismissed && !scrolling && !filmOnScreen;
 
   return (
     <AnimatePresence>

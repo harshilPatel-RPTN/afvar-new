@@ -18,3 +18,5 @@ export { AiCore, CORE_SIZE, type CoreDrive } from "./three/AiCore";
 export { OsScreen, MenuBar, Dock, AppGlyph, AiOrb, dockSlotX, DOCK_ITEM, type DockItem, type AppGlyphName } from "./os/chrome";
 export { OsWindow, Spotlight, Toast, Pointer, SnapGhost } from "./os/window";
 export { MiniChart, type ChartLevel } from "./os/MiniChart";
+export { getAvatarRig, scheduleAvatarBuild, useAvatarRig, avatarFrame, AVATAR_HEIGHT, type AvatarFrame, type AvatarRig, type MotionName } from "./avatar/rig";
+export { AvatarActor, AvatarOverlay, type AvatarTrack } from "./avatar/actors";

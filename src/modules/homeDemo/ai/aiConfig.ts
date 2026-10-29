@@ -1,43 +1,27 @@
 // AFVAR home — "The trading OS that never stops thinking".
-// One continuous scroll film with one protagonist, the AFVAR AI core:
+// One continuous scroll film with one protagonist, the AFVAR AI:
 //
 //   hero     the core is awake; headline + CTA in the first screen
 //   cores    the core opens into seven specialist cores
-//   stream   five data sources stream into the cores — you can read every packet
-//   think    the cores reason together and one verified answer comes out
+//   stream   five sources stream labelled packets into the core that reads them
+//   think    the cores reason in turn; one verified answer comes out
 //   always   the cores ride the 24-hour market ring
-//   ask      it listens (English / हिन्दी) and answers
-//   os       the camera dives into the core and the AFVAR OS boots: apps,
-//            resize, snap, tabs, AI commands, saved layouts, spaces, focus, widgets
+//   avatar   the core gains a body: the AFVAR avatar assembles around it,
+//            waves, listens (English / हिन्दी), thinks and answers
+//   os       (desktop) the camera dives into the avatar's chest screen and the
+//            AFVAR OS boots, with the avatar living in its corner
 //   trust    every request passes the policy gate; trades are refused
-//   finale   everything folds back into the core; register
+//   finale   the core and the avatar close the film; register
 //
-// Scene, overlays, OS film, rail and sound all read these numbers.
-import { defineStory, easeInOut, ramp, type CameraKey, type SceneCue } from "@/modules/afvarOs";
+// Two cuts of the same film: "desktop" (with the OS) and "compact" for phones
+// and tablets (no OS — the avatar is the experience there). Each has a
+// landscape and a portrait camera path. Scene, overlays, OS film, rail and
+// sound all read these numbers.
+import { defineStory, easeInOut, ramp, type CameraKey, type SceneCue, type Story } from "@/modules/afvarOs";
 import type { Cue } from "../audio";
 
-export const STORY = defineStory([
-  { id: "hero", vh: 110, label: "AFVAR AI" },
-  { id: "cores", vh: 200, label: "Multicore" },
-  { id: "stream", vh: 320, label: "Every tick" },
-  { id: "think", vh: 300, label: "How it thinks" },
-  { id: "always", vh: 220, label: "Always on" },
-  { id: "ask", vh: 220, label: "Ask" },
-  { id: "os", vh: 1250, label: "The OS" },
-  { id: "trust", vh: 260, label: "Trust" },
-  { id: "finale", vh: 160, label: "Join" },
-] as const);
-export type ActId = (typeof STORY.order)[number];
-
-/** Mobile / reduced motion render this composed frame (the hero). */
-export const SETTLED_P = 0.012;
-
-/** 0→1→0 presence of an act with a soft edge (in act fractions). */
-export function actWeight(p: number, id: ActId, soft = 0.12): number {
-  const [a, b] = STORY.range[id];
-  const s = (b - a) * soft;
-  return easeInOut(ramp(p, a - s * 0.5, a + s) * (1 - ramp(p, b - s, b + s * 0.5)));
-}
+export type FilmKind = "desktop" | "compact";
+export type ActId = "hero" | "cores" | "stream" | "think" | "always" | "avatar" | "os" | "trust" | "finale";
 
 /* -------------------------------------------------------------- the cores */
 
@@ -53,35 +37,12 @@ export const SATELLITES = [
 
 export const ORBIT = { radius: 2.15, tight: 1.5, tilt: 0.38, speed: 0.12, size: 0.17 };
 export const RING = { radius: 2.25, tube: 0.012 };
-
 export type Layout = "inside" | "orbit" | "tight" | "ring" | "column";
 
 /** The pipeline layout (stream + think): data cores in a column between the sources and the AI. */
 export const COLUMN = { x: 1.9, gap: 1.0, sourceX: 4.6 };
-/** y of the column slot for core i (data cores 0..4), voice/verify sit above/below the AI. */
 export const columnPos = (i: number): readonly [number, number, number] =>
   i < 5 ? [COLUMN.x, (2 - i) * COLUMN.gap, 0] : i === 6 ? [0.1, 1.55, 0.5] : [0.1, -1.55, 0.5];
-
-const S = STORY.at;
-
-/** Where the cores are over the story. */
-export const PLAN: { a: number; b: number; from: Layout; to: Layout }[] = [
-  { a: 0, b: S("cores", 0.1), from: "inside", to: "inside" },
-  { a: S("cores", 0.1), b: S("cores", 0.4), from: "inside", to: "orbit" },
-  { a: S("cores", 0.4), b: S("stream", 0.05), from: "orbit", to: "orbit" },
-  { a: S("stream", 0.05), b: S("stream", 0.2), from: "orbit", to: "column" },
-  { a: S("stream", 0.2), b: S("always", 0.02), from: "column", to: "column" },
-  { a: S("always", 0.02), b: S("always", 0.25), from: "column", to: "ring" },
-  { a: S("always", 0.25), b: S("ask", 0.0), from: "ring", to: "ring" },
-  { a: S("ask", 0.0), b: S("ask", 0.2), from: "ring", to: "tight" },
-  { a: S("ask", 0.2), b: S("os", 0.0), from: "tight", to: "tight" },
-  { a: S("os", 0.0), b: S("os", 0.04), from: "tight", to: "inside" },
-  { a: S("os", 0.04), b: S("trust", 0.0), from: "inside", to: "inside" },
-  { a: S("trust", 0.0), b: S("trust", 0.18), from: "inside", to: "tight" },
-  { a: S("trust", 0.18), b: S("finale", 0.1), from: "tight", to: "tight" },
-  { a: S("finale", 0.1), b: S("finale", 0.6), from: "tight", to: "inside" },
-  { a: S("finale", 0.6), b: 1.01, from: "inside", to: "inside" },
-];
 
 /* ---------------------------------------------------------- data sources */
 
@@ -89,13 +50,12 @@ export type SourceKind = "price" | "macro" | "news" | "account" | "journal";
 
 /** Each source feeds one core — so you can see where every packet goes. */
 export const SOURCES: { id: SourceKind; label: string; core: number; pos: readonly [number, number, number]; samples: readonly string[] }[] = [
-  { id: "price", label: "Price feed · 8 markets", core: 0, pos: [4.6, 2, 0], samples: [] /* real quotes, filled at runtime */ },
-  { id: "macro", label: "Economic calendar", core: 1, pos: [4.6, 1, 0], samples: ["US payrolls · 12:30 UTC", "ECB decision · Thu", "US CPI · next week"] },
-  { id: "news", label: "Newswire", core: 2, pos: [4.6, 0, 0], samples: ["Fed speaker at 18:00 UTC", "OPEC+ output headlines", "China PMI released"] },
-  { id: "account", label: "Your account · read-only", core: 3, pos: [4.6, -1, 0], samples: ["Open risk · 2 positions", "Daily limit used · 40%", "Margin · healthy"] },
-  { id: "journal", label: "Your journal", core: 4, pos: [4.6, -2, 0], samples: ["Plan · wait for London close", "Note · no entries pre-NFP", "Last trade · +1.2R"] },
+  { id: "price", label: "Price feed · 8 markets", core: 0, pos: [COLUMN.sourceX, 2, 0], samples: [] /* real quotes, filled at runtime */ },
+  { id: "macro", label: "Economic calendar", core: 1, pos: [COLUMN.sourceX, 1, 0], samples: ["US payrolls · 12:30 UTC", "ECB decision · Thu", "US CPI · next week"] },
+  { id: "news", label: "Newswire", core: 2, pos: [COLUMN.sourceX, 0, 0], samples: ["Fed speaker at 18:00 UTC", "OPEC+ output headlines", "China PMI released"] },
+  { id: "account", label: "Your account · read-only", core: 3, pos: [COLUMN.sourceX, -1, 0], samples: ["Open risk · 2 positions", "Daily limit used · 40%", "Margin · healthy"] },
+  { id: "journal", label: "Your journal", core: 4, pos: [COLUMN.sourceX, -2, 0], samples: ["Plan · wait for London close", "Note · no entries pre-NFP", "Last trade · +1.2R"] },
 ];
-export const CHIPS_PER_SOURCE = 3;
 
 /* ------------------------------------------------------------- thinking */
 
@@ -110,37 +70,136 @@ export const THINK = [
 ] as const;
 export const THINK_OUT = 0.78;
 
+/* --------------------------------------------------------------- avatar */
+
+/** The avatar act, in act fractions (same in both cuts). */
+export const AVATAR = {
+  merge: [0.0, 0.1] as const, // cores fold into the AI
+  assemble: [0.08, 0.32] as const, // parts fly in around the core
+  wave: [0.32, 0.46] as const,
+  listen: [0.46, 0.58] as const, // the question arrives
+  think: [0.58, 0.66] as const,
+  answer: [0.66, 0.94] as const, // it speaks
+  /** Avatar placement in the 3D stage: feet y, scale (robot units → scene). */
+  place: { x: 0, y: -1.2, scale: 0.44 },
+};
+
 /* ------------------------------------------------------------- the gate */
 
 export const GATE = { x: 2.4, radius: 1.05, tilt: 0.55 };
 
-/* --------------------------------------------------------------- camera */
+/* --------------------------------------------------------------- films */
 
-export const CAMERA_KEYS: CameraKey[] = [
-  { at: 0, pos: [0.2, 0.15, 7.4], look: [-1.35, 0, 0] },
-  { at: S("cores", 0.55), pos: [1.4, 1.25, 8.2], look: [-1.7, 0, 0] },
-  { at: S("stream", 0.25), pos: [0.7, 0.35, 11.2], look: [0.3, 0.05, 0] },
-  { at: S("stream", 0.85), pos: [0.45, 0.2, 11.0], look: [0.3, 0, 0] },
-  { at: S("think", 0.45), pos: [0.35, 0.15, 9.8], look: [0.35, 0, 0] },
-  { at: S("always", 0.5), pos: [-0.2, 0.0, 12.0], look: [-2.45, 0, 0] },
-  { at: S("ask", 0.5), pos: [0.4, 0.25, 7.8], look: [-1.7, 0, 0] },
-  { at: S("os", 0.0), pos: [0.25, 0.1, 4.6], look: [-0.4, 0, 0] },
-  { at: S("os", 0.045), pos: [0.0, 0.0, 1.55], look: [0, 0, 0] },
-  { at: S("os", 0.955), pos: [0.02, 0.0, 1.6], look: [0, 0, 0] },
-  { at: S("trust", 0.35), pos: [0.1, 0.8, 8.6], look: [-0.9, 0, 0] },
-  { at: S("finale", 0.7), pos: [0.2, 0.15, 7.6], look: [-1.35, 0, 0] },
-  { at: 1, pos: [0.2, 0.15, 7.7], look: [-1.35, 0, 0] },
+const ACTS: Record<FilmKind, { id: ActId; vh: number; label: string }[]> = {
+  desktop: [
+    { id: "hero", vh: 110, label: "AFVAR AI" },
+    { id: "cores", vh: 200, label: "Multicore" },
+    { id: "stream", vh: 320, label: "Every tick" },
+    { id: "think", vh: 300, label: "How it thinks" },
+    { id: "always", vh: 220, label: "Always on" },
+    { id: "avatar", vh: 380, label: "Meet AFVAR" },
+    { id: "os", vh: 1250, label: "The OS" },
+    { id: "trust", vh: 260, label: "Trust" },
+    { id: "finale", vh: 160, label: "Join" },
+  ],
+  compact: [
+    { id: "hero", vh: 110, label: "AFVAR AI" },
+    { id: "cores", vh: 200, label: "Multicore" },
+    { id: "stream", vh: 300, label: "Every tick" },
+    { id: "think", vh: 280, label: "How it thinks" },
+    { id: "always", vh: 200, label: "Always on" },
+    { id: "avatar", vh: 440, label: "Meet AFVAR" },
+    { id: "trust", vh: 240, label: "Trust" },
+    { id: "finale", vh: 160, label: "Join" },
+  ],
+};
+
+type V3 = readonly [number, number, number];
+/** A camera beat: where it is in the film, landscape framing, portrait framing. */
+type Beat = { act: ActId; f: number; pos: V3; look: V3; pPos: V3; pLook: V3 };
+
+const BEATS: Beat[] = [
+  { act: "hero", f: 0, pos: [0.2, 0.15, 7.4], look: [-1.35, 0, 0], pPos: [0, -0.4, 9.5], pLook: [0, -1.6, 0] },
+  { act: "cores", f: 0.55, pos: [1.4, 1.25, 8.2], look: [-1.7, 0, 0], pPos: [0, 0.6, 13.6], pLook: [0, -2.1, 0] },
+  { act: "stream", f: 0.25, pos: [0.7, 0.35, 11.2], look: [0.3, 0.05, 0], pPos: [1.05, -0.6, 9.2], pLook: [1.05, -1.6, 0] },
+  { act: "stream", f: 0.85, pos: [0.45, 0.2, 11.0], look: [0.3, 0, 0], pPos: [1.05, -0.6, 9.1], pLook: [1.05, -1.62, 0] },
+  { act: "think", f: 0.45, pos: [0.35, 0.15, 9.8], look: [0.35, 0, 0], pPos: [1.0, -0.6, 8.7], pLook: [1.0, -1.55, 0] },
+  { act: "always", f: 0.5, pos: [-0.2, 0.0, 12.0], look: [-2.45, 0, 0], pPos: [0, -1.9, 16.8], pLook: [0, -3.1, 0] },
+  { act: "avatar", f: 0.2, pos: [0.7, 0.7, 7.6], look: [-1.25, 0.25, 0], pPos: [0, 0.6, 7.2], pLook: [0, -0.8, 0] },
+  { act: "avatar", f: 0.62, pos: [0.25, 0.4, 6.5], look: [-1.25, 0.25, 0], pPos: [0, 0.3, 6.3], pLook: [0, -0.75, 0] },
+  { act: "avatar", f: 0.93, pos: [0.15, 0.35, 6.3], look: [-1.2, 0.25, 0], pPos: [0, 0.3, 6.2], pLook: [0, -0.75, 0] },
+  { act: "os", f: 0.0, pos: [0.05, 0.2, 3.2], look: [0, 0.12, 0], pPos: [0, 0.2, 3.2], pLook: [0, 0.12, 0] },
+  { act: "os", f: 0.045, pos: [0.0, 0.12, 1.25], look: [0, 0.12, 0], pPos: [0, 0.12, 1.25], pLook: [0, 0.12, 0] },
+  { act: "os", f: 0.955, pos: [0.02, 0.12, 1.3], look: [0, 0.12, 0], pPos: [0, 0.12, 1.3], pLook: [0, 0.12, 0] },
+  { act: "trust", f: 0.35, pos: [0.1, 0.8, 8.6], look: [-0.9, 0, 0], pPos: [1.2, -0.8, 9.8], pLook: [1.2, -1.8, 0] },
+  { act: "finale", f: 0.7, pos: [0.2, 0.15, 7.6], look: [-1.35, 0, 0], pPos: [0.45, 0.2, 8.4], pLook: [0.45, -1.15, 0] },
 ];
 
-/* ---------------------------------------------------------------- sound */
+export interface Film {
+  kind: FilmKind;
+  story: Story<ActId>;
+  has: (id: ActId) => boolean;
+  /** Master progress at fraction f of act id (clamped to the film's acts). */
+  at: (id: ActId, f: number) => number;
+  plan: { a: number; b: number; from: Layout; to: Layout }[];
+  camera: CameraKey[];
+  cameraPortrait: CameraKey[];
+  sound: SceneCue<Cue>[];
+  /** 0→1→0 presence of an act with a soft edge (act fractions). */
+  weight: (p: number, id: ActId, soft?: number) => number;
+  /** Composed frame for reduced motion. */
+  settledP: number;
+}
 
-export const SOUND: SceneCue<Cue>[] = [
-  { at: S("cores", 0.12), cue: "latch" },
-  { at: S("stream", 0.12), cue: "tick" },
-  { at: S("think", THINK_OUT), cue: "verdict" },
-  { at: S("always", 0.1), cue: "whoosh" },
-  { at: S("ask", 0.25), cue: "ping" },
-  { at: S("os", 0.02), cue: "whoosh" },
-  { at: S("trust", 0.45), cue: "alert" },
-  { at: S("finale", 0.45), cue: "logo" },
-];
+export function createFilm(kind: FilmKind): Film {
+  const story = defineStory(ACTS[kind]);
+  const has = (id: ActId) => story.order.includes(id);
+  const at = (id: ActId, f: number) => story.at(id, f);
+  const S = at;
+
+  const plan: Film["plan"] = [
+    { a: 0, b: S("cores", 0.1), from: "inside", to: "inside" },
+    { a: S("cores", 0.1), b: S("cores", 0.4), from: "inside", to: "orbit" },
+    { a: S("cores", 0.4), b: S("stream", 0.05), from: "orbit", to: "orbit" },
+    { a: S("stream", 0.05), b: S("stream", 0.2), from: "orbit", to: "column" },
+    { a: S("stream", 0.2), b: S("always", 0.02), from: "column", to: "column" },
+    { a: S("always", 0.02), b: S("always", 0.25), from: "column", to: "ring" },
+    { a: S("always", 0.25), b: S("avatar", 0.0), from: "ring", to: "ring" },
+    { a: S("avatar", 0.0), b: S("avatar", AVATAR.merge[1]), from: "ring", to: "inside" },
+    { a: S("avatar", AVATAR.merge[1]), b: S("trust", 0.0), from: "inside", to: "inside" },
+    { a: S("trust", 0.0), b: S("trust", 0.18), from: "inside", to: "tight" },
+    { a: S("trust", 0.18), b: S("finale", 0.1), from: "tight", to: "tight" },
+    { a: S("finale", 0.1), b: S("finale", 0.6), from: "tight", to: "inside" },
+    { a: S("finale", 0.6), b: 1.01, from: "inside", to: "inside" },
+  ];
+
+  const beats = BEATS.filter((b) => has(b.act));
+  const camera: CameraKey[] = beats.map((b) => ({ at: S(b.act, b.f), pos: b.pos, look: b.look }));
+  const cameraPortrait: CameraKey[] = beats.map((b) => ({ at: S(b.act, b.f), pos: b.pPos, look: b.pLook }));
+  const last = beats[beats.length - 1];
+  camera.push({ at: 1, pos: [last.pos[0], last.pos[1], last.pos[2] + 0.1], look: last.look });
+  cameraPortrait.push({ at: 1, pos: [last.pPos[0], last.pPos[1], last.pPos[2] + 0.1], look: last.pLook });
+
+  const sound: SceneCue<Cue>[] = [
+    { at: S("cores", 0.12), cue: "latch" },
+    { at: S("stream", 0.12), cue: "tick" },
+    { at: S("think", THINK_OUT), cue: "verdict" },
+    { at: S("always", 0.1), cue: "whoosh" },
+    { at: S("avatar", 0.3), cue: "latch" },
+    { at: S("avatar", AVATAR.answer[0]), cue: "ping" },
+    ...(has("os") ? [{ at: S("os", 0.02), cue: "whoosh" as Cue }] : []),
+    { at: S("trust", 0.45), cue: "alert" },
+    { at: S("finale", 0.45), cue: "logo" },
+  ];
+
+  const weight = (p: number, id: ActId, soft = 0.12) => {
+    const [a, b] = story.range[id];
+    const s = (b - a) * soft;
+    return easeInOut(ramp(p, a - s * 0.5, a + s) * (1 - ramp(p, b - s, b + s * 0.5)));
+  };
+
+  return { kind, story, has, at, plan, camera, cameraPortrait, sound, weight, settledP: 0.012 };
+}
+
+export const DESKTOP_FILM = createFilm("desktop");
+export const COMPACT_FILM = createFilm("compact");

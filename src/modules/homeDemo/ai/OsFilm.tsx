@@ -20,6 +20,9 @@ import { motion, useTransform, type MotionValue } from "framer-motion";
 import { type ReactNode } from "react";
 import {
   AiOrb,
+  AvatarOverlay,
+  easeInOut,
+  type AvatarFrame,
   AppGlyph,
   Dock,
   EYEBROW,
@@ -44,21 +47,21 @@ import {
   type DockItem,
 } from "@/modules/afvarOs";
 import { fmtPrice } from "@/modules/home/kit";
-import { STORY } from "./aiConfig";
+import { DESKTOP_FILM } from "./aiConfig";
 import { useNowMinute, sessionsNow, type Quotes } from "./cards";
 
-const U = (u: number) => STORY.at("os", u);
+const U = (u: number) => DESKTOP_FILM.at("os", u);
 const W = (a: number, b: number, c: number, d: number) => [U(a), U(b), U(c), U(d)] as const;
 
 /* --------------------------------------------------------------- beats */
 
 export const OS_BEATS = [
-  { id: "boot", at: W(0.04, 0.07, 0.085, 0.1), title: "A desktop built for trading.", body: "When the AI wakes, your workspace opens around it: menu bar, dock, apps and windows." },
+  { id: "boot", at: W(0.04, 0.07, 0.085, 0.1), title: "A desktop built for trading.", body: "Your workspace opens around the AI, and the avatar takes its corner of the screen." },
   { id: "apps", at: W(0.1, 0.115, 0.19, 0.205), title: "Every tool is an app.", body: "Charts, research, alerts, calendar, risk and journal open like apps on any computer." },
   { id: "windows", at: W(0.205, 0.22, 0.345, 0.36), title: "Windows that behave.", body: "Drag to resize. Drag to the edge and it snaps. Keep every market in its own tab." },
   { id: "ai", at: W(0.36, 0.375, 0.545, 0.56), title: "Tell it what you need.", body: "Type or say it. The AI plans the work, arranges your desktop and shows every step it took." },
   { id: "memory", at: W(0.56, 0.575, 0.745, 0.76), title: "It remembers how you work.", body: "Layouts, window sizes and tabs are saved. Switch spaces, come back, everything is where you left it." },
-  { id: "focus", at: W(0.76, 0.775, 0.96, 0.985), title: "Alerts, focus and widgets.", body: "Risk alerts break through. Everything else waits until you're ready, on desktop and phone." },
+  { id: "focus", at: W(0.76, 0.775, 0.96, 0.985), title: "Alerts, focus and widgets.", body: "Risk alerts break through, and the avatar walks over to tell you. Everything else waits." },
 ] as const;
 const BEAT_NAMES = ["Boot", "Apps", "Windows", "AI", "Memory", "Focus"];
 
@@ -93,10 +96,10 @@ const RESEARCH_LDN: Box = [584, 40, 296, 540];
 const ALERTS_A: Box = [760, 90, 380, 250];
 const CAL_LDN: Box = [12, 380, 276, 200];
 const RISK_LDN: Box = [296, 380, 276, 200];
-const PANEL: Box = [892, 40, 296, 540];
-const PANEL_OUT: Box = [1210, 40, 296, 540];
+const PANEL: Box = [892, 40, 296, 382];
+const PANEL_OUT: Box = [1210, 40, 296, 382];
 
-const KEYS = {
+export const OS_KEYS = {
   chart: [fromDock(0.1, "chart"), k(0.135, CHART_A), k(0.235, CHART_A), k(0.27, CHART_BIG), k(0.285, CHART_BIG), k(0.31, CHART_DRAG), k(0.322, LEFT_HALF), k(0.4, LEFT_HALF), k(0.47, CHART_LDN)],
   research: [fromDock(0.14, "research"), k(0.17, RESEARCH_A), k(0.325, RESEARCH_A), k(0.345, RIGHT_TOP), k(0.4, RIGHT_TOP), k(0.47, RESEARCH_LDN)],
   alerts: [fromDock(0.17, "alerts"), k(0.2, ALERTS_A), k(0.34, ALERTS_A), k(0.36, RIGHT_BOTTOM), k(0.42, RIGHT_BOTTOM), { ...fromDock(0.46, "alerts") }],
@@ -134,7 +137,7 @@ const POINTER_RAW: readonly (readonly [number, number, number, number, number])[
   [0.824, 893, 15, 1, 0],
   [0.84, 893, 15, 0, 0],
 ];
-const POINTER = POINTER_RAW.map(([u, x, y, o, d]) => ({ at: U(u), x, y, o, d }));
+export const POINTER = POINTER_RAW.map(([u, x, y, o, d]) => ({ at: U(u), x, y, o, d }));
 
 /* ----------------------------------------------------------- the film */
 
@@ -162,12 +165,12 @@ export function OsDesktop({ mv, quotes, className = "" }: { mv: MotionValue<numb
     attention: d.id === "alerts" && alertsAttention,
   }));
 
-  const chart = useBoxKeys(mv, KEYS.chart);
-  const research = useBoxKeys(mv, KEYS.research);
-  const alerts = useBoxKeys(mv, KEYS.alerts);
-  const calendar = useBoxKeys(mv, KEYS.calendar);
-  const risk = useBoxKeys(mv, KEYS.risk);
-  const panel = useBoxKeys(mv, KEYS.panel);
+  const chart = useBoxKeys(mv, OS_KEYS.chart);
+  const research = useBoxKeys(mv, OS_KEYS.research);
+  const alerts = useBoxKeys(mv, OS_KEYS.alerts);
+  const calendar = useBoxKeys(mv, OS_KEYS.calendar);
+  const risk = useBoxKeys(mv, OS_KEYS.risk);
+  const panel = useBoxKeys(mv, OS_KEYS.panel);
 
   // chrome entrance
   const barY = useTransform(mv, (p) => (1 - ramp(p, U(0.04), U(0.08))) * -32);
@@ -198,13 +201,18 @@ export function OsDesktop({ mv, quotes, className = "" }: { mv: MotionValue<numb
   const t3y = useTransform(t3, (v) => (1 - v) * -10);
   const t4y = useTransform(t4, (v) => (1 - v) * -10);
 
-  const widgets = useStep(mv, [U(0.885), U(0.9), U(0.915), U(0.93)]);
+  const widgets = useStep(mv, [U(0.885), U(0.9), U(0.915)]);
+  const dim = useTransform(mv, (p) => 0.42 * stepForward(p));
+  const pill = useTransform(mv, (p) => {
+    const away = Math.max(stepForward(p), ramp(p, U(0.765), U(0.772)) * (1 - ramp(p, U(0.868), U(0.875))));
+    return ramp(p, U(0.1), U(0.11)) * (1 - away) * (1 - ramp(p, U(0.975), U(0.985)));
+  });
 
   // boot: the AI orb wakes in the middle of the screen, then settles into the dock
   const orbO = useTransform(mv, (p) => window4(p, [U(0.035), U(0.05), U(0.088), U(0.1)]));
   const orbMove = (p: number) => ramp(p, U(0.072), U(0.098));
-  const orbX = useTransform(mv, (p) => (dockSlotX(0, DOCK_APPS.length) - 600) * orbMove(p));
-  const orbY = useTransform(mv, (p) => 290 * orbMove(p));
+  const orbX = useTransform(mv, (p) => (AVATAR_CORNER.x - 600) * orbMove(p));
+  const orbY = useTransform(mv, (p) => (AVATAR_CORNER.y - 120 - 300) * orbMove(p));
   const orbS = useTransform(mv, (p) => 1 - 0.8 * orbMove(p));
   const bootText = useTransform(mv, (p) => window4(p, [U(0.045), U(0.055), U(0.07), U(0.078)]));
 
@@ -312,12 +320,36 @@ export function OsDesktop({ mv, quotes, className = "" }: { mv: MotionValue<numb
 
       <Dock items={dockItems} style={{ y: dockY }} />
       <Pointer style={{ x: px, y: py, opacity: po }} pressStyle={{ scale: pd }} />
+
+      {/* the avatar's dock: control pill under its feet (hidden while it is away) */}
+      <motion.div
+        className="absolute z-[55] flex items-center gap-2.5 rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(14,17,19,0.95)] px-2.5 py-1.5 text-[11px] text-[#C9CFD1]"
+        style={{ left: AVATAR_CORNER.x - 78, top: AVATAR_CORNER.y + 10, opacity: pill }}
+      >
+        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <rect x="9" y="3" width="6" height="11" rx="3" />
+          <path d="M5 11a7 7 0 0014 0M12 18v3" />
+        </svg>
+        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <path d="M4 9v6h4l5 4V5L8 9zM17 9a4 4 0 010 6" />
+        </svg>
+        <span>Text</span>
+        <span className="relative h-3.5 w-6 rounded-full bg-[#E9B44C]">
+          <span className="absolute right-0.5 top-0.5 h-2.5 w-2.5 rounded-full bg-[#1A1206]" />
+        </span>
+        <span className="tracking-[-0.1em] text-[#6D7578]">⋮⋮</span>
+        <span className="text-[10px] text-[#6D7578]">Drag to move</span>
+      </motion.div>
+      <motion.div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[52] bg-[#050607]" style={{ opacity: dim }} />
+      {STEP_FORWARD.map((sf, i) => (
+        <SpeechBubble key={i} mv={mv} at={sf.at} line={sf.line} />
+      ))}
     </OsScreen>
   );
 }
 
 /** The cinematic wrapper: beat captions, beat strip, phone handoff. */
-export function OsFilm({ mv, quotes }: { mv: MotionValue<number>; quotes: Quotes }) {
+export function OsFilm({ mv, quotes, avatarHere }: { mv: MotionValue<number>; quotes: Quotes; avatarHere: boolean }) {
   const layer = useTransform(mv, (p) => ramp(p, U(0.03), U(0.065)) * (1 - ramp(p, U(0.955), U(0.99))));
   const screenScale = useTransform(mv, (p) => 0.94 + 0.06 * ramp(p, U(0.03), U(0.08)) - 0.04 * ramp(p, U(0.955), U(0.99)));
   const beat = useStep(
@@ -328,7 +360,7 @@ export function OsFilm({ mv, quotes }: { mv: MotionValue<number>; quotes: Quotes
   const phoneY = useTransform(phone, (o) => (1 - o) * 40);
 
   return (
-    <motion.div className="pointer-events-none absolute inset-0 z-20 bg-[#050607]" style={{ opacity: layer }}>
+    <motion.div className="pointer-events-none absolute inset-0 z-20 bg-[#050607]" style={{ opacity: layer }} data-act="os">
       <div className="absolute inset-x-0 top-[112px] flex items-end justify-between gap-8 px-[4vw]">
         <div className="relative h-[92px] min-w-0 flex-1">
           {OS_BEATS.map((b, i) => (
@@ -345,6 +377,7 @@ export function OsFilm({ mv, quotes }: { mv: MotionValue<number>; quotes: Quotes
       </div>
       <motion.div className="absolute inset-x-[4vw] bottom-[3vh] top-[218px]" style={{ scale: screenScale }}>
         <OsDesktop mv={mv} quotes={quotes} className="h-full w-full" />
+        {avatarHere ? <AvatarOverlay mv={mv} track={osAvatarTrack} className="absolute inset-0" /> : null}
       </motion.div>
       <motion.div className="absolute bottom-[5vh] left-[7vw] z-30 w-[176px] rounded-[26px] border border-[rgba(255,255,255,0.18)] bg-[#0A0C0D] p-2.5 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.9)]" style={{ opacity: phone, y: phoneY }}>
         <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-[#2A2F33]" />
@@ -374,6 +407,21 @@ function BeatCaption({ mv, at, index, title, body }: { mv: MotionValue<number>; 
         <h3 className={`${H3} shrink-0`}>{title}</h3>
         <p className="max-w-[34rem] text-[14px] leading-snug text-[#A3AAAC]">{body}</p>
       </div>
+    </motion.div>
+  );
+}
+
+function SpeechBubble({ mv, at, line }: { mv: MotionValue<number>; at: readonly [number, number, number, number]; line: string }) {
+  const o = useTransform(mv, (p) => window4(p, [U(at[1]), U(at[1] + 0.006), U(at[2] - 0.004), U(at[2] + 0.002)]));
+  const typed = useTypedText(mv, line, [U(at[1] + 0.004), U(at[2] - 0.012)]);
+  return (
+    <motion.div className="absolute left-[800px] top-[140px] z-[56] w-[330px] rounded-2xl rounded-bl-sm border border-[rgba(233,180,76,0.5)] bg-[rgba(16,19,21,0.97)] px-4 py-3" style={{ opacity: o }}>
+      <p className={`${MONO} mb-1 flex items-center gap-1.5 text-[9.5px] text-[#E9B44C]`}>
+        <AiOrb size={7} pulse={false} /> AFVAR · speaking
+      </p>
+      <p className="min-h-[2.8em] text-[15px] leading-snug text-[#F5F7F7]">
+        <span ref={typed} />
+      </p>
     </motion.div>
   );
 }
@@ -593,11 +641,7 @@ function Widgets({ step, quotes }: { step: number; quotes: Quotes }) {
           ))}
         </ul>
       </Widget>
-      <Widget shown={step >= 1} title="Next event" h={92}>
-        <p className="text-[14px] font-semibold text-[#F5F7F7]">US payrolls</p>
-        <p className="font-mono text-[11px] text-[#E9B44C]">12:30 UTC · ★★★ · sample</p>
-      </Widget>
-      <Widget shown={step >= 2} title="Daily loss limit" h={110}>
+      <Widget shown={step >= 1} title="Daily loss limit" h={110}>
         <div className="flex items-center gap-3">
           <svg width="58" height="58" viewBox="0 0 36 36" aria-hidden="true">
             <circle cx="18" cy="18" r="15" fill="none" stroke="#1E2326" strokeWidth="4" />
@@ -609,7 +653,7 @@ function Widgets({ step, quotes }: { step: number; quotes: Quotes }) {
           </div>
         </div>
       </Widget>
-      <Widget shown={step >= 3} title="Watchlist" h={110}>
+      <Widget shown={step >= 2} title="Watchlist" h={110}>
         <ul className="space-y-1 font-mono text-[11px]">
           {(["XAUUSD", "EURUSD", "BTC-USD"] as const).map((s) => {
             const q = quotes[s];
@@ -626,4 +670,76 @@ function Widgets({ step, quotes }: { step: number; quotes: Quotes }) {
       </Widget>
     </div>
   );
+}
+
+/* ------------------------------------------------------- the OS avatar */
+
+/** Where the avatar is docked: feet position and height, design px (control pill below its feet). */
+export const AVATAR_CORNER = { x: 1105, y: 606, h: 150 };
+/** Stepping forward to talk to you: big, waist-up, in front of the desktop. */
+const FOREGROUND = { x: 500, y: 830, h: 600 };
+const RISK_SPOT = 655;
+/** os-local windows [in start, in end, out start, out end] of the avatar stepping forward. */
+export const STEP_FORWARD = [
+  { at: [0.112, 0.126, 0.182, 0.198] as const, line: "Good morning. London is open, and I've pulled up your charts." },
+  { at: [0.884, 0.898, 0.93, 0.944] as const, line: "Focus is on. I'll only interrupt you for risk." },
+];
+
+/** The avatar's part in the OS film (os-local fractions). */
+const OS_GESTURES: [u: number, gesture: AvatarFrame["gesture"], emotion: string, aura: string, talk: number][] = [
+  [0.0, "idle", "curious", "connecting", 0],
+  [0.112, "wave", "happy", "idle", 0],
+  [0.13, "talk", "happy", "speaking", 1],
+  [0.182, "pointLeft", "focused", "idle", 0],
+  [0.205, "look", "curious", "idle", 0],
+  [0.36, "think", "thinking", "thinking", 0],
+  [0.445, "explain", "confident", "speaking", 0.6],
+  [0.555, "celebrate", "happy", "idle", 0],
+  [0.6, "look", "curious", "idle", 0],
+  [0.705, "acknowledge", "happy", "idle", 0],
+  [0.765, "idle", "concerned", "serious", 0],
+  [0.79, "pointLeft", "concerned", "speaking", 1],
+  [0.83, "acknowledge", "focused", "idle", 0],
+  [0.85, "idle", "happy", "idle", 0],
+  [0.886, "explain", "confident", "speaking", 1],
+  [0.93, "idle", "happy", "idle", 0],
+  [0.945, "wave", "happy", "idle", 0],
+];
+export const OS_G = OS_GESTURES.map(([u, ...rest]) => [U(u), ...rest] as const);
+
+/** 0..1 how far the avatar has stepped into the foreground. */
+export function stepForward(p: number): number {
+  let w = 0;
+  for (const s of STEP_FORWARD) w = Math.max(w, easeInOut(ramp(p, U(s.at[0]), U(s.at[1]))) * (1 - easeInOut(ramp(p, U(s.at[2]), U(s.at[3])))));
+  return w;
+}
+
+function osAvatarTrack(p: number, t: number, out: AvatarFrame): AvatarFrame {
+  out.visible = p >= U(0.085) && p < U(0.985);
+  if (!out.visible) return out;
+  let g = OS_G[0];
+  for (const row of OS_G) if (p >= row[0]) g = row;
+  out.gesture = g[1];
+  out.emotion = g[2];
+  out.aura = g[3];
+  out.talk = g[4];
+  out.explode = 1 - easeInOut(ramp(p, U(0.088), U(0.11)));
+  // The run: corner → beside Risk Guardian → back to the corner.
+  const go = easeInOut(ramp(p, U(0.765), U(0.79)));
+  const back = easeInOut(ramp(p, U(0.85), U(0.875)));
+  const runningOut = p > U(0.765) && p < U(0.79);
+  const runningBack = p > U(0.85) && p < U(0.875);
+  const running = runningOut || runningBack;
+  const cornerX = AVATAR_CORNER.x + (RISK_SPOT - AVATAR_CORNER.x) * (go - back);
+  const cornerY = AVATAR_CORNER.y - (running ? Math.abs(Math.sin(t * 13)) * 7 : 0);
+  const cornerH = AVATAR_CORNER.h * (0.35 + 0.65 * ramp(p, U(0.085), U(0.1)));
+  // Step forward: dock → foreground and back.
+  const f = stepForward(p);
+  out.x = cornerX + (FOREGROUND.x - cornerX) * f;
+  out.y = cornerY + (FOREGROUND.y - cornerY) * f;
+  out.scale = cornerH + (FOREGROUND.h - cornerH) * f;
+  out.lean = running ? 0.28 : 0;
+  out.turn = runningOut ? -1.25 : runningBack ? 1.25 : -0.38 * (1 - f);
+  if (running) out.gesture = "idle";
+  return out;
 }

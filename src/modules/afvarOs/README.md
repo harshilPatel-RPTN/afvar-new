@@ -46,3 +46,19 @@ sound cues. `<AiCore drive={(p) => ({ glow, scale, think })} />` is the AI. `<Sc
 `<OsWindow title glyph tabs activeTab focused dimmed aiOwned style>`, `<Spotlight typedRef>`, `<Toast tone>`,
 `<Pointer>`, `<SnapGhost>`, `<MiniChart closes levels>`. Positions are motion styles, so they can be driven by a
 scroll timeline today and by real interaction later.
+
+## Avatar (`avatar/`)
+
+The AFVAR robot avatar, natively in our scenes (no iframe). `vendor/` holds `robot.js`, `motions.js` and
+`memory-aura.js` copied unchanged from [AFVAR_Avatar_Final](https://github.com/Sudhakarrupnar/AFVAR_Avatar_Final)
+— change them there and re-vendor.
+
+- The robot is 292k triangles and takes ~0.3–3 s to build, so a page builds it **once**, in idle time:
+  call `scheduleAvatarBuild()` early (e.g. while the hero is on screen).
+- `<AvatarActor track getP />` puts it in a `<CoreCanvas>` scene; `<AvatarOverlay mv track />` puts it over DOM UI
+  laid out in design pixels (it can dock in a corner, walk, run or step into the foreground).
+  Mount only one of them at a time — the same Object3D moves between them.
+- A `track(p, t, out)` returns an `AvatarFrame`: gesture (14 authored motions), emotion (LED face), `talk`
+  (scripted mouth energy), `explode` (assembly), placement, `turn` and `lean`.
+- For real conversation (voice, Gemini) use the site's live avatar widget: `window.dispatchEvent(new CustomEvent("afvar:avatar", { detail: { open: true } }))`;
+  `{ launcher: "hide" | "show" }` asks its floating launcher to step aside while a page shows the avatar itself.

@@ -21,6 +21,10 @@ export function AvatarChatWidget() {
   const { t } = useT();
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>("idle");
+  // Pages can open the chat ("Talk to AFVAR") or ask the launcher to step aside
+  // while they show the avatar themselves: window "afvar:avatar" events with
+  // detail { open?: boolean; launcher?: "hide" | "show" }.
+  const [launcherHidden, setLauncherHidden] = useState(false);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const avatarRef = useRef<AvatarController | null>(null);
 
@@ -49,12 +53,30 @@ export function AvatarChatWidget() {
     }
   };
 
+
   // Hiding pauses rendering and stops voice; showing resumes rendering only.
   const setOpenAndVisibility = (next: boolean) => {
     setOpen(next);
     if (next) ensureMounted();
     avatarRef.current?.setVisible(next).catch(() => {});
   };
+
+  // Uses only refs and state setters, so the first render's closure stays valid.
+  const openFromPage = () => {
+    setOpen(true);
+    ensureMounted();
+    avatarRef.current?.setVisible(true).catch(() => {});
+  };
+  useEffect(() => {
+    const onEvent = (e: Event) => {
+      const detail = (e as CustomEvent<{ open?: boolean; launcher?: "hide" | "show" }>).detail ?? {};
+      if (detail.launcher) setLauncherHidden(detail.launcher === "hide");
+      if (detail.open) openFromPage();
+    };
+    window.addEventListener("afvar:avatar", onEvent);
+    return () => window.removeEventListener("afvar:avatar", onEvent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- openFromPage only touches refs and setters
+  }, []);
 
   const retry = () => {
     avatarRef.current?.dispose();
@@ -64,7 +86,11 @@ export function AvatarChatWidget() {
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-22 right-11 z-120 flex flex-col items-end gap-3">
+    <div
+      className={`pointer-events-none fixed bottom-22 right-11 z-120 flex flex-col items-end gap-3 transition-opacity duration-300 motion-reduce:transition-none ${
+        launcherHidden && !open ? "invisible opacity-0" : "opacity-100"
+      }`}
+    >
       <section
         role="dialog"
         aria-label={t("avatar.title")}

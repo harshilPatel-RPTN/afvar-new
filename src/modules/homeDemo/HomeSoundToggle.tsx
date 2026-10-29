@@ -6,19 +6,29 @@
 // "Tap for sound" and pulses; clicking it then unlocks audio instead of
 // turning sound off.
 import { resumeSound, useSoundState } from "./audio";
+import { useFilmOnScreen } from "./filmPresence";
 
 export function HomeSoundToggle() {
   const [state, setOn] = useSoundState();
   const locked = state === "locked";
   const on = state === "on";
+  // While the home film plays, the switch shrinks to an icon in a free corner
+  // (desktop: bottom-right; phones: top-right under the ticker) so it never sits on captions.
+  const film = useFilmOnScreen();
   return (
-    <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 z-40 flex items-center gap-2 sm:left-6">
+    <div
+      className={`fixed z-40 flex items-center gap-2 ${
+        film
+          ? "right-3 top-[96px] lg:bottom-[max(1rem,env(safe-area-inset-bottom))] lg:right-4 lg:top-auto"
+          : "bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 sm:left-6"
+      }`}
+    >
       <button
         type="button"
         onClick={() => (locked ? resumeSound() : setOn(state === "off"))}
         aria-pressed={state !== "off"}
         aria-label={on ? "Turn sound off" : locked ? "Sound is paused by the browser — tap to start it" : "Turn sound on"}
-        className={`inline-flex items-center gap-2 rounded-full border bg-[#111416] px-3.5 py-2 text-[12px] font-medium shadow-[0_10px_30px_-12px_rgba(0,0,0,.9)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(245,247,247,.6)] ${
+        className={`inline-flex items-center gap-2 rounded-full border bg-[#111416] ${film ? "p-2.5" : "px-3.5 py-2"} text-[12px] font-medium shadow-[0_10px_30px_-12px_rgba(0,0,0,.9)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(245,247,247,.6)] ${
           locked ? "animate-pulse border-[#00E676]/60 text-[#00E676]" : "border-white/[.11] text-(--mk-dim) hover:border-white/[.25] hover:text-(--mk-text)"
         }`}
       >
@@ -33,8 +43,8 @@ export function HomeSoundToggle() {
             </>
           )}
         </svg>
-        <span>{on ? "Sound on" : locked ? "Tap for sound" : "Sound off"}</span>
-        {on && <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#00E676]" />}
+        <span className={film ? "sr-only" : ""}>{on ? "Sound on" : locked ? "Tap for sound" : "Sound off"}</span>
+        {on && !film && <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#00E676]" />}
       </button>
     </div>
   );

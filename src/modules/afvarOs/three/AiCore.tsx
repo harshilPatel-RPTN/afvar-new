@@ -45,9 +45,14 @@ export function AiCore({ drive, position = [0, 0, 0] }: { drive?: (p: number) =>
     const beat = still ? 0.5 : 0.5 + 0.5 * Math.sin(t * Math.PI * 2 * hz);
     const glow = d.glow * (0.82 + 0.36 * beat);
     if (inner.current) inner.current.emissiveIntensity = 0.55 * glow;
-    if (light.current) light.current.intensity = 10 + glow * 10;
+    if (light.current) light.current.intensity = (10 + glow * 10) * Math.min(1, d.scale * d.scale);
     if (nucleus.current) nucleus.current.color.setScalar(1).lerp(HOT, 0.4).multiplyScalar(1.5 + glow);
-    group.current?.scale.setScalar(Math.max(0.0001, d.scale * (1 + 0.03 * beat)));
+    if (group.current) {
+      // A hidden core must not stay in the scene: its glass (transmission) shell
+      // makes three.js render everything twice.
+      group.current.visible = d.scale > 0.002;
+      group.current.scale.setScalar(Math.max(0.0001, d.scale * (1 + 0.03 * beat)));
+    }
     if (!still) {
       if (shell.current) shell.current.rotation.y = t * 0.15;
       if (neural.current) {
@@ -56,7 +61,11 @@ export function AiCore({ drive, position = [0, 0, 0] }: { drive?: (p: number) =>
       }
       if (sparks.current) sparks.current.rotation.y = t * 0.06;
     }
-    if (sparks.current) (sparks.current.material as THREE.PointsMaterial).opacity = 0.55 * (d.sparks ?? 1);
+    if (sparks.current) {
+      const o = 0.55 * (d.sparks ?? 1);
+      sparks.current.visible = o > 0.005;
+      (sparks.current.material as THREE.PointsMaterial).opacity = o;
+    }
   });
 
   const sparkGeo = useMemo(() => {
