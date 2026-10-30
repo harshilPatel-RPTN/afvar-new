@@ -158,7 +158,7 @@ function makeAvatarTrack(film: Film, portrait: boolean) {
     out.z = 0;
     if (inFinale) {
       const k = easeOut(ramp(p, fin(0.12), fin(0.45)));
-      out.x = portrait ? 1.05 : 1.75;
+      out.x = portrait ? 1.05 : 1.45;
       out.y = -1.05;
       out.scale = 0.42 * Math.max(0.001, k);
       out.explode = 1 - k;
@@ -273,7 +273,11 @@ function Satellites() {
 
   const labelsNear = useNear(["cores", "stream", "think"]);
   const labelShow = (p: number) =>
-    Math.max(window4(p, [film.at("cores", 0.3), film.at("cores", 0.42), film.at("cores", 0.9), film.at("cores", 1)]), film.weight(p, "stream") * 0.95, film.weight(p, "think"));
+    Math.max(
+      window4(p, [film.at("cores", 0.3), film.at("cores", 0.42), film.at("cores", 0.9), film.at("cores", 1)]),
+      // in the pipeline only once the cores have settled into their column
+      ramp(p, film.at("stream", 0.2), film.at("stream", 0.26)) * (1 - ramp(p, film.at("think", 0.9), film.at("think", 1))),
+    );
 
   return (
     <group name="Satellites">
@@ -335,7 +339,7 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
 
   useFrame((s) => {
     const p = smoothed.current ?? 0;
-    const w = film.weight(p, "stream", 0.1);
+    const w = film.weight(p, "stream", 0.1) * ramp(p, film.at("stream", 0.18), film.at("stream", 0.25));
     if (group.current) group.current.visible = w > 0.002;
     if (w <= 0.002) {
       // Html chips live in the DOM: a hidden group does not hide them.
@@ -378,7 +382,7 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
     });
   });
 
-  const showSources = (p: number) => film.weight(p, "stream", 0.1);
+  const showSources = (p: number) => film.weight(p, "stream", 0.1) * ramp(p, film.at("stream", 0.18), film.at("stream", 0.25));
   return (
     <group ref={group} name="Streams" visible={false}>
       {SOURCES.map((src, j) => (

@@ -14,7 +14,7 @@ import { MotionConfig, motion, useMotionValue, useTransform, type MotionValue } 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode, type RefObject } from "react";
 import { useLiveMarket } from "@/modules/home/kit";
-import { MONO, StoryAct, StoryRail, ramp, scheduleAvatarBuild, useAfvarReducedMotion, useStep, useStory, type Window4 } from "@/modules/afvarOs";
+import { MONO, StoryAct, StoryRail, getAvatarRig, ramp, scheduleAvatarBuild, useAfvarReducedMotion, useStep, useStory, type Window4 } from "@/modules/afvarOs";
 import {
   AlwaysCopy,
   AvatarCopy,
@@ -104,10 +104,23 @@ export function AiStory() {
   // The 3D stage starts after first paint and the site's intro splash, in idle time —
   // the headline and poster paint first, the WebGL work never competes with them.
   const sceneReady = useSceneReady();
-  // The 292k-triangle avatar is built once the visitor starts scrolling (never during page
-  // load), in idle time — many screens before the avatar act needs it.
-  const scrolled = useStep(progress, [0.004]) >= 0;
-  useEffect(() => (webgl && !reduced && sceneReady && scrolled ? scheduleAvatarBuild(1500) : undefined), [webgl, reduced, sceneReady, scrolled]);
+  // The 292k-triangle avatar (≈0.1 s on a fast laptop, ≈0.5 s on a mid phone) is built once,
+  // in idle time shortly after the 3D stage starts — while the hero is still on screen.
+  const canAvatar = webgl === true && !reduced && sceneReady;
+  useEffect(() => {
+    if (!canAvatar) return;
+    let cancel = () => {};
+    const id = window.setTimeout(() => (cancel = scheduleAvatarBuild(1500)), 2000);
+    return () => {
+      window.clearTimeout(id);
+      cancel();
+    };
+  }, [canAvatar]);
+  // Guarantee: if it is still not built when the film reaches the act before "Meet AFVAR", build now.
+  const nearAvatar = useStep(progress, [film.at("always", 0)]) >= 0;
+  useEffect(() => {
+    if (canAvatar && nearAvatar) getAvatarRig();
+  }, [canAvatar, nearAvatar]);
 
   // The OS owns the avatar (its own overlay) while it is on screen; the 3D stage rests behind it.
   const hasOs = film.has("os");
@@ -207,9 +220,9 @@ function DesktopStage({ mv, trackRef, quotes, film, avatarInOs }: { mv: MotionVa
       </StoryAct>
       <StoryAct mv={mv} at={C.always} name="always" className={`${LEFT} w-[min(32rem,40vw)]`}>
         <AlwaysCopy />
-      </StoryAct>
-      <StoryAct mv={mv} at={C.always} name="always" className={`${BOTTOM_RIGHT} w-[22rem]`}>
-        <SessionCard />
+        <div className="mt-6 max-w-[22rem]">
+          <SessionCard />
+        </div>
       </StoryAct>
       <StoryAct mv={mv} at={avatarCopyWin(film)} name="avatar" className={`${LEFT} w-[min(33rem,40vw)]`}>
         <AvatarCopy />
