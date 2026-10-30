@@ -221,11 +221,13 @@ function CameraRig({
     const k = w >= h * 1.2 ? Math.min(1, Math.max(0, (1680 - w) / 656)) : 0;
     const zoom = Math.round((1 - 0.28 * k ** 1.5) * 1000) / 1000;
     const shift = Math.round(w * 0.045 * Math.min(1, k * 1.6));
+    // Short landscape screens: the header + ticker take ~108 px, so centre the 3D in the space below them.
+    const drop = w >= h * 1.2 ? Math.round(Math.min(28, Math.max(0, (900 - h) * 0.15))) : 0;
     const vo = cam.view;
-    if (cam.fov !== fov || cam.zoom !== zoom || (vo ? -vo.offsetX : 0) !== shift || (vo && (vo.fullWidth !== w || vo.fullHeight !== h))) {
+    if (cam.fov !== fov || cam.zoom !== zoom || (vo ? -vo.offsetX : 0) !== shift || (vo ? -vo.offsetY : 0) !== drop || (vo && (vo.fullWidth !== w || vo.fullHeight !== h))) {
       cam.fov = fov;
       cam.zoom = zoom;
-      if (shift) cam.setViewOffset(w, h, -shift, 0, w, h);
+      if (shift || drop) cam.setViewOffset(w, h, -shift, -drop, w, h);
       else cam.clearViewOffset();
       cam.updateProjectionMatrix();
     }

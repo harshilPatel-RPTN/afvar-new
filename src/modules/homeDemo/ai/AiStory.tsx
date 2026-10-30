@@ -187,7 +187,7 @@ function BootStage() {
 
 /* ============================================================ desktop stage */
 
-const LEFT = "absolute left-10 top-1/2 -translate-y-1/2 xl:left-16";
+const LEFT = "absolute left-10 top-[calc(50%+44px)] -translate-y-1/2 xl:left-16";
 const BOTTOM_RIGHT = "absolute bottom-10 right-[7.5rem]";
 
 function DesktopStage({ mv, trackRef, quotes, film, avatarInOs }: { mv: MotionValue<number>; trackRef: RefObject<HTMLElement | null>; quotes: Quotes; film: Film; avatarInOs: boolean }) {

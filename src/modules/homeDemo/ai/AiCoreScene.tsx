@@ -277,7 +277,9 @@ function Satellites() {
       window4(p, [film.at("cores", 0.3), film.at("cores", 0.42), film.at("cores", 0.9), film.at("cores", 1)]),
       // in the pipeline only once the cores have settled into their column; on portrait
       // screens and the phone cut the think card (which names every core) sits under the column, so they go first
-      ramp(p, film.at("stream", 0.2), film.at("stream", 0.26)) *
+      // (phone landscape: the reading log already routes each line to its core, and space is tight)
+      (film.kind === "compact" && !portrait ? 0 : 1) *
+        ramp(p, film.at("stream", 0.2), film.at("stream", 0.26)) *
         (1 - (portrait || film.kind === "compact" ? ramp(p, film.at("think", 0.0), film.at("think", 0.08)) : ramp(p, film.at("think", 0.9), film.at("think", 1)))),
     );
 
@@ -407,7 +409,7 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
                   <div
                     ref={(el) => void (chipEls.current[idx] = el)}
                     style={{ opacity: 0 }}
-                    className={`whitespace-nowrap rounded-md border px-2 py-0.5 font-mono text-[10.5px] tracking-[0.04em] ${
+                    className={`whitespace-nowrap rounded-md border px-2 py-0.5 font-mono text-[10.5px] tracking-[0.04em] [@media(max-height:520px)]:px-1 [@media(max-height:520px)]:text-[8px] [@media(max-height:520px)]:tracking-normal ${
                       src.id === "price" ? "border-[rgba(0,230,118,0.45)] bg-[#07130D] text-[#C9F5DD]" : "border-[rgba(233,180,76,0.4)] bg-[#141006] text-[#F3DFAF]"
                     }`}
                   />
