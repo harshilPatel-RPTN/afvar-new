@@ -213,8 +213,20 @@ function CameraRig({
     s.camera.position.copy(camPos);
     s.camera.lookAt(camLook);
     const cam = s.camera as THREE.PerspectiveCamera;
-    if (cam.fov !== fov) {
+    // Narrower landscape screens (≈1024–1600 px): the DOM copy column is rem-sized, so it
+    // takes a bigger share of the width. Pull back a little and slide the scene right
+    // so the 3D keeps clear of the copy, as it does on a 1920 screen.
+    const { width: w, height: h } = s.size;
+    // 1920 → none · 1280 → 0.87× and 56 px right · 1024 (4:3) → 0.72× and 46 px right.
+    const k = w >= h * 1.2 ? Math.min(1, Math.max(0, (1680 - w) / 656)) : 0;
+    const zoom = Math.round((1 - 0.28 * k ** 1.5) * 1000) / 1000;
+    const shift = Math.round(w * 0.045 * Math.min(1, k * 1.6));
+    const vo = cam.view;
+    if (cam.fov !== fov || cam.zoom !== zoom || (vo ? -vo.offsetX : 0) !== shift || (vo && (vo.fullWidth !== w || vo.fullHeight !== h))) {
       cam.fov = fov;
+      cam.zoom = zoom;
+      if (shift) cam.setViewOffset(w, h, -shift, 0, w, h);
+      else cam.clearViewOffset();
       cam.updateProjectionMatrix();
     }
   });
@@ -252,7 +264,7 @@ export function SceneLabel({
       <div
         ref={ref}
         style={{ opacity: 0, visibility: "hidden", color, borderColor: border }}
-        className="whitespace-nowrap border bg-[#0F1214] px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.16em]"
+        className="whitespace-nowrap border bg-[#0F1214] px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.16em] [@media(max-height:520px)]:px-1.5 [@media(max-height:520px)]:py-0.5 [@media(max-height:520px)]:text-[8.5px] [@media(max-height:520px)]:tracking-[0.1em]"
       >
         {children}
       </div>

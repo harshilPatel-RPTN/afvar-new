@@ -142,7 +142,7 @@ export function StoryRail<Id extends string>({
                 className="group flex items-center gap-3 py-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E9B44C]"
               >
                 <span
-                  className={`${MONO} text-[10px] transition-opacity ${on ? "text-[#E9B44C] opacity-100" : "text-[#8A9295] opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"}`}
+                  className={`${MONO} text-[10px] transition-opacity ${on ? "text-[#E9B44C] opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 min-[1440px]:opacity-100" : "text-[#8A9295] opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"}`}
                 >
                   {String(i + 1).padStart(2, "0")} {story.labels[id]}
                 </span>

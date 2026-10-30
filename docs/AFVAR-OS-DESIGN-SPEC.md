@@ -90,6 +90,14 @@ Sound cues (opt-in switch): latch, tick, verdict, whoosh, ping, alert, logo on v
 - Landscape phones: caption column on the left below the header, scaled .66 when height ≤520 px.
 - Short desktops: think-act body hides ≤860 px tall, card tightens ≤780/760 px.
 - While the film is on screen: launch reminder waits; sound switch becomes an icon (desktop bottom-right, phones top-right).
+- Narrower landscape screens: the copy column is rem-sized, so `CameraRig` compensates the 3D for width
+  (k = (1680 − w) / 656 when w ≥ 1.2 h): zoom 1 − 0.28 k^1.5 and a right shift of 4.5 % w (via `setViewOffset`).
+  1920 → none · 1280 → 0.87× / 56 px · 1024 (4:3) → 0.72× / 46 px · phone landscape same as 1024.
+  New pages get this for free from `<CoreCanvas>`; keep left-column copy ≤ 42 vw.
+- Scene labels shrink on short screens (≤520 px tall: 8.5 px, tighter padding).
+- Core labels leave as the think card arrives on portrait and on the phone cut (the card names every core).
+- Story rail: the active chapter name shows only ≥1440 px wide (ticks + hover below that), so it never sits on the 3D.
+- Portrait 24 h ring camera pulled back (z 18.3) so every city label fits a 360–390 px phone.
 - Reduced motion: stacked sections, static frames.
 
 ## 9. Performance rules
@@ -98,8 +106,15 @@ Sound cues (opt-in switch): latch, tick, verdict, whoosh, ping, alert, logo on v
 - Main canvas pauses while the OS covers the stage; at most 2 WebGL canvases.
 - Html labels portal into a fixed host div.
 - Measured (Apple M5, Vercel preview): desktop & compact films 120 fps, 0 janky frames, 0 long tasks; LCP 0.93 s; CLS .02.
+- Avatar: idle build 2 s after the stage starts, guaranteed build when the film reaches the act before it
+  (measured: built at ~9 s into a continuous scroll, 99 ms, well before the avatar act).
+- Runtime caching: the avatar rig is a module singleton, so it survives client-side navigation between pages;
+  Next static chunks are immutable-cached, so return visits don't re-download the film.
 
 ## 10. Testing protocol (run before every merge)
 1. **Static**: `tsc`, `eslint`, `vitest` (film invariants, OS keyframes, no repeated copy).
 2. **Browser, 7 viewports** (1440×900, 1280×720, 1024×768, 820×1180, 390×844, 360×640, 844×390): right act visible, nothing under the navbar / cut / overlapping / under floating UI, no horizontal overflow, same state scrolling back, rail jump, Talk button, launcher hand-off, no console errors.
-3. **Performance**: scripted forward/back/forward scroll — frame pacing per act, long tasks, heap growth, canvas count; WebGL-off run isolates DOM cost; Lighthouse mobile + desktop; real-hardware run in the desktop app's browser.
+3. **Alignment matrix**: screenshots per act at 1920×1080, 1280×720, 1024×768, 768×1024, 390×844, 844×390
+   (`align/run.sh`, waits for the rail to settle). Software-GL sandboxes can capture blank frames in the avatar
+   act (292k tris); confirm those on real hardware before treating them as bugs.
+4. **Performance**: scripted forward/back/forward scroll — frame pacing per act, long tasks, heap growth, canvas count; WebGL-off run isolates DOM cost; Lighthouse mobile + desktop; real-hardware run in the desktop app's browser.

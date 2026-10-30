@@ -241,7 +241,7 @@ function speakingCore(film: Film, p: number): number {
 }
 
 function Satellites() {
-  const { film } = useFilm();
+  const { film, portrait } = useFilm();
   const { smoothed, still } = useStoryFrame();
   const nodes = useRef<(THREE.Group | null)[]>([]);
   const mats = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
@@ -275,8 +275,10 @@ function Satellites() {
   const labelShow = (p: number) =>
     Math.max(
       window4(p, [film.at("cores", 0.3), film.at("cores", 0.42), film.at("cores", 0.9), film.at("cores", 1)]),
-      // in the pipeline only once the cores have settled into their column
-      ramp(p, film.at("stream", 0.2), film.at("stream", 0.26)) * (1 - ramp(p, film.at("think", 0.9), film.at("think", 1))),
+      // in the pipeline only once the cores have settled into their column; on portrait
+      // screens and the phone cut the think card (which names every core) sits under the column, so they go first
+      ramp(p, film.at("stream", 0.2), film.at("stream", 0.26)) *
+        (1 - (portrait || film.kind === "compact" ? ramp(p, film.at("think", 0.0), film.at("think", 0.08)) : ramp(p, film.at("think", 0.9), film.at("think", 1)))),
     );
 
   return (

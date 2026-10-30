@@ -329,7 +329,7 @@ function ScrollHint({ mv, compact = false }: { mv: MotionValue<number>; compact?
   const o = useTransform(mv, (p) => 1 - ramp(p, 0.002, 0.012));
   return (
     <motion.div className={`absolute left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 ${compact ? "top-[42%]" : "bottom-8"}`} style={{ opacity: o }}>
-      <p className={`${MONO} text-[#6D7578]`}>Scroll to meet the AI</p>
+      <p className={`${MONO} text-[#8A9295]`}>Scroll to meet the AI</p>
       <div className="h-8 w-px bg-gradient-to-b from-[#E9B44C] to-transparent" />
     </motion.div>
   );
