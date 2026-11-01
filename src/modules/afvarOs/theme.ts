@@ -46,7 +46,7 @@ export const CHIP = "rounded-full border border-[rgba(255,255,255,0.14)] px-3.5 
 
 export const GOLD_CTA =
   "afv-cta afv-gold inline-block rounded-full bg-[#E9B44C] px-6 py-3 text-sm font-semibold text-[#1A1206] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFD98A]";
-export const GHOST_LINK = "afv-link text-sm font-medium text-[#A3AAAC] transition-colors hover:text-[#F5F7F7]";
+export const GHOST_LINK = "afv-link inline-flex min-h-6 items-end text-sm font-medium text-[#A3AAAC] transition-colors hover:text-[#F5F7F7]";
 
 /* -------------------------------------------------------------------- CSS */
 

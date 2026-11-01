@@ -126,10 +126,10 @@ function Wordmark({ label, onClick }: { label: string; onClick?: () => void }) {
       href="/"
       aria-label={label}
       onClick={onClick}
-      className={`inline-flex h-11 shrink-0 items-center rounded-sm text-[19px] font-light tracking-[0.4em] text-(--mk-text) transition-colors hover:text-(--mk-primary-bright) ${focusRing}`}
+      className={`inline-flex h-11 shrink-0 items-center rounded-sm text-[17px] font-light tracking-[0.3em] min-[360px]:text-[19px] min-[360px]:tracking-[0.4em] text-(--mk-text) transition-colors hover:text-(--mk-primary-bright) ${focusRing}`}
     >
       {/* trailing tracking would offset the word; pull it back */}
-      <span className="-mr-[0.4em]">AFVAR</span>
+      <span className="-mr-[0.3em] min-[360px]:-mr-[0.4em]">AFVAR</span>
     </Link>
   );
 }
@@ -550,7 +550,7 @@ export function SiteNav() {
         />
         {/* /home-demo's bull vs bear tug line along the nav's bottom edge (real breadth). */}
         <BreadthStrip />
-        <div className="relative mx-auto flex h-full max-w-[1280px] items-center gap-4 px-4 sm:px-6 lg:px-10">
+        <div className="relative mx-auto flex h-full max-w-[1280px] items-center gap-2 px-3 min-[360px]:gap-4 min-[360px]:px-4 sm:px-6 lg:px-10">
           <Wordmark label={t("mk.nav.logoLabel")} />
 
           <nav aria-label={t("mk.nav.label")} className="hidden flex-1 justify-center lg:flex">
