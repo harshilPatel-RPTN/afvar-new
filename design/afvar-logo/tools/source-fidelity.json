@@ -1,0 +1,40 @@
+{
+  "master": {
+    "path": "reference/approved.png",
+    "canvas": [
+      1254,
+      1254
+    ],
+    "bytes": 1887017,
+    "sha256": "f7896052ef18caad5ac7ede59c10e81bd7428a301967703e061e0c1d718b4eec"
+  },
+  "resampling": "full canvas with Lanczos; no crop, translation, recolor or trace",
+  "assets": [
+    {
+      "path": "assets/approved.webp",
+      "canvas": [
+        640,
+        640
+      ],
+      "bytes": 380996,
+      "sha256": "6b156320f06567f01c28026086c2433fbf6f55f5b483ecf70f2a412812523eb9",
+      "reference_alpha_sha256": "b4b6f51b898486c58426351e8d6eb06c05e03cbba0361bf26e36e34c066c0c78",
+      "alpha_max_absolute_error": 0,
+      "visible_rgb_composite_rmse_0_to_255": 0.0,
+      "display_encoding": "full resampled RGBA; lossless WebP"
+    },
+    {
+      "path": "assets/approved-lite.webp",
+      "canvas": [
+        320,
+        320
+      ],
+      "bytes": 69438,
+      "sha256": "5f9a6e53fab42fd62955a3df4a665e7e4211801bb4f4608fe926511b9cc2cf9f",
+      "reference_alpha_sha256": "dab47fdf8e639cd9c2c805297140940665418a10585bfd6873962ac187419a61",
+      "alpha_max_absolute_error": 0,
+      "visible_rgb_composite_rmse_0_to_255": 5.729,
+      "display_encoding": "256 RGB colors, original alpha; lossless WebP"
+    }
+  ]
+}
