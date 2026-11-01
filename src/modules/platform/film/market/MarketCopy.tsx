@@ -69,7 +69,7 @@ export function HeroCopy({ compact = false }: { compact?: boolean }) {
         {CAP.title}. <span className="text-[#E9B44C]">Every number shows its source.</span>
       </h1>
       <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#A3AAAC]" : `mt-6 max-w-[31rem] ${BODY}`}>
-        {compact ? "Quotes, charts and watchlists in one workspace." : "Quotes, charts, watchlists and heatmaps in one workspace. The Market core reads every feed; the Verify core checks what the AI adds."}
+        {compact ? "Quotes, charts and watchlists in one workspace." : "Quotes, charts, watchlists and heatmaps in one workspace. Ask in plain words and the chart or the watchlist changes to match."}
       </p>
       <div className={`${compact ? "mt-5" : "mt-8"} flex flex-wrap items-center gap-5`}>
         <Link href={REGISTER_URL} prefetch={false} className={GOLD_CTA}>
@@ -81,7 +81,7 @@ export function HeroCopy({ compact = false }: { compact?: boolean }) {
       </div>
       <div className={`${compact ? "mt-5 pt-3" : "mt-10 pt-5"} flex flex-wrap items-center gap-x-6 gap-y-2 border-t ${HAIR}`}>
         <span className={`${MONO} flex items-center gap-2 text-[#E9B44C]`}>
-          <AiOrb size={8} /> Market + Verify cores
+          <AiOrb size={8} /> Metals · energy · forex · crypto
         </span>
         <span className={`${MONO} text-[#6D7578]`}>8 coverage lanes</span>
         {compact ? null : <span className={`${MONO} text-[#6D7578]`}>Live and delayed, labelled</span>}

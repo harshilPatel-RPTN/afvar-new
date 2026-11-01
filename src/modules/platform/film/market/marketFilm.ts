@@ -1,10 +1,10 @@
-// /platform/market-data — "Market Data & Charts". The page's film extends the
-// home's "Every tick" act: the same gold AI core, led here by the Market and
-// Verify cores.
+// /platform/market-data — "Market Data & Charts". The film is built around the
+// page's own centrepiece, not the home's core: the chart itself as a glass
+// wall of Gold's real hourly closes (see PriceWall). Core names (Market core,
+// Verify core) appear only in the acts after the hero.
 //
-//   hero     the core with its two lead cores
-//   feed     four public feeds stream real, labelled quotes into the Market
-//            core; the Verify core passes them to the AI
+//   hero     the price wall, the spark on the newest price, the other markets behind
+//   feed     four public feeds stream real, labelled quotes into eight lines
 //   chart    (OS) ask for the range and trend: the AI draws them in gold, the
 //            analysis lists what the closes show, the avatar says how
 //   watch    (OS) the watchlist grows by asking; the heatmap and the market

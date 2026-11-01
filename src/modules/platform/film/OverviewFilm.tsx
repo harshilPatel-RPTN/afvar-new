@@ -22,7 +22,7 @@ import { AreaList, AreasCopy, CompactHead, FreshnessCard, HeroCopy, OsCaption, O
 import { OverviewOs, OverviewScreen, osIn } from "./OverviewOs";
 import { OVERVIEW_COMPACT, OVERVIEW_DESKTOP, type OverviewFilm as Film } from "./overviewFilm";
 
-const OverviewScene = dynamic(() => import("./OverviewScene"), { ssr: false });
+const PlatformScene = dynamic(() => import("./PlatformScene"), { ssr: false });
 
 const TRACK_CSS = `#afvar-platform{height:${OVERVIEW_COMPACT.story.totalVh}vh}@media (min-width:1024px){#afvar-platform{height:${OVERVIEW_DESKTOP.story.totalVh}vh}}#afvar-platform[data-mode="stacked"]{height:auto}`;
 
@@ -49,7 +49,7 @@ export function OverviewFilm() {
 
   const scene = (still: boolean, run: boolean) =>
     webgl !== false && mounted && sceneReady ? (
-      <OverviewScene film={film} progress={progressRef} active={run} still={still} portrait={portrait} lite={lite} avatarHere={mode === "compact"} />
+      <PlatformScene film={film} progress={progressRef} active={run} still={still} portrait={portrait} lite={lite} avatarHere={mode === "compact"} quotes={quotes} />
     ) : null;
 
   return (

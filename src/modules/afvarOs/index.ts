@@ -2,7 +2,8 @@
 //
 //   theme     colours, type and surface classes, global CSS (gold = the AI)
 //   story     scroll-story engine: defineStory → useStory → StoryAct / StoryRail
-//   three     <CoreCanvas> (look + motion system) and <AiCore> (the protagonist)
+//   three     <CoreCanvas> (look + motion system), <AiCore> (the home's protagonist)
+//             and the material kit for every other page (spark, dust, glass, lines)
 //   os        real OS UI: screen, menu bar, dock, windows with tabs, spotlight,
 //             toasts, pointer, snap ghost, resizable chart
 //
@@ -15,6 +16,7 @@ export { useStory, useAfvarReducedMotion, prefersReducedMotion, type StoryStage 
 export { StoryAct, StoryRail, ProgressBar, useStep, useTypedText, useInertWhileHidden, useBoxKeys, type BoxKeyframe } from "./story/components";
 export { CoreCanvas, SceneLabel, useStoryFrame, type CameraKey, type SceneCue, type CoreCanvasProps } from "./three/stage";
 export { AiCore, CORE_SIZE, type CoreDrive } from "./three/AiCore";
+export { AiSpark, GlassPlate, GlowLine, GoldDust, hdr } from "./three/kit";
 export { AI_CORES, CORE_NODE, CoreNodes, CorePulses, NearRange, coreIndex, orbitPlace, useCorePositions, useNearRange, type AiCoreId } from "./three/parts";
 export { setFilmOnScreen, useFilmOnScreen } from "./film/presence";
 export { useAvatarWarmup, useFilmMode, useFilmPresence, useMedia, useSceneReady, type FilmMode } from "./film/hooks";

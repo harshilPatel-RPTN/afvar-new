@@ -159,7 +159,7 @@ function Stacked({ quotes, scene, revealRef }: { quotes: Quotes; scene: ReactNod
 
 const DEF: CapFilmDef<MarketAct> = {
   id: MARKET_FILM_ID,
-  label: "Market Data & Charts — quotes, charts and watchlists, led by the Market and Verify cores",
+  label: "Market Data & Charts — quotes, charts and watchlists, every price with its source",
   desktop: MARKET_DESKTOP,
   compact: MARKET_COMPACT,
   Scene: MarketScene,

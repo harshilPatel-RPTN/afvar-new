@@ -151,7 +151,7 @@ type Beat = { act: OverviewAct; f: number; pos: V3; look: V3; pPos: V3; pLook: V
 // OS screen is up, the core sits right behind it. Portrait framing keeps the
 // core in the upper third, above the caption panel.
 const BEATS: Beat[] = [
-  { act: "hero", f: 0, pos: [0.2, 0.15, 8.2], look: [-1.45, 0.05, 0], pPos: [0, -0.6, 15.5], pLook: [0, -2.72, 0] },
+  { act: "hero", f: 0, pos: [0.2, 0.15, 8.2], look: [-1.45, 0.05, 0], pPos: [0.42, -0.55, 13.3], pLook: [0.42, -2.2, 0] },
   { act: "ways", f: 0.3, pos: [0.3, 0.1, 9.4], look: [-1.95, 0.1, 0], pPos: [0, -0.5, 10.2], pLook: [0, -1.85, 0] },
   { act: "stop", f: 0.6, pos: [0.3, 0.1, 9.4], look: [-1.95, 0.1, 0], pPos: [0, 0.3, 7.0], pLook: [0, -0.85, 0] },
   { act: "verify", f: 0.35, pos: [0.4, 0.15, 10.4], look: [-1.55, 0.35, 0], pPos: [0, -1.0, 19], pLook: [0, -2.95, 0] },

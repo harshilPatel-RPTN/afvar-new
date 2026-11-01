@@ -132,6 +132,21 @@ Every AI OS page shares, in code (not by copying):
 - **Copy rule**: same look, never the same text — `src/__tests__/same-site-copy.test.tsx` fails if a home sentence
   appears on another page; each page also has its own "no sentence twice" test.
 
+### Page identity (plan rev. 2, 1 Nov 2026) — connected, not the same
+The gold AI core is the **home's** protagonist only (lint rule: `AiCore` / `CORE_SIZE` cannot be imported under
+`src/modules/platform`). Every other page shows its own centrepiece, built from the shared material kit in
+`afvarOs/three/kit.tsx` — `AiSpark` (the core's white-hot nucleus, alone: the AI at work), `GoldDust`, `GlassPlate`
+(smoked glass, gold edge), `GlowLine` (crisp HDR lines; gold = AI, green / red = up / down) — so pages read as one
+family with different silhouettes:
+| Page | Centrepiece | Code |
+|---|---|---|
+| / | the AI core (unchanged) | `homeDemo/ai` |
+| /platform | exploded glass stack: Markets (8 live lines from real closes) → AI (gold circuit, spark) → Workspace (five area tiles) → You (Ask AFVAR bar, voice, EN · हिन्दी); layer names on the right | `platform/film/stack/PlatformStack.tsx`, `PlatformScene.tsx` |
+| /platform/market-data | glass price wall of Gold's real hourly closes (closes only — no invented candles), spark on the newest price with price / change / freshness / source / time; the other seven markets as faint lines behind | `platform/film/market/PriceWall.tsx`, `MarketScene.tsx` |
+Core names (Market core, Verify core, …) appear only in acts after the hero, never in a hero (3D or copy).
+Step A (hero stills) is done; the tables below still describe the acts after the hero as built in rev. 1 until steps
+B / C rebuild them around the new centrepieces. Retired core scenes: `backup/2026-11-01-core-scenes/`.
+
 ### /platform (W2.1) — "The OS, opened up"
 | Act | Desktop vh | Compact vh | What it shows |
 |---|---|---|---|
