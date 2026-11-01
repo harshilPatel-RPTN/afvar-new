@@ -3,8 +3,12 @@ const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 const URL = process.env.URL || "http://localhost:3100/platform";
 const SEC = process.env.SEC || "afvar-platform";
-/** Desktop OS acts render inside one full-bleed OS layer (data-act="os"). */
-const OS_ACTS = ["ways", "stop", "workspace"];
+/** Desktop OS acts render inside one full-bleed OS layer (data-act="os"). Defaults: the /platform overview. */
+const OS_ACTS = (process.env.OS || "ways,stop,workspace").split(",");
+/** Rail check (desktop): from act, to act, the rail label of the target. */
+const [RAIL_FROM, RAIL_TO, RAIL_LABEL] = (process.env.RAIL || "verify:trust:Trust").split(":");
+/** The act in which the film's avatar is on screen (the site launcher must step aside). */
+const AVATAR_ACT = process.env.AV || "stop";
 const VIEWPORTS = (process.env.VP || "1440x900,1280x720,1024x768,820x1180m,390x844m,360x640m,844x390m").split(",");
 const browser = await chromium.launch({ channel: "chrome", args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
 const report = [];
@@ -109,23 +113,23 @@ for (const vp of VIEWPORTS) {
   }
   // rail navigation (desktop)
   if (mode === "desktop") {
-    await go("verify", 0.6);
-    await settle("verify");
-    await page.locator("nav[aria-label='Story chapters'] button").filter({ hasText: "Trust" }).click({ force: true });
-    await page.waitForFunction(() => document.querySelector("nav[aria-label='Story chapters'] button[aria-current=step]")?.textContent?.includes("Trust"), null, { timeout: 30000 }).catch(() => {});
+    await go(RAIL_FROM, 0.6);
+    await settle(RAIL_FROM);
+    await page.locator("nav[aria-label='Story chapters'] button").filter({ hasText: RAIL_LABEL }).click({ force: true });
+    await page.waitForFunction((label) => document.querySelector("nav[aria-label='Story chapters'] button[aria-current=step]")?.textContent?.includes(label), RAIL_LABEL, { timeout: 30000 }).catch(() => {});
     await page.waitForTimeout(2500);
     const s = await state();
     const acts2 = [...new Set(s.vis.map((v) => v.act))];
-    if (!acts2.includes("trust")) fail(`rail → Trust landed on ${JSON.stringify(acts2)}`);
+    if (!acts2.includes(RAIL_TO)) fail(`rail → ${RAIL_LABEL} landed on ${JSON.stringify(acts2)}`);
   }
   // launcher hand-off + Talk button
-  await go("stop", 0.3);
-  await settle("stop");
+  await go(AVATAR_ACT, 0.3);
+  await settle(AVATAR_ACT);
   const launcher = await page.evaluate(() => {
     const btn = [...document.querySelectorAll("button[aria-expanded]")].find((b) => b.querySelector("img[src*='launcher']"));
     return btn ? getComputedStyle(btn.parentElement).visibility : "missing";
   });
-  if (launcher !== "hidden") fail(`launcher not hidden during the stop act (${launcher})`);
+  if (launcher !== "hidden") fail(`launcher not hidden during the ${AVATAR_ACT} act (${launcher})`);
   const talk = page.getByRole("button", { name: "Talk to AFVAR" }).first();
   if (false) {
     // Hit-test like a finger would, then click (Playwright's own stability wait times out at 2 fps).

@@ -1,6 +1,6 @@
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { CapabilityPage, PlatformOverview, REGISTER_URL, capabilityPath, getCapability } from "../index";
+import { CapabilityPage, MarketDataPage, PlatformOverview, REGISTER_URL, capabilityPath, getCapability } from "../index";
 
 // The ⌘K palette and the site navbar use the App Router.
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => "/platform" }));
@@ -79,6 +79,37 @@ describe("PlatformOverview", () => {
     fireEvent.change(input, { target: { value: "buy gold" } });
     fireEvent.keyDown(input, { key: "Enter" });
     expect(screen.getAllByText("AFVAR never places, modifies or closes orders.").length).toBeGreaterThan(0);
+  });
+});
+
+describe("MarketDataPage (AI OS capability template)", () => {
+  it("names the page, sends every Register Now to the app Welcome and links back to the overview", () => {
+    render(<MarketDataPage />);
+    expect(screen.getAllByRole("heading", { level: 1 })[0]).toHaveTextContent("Market Data & Charts.");
+    const register = screen.getAllByRole("link", { name: "Register Now" });
+    expect(register.length).toBeGreaterThan(1);
+    for (const link of register) expect(link).toHaveAttribute("href", REGISTER_URL);
+    expect(screen.getByRole("link", { name: "Platform overview" })).toHaveAttribute("href", "/platform");
+  });
+
+  it("gives every feature a card that jumps to its act in the film", () => {
+    render(<MarketDataPage />);
+    const grid = screen.getByRole("heading", { name: /Six features/ }).closest("section")!;
+    for (const f of getCapability("charts")!.features) {
+      expect(within(grid).getByRole("heading", { name: f.title })).toBeInTheDocument();
+      expect(within(grid).getByRole("button", { name: `Show ${f.title} in the film` })).toBeInTheDocument();
+    }
+  });
+
+  it("offers the other four areas, the related pages and the notes on sources", () => {
+    render(<MarketDataPage />);
+    const others = screen.getByRole("list", { name: "Other capability pages" });
+    const hrefs = within(others)
+      .getAllByRole("link")
+      .map((a) => a.getAttribute("href"));
+    expect(hrefs).toEqual((["research", "alerts", "trade-review", "community"] as const).map(capabilityPath));
+    expect(screen.getByRole("link", { name: /Sources & Evidence/ })).toBeInTheDocument();
+    expect(screen.getByText(/Each price carries its own label/)).toBeInTheDocument();
   });
 });
 

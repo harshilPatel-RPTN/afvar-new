@@ -7,7 +7,7 @@ and software WebGL, so they run on any machine.
 
 | Script | Layer | What it checks |
 |---|---|---|
-| `layer2-film.mjs` | 2 · browser | Any scroll film page (`URL`, `SEC` = the film section id). Seven viewports (`VP`): the right act is visible at every probe, nothing under the navbar / cut / off-screen / under floating UI, no horizontal overflow, same state scrolling back, rail navigation, launcher hand-off, no console errors. |
+| `layer2-film.mjs` | 2 · browser | Any scroll film page (`URL`, `SEC` = the film section id; `OS` = its desktop OS acts, `RAIL` = from:to:Label for the rail jump, `AV` = the act with the avatar). Seven viewports (`VP`): the right act is visible at every probe, nothing under the navbar / cut / off-screen / under floating UI, no horizontal overflow, same state scrolling back, rail navigation, launcher hand-off, no console errors. |
 | `layer2-home.mjs` | 2 · browser | The home film (`/`), including the Talk to AFVAR button and the OS act. |
 | `shots.mjs` | alignment | `node shots.mjs <tag> <w> <h> "act:f,act:f" [waitMs] [mobile]` — one screenshot per act fraction, after the page itself reports the act. Use it for the alignment matrix (1920×1080, 1280×720, 1024×768, 768×1024, 390×844, 844×390). |
 | `grid.py` | alignment | `python3 grid.py <tag> <out.png> [cols] [width]` — contact sheet of a tag's screenshots. |
@@ -17,6 +17,7 @@ Examples:
 
 ```bash
 URL=http://localhost:3100/platform SEC=afvar-platform node scripts/qa/layer2-film.mjs
+URL=http://localhost:3100/platform/market-data SEC=afvar-market-data OS=chart,watch RAIL=feed:insight:Insight AV=chart node scripts/qa/layer2-film.mjs
 URL=http://localhost:3100/platform SEC=afvar-platform node scripts/qa/shots.mjs d1280 1280 720 "hero:0,ways:.85,verify:.5" 5000
 ```
 
