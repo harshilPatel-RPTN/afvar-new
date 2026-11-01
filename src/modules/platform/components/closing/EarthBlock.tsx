@@ -32,6 +32,15 @@ const STARS = Array.from({ length: 180 }, (_, i) => {
   return { x: round(r(1) * 100), y: round(r(2) * 52), size, color, alpha: round(4.5 + r(7) * 5.5) / 10, delay: round(r(4) * 6), duration: round(2.5 + r(5) * 4) };
 });
 
+const TWINKLE_GROUPS = [
+  { delay: 0, duration: 3.1 },
+  { delay: 1.3, duration: 4.4 },
+  { delay: 0.6, duration: 5.2 },
+  { delay: 2.4, duration: 3.7 },
+  { delay: 3.5, duration: 6.1 },
+  { delay: 1.9, duration: 4.9 },
+];
+
 function hasWebGL() {
   try {
     const canvas = document.createElement("canvas");
@@ -95,22 +104,26 @@ export function EarthBlock() {
         )}
         {/* Stars live in the sky above the footer line, never behind the glass. */}
         <div className="absolute inset-x-0 top-0" style={{ bottom: inset }}>
-          {STARS.map((star, i) => (
-            <span
-              key={i}
-              className="pf-twinkle absolute rounded-full"
-              style={{
-                left: `${star.x}%`,
-                top: `${star.y}%`,
-                width: star.size,
-                height: star.size,
-                background: star.color,
-                opacity: star.alpha,
-                boxShadow: star.size >= 2.5 ? `0 0 ${star.size * 2.5}px ${star.color}` : undefined,
-                animationDelay: `${star.delay}s`,
-                animationDuration: `${star.duration}s`,
-              }}
-            />
+          {/* Six scattered groups twinkle on their own clocks: the same random-looking
+              sky as one animation per star, with 6 animated layers instead of 180. */}
+          {TWINKLE_GROUPS.map((g, gi) => (
+            <div key={gi} className="pf-twinkle-group absolute inset-0" style={{ animationDelay: `${g.delay}s`, animationDuration: `${g.duration}s` }}>
+              {STARS.filter((_s, i) => i % TWINKLE_GROUPS.length === gi).map((star, i) => (
+                <span
+                  key={i}
+                  className="absolute rounded-full"
+                  style={{
+                    left: `${star.x}%`,
+                    top: `${star.y}%`,
+                    width: star.size,
+                    height: star.size,
+                    background: star.color,
+                    opacity: Math.min(1, star.alpha * 1.35),
+                    boxShadow: star.size >= 2.5 ? `0 0 ${star.size * 2.5}px ${star.color}` : undefined,
+                  }}
+                />
+              ))}
+            </div>
           ))}
         </div>
       </motion.div>

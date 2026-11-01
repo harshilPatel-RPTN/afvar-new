@@ -400,6 +400,20 @@
     animation-iteration-count: infinite;
   }
 }
+/* Closing sky: groups of stars twinkle together (6 layers, not 180). */
+.pf-twinkle-group { opacity: 0.8; }
+@media (prefers-reduced-motion: no-preference) {
+  .pf-twinkle-group {
+    animation-name: pf-twinkle-group;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    will-change: opacity;
+  }
+}
+@keyframes pf-twinkle-group {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
 @keyframes pf-twinkle {
   0%, 100% { opacity: 0.15; }
   50% { opacity: 1; }
