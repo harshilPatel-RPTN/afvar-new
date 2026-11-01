@@ -26,3 +26,6 @@ export { OsWindow, Spotlight, Toast, Pointer, SnapGhost } from "./os/window";
 export { MiniChart, type ChartLevel } from "./os/MiniChart";
 export { getAvatarRig, scheduleAvatarBuild, useAvatarRig, avatarFrame, AVATAR_HEIGHT, type AvatarFrame, type AvatarRig, type MotionName } from "./avatar/rig";
 export { AvatarActor, AvatarOverlay, type AvatarTrack } from "./avatar/actors";
+export { CandleChart, type ChartCandle, type ChartLevel2 } from "./os/CandleChart";
+export { OsSection, Win, Ask, Note, AvatarLine, DeskLabel, useSection, useAppear, useSectionRamp } from "./sections/OsSection";
+export { Row, Chip, Pct, Steps } from "./sections/bits";

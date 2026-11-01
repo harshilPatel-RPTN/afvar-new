@@ -13,7 +13,7 @@ import { FEATURE_ACT, MARKET_FILM_ID, MARKET_NOTES, type MarketAct } from "../fi
 export const QUOTES = Object.fromEntries(
   ["XAUUSD", "XAGUSD", "WTI", "EURUSD", "USDJPY", "GBPUSD", "NZDUSD", "BTC-USD"].map((k, i) => [
     k,
-    { name: k, last: 100 + i, changePct: i % 2 ? -1.1 * i : 0.7 * i, decimals: 2, closes: [110, 112, 109, 111, 108, 107, 109, 105, 104, 106, 103, 101], live: true, status: i % 3 ? "delayed" : "live", asOf: Date.UTC(2026, 10, 1, 6, 5), source: "Test feed", dir: 1 } satisfies HomeQuote,
+    { name: k, last: 100 + i, changePct: i % 2 ? -1.1 * i : 0.7 * i, decimals: 2, closes: [110, 112, 109, 111, 108, 107, 109, 105, 104, 106, 103, 101], candles: [], live: true, status: i % 3 ? "delayed" : "live", asOf: Date.UTC(2026, 10, 1, 6, 5), source: "Test feed", dir: 1 } satisfies HomeQuote,
   ]),
 );
 

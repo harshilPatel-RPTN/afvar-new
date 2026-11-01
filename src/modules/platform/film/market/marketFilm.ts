@@ -133,3 +133,14 @@ export const MARKET_NOTES = [
   "The range, trend and analysis in the film are worked out from the closes shown on the chart. They describe what happened, not what will happen.",
   "Charts and insights are information, not financial advice.",
 ] as const;
+
+/** Section ids, for the feature cards' "Show me". */
+export const MARKET_SECTION: Record<string, string> = {
+  "Sources, Freshness & Availability": "s02-sources",
+  "Quotes & Charts": "s03-live-candles",
+  "Technical Analysis": "s05-technical-analysis",
+  Watchlists: "s06-watchlists",
+  "Market Overview & Heatmaps": "s07-heatmap-and-overview",
+  "Instrument Insights": "s08-insight",
+};
+

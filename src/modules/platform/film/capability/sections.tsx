@@ -19,6 +19,14 @@ import { APPS } from "../overviewFilm";
 
 /** Scroll the film on `filmId` to act `act` (the act's caption fully shown). */
 export function jumpToAct(filmId: string, act: string) {
+  // OS sections: `act` is the section's id — land where its windows are on screen.
+  const sec = document.getElementById(act);
+  if (sec && sec.tagName === "SECTION") {
+    const smooth = prefersReducedMotion() ? "auto" : "smooth";
+    const span = Math.max(0, sec.offsetHeight - window.innerHeight);
+    window.scrollTo({ top: sec.getBoundingClientRect().top + window.scrollY + span * 0.55, behavior: smooth });
+    return;
+  }
   const track = document.getElementById(filmId);
   if (!track) return;
   const smooth = prefersReducedMotion() ? "auto" : "smooth";

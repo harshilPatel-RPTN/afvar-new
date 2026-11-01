@@ -3,7 +3,8 @@ import { BTN_PRIMARY } from "@/modules/home/kit";
 import { SiteFrame } from "@/modules/homeDemo";
 import { OVERVIEW } from "../content";
 import { REGISTER_URL, pathOf } from "../routes";
-import { OverviewFilm } from "../film/OverviewFilm";
+import { PlatformHero } from "../film/hero/PlatformHero";
+import { PlatformSections } from "../film/sections/PlatformSections";
 import { EarthHorizon } from "./closing/EarthHorizon";
 import { AtAGlanceGrid } from "./overview/AtAGlanceGrid";
 import { TrySection } from "./playground/OsPlayground";
@@ -35,7 +36,8 @@ export function PlatformOverview() {
         </EarthHorizon>
       }
     >
-      <OverviewFilm />
+      <PlatformHero />
+      <PlatformSections />
       <TrySection />
       <AtAGlanceGrid />
     </SiteFrame>
