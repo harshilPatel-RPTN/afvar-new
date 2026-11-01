@@ -15,6 +15,10 @@ export { useStory, useAfvarReducedMotion, prefersReducedMotion, type StoryStage 
 export { StoryAct, StoryRail, ProgressBar, useStep, useTypedText, useInertWhileHidden, useBoxKeys, type BoxKeyframe } from "./story/components";
 export { CoreCanvas, SceneLabel, useStoryFrame, type CameraKey, type SceneCue, type CoreCanvasProps } from "./three/stage";
 export { AiCore, CORE_SIZE, type CoreDrive } from "./three/AiCore";
+export { AI_CORES, CORE_NODE, CoreNodes, CorePulses, NearRange, coreIndex, orbitPlace, useCorePositions, useNearRange, type AiCoreId } from "./three/parts";
+export { setFilmOnScreen, useFilmOnScreen } from "./film/presence";
+export { useAvatarWarmup, useFilmMode, useFilmPresence, useMedia, useSceneReady, type FilmMode } from "./film/hooks";
+export { Poster } from "./film/Poster";
 export { OsScreen, MenuBar, Dock, AppGlyph, AiOrb, dockSlotX, DOCK_ITEM, type DockItem, type AppGlyphName } from "./os/chrome";
 export { OsWindow, Spotlight, Toast, Pointer, SnapGhost } from "./os/window";
 export { MiniChart, type ChartLevel } from "./os/MiniChart";

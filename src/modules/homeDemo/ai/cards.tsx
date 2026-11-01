@@ -8,6 +8,7 @@ import Link from "next/link";
 import { createContext, useContext, useEffect, useRef, useSyncExternalStore } from "react";
 import { fmtPrice, type HomeQuote } from "@/modules/home/kit";
 import { AiOrb, BODY, CARD, CARD_AI, EYEBROW, GHOST_LINK, GOLD_CTA, H1, H2, HAIR, MONO, SOFT, useStep, useTypedText } from "@/modules/afvarOs";
+import { capabilityPath } from "@/modules/platform/kit";
 import { REGISTER_HREF } from "../ui";
 import { AVATAR, SATELLITES, SOURCES, THINK, THINK_OUT, type ActId, type Film } from "./aiConfig";
 
@@ -34,6 +35,15 @@ const H2_COMPACT = "text-[clamp(1.55rem,6.4vw,2.2rem)] font-semibold leading-[1.
 /** Opens the site's live AFVAR avatar (voice + chat). */
 export function openLiveAvatar() {
   window.dispatchEvent(new CustomEvent("afvar:avatar", { detail: { open: true } }));
+}
+
+/** "Explore …" — from a home act to the platform page that shows it in depth. */
+function ExploreLink({ href, children, className = "" }: { href: string; children: string; className?: string }) {
+  return (
+    <Link href={href} className={`${GHOST_LINK} mt-5 inline-flex items-center gap-1.5 text-[13px] ${className}`}>
+      {children} <span aria-hidden="true">→</span>
+    </Link>
+  );
 }
 
 /* ------------------------------------------------------------ market text */
@@ -173,10 +183,15 @@ export function StreamCopy({ compact = false }: { compact?: boolean }) {
         Every tick. <span className={SOFT}>Every source. Into the right core.</span>
       </h2>
       {compact ? null : (
-        <p className={`mt-5 ${BODY}`}>
-          Prices go to the Market core, the calendar to Macro, headlines to News, your account to Risk and your journal to Memory. Nothing waits for you to open a
-          chart.
-        </p>
+        <>
+          <p className={`mt-5 ${BODY}`}>
+            Prices go to the Market core, the calendar to Macro, headlines to News, your account to Risk and your journal to Memory. Nothing waits for you to open a
+            chart.
+          </p>
+          <ExploreLink href={capabilityPath("charts")} className="[@media(max-height:860px)]:hidden">
+            Explore market data
+          </ExploreLink>
+        </>
       )}
     </div>
   );
@@ -273,6 +288,9 @@ export function ThinkCopy() {
         Seven cores weigh in. <span className={SOFT}>One answer comes out, checked.</span>
       </h2>
       <p className={`mt-4 ${BODY} [@media(max-height:860px)]:hidden`}>Every core adds what it knows, including what it knows about you. Verify re-checks the numbers before you see them.</p>
+      <ExploreLink href={capabilityPath("research")} className="mt-3 [@media(max-height:900px)]:hidden">
+        Explore research
+      </ExploreLink>
     </div>
   );
 }
@@ -334,10 +352,13 @@ export function AlwaysCopy({ compact = false }: { compact?: boolean }) {
         It never sleeps. <span className={SOFT}>24 hours, 7 days, every week of every year.</span>
       </h2>
       {compact ? null : (
-        <p className={`mt-5 ${BODY}`}>
-          Sydney hands over to Tokyo, Tokyo to London, London to New York, and crypto never closes. The AI follows each session, so the brief is ready when you
-          are.
-        </p>
+        <>
+          <p className={`mt-5 ${BODY}`}>
+            Sydney hands over to Tokyo, Tokyo to London, London to New York, and crypto never closes. The AI follows each session, so the brief is ready when you
+            are.
+          </p>
+          <ExploreLink href={capabilityPath("alerts")}>Explore alerts</ExploreLink>
+        </>
       )}
     </div>
   );
@@ -520,6 +541,7 @@ export function TrustCopy({ compact = false }: { compact?: boolean }) {
           ))}
         </ol>
       )}
+      {compact ? null : <ExploreLink href={capabilityPath("trade-review")}>Explore risk review</ExploreLink>}
     </div>
   );
 }

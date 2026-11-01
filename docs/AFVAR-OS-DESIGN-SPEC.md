@@ -118,3 +118,28 @@ Sound cues (opt-in switch): latch, tick, verdict, whoosh, ping, alert, logo on v
    (`align/run.sh`, waits for the rail to settle). Software-GL sandboxes can capture blank frames in the avatar
    act (292k tris); confirm those on real hardware before treating them as bugs.
 4. **Performance**: scripted forward/back/forward scroll — frame pacing per act, long tasks, heap growth, canvas count; WebGL-off run isolates DOM cost; Lighthouse mobile + desktop; real-hardware run in the desktop app's browser.
+
+## 11. Pages built on the kit
+Every AI OS page shares, in code (not by copying):
+- **Frame**: `SiteFrame` (homeDemo) — navbar, live ticker, launch reminder, page, closing (earth horizon), footer, sound switch.
+- **Film plumbing** (`afvarOs/film`): `useFilmMode` (desktop / compact / stacked / boot), `useSceneReady`,
+  `useAvatarWarmup`, `useFilmPresence` (sound switch + reminder step aside, launcher hides), `Poster`.
+- **3D vocabulary** (`afvarOs/three/parts`): `AI_CORES`, `CoreNodes`, `CorePulses`, `orbitPlace`, `NearRange` — the
+  home film's exact seven cores and pulses. (The home film still uses its own copies; migrate it with a pixel check.)
+- **OS kit** (`afvarOs/os`) and the avatar (`AvatarActor` in 3D, `AvatarOverlay` over an OS screen).
+- **Layouts**: 3D acts → caption column on the left (`LEFT`); OS acts → caption on top + OS screen below
+  (`inset-x-[4vw] top-[218px]`); phones → bottom caption panel, no OS screens.
+- **Copy rule**: same look, never the same text — `src/__tests__/same-site-copy.test.tsx` fails if a home sentence
+  appears on another page; each page also has its own "no sentence twice" test.
+
+### /platform (W2.1) — "The OS, opened up"
+| Act | Desktop vh | Compact vh | What it shows |
+|---|---|---|---|
+| hero | 110 | 110 | the core with the five capability apps (dark tiles, gold rim) on a drifting ring (r 2.45) |
+| ways | 240 | 200 | OS: Gold chart opened by hand (move, resize, snap, minimise) and by asking; same verified result |
+| stop | 230 | 240 | OS + avatar in its corner: "Stop speaking" keeps the task running; "Cancel task" ends the rest, keeps what is done |
+| verify | 300 | 280 | a pulse walks six stations on a ring around the core (Request → Backend → Resolve → Policy gate → Action runner → Verify), returns along the left |
+| workspace | 280 | 200 | OS: layout saved / Space 2 / restored, notes pinned to the chart, read-only connections, menus switch to हिन्दी |
+| trust | 200 | 180 | promises list + one chart cycling Live / Delayed / Stale / Sample labels |
+| areas | 300 | 280 | the five apps return; the focused one grows, its lead cores burn (charts: Market + Verify; research: News + Macro + Verify; alerts: Market + Memory; risk review: Risk + Memory; community: Voice + Verify + Memory) |
+After the film: **Try it yourself** (interactive OS, desktop; phones get Talk to AFVAR), **At a glance** (ten topics), closing.

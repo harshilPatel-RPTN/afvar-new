@@ -1,7 +1,7 @@
 // Client-safe macOS kit, split from index.ts so client components (W4 pricing)
 // can import it without pulling in PlatformOverview -> ClosingCta -> the
 // server-only SiteFooter (next/headers).
-export { REGISTER_URL } from "./routes";
+export { REGISTER_URL, capabilityPath, pathOf } from "./routes";
 export { PlatformShell } from "./components/PlatformShell";
 export { MacWindow, TrafficLights } from "./components/mac/MacWindow";
 export { Dock } from "./components/mac/Dock";

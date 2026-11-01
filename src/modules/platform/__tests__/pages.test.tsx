@@ -2,8 +2,8 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { CapabilityPage, PlatformOverview, REGISTER_URL, capabilityPath, getCapability } from "../index";
 
-// The ⌘K palette uses the App Router.
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+// The ⌘K palette and the site navbar use the App Router.
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => "/platform" }));
 
 // The closing block renders the markets SiteFooter, an async server component
 // (it reads the edition cookie) that a client test renderer cannot render.
@@ -41,38 +41,44 @@ beforeAll(() => {
 afterEach(cleanup);
 
 describe("PlatformOverview", () => {
-  it("renders the WF03 heading and sends every Register Now to the app Welcome", () => {
+  it("renders the overview heading and sends every Register Now to the app Welcome", () => {
     render(<PlatformOverview />);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("One AI Operating System.");
+    expect(screen.getAllByRole("heading", { level: 1 })[0]).toHaveTextContent("One AI Operating System.");
     const register = screen.getAllByRole("link", { name: "Register Now" });
-    expect(register.length).toBeGreaterThan(0);
+    expect(register.length).toBeGreaterThan(1);
     for (const link of register) expect(link).toHaveAttribute("href", REGISTER_URL);
   });
 
-  it("links each capability card to its page", () => {
+  it("links each of the five areas to its capability page", () => {
     render(<PlatformOverview />);
-    const section = screen.getByRole("heading", { name: "Explore the platform" }).closest("section")!;
-    // URLs come from the route registry (e.g. charts → /platform/market-data).
+    const list = screen.getAllByRole("list", { name: "Capability pages" })[0];
     for (const slug of ["charts", "research", "alerts", "trade-review", "community"] as const) {
-      const links = within(section).getAllByRole("link").filter((a) => a.getAttribute("href") === capabilityPath(slug));
-      expect(links.length).toBeGreaterThan(0);
+      const links = within(list).getAllByRole("link").filter((a) => a.getAttribute("href") === capabilityPath(slug));
+      expect(links.length).toBe(1);
     }
   });
 
-  it("moves through the overview topics with the arrow keys", async () => {
+  it("shows all ten overview topics at a glance", () => {
     render(<PlatformOverview />);
-    const tabs = screen.getAllByRole("tab");
-    expect(tabs).toHaveLength(10);
-    expect(tabs[0]).toHaveAttribute("aria-selected", "true");
+    const section = screen.getByRole("heading", { name: /Ten things to know/ }).closest("section")!;
+    expect(within(section).getAllByRole("heading", { level: 3 })).toHaveLength(10);
+    expect(within(section).getByText("Available Preview / In Development")).toBeInTheDocument();
+  });
 
-    fireEvent.keyDown(tabs[0], { key: "ArrowDown" });
-    expect(screen.getAllByRole("tab")[1]).toHaveAttribute("aria-selected", "true");
-    expect(document.activeElement).toBe(screen.getAllByRole("tab")[1]);
+  it("runs a typed command in the hands-on OS and refuses orders", () => {
+    render(<PlatformOverview />);
+    const input = screen.getByPlaceholderText("Ask AFVAR or type a command");
+    fireEvent.change(input, { target: { value: "open the trade journal" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    // The OS screen is laid out by ResizeObserver (none in jsdom), so it counts as hidden here.
+    // (Matched by attribute: jsdom's selector engine reads "&" as CSS nesting.)
+    const windows = Array.from(document.querySelectorAll("[role=group]")).map((g) => g.getAttribute("aria-label"));
+    expect(windows).toContain("Risk & journal window");
+    expect(screen.getByText("Opened Risk & journal")).toBeInTheDocument();
 
-    fireEvent.keyDown(screen.getAllByRole("tab")[1], { key: "End" });
-    expect(screen.getAllByRole("tab")[9]).toHaveAttribute("aria-selected", "true");
-    // The pane cross-fades (AnimatePresence mode="wait"), so the new topic lands after the exit.
-    await waitFor(() => expect(screen.getByRole("tabpanel")).toHaveTextContent("Available Preview / In Development"));
+    fireEvent.change(input, { target: { value: "buy gold" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(screen.getAllByText("AFVAR never places, modifies or closes orders.").length).toBeGreaterThan(0);
   });
 });
 

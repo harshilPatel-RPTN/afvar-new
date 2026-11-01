@@ -2,6 +2,12 @@
 
 Public website pages for the **Platform** navbar item (Figma board W2, handoff WA 2).
 
+> **Nov 2026 — moving to the AI OS theme of the home page.** `/platform` (W2.1) is rebuilt as a scroll film on the
+> shared `afvarOs` kit (`film/`: `overviewFilm.ts` acts and camera, `OverviewScene.tsx` 3D, `OverviewOs.tsx` OS acts,
+> `OverviewCopy.tsx` captions and cards; `components/playground/OsPlayground.tsx` hands-on OS; `AtAGlanceGrid`), inside
+> the home's `SiteFrame`. See docs/AFVAR-OS-DESIGN-SPEC.md §11. The five capability pages below still use the earlier
+> macOS design (without the old site effects) until they move to the same template.
+
 | Route | Board ref | Wireframe | Component |
 |---|---|---|---|
 | `/platform` | W2.1 Platform Overview | WF03 | `PlatformOverview` |

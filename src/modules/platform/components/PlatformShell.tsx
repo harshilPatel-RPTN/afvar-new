@@ -16,13 +16,15 @@ import { CommandPalette } from "./CommandPalette";
  * sound toggle, the easter egg and the sleeping bull & bear — in the page's
  * own colours.
  */
-export function PlatformShell({ className = "", children }: { className?: string; children: ReactNode }) {
+export function PlatformShell({ className = "", fx = true, children }: { className?: string; fx?: boolean; children: ReactNode }) {
   return (
-    <div data-candle-trail className={`ds-theme pf-theme overflow-x-clip pt-[72px] ${className}`}>
+    <div data-candle-trail={fx ? "" : undefined} className={`ds-theme pf-theme overflow-x-clip pt-[72px] ${className}`}>
       {children}
-      <ClickBurst />
+      {fx ? <ClickBurst /> : null}
       <CommandPalette />
-      <SiteFx />
+      {/* The old home's effects (candle cursor, scroll candle meter, sleeping bull & bear…).
+          Platform pages turn them off (fx={false}) — the AI OS home doesn't have them. */}
+      {fx ? <SiteFx /> : null}
     </div>
   );
 }

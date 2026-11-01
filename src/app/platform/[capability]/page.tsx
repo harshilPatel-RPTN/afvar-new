@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
+import { SiteShell } from "@/modules/markets";
 import { CAPABILITIES, CapabilityPage, capabilityPath, getCapability, getCapabilityBySegment } from "@/modules/platform";
 
 // Only the five W2.2–W2.6 pages exist; anything else is a 404.
@@ -28,7 +29,14 @@ export async function generateMetadata({ params }: PageProps<"/platform/[capabil
 export default async function CapabilityRoute({ params }: PageProps<"/platform/[capability]">) {
   const segment = (await params).capability;
   const capability = getCapabilityBySegment(segment);
-  if (capability) return <CapabilityPage capability={capability} />;
+  // The capability pages keep the public-site chrome (nav, pre-launch strip) until they move to the AI OS theme;
+  // the footer is rendered by their closing block.
+  if (capability)
+    return (
+      <SiteShell footer={false}>
+        <CapabilityPage capability={capability} />
+      </SiteShell>
+    );
   // An old slug URL (/platform/charts, /platform/trade-review): send it to the page's current address.
   const legacy = getCapability(segment);
   if (legacy) permanentRedirect(capabilityPath(legacy.slug));

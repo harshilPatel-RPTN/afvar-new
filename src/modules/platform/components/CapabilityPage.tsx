@@ -11,7 +11,7 @@ import { Ambience } from "@/modules/resources";
 /** W2.2–W2.6: one WF04 template, five pages. The preview and feature grid share focus. */
 export function CapabilityPage({ capability }: { capability: Capability }) {
   return (
-    <PlatformShell>
+    <PlatformShell fx={false}>
       <div className="relative">
         <Ambience />
         <div className="relative">
