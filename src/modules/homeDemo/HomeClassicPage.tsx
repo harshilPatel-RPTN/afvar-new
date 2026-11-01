@@ -4,8 +4,8 @@
 // Flat dark surfaces and hairlines only — no glassmorphism anywhere.
 // The content is the demo's own; the look, motion and sound are inherited
 // from "/" (its theme scope, candle cursor, click burst, scroll candle meter,
-// Konami easter egg and the sleeping bull & bear screensaver).
-import { BTN_PRIMARY, CandleCursor, ClickBurst, EasterEgg, HOME_SCOPE, HomeStyles, IdleScreensaver, ScrollCandleMeter } from "@/modules/home/kit";
+// Konami easter egg and cursor effects).
+import { BTN_PRIMARY, CandleCursor, ClickBurst, EasterEgg, HOME_SCOPE, HomeStyles, ScrollCandleMeter } from "@/modules/home/kit";
 import { HomeSoundToggle } from "./HomeSoundToggle";
 import { SiteFooter, SiteNav } from "@/modules/markets";
 import { EarthHorizon } from "@/modules/platform/kit";
@@ -93,7 +93,6 @@ export function HomeClassicPage() {
       {/* The site-wide sound switch (same as every page); drives this page's audio engine too. */}
       <HomeSoundToggle />
       <EasterEgg />
-      <IdleScreensaver />
     </div>
   );
 }

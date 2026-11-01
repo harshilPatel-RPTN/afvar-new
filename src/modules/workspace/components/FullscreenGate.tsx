@@ -30,7 +30,8 @@ export function FullscreenGate({
   useEffect(() => {
     if (!gated) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Enter" || event.repeat) return;
+      if (event.key !== "Enter" || event.repeat || event.defaultPrevented) return;
+      if (event.target instanceof Element && event.target.closest("a[href], button")) return;
       event.preventDefault();
       void open();
     };

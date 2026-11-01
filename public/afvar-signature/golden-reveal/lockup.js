@@ -46,7 +46,7 @@ export function createLockup(stage, caption, backdrop, nameTarget) {
     caption.style.setProperty('--wordmark-opacity', smooth((frame.formation - .38) / .38) * veil);
     caption.style.setProperty('--dock-weight', p);
     caption.style.setProperty('--surface', 1 - p);
-    if (lastOpening !== frame.open) {
+    if (backdrop && lastOpening !== frame.open) {
       const radius = l.radius * smooth(frame.open);
       const mask = frame.open > 0 && frame.open < 1 && supportsIris
         ? `radial-gradient(circle at ${l.dx}px ${l.dy}px, transparent ${radius}px, black ${radius + 1}px)`

@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { SignatureCaption } from "./SignatureCaption";
+import { SignatureStandby } from "./SignatureStandby";
 import "./signature.css";
 
 const runtimeURL = "/afvar-signature/flight.js";
-const art = "/afvar-signature/golden-reveal";
 
 export function SplashReveal() {
   const root = useRef<HTMLDivElement>(null);
@@ -53,24 +53,13 @@ export function SplashReveal() {
     return () => controller.abort();
   }, []);
 
-  if (finished) return null;
+  if (finished) return <SignatureStandby />;
   return (
     <div ref={root} className="afvar-flight-splash" data-afvar-splash="" data-phase="preparing" aria-hidden="true">
       <noscript><style>{"[data-afvar-splash]{display:none!important}"}</style></noscript>
       <div className="afvar-flight-backdrop" data-signature-backdrop="" />
       <div className="afvar-flight-stage" data-signature-stage="" />
-      <div className="afvar-flight-caption" data-signature-caption="">
-        <div className="afvar-flight-lettering">
-          {/* These two registered alpha masks blend into the exact header artwork during flight. */}
-          <Image unoptimized loading="eager" src={art + "/afvar-wordmark-matched.webp"} width={1009} height={150} alt="" />
-          <Image unoptimized loading="eager" className="afvar-flight-dock-ink" src={art + "/afvar-wordmark-dock.webp"} width={1009} height={150} alt="" />
-          <span className="afvar-flight-sheen" />
-        </div>
-        <div className="afvar-flight-reflection"><div className="afvar-flight-mirror">
-          <Image unoptimized loading="eager" src={art + "/afvar-wordmark-matched.webp"} width={1009} height={150} alt="" />
-          <span className="afvar-flight-sheen" />
-        </div></div>
-      </div>
+      <SignatureCaption />
     </div>
   );
 }

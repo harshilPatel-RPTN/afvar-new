@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { BreadthStrip } from "@/modules/home/kit";
 import { usePathname } from "next/navigation";
@@ -10,7 +9,7 @@ import { useT, type MessageKey } from "@/platform/i18n";
 import { REGISTER_URL } from "../data";
 import { SiteSearch } from "./SiteSearch";
 import { ArrowIcon } from "./ui";
-import "./site-brand.css";
+import { SignatureHomeLink } from "@/platform/ui/SignatureHomeLink";
 
 type NavLink = { href: string; key: MessageKey };
 type NavItem = NavLink & { children?: NavLink[] };
@@ -121,32 +120,6 @@ const mobileItemVariants: Variants = {
   hidden: { opacity: 0, x: 24 },
   show: { opacity: 1, x: 0, transition: { duration: 0.32, ease: EASE } },
 };
-
-// The signature can land once the real navigation has hydrated.
-function markHeaderReady(node: HTMLPictureElement | null) {
-  if (node) node.dataset.afvarBrandReady = "true";
-}
-
-function Wordmark({ label, onClick, landing = false }: { label: string; onClick?: () => void; landing?: boolean }) {
-  return (
-    <Link href="/" aria-label={label} onClick={onClick} className={`afvar-header-brand rounded-sm ${focusRing}`}>
-      <picture className="afvar-header-symbol" data-afvar-brand-mark={landing ? "" : undefined} ref={landing ? markHeaderReady : undefined}>
-        <source media="(max-width: 600px)" srcSet="/afvar-signature/assets/approved-lite.webp" />
-        <img src="/afvar-signature/assets/approved.webp" alt="" width="46" height="46" />
-      </picture>
-      <Image
-        className="afvar-header-name"
-        data-afvar-brand-name={landing ? "" : undefined}
-        src="/afvar-signature/golden-reveal/afvar-wordmark-dock.webp"
-        alt=""
-        width={1009}
-        height={150}
-        unoptimized
-        loading="eager"
-      />
-    </Link>
-  );
-}
 
 /* ------------------------------------------------------------------ */
 /* Desktop dropdown group                                              */
@@ -399,7 +372,7 @@ function MobilePanel({ pathname, onClose, returnFocus }: { pathname: string; onC
         className="mk-glass-blur absolute inset-y-0 right-0 flex h-dvh w-full max-w-[400px] flex-col border-l border-(--mk-glass-border) bg-(--mk-glass-strong) shadow-(--mk-shadow)"
       >
         <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-(--mk-line) px-4 sm:px-6">
-          <Wordmark label={t("mk.nav.logoLabel")} onClick={onClose} />
+          <SignatureHomeLink label={t("mk.nav.logoLabel")} onClick={onClose} className={focusRing} />
           <button
             ref={closeRef}
             type="button"
@@ -559,7 +532,7 @@ export function SiteNav() {
         {/* /home-demo's bull vs bear tug line along the nav's bottom edge (real breadth). */}
         <BreadthStrip />
         <div className="relative flex h-full items-center gap-2 px-4 sm:gap-4 sm:px-6 lg:px-10">
-          <Wordmark label={t("mk.nav.logoLabel")} landing />
+          <SignatureHomeLink label={t("mk.nav.logoLabel")} landing className={focusRing} />
 
           <nav aria-label={t("mk.nav.label")} className="hidden flex-1 justify-center xl:flex">
             <ul

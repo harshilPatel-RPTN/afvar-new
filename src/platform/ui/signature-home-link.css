@@ -52,3 +52,19 @@
     --brand-gap: 6px;
   }
 }
+
+.afvar-auth-home {
+  position: fixed;
+  z-index: 20;
+  inset-block-start: max(12px, env(safe-area-inset-top));
+  inset-inline-start: clamp(16px, 3vw, 32px);
+}
+
+.afvar-auth-home:focus-visible {
+  outline: 2px solid #8ab4f8;
+  outline-offset: 3px;
+}
+
+.afvar-auth-frame main {
+  padding-top: 72px;
+}
