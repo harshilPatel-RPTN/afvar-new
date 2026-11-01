@@ -18,6 +18,7 @@ function blocked() {
   const d = document;
   return (
     d.hidden ||
+    !!d.querySelector("[data-afvar-splash]:not([hidden])") ||
     d.documentElement.hasAttribute("data-mode") || // easter egg running
     !!d.querySelector('[aria-modal="true"],dialog[open]') ||
     !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
@@ -169,6 +170,7 @@ export function IdleScreensaver() {
 
     const opts = { passive: true, capture: true } as const;
     ACTIVITY.forEach((t) => window.addEventListener(t, onActivity, opts));
+    window.addEventListener("afvar:opened", onActivity);
     document.addEventListener("visibilitychange", onVis);
     arm();
     return () => {
@@ -176,6 +178,7 @@ export function IdleScreensaver() {
       window.clearTimeout(offTimer);
       stopSnore();
       ACTIVITY.forEach((t) => window.removeEventListener(t, onActivity, opts));
+      window.removeEventListener("afvar:opened", onActivity);
       document.removeEventListener("visibilitychange", onVis);
     };
   }, [reduce, bullHead, bearHead, bearPaw]);
