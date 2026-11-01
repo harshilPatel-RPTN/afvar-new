@@ -26,3 +26,13 @@ export { MiniChart, type ChartLevel } from "./os/MiniChart";
 export { CandleChart, type ChartCandle, type ChartLevel2 } from "./os/CandleChart";
 export { OsSection, Win, Ask, Note, AvatarLine, DeskLabel, useSection, useAppear, useSectionRamp } from "./sections/OsSection";
 export { Row, Chip, Pct, Steps } from "./sections/bits";
+
+// Compatibility: the home page imports its 3D pieces from here. They are the same
+// exports as ./gl; package.json "sideEffects" lets the bundler drop them from pages
+// that do not use them, so three.js still loads only where a scene mounts.
+export { CoreCanvas, SceneLabel, useStoryFrame, type CoreCanvasProps } from "./three/stage";
+export { AiCore, CORE_SIZE, type CoreDrive } from "./three/AiCore";
+export { AiSpark, GlassPlate, GlowLine, GoldDust, hdr } from "./three/kit";
+export { CORE_NODE, CoreNodes, CorePulses, NearRange, orbitPlace, useCorePositions, useNearRange } from "./three/parts";
+export { getAvatarRig, scheduleAvatarBuild, useAvatarRig, avatarFrame, AVATAR_HEIGHT, type AvatarFrame, type AvatarRig, type MotionName } from "./avatar/rig";
+export { AvatarActor, AvatarOverlay, type AvatarTrack } from "./avatar/actors";

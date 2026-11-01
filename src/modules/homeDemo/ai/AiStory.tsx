@@ -14,8 +14,7 @@ import { MotionConfig, motion, useMotionValue, useTransform, type MotionValue } 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode, type RefObject } from "react";
 import { useLiveMarket } from "@/modules/home/kit";
-import { MONO, StoryAct, StoryRail, ramp, useAfvarReducedMotion, useStep, useStory, type Window4 } from "@/modules/afvarOs";
-import { getAvatarRig, scheduleAvatarBuild } from "@/modules/afvarOs/gl";
+import { MONO, StoryAct, StoryRail, getAvatarRig, ramp, scheduleAvatarBuild, useAfvarReducedMotion, useStep, useStory, type Window4 } from "@/modules/afvarOs";
 import {
   AlwaysCopy,
   AvatarCopy,

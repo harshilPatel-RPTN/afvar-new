@@ -1,0 +1,23 @@
+.afvar-flight-splash { position: fixed; inset: 0; isolation: isolate; overflow: hidden; z-index: 2147483000; touch-action: none; animation: afvar-flight-release 1ms step-end 14s forwards; }
+.afvar-flight-splash:not([data-phase="preparing"]) { animation: none; }
+.afvar-flight-splash[hidden] { display: none; }
+body:not(:has([data-afvar-brand-mark])) .afvar-flight-splash { visibility: hidden; pointer-events: none; }
+@keyframes afvar-flight-release { to { visibility: hidden; pointer-events: none; } }
+.afvar-flight-backdrop { position:absolute; inset:0; background:#000; }
+.afvar-flight-stage { position:absolute; left:50%; top:49%; width:min(55svh,470px,79vw); aspect-ratio:1; transform:translate(-50%,-50%); pointer-events:none; }
+.afvar-flight-splash[data-phase="preparing"] .afvar-flight-stage { visibility:hidden; }
+.afvar-flight-stage > [data-signature-mount] { position:absolute; inset:0; }
+.afvar-flight-stage > canvas { position:absolute; inset:3%; width:94%; height:94%; pointer-events:none; }
+.afvar-flight-caption { position:absolute; top:0; left:0; width:0; opacity:var(--wordmark-opacity,0); transform-origin:0 0; pointer-events:none; }
+.afvar-flight-lettering { position:relative; aspect-ratio:1009 / 150; }
+.afvar-flight-caption img { display:block; width:100%; height:100%; }
+.afvar-flight-dock-ink { position:absolute; inset:0; opacity:var(--dock-weight,0); }
+.afvar-flight-reflection { position:absolute; left:0; top:calc(100% + 2px); width:100%; height:52%; opacity:calc(.36 * var(--surface,1)); mask-image:linear-gradient(to bottom,black,transparent); }
+.afvar-flight-mirror { position:absolute; inset:0; transform:scaleY(-1); }
+.afvar-flight-sheen { position:absolute; inset:0; overflow:hidden; opacity: var(--surface,1); mask:url("/afvar-signature/golden-reveal/afvar-wordmark-matched.webp") center / 100% 100% no-repeat; }
+.afvar-flight-sheen::after { content:""; position:absolute; inset:-15% 0; background:linear-gradient(108deg,transparent 28%,#9976ff80 40%,#a2e6ffcb 46%,#fffaf2 50%,#ffe7adc9 54%,transparent 64%); animation:afvar-flight-reflection-light 3.2s linear infinite; }
+@keyframes afvar-flight-reflection-light { from { transform:translateX(-90%); } 70%,to { transform:translateX(90%); } }
+.afvar-flight-splash[data-phase="docking"] :is(.afvar-flight-stage,.afvar-flight-caption) { will-change:transform,opacity; }
+@media(max-width:600px) { .afvar-flight-stage { top:45%; width:min(82vw,55svh,410px); } }
+@media(max-height:390px) { .afvar-flight-stage { top:43%; width:min(60vw,57svh); } .afvar-flight-reflection {height:42%;} }
+@media(prefers-reduced-motion:reduce) { .afvar-flight-splash { display:none; } }

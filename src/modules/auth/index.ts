@@ -1,4 +1,5 @@
 // PUBLIC API of the auth module.
+export { AuthPageFrame } from "./components/AuthPageFrame";
 export { AuthCard, AuthField, AuthSelect, BrandMark, FormNotice, SubmitButton, safeNext, useShake } from "./components/AuthCard";
 export { LoginView } from "./components/LoginView";
 export { RegisterView, StrengthMeter } from "./components/RegisterView";

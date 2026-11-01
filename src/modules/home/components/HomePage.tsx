@@ -1,7 +1,6 @@
 import { CandleCursor } from "./CandleCursor";
 import { ClickBurst } from "./ClickBurst";
 import { EasterEgg } from "./EasterEgg";
-import { IdleScreensaver } from "./IdleScreensaver";
 import { ScrollCandleMeter } from "./ScrollCandleMeter";
 import { SoundToggle } from "./SoundToggle";
 import { FloatingCta, ScrollProgress } from "./FloatingCta";
@@ -54,7 +53,6 @@ export function HomePage() {
       <SoundToggle />
       <FloatingCta />
       <EasterEgg />
-      <IdleScreensaver />
     </SiteShell>
   );
 }

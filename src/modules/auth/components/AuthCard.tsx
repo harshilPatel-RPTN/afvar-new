@@ -2,9 +2,21 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from "react";
+import { createContext, useContext, useState, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from "react";
 import { motion, useAnimationControls } from "framer-motion";
 import { useT } from "@/platform/i18n";
+import { SignatureHomeLink } from "@/platform/ui/SignatureHomeLink";
+
+const BrandInFrame = createContext(false);
+
+function AuthHomeLink() {
+  const { t } = useT();
+  return <SignatureHomeLink label={t("mk.nav.logoLabel")} className="afvar-auth-home" landing />;
+}
+
+export function AuthBrandFrame({ children }: { children: ReactNode }) {
+  return <BrandInFrame.Provider value={true}><AuthHomeLink />{children}</BrandInFrame.Provider>;
+}
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -34,16 +46,10 @@ interface AuthCardProps {
 }
 
 export function AuthCard({ eyebrow, title, subtitle, shake, children, footer, width = "max-w-[440px]" }: AuthCardProps) {
-  const { t } = useT();
+  const brandInFrame = useContext(BrandInFrame);
   return (
     <main className="relative z-10 flex min-h-svh flex-col items-center justify-center px-4 py-14 text-[#E6EDF3]">
-      <Link
-        href="/"
-        className="absolute inset-s-5 top-5 flex items-center gap-2 text-[12px] font-semibold tracking-[.22em] text-white/80 hover:text-white sm:inset-s-8"
-      >
-        <BrandMark className="h-5 w-5 text-[#8AB4F8]" />
-        {t("brand.name")}
-      </Link>
+      {!brandInFrame && <AuthHomeLink />}
 
       <motion.div
         className={`w-full ${width}`}

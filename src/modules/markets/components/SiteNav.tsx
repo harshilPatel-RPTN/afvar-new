@@ -9,6 +9,7 @@ import { useT, type MessageKey } from "@/platform/i18n";
 import { REGISTER_URL } from "../data";
 import { SiteSearch } from "./SiteSearch";
 import { ArrowIcon } from "./ui";
+import { SignatureHomeLink } from "@/platform/ui/SignatureHomeLink";
 
 type NavLink = { href: string; key: MessageKey };
 type NavItem = NavLink & { children?: NavLink[] };
@@ -63,7 +64,7 @@ const focusRing =
   "outline-none focus-visible:ring-2 focus-visible:ring-(--mk-primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--mk-page)";
 
 /** Gold pill. Hover: colour + lift transition; the stronger glow is an opacity-only overlay (`JoinGlow`), never an animated box-shadow. */
-const joinButton = `group relative inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-(--mk-primary) px-5 text-[13px] font-semibold text-(--mk-on-primary) shadow-(--mk-glow-primary) transition-[color,background-color,border-color,opacity,transform] duration-300 hover:bg-(--mk-primary-bright) motion-safe:hover:-translate-y-0.5 motion-reduce:transition-none ${focusRing}`;
+const joinButton = `group relative h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-(--mk-primary) px-5 text-[13px] font-semibold text-(--mk-on-primary) shadow-(--mk-glow-primary) transition-[color,background-color,border-color,opacity,transform] duration-300 hover:bg-(--mk-primary-bright) motion-safe:hover:-translate-y-0.5 motion-reduce:transition-none ${focusRing}`;
 
 function JoinGlow() {
   return (
@@ -119,20 +120,6 @@ const mobileItemVariants: Variants = {
   hidden: { opacity: 0, x: 24 },
   show: { opacity: 1, x: 0, transition: { duration: 0.32, ease: EASE } },
 };
-
-function Wordmark({ label, onClick }: { label: string; onClick?: () => void }) {
-  return (
-    <Link
-      href="/"
-      aria-label={label}
-      onClick={onClick}
-      className={`inline-flex h-11 shrink-0 items-center rounded-sm text-[17px] font-light tracking-[0.3em] min-[360px]:text-[19px] min-[360px]:tracking-[0.4em] text-(--mk-text) transition-colors hover:text-(--mk-primary-bright) ${focusRing}`}
-    >
-      {/* trailing tracking would offset the word; pull it back */}
-      <span className="-mr-[0.3em] min-[360px]:-mr-[0.4em]">AFVAR</span>
-    </Link>
-  );
-}
 
 /* ------------------------------------------------------------------ */
 /* Desktop dropdown group                                              */
@@ -363,7 +350,7 @@ function MobilePanel({ pathname, onClose, returnFocus }: { pathname: string; onC
     }`;
 
   return (
-    <div className="fixed inset-0 z-[60] lg:hidden" onKeyDown={onKeyDown}>
+    <div className="fixed inset-0 z-[60] xl:hidden" onKeyDown={onKeyDown}>
       <motion.div
         aria-hidden="true"
         className="absolute inset-0 bg-black/60"
@@ -385,7 +372,7 @@ function MobilePanel({ pathname, onClose, returnFocus }: { pathname: string; onC
         className="mk-glass-blur absolute inset-y-0 right-0 flex h-dvh w-full max-w-[400px] flex-col border-l border-(--mk-glass-border) bg-(--mk-glass-strong) shadow-(--mk-shadow)"
       >
         <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-(--mk-line) px-4 sm:px-6">
-          <Wordmark label={t("mk.nav.logoLabel")} onClick={onClose} />
+          <SignatureHomeLink label={t("mk.nav.logoLabel")} onClick={onClose} className={focusRing} />
           <button
             ref={closeRef}
             type="button"
@@ -474,7 +461,7 @@ function MobilePanel({ pathname, onClose, returnFocus }: { pathname: string; onC
           transition={{ duration: 0.35, ease: EASE, delay: reduce ? 0 : 0.3 }}
           className="shrink-0 border-t border-(--mk-line) p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6"
         >
-          <a href={REGISTER_URL} className={`${joinButton} h-12 w-full text-[15px]`}>
+          <a href={REGISTER_URL} className={`${joinButton} inline-flex h-12 w-full text-[15px]`}>
             <JoinGlow />
             {t("mk.waitlist.cta")}
             <ArrowIcon className="h-4 w-4" />
@@ -519,7 +506,7 @@ export function SiteNav() {
 
   // The mobile panel has no place on desktop widths.
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
+    const mq = window.matchMedia("(min-width: 1280px)");
     const onChange = (e: MediaQueryListEvent) => {
       if (e.matches) setMobileOpen(false);
     };
@@ -534,13 +521,7 @@ export function SiteNav() {
 
   return (
     <>
-      <motion.header
-        // Same initial on server and client (no hydration mismatch); MotionConfig neutralises the y under reduced motion.
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: EASE, delay: 0.05 }}
-        className="fixed inset-x-0 top-0 z-50 h-[72px]"
-      >
+      <header className="fixed inset-x-0 top-0 z-50 h-[72px]">
         {/* Glass layer: only its opacity animates, so scrolling never repaints the blur. */}
         <div
           aria-hidden="true"
@@ -550,10 +531,10 @@ export function SiteNav() {
         />
         {/* /home-demo's bull vs bear tug line along the nav's bottom edge (real breadth). */}
         <BreadthStrip />
-        <div className="relative mx-auto flex h-full max-w-[1280px] items-center gap-2 px-3 min-[360px]:gap-4 min-[360px]:px-4 sm:px-6 lg:px-10">
-          <Wordmark label={t("mk.nav.logoLabel")} />
+        <div className="relative flex h-full items-center gap-2 px-3 min-[360px]:px-4 sm:gap-4 sm:px-6 lg:px-10">
+          <SignatureHomeLink label={t("mk.nav.logoLabel")} landing className={focusRing} />
 
-          <nav aria-label={t("mk.nav.label")} className="hidden flex-1 justify-center lg:flex">
+          <nav aria-label={t("mk.nav.label")} className="hidden flex-1 justify-center xl:flex">
             <ul
               className="flex items-center gap-3 xl:gap-5"
               onPointerLeave={() => setHovered(null)}
@@ -594,7 +575,7 @@ export function SiteNav() {
             </ul>
           </nav>
 
-          <div className="ml-auto flex items-center gap-2 sm:gap-3 lg:ml-0">
+          <div className="ml-auto flex items-center gap-2 sm:gap-3 xl:ml-0">
             <SiteSearch />
             <a href={REGISTER_URL} className={`${joinButton} hidden lg:inline-flex`}>
               <JoinGlow />
@@ -608,7 +589,7 @@ export function SiteNav() {
               aria-expanded={mobileOpen}
               aria-haspopup="dialog"
               aria-label={t("mk.nav.menu")}
-              className={`grid h-11 w-11 place-items-center rounded-full mk-glass mk-glass-blur text-(--mk-text) transition-[color,background-color,border-color,opacity,transform] hover:border-(--mk-glass-border-hover) hover:text-(--mk-primary) lg:hidden ${focusRing}`}
+              className={`grid h-11 w-11 place-items-center rounded-full mk-glass mk-glass-blur text-(--mk-text) transition-[color,background-color,border-color,opacity,transform] hover:border-(--mk-glass-border-hover) hover:text-(--mk-primary) xl:hidden ${focusRing}`}
             >
               <svg viewBox="0 0 20 20" className="h-5 w-5" aria-hidden="true">
                 <path d="M3.5 6h13M3.5 10h13M3.5 14h13" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" />
@@ -616,7 +597,7 @@ export function SiteNav() {
             </button>
           </div>
         </div>
-      </motion.header>
+      </header>
 
       <AnimatePresence>
         {mobileOpen && <MobilePanel key="mobile-nav" pathname={pathname} onClose={closeMobile} returnFocus={returnFocus} />}

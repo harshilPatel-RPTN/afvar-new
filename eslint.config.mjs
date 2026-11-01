@@ -33,6 +33,11 @@ const eslintConfig = defineConfig([
           patterns: MODULE_BOUNDARY,
           paths: [
             {
+              name: "@/modules/afvarOs",
+              importNames: ["AiCore", "CORE_SIZE"],
+              message: "The gold AI core belongs to the home page only. Build this page's own centrepiece from the shared kit (AiSpark, GoldDust, GlassPlate, GlowLine).",
+            },
+            {
               name: "@/modules/afvarOs/gl",
               importNames: ["AiCore", "CORE_SIZE"],
               message: "The gold AI core belongs to the home page only. Build this page's own centrepiece from the shared kit (AiSpark, GoldDust, GlassPlate, GlowLine).",

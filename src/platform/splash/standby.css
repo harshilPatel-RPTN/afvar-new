@@ -1,0 +1,23 @@
+.afvar-standby-shell { position:fixed; inset:0; z-index:2147482999; isolation:isolate; visibility:hidden; pointer-events:none; }
+.afvar-standby-shell:not([data-phase="armed"]) { visibility:visible; }
+.afvar-standby-backdrop, .afvar-standby-brand { position:absolute; inset:0; pointer-events:none; }
+.afvar-standby-backdrop { background:rgb(2 5 10 / .64); -webkit-backdrop-filter:blur(9px); backdrop-filter:blur(9px); opacity:var(--standby-depth,0); }
+.afvar-standby-brand { opacity:var(--standby-brand,1); }
+.afvar-standby-shell[data-phase="armed"] .afvar-flight-sheen::after { animation-play-state:paused; }
+.afvar-standby-still { position:absolute; inset:3%; display:block; }
+.afvar-standby-still img { width:100%; height:100%; display:block; }
+.afvar-standby-shell[data-face="true"] .afvar-standby-still { visibility:hidden; }
+.afvar-standby-fallback { position:absolute; visibility:hidden; top:max(18px,env(safe-area-inset-top)); left:max(22px,env(safe-area-inset-left)); display:flex; align-items:center; gap:9px; }
+.afvar-standby-fallback [data-standby-mark-target] { position:relative; display:block; width:30px; aspect-ratio:1; }
+.afvar-standby-fallback [data-standby-name-target] { width:126px; height:auto; aspect-ratio:1009 / 150; }
+@media (max-width:600px) {
+  .afvar-standby-fallback { top:max(12px,env(safe-area-inset-top)); left:max(14px,env(safe-area-inset-left)); gap:7px; }
+  .afvar-standby-fallback [data-standby-mark-target] { width:26px; }
+  .afvar-standby-fallback [data-standby-name-target] { width:112px; }
+}
+
+body:not(:has([data-afvar-brand-mark])) .afvar-standby-fallback { visibility:visible; }
+.afvar-standby-fallback picture img { position:absolute; inset:3%; width:94%; height:94%; }
+.afvar-standby-shell .afvar-flight-dock-ink { opacity:1; }
+
+@media(prefers-reduced-motion:reduce) { .afvar-standby-shell[data-face="true"] .afvar-standby-still {visibility:visible;} .afvar-standby-shell [data-signature-mount]{visibility:hidden;} .afvar-standby-shell .afvar-flight-sheen::after{animation:none;opacity:0;} }
