@@ -2,6 +2,7 @@
 export { PlatformOverview } from "./components/PlatformOverview";
 export { CapabilityPage } from "./components/CapabilityPage";
 export { MarketDataPage } from "./film/market/MarketDataPage";
+export { AlertsPage, CommunityPage, ResearchPage, RiskPage } from "./film/capability/CapPages";
 export { CAPABILITIES, CAPABILITY_SLUGS, OVERVIEW, getCapability, getCapabilityBySegment, isCapabilitySlug } from "./content";
 export { ROUTES, REGISTER_URL, pathOf, capabilityPath } from "./routes";
 export type { Capability, CapabilitySlug, Availability } from "./types";

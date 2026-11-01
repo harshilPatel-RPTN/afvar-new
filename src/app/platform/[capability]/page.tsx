@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { SiteShell } from "@/modules/markets";
-import { CAPABILITIES, CapabilityPage, MarketDataPage, capabilityPath, getCapability, getCapabilityBySegment } from "@/modules/platform";
+import { AlertsPage, CAPABILITIES, CapabilityPage, CommunityPage, MarketDataPage, ResearchPage, RiskPage, capabilityPath, getCapability, getCapabilityBySegment } from "@/modules/platform";
 
 // Only the five W2.2–W2.6 pages exist; anything else is a 404.
 export const dynamicParams = false;
@@ -31,6 +31,10 @@ export default async function CapabilityRoute({ params }: PageProps<"/platform/[
   const capability = getCapabilityBySegment(segment);
   // Pages already on the AI OS capability template render their own frame (the home's navbar, ticker and footer).
   if (capability?.slug === "charts") return <MarketDataPage />;
+  if (capability?.slug === "research") return <ResearchPage />;
+  if (capability?.slug === "alerts") return <AlertsPage />;
+  if (capability?.slug === "trade-review") return <RiskPage />;
+  if (capability?.slug === "community") return <CommunityPage />;
   // The others keep the public-site chrome (nav, pre-launch strip) until they move to the AI OS theme;
   // the footer is rendered by their closing block.
   if (capability)

@@ -3,7 +3,7 @@
 // Shared pieces for the OS sections of every Platform page: real candles from
 // the live feed, a chart window, and process steps that tick with the scroll.
 import { useMotionValueEvent } from "framer-motion";
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { CandleChart, Chip, Steps, Win, useSection, useSectionRamp, type AppGlyphName, type ChartLevel2 } from "@/modules/afvarOs";
 import { useLiveMarket, type HomeQuote } from "@/modules/home/kit";
 import { STATUS_LABEL, asOfText } from "../market/analysis";
@@ -13,6 +13,24 @@ export const SYM: Record<string, string> = { XAUUSD: "Gold", XAGUSD: "Silver", W
 export function useQuote(key: string): HomeQuote | undefined {
   return useLiveMarket().quotes[key];
 }
+
+/** Range of the newest candles, worked out from the real feed (null until candles arrive). */
+export function useRange(key: string, n = 44) {
+  const q = useQuote(key);
+  return useMemo(() => {
+    const c = (q?.candles ?? []).slice(-n);
+    if (c.length < 2) return null;
+    const hi = Math.max(...c.map((k) => k.h));
+    const lo = Math.min(...c.map((k) => k.l));
+    const sma20 = c.length >= 20 ? c.slice(-20).reduce((s, k) => s + k.c, 0) / 20 : null;
+    const last = c[c.length - 1].c;
+    const first = c[0].o;
+    return { hi, lo, mid: (hi + lo) / 2, sma20, last, chg: ((last - first) / first) * 100, d: q?.decimals ?? 2 };
+  }, [q, n]);
+}
+
+/** A price with the instrument's decimals, or "—". */
+export const fmt = (v: number | null | undefined, d = 2) => (v == null ? "—" : v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }));
 
 /** "Live · Gold-API.com (spot) · 06:40 UTC" for a quote. */
 export function sourceLine(q: HomeQuote | undefined): string {
