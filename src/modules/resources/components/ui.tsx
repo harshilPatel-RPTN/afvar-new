@@ -13,7 +13,7 @@ import { PIcon } from "@/modules/platform/kit";
  */
 export function ResLink({ href, children, className = "" }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link href={href} className={`group inline-flex items-center gap-1 text-[17px] font-medium text-(--accent) underline-offset-4 transition-colors hover:text-(--accent-hover) ${className}`}>
+    <Link href={href} className={`group inline-flex min-h-6 items-center gap-1 text-[17px] font-medium text-(--accent) underline-offset-4 transition-colors hover:text-(--accent-hover) ${className}`}>
       {children}
       <PIcon name="chevron" size={14} weight="bold" className="transition-transform duration-200 group-hover:translate-x-1" />
     </Link>

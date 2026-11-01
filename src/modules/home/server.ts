@@ -16,11 +16,22 @@
 
 export type HomeMarketStatus = "live" | "delayed";
 
+/** One hourly candle (epoch ms of the candle's start, open/high/low/close). */
+export interface Candle {
+  t: number;
+  o: number;
+  h: number;
+  l: number;
+  c: number;
+}
+
 export interface HomeMarketRow {
   symbol: string;
   price: number;
   prevClose: number;
   closes: number[];
+  /** Real hourly candles (≤ 60) from the same source as `closes`; empty when the source gave none. */
+  candles: Candle[];
   status: HomeMarketStatus;
   /** Epoch ms of the price itself (provider time, not fetch time). */
   asOf: number;
@@ -47,6 +58,7 @@ interface YahooRow {
   price: number;
   prevClose: number;
   closes: number[];
+  candles: Candle[];
   asOf: number;
 }
 
@@ -54,7 +66,8 @@ interface YahooChart {
   chart: {
     result?: Array<{
       meta: { regularMarketPrice: number; regularMarketTime?: number; chartPreviousClose?: number; previousClose?: number };
-      indicators: { quote: Array<{ close: (number | null)[] }> };
+      timestamp?: number[];
+      indicators: { quote: Array<{ open?: (number | null)[]; high?: (number | null)[]; low?: (number | null)[]; close: (number | null)[] }> };
     }>;
   };
 }
@@ -77,12 +90,20 @@ async function fetchYahoo(): Promise<Map<string, YahooRow>> {
       if (!result) throw new Error(`yahoo ${yahoo} empty`);
       const closes = (result.indicators.quote[0]?.close ?? []).filter((v): v is number => typeof v === "number" && Number.isFinite(v));
       const price = result.meta.regularMarketPrice;
+      const q = result.indicators.quote[0];
+      const ts = result.timestamp ?? [];
+      const candles: Candle[] = [];
+      ts.forEach((t, i) => {
+        const o = q?.open?.[i], h = q?.high?.[i], l = q?.low?.[i], c = q?.close?.[i];
+        if ([o, h, l, c].every((v) => typeof v === "number" && Number.isFinite(v))) candles.push({ t: t * 1000, o: o!, h: h!, l: l!, c: c! });
+      });
       return [
         symbol,
         {
           price,
           prevClose: result.meta.chartPreviousClose ?? result.meta.previousClose ?? closes[0] ?? price,
           closes: closes.slice(-60),
+          candles: candles.slice(-60),
           asOf: (result.meta.regularMarketTime ?? Date.now() / 1000) * 1000,
         },
       ];
@@ -110,8 +131,11 @@ async function fetchBitcoin(): Promise<HomeMarketRow> {
   const price = Number(ticker.lastPrice);
   const prevClose = Number(ticker.openPrice);
   const closes = klines.map((k) => Number(k[4])).filter((v) => Number.isFinite(v) && v > 0);
+  const candles: Candle[] = klines
+    .map((k) => ({ t: Number(k[0]), o: Number(k[1]), h: Number(k[2]), l: Number(k[3]), c: Number(k[4]) }))
+    .filter((k) => [k.t, k.o, k.h, k.l, k.c].every((v) => Number.isFinite(v) && v > 0));
   if (!(price > 0) || !(prevClose > 0)) throw new Error("binance invalid");
-  return { symbol: "BTC-USD", price, prevClose, closes, status: "live", asOf: ticker.closeTime, source: "Binance" };
+  return { symbol: "BTC-USD", price, prevClose, closes, candles, status: "live", asOf: ticker.closeTime, source: "Binance" };
 }
 
 async function fetchLive(yahoo: Map<string, YahooRow>): Promise<Map<string, HomeMarketRow>> {
@@ -127,6 +151,8 @@ async function fetchLive(yahoo: Map<string, YahooRow>): Promise<Map<string, Home
         price: spot.price,
         prevClose: futures ? futures.prevClose * ratio : spot.price,
         closes: futures ? [...futures.closes.map((c) => c * ratio), spot.price] : [],
+        // Same basis adjustment for the candles: every OHLC value scaled by one ratio (same % moves).
+        candles: futures ? futures.candles.map((k) => ({ t: k.t, o: k.o * ratio, h: k.h * ratio, l: k.l * ratio, c: k.c * ratio })) : [],
         status: "live",
         asOf: spot.asOf,
         source: "Gold-API.com (spot)",

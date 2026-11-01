@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { HelpPage } from "@/modules/resources";
+import { HelpFilmPage } from "@/modules/platform";
 
 export const metadata: Metadata = {
   title: "Help & Support · Resources — AFVAR",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <HelpPage />;
+  return <HelpFilmPage />;
 }

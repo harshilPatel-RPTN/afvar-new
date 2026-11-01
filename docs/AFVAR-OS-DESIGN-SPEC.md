@@ -118,3 +118,71 @@ Sound cues (opt-in switch): latch, tick, verdict, whoosh, ping, alert, logo on v
    (`align/run.sh`, waits for the rail to settle). Software-GL sandboxes can capture blank frames in the avatar
    act (292k tris); confirm those on real hardware before treating them as bugs.
 4. **Performance**: scripted forward/back/forward scroll — frame pacing per act, long tasks, heap growth, canvas count; WebGL-off run isolates DOM cost; Lighthouse mobile + desktop; real-hardware run in the desktop app's browser.
+
+## 11. Pages built on the kit
+Every AI OS page shares, in code (not by copying):
+- **Frame**: `SiteFrame` (homeDemo) — navbar, live ticker, launch reminder, page, closing (earth horizon), footer, sound switch.
+- **Film plumbing** (`afvarOs/film`): `useFilmMode` (desktop / compact / stacked / boot), `useSceneReady`,
+  `useAvatarWarmup`, `useFilmPresence` (sound switch + reminder step aside, launcher hides), `Poster`.
+- **3D vocabulary** (`afvarOs/three/parts`): `AI_CORES`, `CoreNodes`, `CorePulses`, `orbitPlace`, `NearRange` — the
+  home film's exact seven cores and pulses. (The home film still uses its own copies; migrate it with a pixel check.)
+- **OS kit** (`afvarOs/os`) and the avatar (`AvatarActor` in 3D, `AvatarOverlay` over an OS screen).
+- **Layouts**: 3D acts → caption column on the left (`LEFT`); OS acts → caption on top + OS screen below
+  (`inset-x-[4vw] top-[218px]`); phones → bottom caption panel, no OS screens.
+- **Copy rule**: same look, never the same text — `src/__tests__/same-site-copy.test.tsx` fails if a home sentence
+  appears on another page; each page also has its own "no sentence twice" test.
+
+### Page identity (plan rev. 2, 1 Nov 2026) — connected, not the same
+The gold AI core is the **home's** protagonist only (lint rule: `AiCore` / `CORE_SIZE` cannot be imported under
+`src/modules/platform`). Every other page shows its own centrepiece, built from the shared material kit in
+`afvarOs/three/kit.tsx` — `AiSpark` (the core's white-hot nucleus, alone: the AI at work), `GoldDust`, `GlassPlate`
+(smoked glass, gold edge), `GlowLine` (crisp HDR lines; gold = AI, green / red = up / down) — so pages read as one
+family with different silhouettes:
+| Page | Centrepiece | Code |
+|---|---|---|
+| / | the AI core (unchanged) | `homeDemo/ai` |
+| /platform | exploded glass stack: Markets (8 live lines from real closes) → AI (gold circuit, spark) → Workspace (five area tiles) → You (Ask AFVAR bar, voice, EN · हिन्दी); layer names on the right | `platform/film/stack/PlatformStack.tsx`, `PlatformScene.tsx` |
+| /platform/market-data | glass price wall of Gold's real hourly closes (closes only — no invented candles), spark on the newest price with price / change / freshness / source / time; the other seven markets as faint lines behind | `platform/film/market/PriceWall.tsx`, `MarketScene.tsx` |
+Core names (Market core, Verify core, …) appear only in acts after the hero, never in a hero (3D or copy).
+Step A (hero stills) is done; the tables below still describe the acts after the hero as built in rev. 1 until steps
+B / C rebuild them around the new centrepieces. Retired core scenes: `backup/2026-11-01-core-scenes/`.
+
+### /platform (W2.1) — "The OS, opened up"
+| Act | Desktop vh | Compact vh | What it shows |
+|---|---|---|---|
+| hero | 110 | 110 | the core with the five capability apps (dark tiles, gold rim) on a drifting ring (r 2.45) |
+| ways | 240 | 200 | OS: Gold chart opened by hand (move, resize, snap, minimise) and by asking; same verified result |
+| stop | 230 | 240 | OS + avatar in its corner: "Stop speaking" keeps the task running; "Cancel task" ends the rest, keeps what is done |
+| verify | 300 | 280 | a pulse walks six stations on a ring around the core (Request → Backend → Resolve → Policy gate → Action runner → Verify), returns along the left |
+| workspace | 280 | 200 | OS: layout saved / Space 2 / restored, notes pinned to the chart, read-only connections, menus switch to हिन्दी |
+| trust | 200 | 180 | promises list + one chart cycling Live / Delayed / Stale / Sample labels |
+| areas | 300 | 280 | the five apps return; the focused one grows, its lead cores burn (charts: Market + Verify; research: News + Macro + Verify; alerts: Market + Memory; risk review: Risk + Memory; community: Voice + Verify + Memory) |
+After the film: **Try it yourself** (interactive OS, desktop; phones get Talk to AFVAR), **At a glance** (ten topics), closing.
+
+### Capability pages (W2.2–W2.6) — one template, five pages
+Code: `platform/film/capability` (template) + one folder per page (`platform/film/market`, …).
+- **Film factory** `createCapFilm(kind, acts, beats, cues)`: acts marked `os: true` play inside the OS screen on
+  desktop; consecutive OS acts share one screen (`osIn`, `osCovers`, the 3D scene rests while covered). Compact cuts
+  have no OS acts. Film ≈ a third of the home (900–1100 vh).
+- **Stage** `CapFilmShell` (same rules as the overview): boot / desktop / compact / stacked, the poster core, the
+  scene after splash + idle, rail, "Illustrative 3D · prices real where labelled", the avatar warm-up and launcher
+  hand-off for the page's one avatar act. A page supplies `Scene`, `Hero`, `Desktop`, `Compact`, `Stacked`.
+- **Copy blocks** (`capability/ui`): numbered `ActEyebrow`, `ActHead` (3D acts), `OsCaption` (OS acts; keep titles
+  ≤ ~34 characters so title and body sit side by side at ≥1280px), `CompactHead`.
+- **Under the film** (`CapabilityTemplate`): features (every card has "Show me ↑", which scrolls the film to the
+  act that shows it) → outcome line → notes (page notes on sources and limits + the availability note) and related
+  links → the other four areas (with their lead cores) → Earth closing "Join before launch." + Register Now +
+  Platform overview → footer.
+- **The avatar speaks once per page**: desktop in the OS corner (1105, 606, h 150) with a speech bubble; phones in
+  3D (the core becomes its heart).
+- **Honesty**: every price is the home market feed (live / delayed / stored label, source, time); anything the AI
+  adds is gold, named, and computed only from data on screen (`market/analysis.ts`) — never a forecast.
+
+#### /platform/market-data (W2.2) — led by the Market + Verify cores
+| Act | Desktop vh | Compact vh | What it shows |
+|---|---|---|---|
+| hero | 110 | 110 | the seven cores, Market and Verify large and named |
+| feed | 240 | 220 | four public feeds (spot metals, futures, forex, crypto) stream real labelled quotes into the Market core; Verify passes them to the AI; the lane card lists all eight lanes |
+| chart | 270 (OS) | 240 | ask "Mark the range and trend on Gold": range high/low and the trend line drawn in gold on the real 1H chart, analysis rows, the avatar explains, "Drawn and checked" |
+| watch | 240 (OS) | 200 | the chart steps aside, the watchlist grows by asking, heatmap + market overview, the biggest move named (phones: the eight lanes ring the core as tiles) |
+| insight | 230 | 210 | Gold explained in three lines (price, range, sessions), each with source and time, then checked by the Verify core |

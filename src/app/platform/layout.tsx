@@ -1,12 +1,8 @@
-import { SiteShell } from "@/modules/markets";
-
 /**
- * Platform pages share the public-site chrome (nav, pre-launch strip, footer)
- * and the `.mk` theme/font from the Markets module, so /platform and /market
- * stay in sync. Typography deviation from DESIGN-GUIDE §2.3 (Inter): the
- * shared shell uses the markets font instead.
+ * /platform routes. The overview renders its own AI OS frame (the home page's
+ * navbar, live ticker, closing and footer); the capability pages still use the
+ * markets SiteShell until they move to the AI OS theme (see each route).
  */
 export default function PlatformLayout({ children }: LayoutProps<"/platform">) {
-  // The footer is rendered by ClosingCta, together with the closing "earth" block.
-  return <SiteShell footer={false}>{children}</SiteShell>;
+  return children;
 }

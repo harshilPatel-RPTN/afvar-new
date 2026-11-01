@@ -1,0 +1,90 @@
+{
+  "archived_on": "2026-11-01",
+  "source_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+  "files": [
+    {
+      "original_path": "design/afvar-logo/lids.mjs",
+      "sha256": "d567ad8e2fa54063d71f305a042770af69c89924930384a5942b0441cfd025fc"
+    },
+    {
+      "original_path": "design/afvar-logo/index.html",
+      "sha256": "163dd020eb50c162ad28fd4e580c59e269278cbae1133ab183736968562e5e85"
+    },
+    {
+      "original_path": "design/afvar-logo/timeline.mjs",
+      "sha256": "b8214f3ac0fac69ad5634bd8da9627a2221c77cce8895b0454d92066a03cc47b"
+    },
+    {
+      "original_path": "design/afvar-logo/face-follow.js",
+      "sha256": "2782ada42aa0cf64c7293fa4da261d3c15cffb7d63ce995f85383a6c7beeb106"
+    },
+    {
+      "original_path": "design/afvar-logo/README.md",
+      "sha256": "2a774953f1b28db31a103162cfc456637e0089d3d48522692b31b13e3505e0b0"
+    },
+    {
+      "original_path": "design/afvar-logo/demo.js",
+      "sha256": "f80dd1efebc0a2898bb92b66e6e9e0603b407228af7ffd87bc454c77d81d3ef7"
+    },
+    {
+      "original_path": "design/afvar-logo/template.css",
+      "sha256": "d15cd2735f54a98176b77f00099e04bdb6c3dc9793bd9c3b38ed17226d6be72a"
+    },
+    {
+      "original_path": "design/afvar-logo/cursor-gaze.mjs",
+      "sha256": "847dea20e4f71b9882613141fad0bbe096bcbbffe9d8ea8e393628656d4f3f31"
+    },
+    {
+      "original_path": "design/afvar-logo/tools/approved_assets.py",
+      "sha256": "4f4226b5cd6f33558671306a649df68d123033330fa9830e0cd29aa802772404"
+    },
+    {
+      "original_path": "design/afvar-logo/tools/source-fidelity.json",
+      "sha256": "ef1e848f7782b23f02389d6d96f6a420fd2105cadf545f398a87c3aeb94a57bd"
+    },
+    {
+      "original_path": "design/afvar-logo/tests/timeline.test.mjs",
+      "sha256": "9f1a962aaf2c776ed1b0271d265167d3afb422f788fc86e00d1c73b38490d16f"
+    },
+    {
+      "original_path": "design/afvar-logo/tests/cursor-gaze.test.mjs",
+      "sha256": "87650065eb4867ef35b0567e4240f9a7e1db20dc1b711ff64af3f968eab24ad2"
+    },
+    {
+      "original_path": "design/afvar-logo/tests/lids.test.mjs",
+      "sha256": "f5af1b6c329df8e7febc017cc63a1e0a762f7aa8269e4091c110bfdbd8c4f7c9"
+    },
+    {
+      "original_path": "design/afvar-logo/assets/approved.webp",
+      "sha256": "6b156320f06567f01c28026086c2433fbf6f55f5b483ecf70f2a412812523eb9"
+    },
+    {
+      "original_path": "design/afvar-logo/assets/approved-lite.webp",
+      "sha256": "5f9a6e53fab42fd62955a3df4a665e7e4211801bb4f4608fe926511b9cc2cf9f"
+    },
+    {
+      "original_path": "design/afvar-logo/reference/approved.png",
+      "sha256": "f7896052ef18caad5ac7ede59c10e81bd7428a301967703e061e0c1d718b4eec"
+    },
+    {
+      "original_path": "public/home-globe/globe-still.svg",
+      "sha256": "1fbc24ab455a971f65cbd3c02b6da3800a41d1393b127e14ffa73df5c826bce8"
+    },
+    {
+      "original_path": "public/afvar/afvar-logo.png",
+      "sha256": "e18dc572b79d1b7d8efcf77e689f3bad777bd0c7a534ff304fdb4a2337c109f3"
+    },
+    {
+      "original_path": "public/afvar/afvar-logo-candles.png",
+      "sha256": "1b79645a22350a215dd737a2647956b7533e795b6be8d542dfbe86e4ad4d82d2"
+    },
+    {
+      "original_path": "public/afvar/afvar-logo-gold.png",
+      "sha256": "f31148ecbab538a87fb096c7a599c26f1d70bc13154d85626b47c3e625058ec0"
+    },
+    {
+      "original_path": "public/afvar/atlas.webp",
+      "sha256": "b5460a30d3fd716f7e5c042556ecad5bbd70de46f0c8ce5c02feaca16b7b0024"
+    }
+  ]
+}

@@ -2,8 +2,9 @@ import Link from "next/link";
 import { AppIcon, PIcon } from "@/modules/platform/kit";
 import { getGuide, type TroubleTopic } from "../content";
 import { ResourcesClosing } from "./Closing";
-import { ResourcesHero, ResourcesTabs } from "./Hero";
-import { ResourcesShell } from "./ResourcesShell";
+import { ArticleHead } from "./ArticleHead";
+import { ResourcesTabs } from "./Hero";
+import { ResourcesFrame } from "./ResourcesFrame";
 import { TroubleshootChecks } from "./TroubleshootChecks";
 import { Window } from "./Window";
 import { ResLink } from "./ui";
@@ -23,15 +24,14 @@ const SUPPORT_TOPIC: Record<string, string> = {
 export function TroubleshootDetail({ topic }: { topic: TroubleTopic }) {
   const guide = topic.guide ? getGuide(topic.guide) : undefined;
   return (
-    <ResourcesShell>
-      <ResourcesHero
-        sub
+    <ResourcesFrame>
+      <ArticleHead
         crumb={[
           { label: "Help & Support", href: "/resources/help" },
           { label: topic.title, href: `/resources/help/${topic.slug}` },
         ]}
         eyebrow="Troubleshooting"
-        title={[topic.title, ""]}
+        title={topic.title}
         lede={topic.symptom}
       />
       <ResourcesTabs />
@@ -93,6 +93,6 @@ export function TroubleshootDetail({ topic }: { topic: TroubleTopic }) {
         primary={{ label: "Browse all resources", href: "/resources#browse" }}
         secondary={{ label: "Help & Support", href: "/resources/help" }}
       />
-    </ResourcesShell>
+    </ResourcesFrame>
   );
 }

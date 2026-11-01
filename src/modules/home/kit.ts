@@ -2,8 +2,9 @@
 // components (/home-demo) can import it without pulling in HomePage ->
 // SiteShell -> HomeNav/HomeFooter. Everything /home-demo reuses from "/" —
 // the theme layer, motion primitives, widgets and sound — comes through here.
-export { useLiveMarket, fmtPrice, type HomeQuote, type QuoteStatus } from "./components/useLiveMarket";
+export { useLiveMarket, fmtPrice, type HomeQuote, type QuoteStatus, type Candle } from "./components/useLiveMarket";
 export { NAV, OVERVIEW } from "./content";
+export { PRICING_FAQS, PRICING_TIERS, PRICING_USAGE } from "./content";
 
 // theme + shared motion CSS
 export { HOME_SCOPE, HomeStyles } from "./components/HomeStyles";

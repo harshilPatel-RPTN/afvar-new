@@ -1,0 +1,101 @@
+{
+  "source_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+  "preserved_remote_backup_commit": "def13f43fea4f3d8bf33963e460c1a31360ea103",
+  "files": [
+    {
+      "original_path": "src/modules/home/components/PricingContent.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "dfbbc7a056fff5d1bf8c5bfeae037315b87ec1333e1c80b4efeab434bcab9e60"
+    },
+    {
+      "original_path": "src/modules/home/components/PricingPage.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "1ca15d86e970136ecd0d9aacbcbe4e3350b7d364a08c9b7b60e6e310ba7aa904"
+    },
+    {
+      "original_path": "src/modules/markets/components/BriefsFilters.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "d397354b80efbd4eba654db4ca26d58a780d36f66abc3d3d15d7654eb85a4c8f"
+    },
+    {
+      "original_path": "src/modules/markets/components/InstrumentFilter.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "c7f833935428139a93dd8154f9d4beb735b47820d71436af12d130c5955618b7"
+    },
+    {
+      "original_path": "src/modules/platform/components/os/TryDesktop.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "f9f608c2f1f064d33081eec33e03ebd361af44e92d6c21e591158683aefce270"
+    },
+    {
+      "original_path": "src/modules/platform/components/overview/AtAGlance.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "c31077a2c84796469aab267e1bfb82c452e16172aba60a3140aa5e9ead0ff579"
+    },
+    {
+      "original_path": "src/modules/platform/components/overview/ManualVsAI.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "e94b963c39646d46ba3a0a14af53c20eba4fcee3f3fd510f211d6b7175cb8d48"
+    },
+    {
+      "original_path": "src/modules/platform/components/overview/OverviewHero.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "cdef7d62d565dad8352b952c29055d92eacec8a34d7b0e4662173f57819dcb4c"
+    },
+    {
+      "original_path": "src/modules/platform/components/overview/StopVsCancel.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "fe8e19cae4de66b227650932f1070301b52243283a05d42bbfecdfa0c1374e9a"
+    },
+    {
+      "original_path": "src/modules/platform/components/overview/VerifyFlow.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "b667feb95597b759d36178b1739d4c5b9550b5eaeb1a132b6fa4693d3c26acf8"
+    },
+    {
+      "original_path": "src/modules/resources/components/CategoryTour.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "32d899d9296cf4b59a32d0a337aae4bd411d05f6e6affd635085d9fd1d3e3a38"
+    },
+    {
+      "original_path": "src/modules/resources/components/EvidencePage.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "b200207399c821b4effd6fcc9bc581e21d1c85b773cf08cfe3626de01e093f0c"
+    },
+    {
+      "original_path": "src/modules/resources/components/FaqBrowser.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "a6a55aec07033b4f6a08d63e81859c4308a0a257ddc4202d81b7b91b436466d0"
+    },
+    {
+      "original_path": "src/modules/resources/components/GuidesIndex.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "f9a79368856b54230e8b57f491da129e28682c6f1f05bdaac2cf50bd4f527d1d"
+    },
+    {
+      "original_path": "src/modules/resources/components/HelpPage.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "5f93e0e6d8b5302d4afa2a3a6d6de8650aa0a40df22a62b3256b418b9522db87"
+    },
+    {
+      "original_path": "src/modules/resources/components/ResourceBrowser.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "4a7d85cc9f20d9b95abc5a5efc97016d57586ff280a9bfdd4cd7bdc66d48da13"
+    },
+    {
+      "original_path": "src/modules/resources/components/ResourcesOverview.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "589838ad749a930e6e680c56d4bd8738ec9657d3be15227de1d32826503c8ee5"
+    },
+    {
+      "original_path": "src/modules/resources/components/SectionSpy.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "40c97f12c5938949d6e2c3db13439f16b8a742b6f5c92b95c29404a111b45da3"
+    },
+    {
+      "original_path": "src/modules/resources/components/SupportForm.tsx",
+      "snapshot_commit": "b36b93d1bcb5e84de13ab00ad2fb9fbb3f5efabf",
+      "sha256": "47da1bd13cabee49d21d77382d74a1a5495eff2b5e66f63c634c2ccdd0f0efca"
+    }
+  ]
+}

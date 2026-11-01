@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { translate } from "@/platform/i18n";
 import { getServerEdition } from "@/platform/i18n/server";
-import { SiteShell } from "@/modules/markets";
-import { PlatformShell } from "@/modules/platform";
-import { Ambience } from "@/modules/resources";
 
 export async function generateMetadata(): Promise<Metadata> {
   const edition = await getServerEdition();
@@ -14,17 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-/** Same chrome as /about: Markets site shell around the platform design language. */
+/** Each Markets page brings its own frame (the film pages use the home's; a single brief keeps the Markets shell). */
 export default function MarketLayout({ children }: { children: ReactNode }) {
-  return (
-    <SiteShell>
-      <PlatformShell>
-        {/* the scroll-driven green / red market backdrop behind every Markets page */}
-        <div className="relative">
-          <Ambience />
-          <div className="relative">{children}</div>
-        </div>
-      </PlatformShell>
-    </SiteShell>
-  );
+  return children;
 }

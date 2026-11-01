@@ -67,6 +67,7 @@ export type DesktopAction =
   | { type: "minimize"; app: CapabilitySlug }
   | { type: "toggleMax"; app: CapabilitySlug }
   | { type: "focus"; app: CapabilitySlug }
+  | { type: "move"; app: CapabilitySlug; frame: Frame }
   | { type: "arrange" }
   | { type: "reset" };
 
@@ -89,6 +90,8 @@ export function reducer(s: DesktopState, a: DesktopAction): DesktopState {
       });
       return { ...next, top: s.top + 1, active: a.app };
     }
+    case "move":
+      return patch(s, a.app, { frame: a.frame, mode: "normal" });
     case "focus":
       if (s.active === a.app) return s;
       return { ...patch(s, a.app, { z: s.top + 1 }), top: s.top + 1, active: a.app };

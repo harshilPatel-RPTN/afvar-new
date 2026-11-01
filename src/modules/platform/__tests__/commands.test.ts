@@ -24,6 +24,12 @@ describe("demo command resolver", () => {
 
   it("refuses order placement", () => {
     expect(resolve("buy gold now")).toEqual({ status: "refused" });
+    expect(resolve("trade gold")).toEqual({ status: "refused" });
+    expect(resolve("place a trade on EUR/USD")).toEqual({ status: "refused" });
+  });
+
+  it("opens the trade journal (the noun 'trade' is not an order)", () => {
+    expect(resolve("Open the trade journal")).toMatchObject({ status: "resolved", action: "open", app: "trade-review" });
   });
 
   it("reports unknown requests as unsupported", () => {

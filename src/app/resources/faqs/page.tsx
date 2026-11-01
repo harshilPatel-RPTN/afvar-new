@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FaqsPage } from "@/modules/resources";
+import { FaqsFilmPage } from "@/modules/platform";
 
 export const metadata: Metadata = {
   title: "FAQs · Resources — AFVAR",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <FaqsPage />;
+  return <FaqsFilmPage />;
 }

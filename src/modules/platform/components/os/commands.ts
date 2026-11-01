@@ -30,7 +30,12 @@ const MIN = ["minimize", "minimise", "hide", "chhupao", "छुपाओ"];
 const MAX = ["maximize", "maximise", "full screen", "fullscreen", "bada karo", "बड़ा"];
 const ARRANGE = ["arrange", "tile", "organise", "organize", "sajao", "सजाओ"];
 const NEGATE = ["don't", "dont", "do not", "never", "mat ", " mat", "nahi", "नहीं", "मत"];
-const ORDER = ["buy", "sell", "place order", "place an order", "trade", "kharido", "becho", "खरीदो", "बेचो"];
+const ORDER = ["buy", "sell", "place order", "place an order", "place a trade", "open a trade", "close a trade", "close my trade", "kharido", "becho", "खरीदो", "बेचो"];
+/** "trade" used as an order verb ("trade gold", "I want to trade EUR/USD") — not the noun in "trade journal". */
+function tradeVerb(text: string): boolean {
+  if (/ trades? (journal|review|history|record)/.test(text)) return false;
+  return /^ trade /.test(text) || / (to|let's|lets|please|now) trade /.test(text);
+}
 
 const APPS: [CapabilitySlug, string[]][] = [
   ["charts", ["chart", "charts", "watchlist", "quote", "चार्ट"]],
@@ -54,7 +59,7 @@ const TIMEFRAMES: Timeframe[] = ["1H", "4H", "1D", "1W"];
 export function resolve(raw: string): Intent {
   const text = ` ${raw.toLowerCase().replace(/[.,!?]/g, " ").replace(/\s+/g, " ").trim()} `;
   if (!text.trim()) return { status: "empty" };
-  if (has(text, ORDER)) return { status: "refused" };
+  if (has(text, ORDER) || tradeVerb(text)) return { status: "refused" };
   if (has(text, NEGATE)) return { status: "negated" };
 
   const action: Action | undefined = has(text, ARRANGE)

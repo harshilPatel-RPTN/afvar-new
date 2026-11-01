@@ -524,7 +524,7 @@ export function SiteNav({ menuOnly = false, children }: { menuOnly?: boolean; ch
       <header className="fixed inset-x-0 top-0 z-50 h-[72px]" data-home-menu-open={menuOnly && menuOpen ? "" : undefined}>
         {/* /home-demo's bull vs bear tug line along the nav's bottom edge (real breadth). */}
         {!menuOnly && <BreadthStrip />}
-        <div className="relative flex h-full items-center gap-2 px-4 sm:gap-4 sm:px-6 lg:px-10">
+        <div className="relative flex h-full items-center gap-2 px-3 min-[360px]:px-4 sm:gap-4 sm:px-6 lg:px-10">
           <SignatureHomeLink label={t("mk.nav.logoLabel")} landing className={focusRing} />
 
           {!menuOnly && <nav aria-label={t("mk.nav.label")} className="hidden flex-1 justify-center xl:flex">

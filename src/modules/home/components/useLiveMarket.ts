@@ -15,6 +15,8 @@ export interface HomeQuote {
   changePct: number;
   decimals: number;
   closes: number[];
+  /** Real hourly candles from the feed (empty for the stored snapshot: no candles are invented). */
+  candles: Candle[];
   /** True once real data arrived (live OR delayed). Use `status` to label freshness. */
   live: boolean;
   status: QuoteStatus;
@@ -25,11 +27,18 @@ export interface HomeQuote {
 }
 
 export type QuoteStatus = "live" | "delayed" | "snapshot";
+export interface Candle {
+  t: number;
+  o: number;
+  h: number;
+  l: number;
+  c: number;
+}
 
 type Quotes = Record<string, HomeQuote>;
 
 const initial: Quotes = Object.fromEntries(
-  Object.entries(SNAPSHOT).map(([symbol, q]) => [symbol, { ...q, live: false, status: "snapshot" as const, asOf: null, source: null, dir: 0 as const }]),
+  Object.entries(SNAPSHOT).map(([symbol, q]) => [symbol, { ...q, candles: [] as Candle[], live: false, status: "snapshot" as const, asOf: null, source: null, dir: 0 as const }]),
 );
 
 interface MarketRow {
@@ -37,6 +46,7 @@ interface MarketRow {
   price: number;
   prevClose: number;
   closes: number[];
+  candles?: Candle[];
   status?: "live" | "delayed";
   asOf?: number;
   source?: string;
@@ -57,6 +67,8 @@ const subscribers = new Set<() => void>();
 let pollId: ReturnType<typeof setInterval> | null = null;
 
 async function poll() {
+  // A background tab doesn't need prices: skip, and refresh the moment it is shown again.
+  if (typeof document !== "undefined" && document.hidden) return;
   try {
     const res = await fetch("/api/home/market");
     if (!res.ok) throw new Error(String(res.status));
@@ -71,6 +83,7 @@ async function poll() {
         last: row.price,
         changePct: row.prevClose > 0 ? ((row.price - row.prevClose) / row.prevClose) * 100 : base.changePct,
         closes: row.closes.length >= 10 ? row.closes.slice(-60) : base.closes,
+        candles: row.candles && row.candles.length >= 10 ? row.candles.slice(-60) : base.candles,
         live: true,
         status: row.status ?? "delayed",
         asOf: row.asOf ?? null,
@@ -85,17 +98,23 @@ async function poll() {
   }
 }
 
+function onVisible() {
+  if (!document.hidden) void poll();
+}
+
 function subscribe(cb: () => void) {
   subscribers.add(cb);
   if (subscribers.size === 1) {
     void poll();
     pollId = setInterval(poll, 15_000);
+    document.addEventListener("visibilitychange", onVisible);
   }
   return () => {
     subscribers.delete(cb);
     if (subscribers.size === 0 && pollId) {
       clearInterval(pollId);
       pollId = null;
+      document.removeEventListener("visibilitychange", onVisible);
     }
   };
 }

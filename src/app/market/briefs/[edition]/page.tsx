@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { BRIEFS, BriefDetail, findBrief } from "@/modules/markets";
+import { BRIEFS, BriefDetail, SiteShell, findBrief } from "@/modules/markets";
+import { PlatformShell } from "@/modules/platform";
+import { Ambience } from "@/modules/resources";
 import { translate } from "@/platform/i18n";
 import { getServerEdition } from "@/platform/i18n/server";
 
@@ -21,5 +23,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BriefPage({ params }: Props) {
   const { edition } = await params;
-  return <BriefDetail edition={decodeURIComponent(edition)} />;
+  return (
+    <SiteShell>
+      <PlatformShell>
+        <div className="relative">
+          <Ambience />
+          <div className="relative">
+            <BriefDetail edition={decodeURIComponent(edition)} />
+          </div>
+        </div>
+      </PlatformShell>
+    </SiteShell>
+  );
 }

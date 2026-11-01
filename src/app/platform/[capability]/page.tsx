@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
-import { CAPABILITIES, CapabilityPage, capabilityPath, getCapability, getCapabilityBySegment } from "@/modules/platform";
+import { SiteShell } from "@/modules/markets";
+import { AlertsPage, CAPABILITIES, CapabilityPage, CommunityPage, MarketDataPage, ResearchPage, RiskPage, capabilityPath, getCapability, getCapabilityBySegment } from "@/modules/platform";
 
 // Only the five W2.2–W2.6 pages exist; anything else is a 404.
 export const dynamicParams = false;
@@ -28,7 +29,20 @@ export async function generateMetadata({ params }: PageProps<"/platform/[capabil
 export default async function CapabilityRoute({ params }: PageProps<"/platform/[capability]">) {
   const segment = (await params).capability;
   const capability = getCapabilityBySegment(segment);
-  if (capability) return <CapabilityPage capability={capability} />;
+  // Pages already on the AI OS capability template render their own frame (the home's navbar, ticker and footer).
+  if (capability?.slug === "charts") return <MarketDataPage />;
+  if (capability?.slug === "research") return <ResearchPage />;
+  if (capability?.slug === "alerts") return <AlertsPage />;
+  if (capability?.slug === "trade-review") return <RiskPage />;
+  if (capability?.slug === "community") return <CommunityPage />;
+  // The others keep the public-site chrome (nav, pre-launch strip) until they move to the AI OS theme;
+  // the footer is rendered by their closing block.
+  if (capability)
+    return (
+      <SiteShell footer={false}>
+        <CapabilityPage capability={capability} />
+      </SiteShell>
+    );
   // An old slug URL (/platform/charts, /platform/trade-review): send it to the page's current address.
   const legacy = getCapability(segment);
   if (legacy) permanentRedirect(capabilityPath(legacy.slug));

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ContactPage } from "@/modules/company";
+import { ContactFilmPage } from "@/modules/platform";
 
 export const metadata: Metadata = {
   title: "Contact Us — AFVAR",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <ContactPage />;
+  return <ContactFilmPage />;
 }
