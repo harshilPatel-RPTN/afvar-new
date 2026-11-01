@@ -22,7 +22,7 @@ export function Chapter09() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <section ref={trackRef} className={`relative bg-[#080A0B] text-[#F5F7F7] ${cinematic ? "lg:h-[320vh]" : ""}`} aria-label="Chapter 09 — Why AFVAR">
+      <section ref={trackRef} className={`relative text-(--afvar-text) ${cinematic ? "lg:h-[320vh]" : ""}`} aria-label="Chapter 09 — Why AFVAR">
         <div className={`overflow-hidden ${cinematic ? "lg:sticky lg:top-0 lg:h-svh" : ""}`}>
           {cinematic ? (
             <div className="relative h-svh w-full">
@@ -35,10 +35,10 @@ export function Chapter09() {
               <div className="pointer-events-none absolute inset-0">
                 <div className="absolute left-10 top-32">
                   <p className={`${MONO} text-[#6D7578]`}>
-                    <span className="text-[#F5F7F7]">09</span> / Why AFVAR
+                    <span className="text-(--afvar-text)">09</span> / Why AFVAR
                   </p>
                   <div className="mt-3 h-px w-28 bg-[rgba(255,255,255,0.12)]">
-                    <motion.div className="h-px origin-left bg-[#00E676]" style={{ scaleX: barScale }} />
+                    <motion.div className="h-px origin-left bg-(--afvar-mint)" style={{ scaleX: barScale }} />
                   </div>
                 </div>
 
@@ -46,7 +46,7 @@ export function Chapter09() {
                 <div className="absolute left-10 top-1/2 -translate-y-1/2">
                   {WORDS.map((w) => (
                     <WindowFade key={w.text} mv={scrollYProgress} w={w.window} className="absolute left-0 top-0 -translate-y-1/2">
-                      <WickText as="p" className="text-7xl font-semibold tracking-tight text-[#F5F7F7] xl:text-8xl" text={w.text} mv={scrollYProgress} at={[w.window[0], w.window[1]]} by="char" />
+                      <WickText as="p" className="text-7xl font-semibold tracking-tight text-(--afvar-text) xl:text-8xl" text={w.text} mv={scrollYProgress} at={[w.window[0], w.window[1]]} by="char" />
                     </WindowFade>
                   ))}
                 </div>
@@ -60,7 +60,7 @@ export function Chapter09() {
           ) : (
             <div className="px-5 pb-16 pt-20 sm:px-8">
               <p className="text-4xl font-semibold tracking-tight sm:text-5xl">
-                Follow. Understand. <span className="text-[#00E676]">Review.</span>
+                Follow. Understand. <span className="text-(--afvar-mint)">Review.</span>
               </p>
               <div className="mt-10">
                 <Reasons />
@@ -76,8 +76,8 @@ export function Chapter09() {
 function Reasons({ mv, at }: { mv?: MotionValue<number>; at?: readonly [number, number] } = {}) {
   return (
     <div className="pointer-events-auto">
-      <p className={`${MONO} text-[#00E676]`}>Why AFVAR</p>
-      <WickText as="h2" className="mt-4 max-w-2xl text-3xl font-semibold leading-[1.1] tracking-tight text-[#F5F7F7] sm:text-4xl xl:text-5xl" text="Built so {e|€}very number can defend itself." mv={mv} at={at} />
+      <p className={`${MONO} text-(--afvar-mint)`}>Why AFVAR</p>
+      <WickText as="h2" className="mt-4 max-w-2xl text-3xl font-semibold leading-[1.1] tracking-tight text-(--afvar-text) sm:text-4xl xl:text-5xl" text="Built so {e|€}very number can defend itself." mv={mv} at={at} />
       <div className="mt-10 grid gap-4 sm:grid-cols-3">
         {REASONS.map((r, i) => (
           <PanelCard key={r.title} mv={mv} at={at} index={i} bodyClassName="p-6">
@@ -88,11 +88,11 @@ function Reasons({ mv, at }: { mv?: MotionValue<number>; at?: readonly [number, 
         ))}
       </div>
       {/* evidence banner: fine green-to-red hairline on top */}
-      <div className="mt-6 overflow-hidden rounded-2xl border border-white/[.11] bg-[#111416]">
-        <div className="h-[2px] bg-gradient-to-r from-[#00E676] to-[#FF3B3B]" />
+      <div className="mt-6 overflow-hidden rounded-2xl border border-white/[.11] bg-(--afvar-panel)">
+        <div className="h-[2px] bg-gradient-to-r from-(--afvar-mint) to-(--afvar-crimson)" />
         <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-          <p className="max-w-2xl text-sm leading-relaxed text-[#F5F7F7]">{EVIDENCE}</p>
-          <Link href="/platform/research" className="shrink-0 text-sm font-medium text-[#00E676] afv-link">
+          <p className="max-w-2xl text-sm leading-relaxed text-(--afvar-text)">{EVIDENCE}</p>
+          <Link href="/platform/research" className="shrink-0 text-sm font-medium text-(--afvar-mint) afv-link">
             Explore our evidence
           </Link>
         </div>

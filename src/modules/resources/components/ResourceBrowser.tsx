@@ -155,9 +155,7 @@ function ResourceBrowser({
                       type="button"
                       onClick={() => setScope(c.id)}
                       aria-pressed={active}
-                      className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors ${
-                        active ? "bg-(--mac-select) text-(--text-primary)" : "text-(--text-secondary) hover:bg-white/[.04]"
-                      }`}
+                      className="afvar-glass-tab flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors"
                     >
                       <PIcon name={c.icon} size={15} className={active ? "text-(--accent)" : "text-(--text-muted)"} />
                       <span className="flex-1 truncate">{c.title}</span>
@@ -199,14 +197,14 @@ function ResourceBrowser({
         </aside>
 
         {/* Mobile scope chips */}
-        <div className="flex gap-1.5 overflow-x-auto border-b border-(--mac-hairline) p-2.5 md:hidden [scrollbar-width:none]">
+        <div className="afvar-glass-track flex gap-1.5 overflow-x-auto p-2.5 md:hidden [scrollbar-width:none]">
           {[{ id: "all" as const, title: "All" }, ...CATEGORIES].map((c) => (
             <button
               key={c.id}
               type="button"
               onClick={() => setScope(c.id)}
               aria-pressed={scope === c.id}
-              className={`shrink-0 rounded-full px-3 py-1.5 text-[12.5px] ${scope === c.id ? "rs-on font-semibold" : "bg-white/[.05] text-(--text-secondary)"}`}
+              className="afvar-glass-tab shrink-0 rounded-full px-3 py-1.5 text-[12.5px] aria-pressed:font-semibold"
             >
               {c.title}
             </button>
@@ -302,14 +300,14 @@ function ResourceBrowser({
                   </ul>
                 )}
                 <div className="mt-6 flex flex-wrap items-center gap-3">
-                  <Link href={selected.href} className="rs-btn">
+                  <Link href={selected.href} className="afvar-glass-button afvar-glass-primary rs-btn">
                     Open
                     <PIcon name="chevron" size={12} weight="bold" />
                   </Link>
                   <button
                     type="button"
                     onClick={copyLink}
-                    className="rs-ghost"
+                    className="afvar-glass-button rs-ghost"
                   >
                     <PIcon name={copied ? "check" : "link"} size={13} className={copied ? "text-(--accent)" : ""} />
                     {copied ? "Copied" : "Copy link"}
@@ -477,7 +475,7 @@ export function ResourceDesktop() {
   const visible = state === "open" || state === "full";
 
   return (
-    <div ref={desk} data-snake-target className="relative h-[760px] scroll-mt-24 overflow-hidden rounded-[22px] bg-[#050607] shadow-[0_0_0_0.5px_rgba(255,255,255,0.12),0_40px_120px_rgba(0,0,0,0.6)] md:h-[740px]">
+    <div ref={desk} data-snake-target className="relative h-[760px] scroll-mt-24 overflow-hidden rounded-[22px] bg-(--afvar-forest) shadow-[0_0_0_0.5px_rgba(255,255,255,0.12),0_40px_120px_rgba(0,0,0,0.6)] md:h-[740px]">
       {/* wallpaper: the section's own artwork, dimmed */}
       <Image src="/resources/resources-aurora.jpg" alt="" fill sizes="(min-width: 1200px) 1152px, 100vw" className="object-cover opacity-60" style={{ objectPosition: "center 70%" }} />
       <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,rgba(3,4,5,0.2),rgba(3,4,5,0.75))]" />

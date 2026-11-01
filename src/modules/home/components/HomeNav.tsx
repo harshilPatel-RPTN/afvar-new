@@ -151,7 +151,7 @@ function DesktopGroup({
         }}
         onKeyDown={onButtonKey}
         className={`inline-flex h-10 items-center gap-1 rounded-md px-2.5 text-[13px] transition-colors duration-200 motion-reduce:transition-none ${FOCUS_RING} ${
-          active || open ? "font-medium text-[#F5F7F7]" : "text-[#A3AAAC] hover:text-[#F5F7F7]"
+          active || open ? "font-medium text-(--afvar-text)" : "text-[#A3AAAC] hover:text-(--afvar-text)"
         }`}
       >
         {item.label}
@@ -166,7 +166,7 @@ function DesktopGroup({
             role="menu"
             id={panelId}
             aria-label={item.label}
-            className="min-w-[240px] rounded-xl border border-white/[.11] bg-[#111416] p-1.5 shadow-[0_24px_60px_-24px_rgba(0,0,0,.85)]"
+            className="min-w-[240px] rounded-xl border border-white/[.11] bg-(--afvar-panel) p-1.5 shadow-[0_24px_60px_-24px_rgba(0,0,0,.85)]"
           >
             {item.children.map((child) => {
               const current = pathname === child.href;
@@ -180,8 +180,8 @@ function DesktopGroup({
                     onClick={() => onOpenChange(false)}
                     className={`flex min-h-10 items-center justify-between gap-3 rounded-lg px-3 text-[13.5px] transition-colors duration-200 motion-reduce:transition-none ${FOCUS_RING} ${
                       current
-                        ? "bg-white/[.06] font-medium text-[#F5F7F7]"
-                        : "text-[#A3AAAC] hover:bg-white/[.05] hover:text-[#F5F7F7] focus-visible:text-[#F5F7F7]"
+                        ? "bg-white/[.06] font-medium text-(--afvar-text)"
+                        : "text-[#A3AAAC] hover:bg-white/[.05] hover:text-(--afvar-text) focus-visible:text-(--afvar-text)"
                     }`}
                   >
                     {child.label}
@@ -228,13 +228,13 @@ function MobileSheet({ pathname, onClose }: { pathname: string; onClose: () => v
 
   const rowClass = (active: boolean) =>
     `flex min-h-12 flex-1 items-center rounded-lg px-3 text-[16px] transition-colors duration-200 motion-reduce:transition-none ${FOCUS_RING} ${
-      active ? "font-medium text-white" : "text-[#F5F7F7] hover:bg-white/[.05]"
+      active ? "font-medium text-white" : "text-(--afvar-text) hover:bg-white/[.05]"
     }`;
 
   return (
     <div
       id="home-mobile-sheet"
-      className="fixed inset-x-0 bottom-0 top-16 z-40 flex flex-col overflow-y-auto border-t border-white/[.11] bg-[#080A0B] lg:hidden"
+      className="fixed inset-x-0 bottom-0 top-16 z-40 flex flex-col overflow-y-auto border-t border-white/[.11] bg-(--afvar-charcoal) lg:hidden"
     >
       <nav aria-label="Primary" className="flex-1 px-3 py-4 sm:px-5">
         <ul className="space-y-1">
@@ -259,7 +259,7 @@ function MobileSheet({ pathname, onClose }: { pathname: string; onClose: () => v
                   aria-controls={groupId}
                   onClick={() => setExpanded(isOpen ? null : item.href)}
                   className={`flex min-h-12 w-full items-center justify-between rounded-lg px-3 text-[16px] transition-colors duration-200 motion-reduce:transition-none ${FOCUS_RING} ${
-                    active ? "font-medium text-[#F5F7F7]" : "text-[#F5F7F7] hover:bg-white/[.05]"
+                    active ? "font-medium text-(--afvar-text)" : "text-(--afvar-text) hover:bg-white/[.05]"
                   }`}
                 >
                   {item.label}
@@ -276,7 +276,7 @@ function MobileSheet({ pathname, onClose }: { pathname: string; onClose: () => v
                             onClick={onClose}
                             aria-current={current ? "page" : undefined}
                             className={`flex min-h-11 items-center rounded-lg px-3 text-[14px] transition-colors duration-200 motion-reduce:transition-none ${FOCUS_RING} ${
-                              current ? "font-medium text-white" : "text-[#A3AAAC] hover:bg-white/[.04] hover:text-[#F5F7F7]"
+                              current ? "font-medium text-white" : "text-[#A3AAAC] hover:bg-white/[.04] hover:text-(--afvar-text)"
                             }`}
                           >
                             {child.label}
@@ -295,7 +295,7 @@ function MobileSheet({ pathname, onClose }: { pathname: string; onClose: () => v
       <div className="shrink-0 space-y-2.5 border-t border-white/[.11] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-5">
         <a
           href={SIGN_IN_URL}
-          className={`flex h-12 w-full items-center justify-center rounded-full border border-white/[.11] text-[15px] font-medium text-[#A3AAAC] transition-colors duration-200 hover:text-[#F5F7F7] motion-reduce:transition-none ${FOCUS_RING}`}
+          className={`flex h-12 w-full items-center justify-center rounded-full border border-white/[.11] text-[15px] font-medium text-[#A3AAAC] transition-colors duration-200 hover:text-(--afvar-text) motion-reduce:transition-none ${FOCUS_RING}`}
         >
           Sign in
         </a>
@@ -343,12 +343,12 @@ export function HomeNav() {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 h-16 border-b border-white/[.11] bg-[#030405]">
+      <header className="fixed inset-x-0 top-0 z-50 h-16 border-b border-white/[.11] bg-(--afvar-charcoal)">
         <div className="mx-auto flex h-full max-w-[1280px] items-center gap-4 px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
             aria-label="AFVAR home"
-            className={`inline-flex h-10 shrink-0 items-center rounded-sm text-[17px] font-semibold tracking-[0.35em] text-[#F5F7F7] transition-colors duration-200 hover:text-white motion-reduce:transition-none ${FOCUS_RING}`}
+            className={`inline-flex h-10 shrink-0 items-center rounded-sm text-[17px] font-semibold tracking-[0.35em] text-(--afvar-text) transition-colors duration-200 hover:text-white motion-reduce:transition-none ${FOCUS_RING}`}
           >
             {/* trailing tracking would offset the word; pull it back */}
             {/* one-time staggered letter rise on load (CSS, .mkc-wm in marketMotion) */}
@@ -380,7 +380,7 @@ export function HomeNav() {
                       href={item.href}
                       aria-current={active ? "page" : undefined}
                       className={`inline-flex h-10 items-center rounded-md px-2.5 text-[13px] transition-colors duration-200 motion-reduce:transition-none ${FOCUS_RING} ${
-                        active ? "font-medium text-[#F5F7F7]" : "text-[#A3AAAC] hover:text-[#F5F7F7]"
+                        active ? "font-medium text-(--afvar-text)" : "text-[#A3AAAC] hover:text-(--afvar-text)"
                       }`}
                     >
                       {item.label}
@@ -394,7 +394,7 @@ export function HomeNav() {
           <div className="ml-auto flex items-center gap-2 sm:gap-3 lg:ml-0">
             <a
               href={SIGN_IN_URL}
-              className={`hidden h-9 items-center rounded-md px-2 text-[13px] text-[#A3AAAC] transition-colors duration-200 hover:text-[#F5F7F7] motion-reduce:transition-none sm:inline-flex ${FOCUS_RING}`}
+              className={`hidden h-9 items-center rounded-md px-2 text-[13px] text-[#A3AAAC] transition-colors duration-200 hover:text-(--afvar-text) motion-reduce:transition-none sm:inline-flex ${FOCUS_RING}`}
             >
               Sign in
             </a>
@@ -407,7 +407,7 @@ export function HomeNav() {
               aria-expanded={mobileOpen}
               aria-controls="home-mobile-sheet"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
-              className={`grid h-10 w-10 place-items-center rounded-md text-[#F5F7F7] transition-colors duration-200 hover:bg-white/[.06] motion-reduce:transition-none lg:hidden ${FOCUS_RING}`}
+              className={`grid h-10 w-10 place-items-center rounded-md text-(--afvar-text) transition-colors duration-200 hover:bg-white/[.06] motion-reduce:transition-none lg:hidden ${FOCUS_RING}`}
             >
               {mobileOpen ? (
                 <svg viewBox="0 0 20 20" className="h-5 w-5" aria-hidden="true">

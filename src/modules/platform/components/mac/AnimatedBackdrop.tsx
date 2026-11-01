@@ -8,17 +8,18 @@
 //   constellation — bokeh depth layers drift and nodes pulse like live signals
 // Scroll gives every variant gentle parallax; the pointer steers a soft key
 // light (mouse only). Reduced motion renders the still image, nothing else.
+import { useAfvarReducedMotion } from "@/modules/afvarOs";
 import Image from "next/image";
-import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
+import { motion, useMotionTemplate, useMotionValue, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
 import { useEffect, useRef } from "react";
 
 export type BackdropEffect = "silk" | "aurora" | "constellation";
 export type BackdropTint = "warm" | "cool" | "market";
 
 const TINT = {
-  warm: { light: "185,246,202", star: "#ffffff" },
-  cool: { light: "150,230,255", star: "#dff6ff" },
-  market: { light: "0,230,118", star: "#e6fff2" },
+  warm: { light: "152,87,87", star: "#e7c4c1" },
+  cool: { light: "95,148,113", star: "#c1dfcc" },
+  market: { light: "112,164,129", star: "#cbdfd2" },
 } as const;
 
 const EASE_SOFT = [0.37, 0, 0.63, 1] as const;
@@ -61,7 +62,7 @@ export function AnimatedBackdrop({
   /** Keep the artwork's own colours — opts out of the site shell's green recolour of backdrop images. */
   natural?: boolean;
 }) {
-  const still = useReducedMotion() ?? false;
+  const still = useAfvarReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
 
   // Scroll parallax: the scenery falls behind the copy as the page scrolls.

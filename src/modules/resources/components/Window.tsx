@@ -246,7 +246,7 @@ export function Window({
             <span className="min-w-0 flex-1 truncate text-[13.5px] text-(--text-secondary)">
               <span className="font-semibold text-(--text-primary)">{title ?? "Window"}</span> is closed
             </span>
-            <button type="button" onClick={() => go("open")} className="rs-ghost !h-8 !text-[12.5px]">
+            <button type="button" onClick={() => go("open")} className="afvar-glass-button rs-ghost !h-8 !text-[12.5px]">
               Reopen
             </button>
           </motion.div>

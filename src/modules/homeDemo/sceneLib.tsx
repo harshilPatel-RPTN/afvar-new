@@ -101,7 +101,7 @@ export function SceneLabel({
       <div
         ref={ref}
         style={{ opacity: 0, color, borderColor: tone === "neutral" ? "rgba(255,255,255,0.18)" : color }}
-        className="whitespace-nowrap border bg-[#111416] px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.16em]"
+        className="whitespace-nowrap border bg-(--afvar-panel) px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.16em]"
       >
         {children}
       </div>

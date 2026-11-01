@@ -1,10 +1,10 @@
 "use client";
 
+import { useAfvarReducedMotion } from "@/modules/afvarOs";
 import {
   AnimatePresence,
   motion,
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
 } from "framer-motion";
 import { useRef, useState, type RefObject } from "react";
@@ -60,7 +60,7 @@ const LAST = STEPS.length - 1;
  * Mobile and reduced motion: a plain vertical list.
  */
 export function VerifyFlow() {
-  const reduce = useReducedMotion() ?? false;
+  const reduce = useAfvarReducedMotion();
 
   return (
     <section

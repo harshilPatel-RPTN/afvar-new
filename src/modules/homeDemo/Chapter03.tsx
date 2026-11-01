@@ -25,7 +25,7 @@ export function Chapter03() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <section ref={trackRef} className={`relative bg-[#080A0B] text-[#F5F7F7] ${cinematic ? "lg:h-[420vh]" : ""}`} aria-label="Chapter 03 — Intelligence">
+      <section ref={trackRef} className={`relative text-(--afvar-text) ${cinematic ? "lg:h-[420vh]" : ""}`} aria-label="Chapter 03 — Intelligence">
         <div className={`overflow-hidden ${cinematic ? "lg:sticky lg:top-0 lg:h-svh" : ""}`}>
           {cinematic ? (
             <div className="relative h-svh w-full">
@@ -38,17 +38,17 @@ export function Chapter03() {
                 {/* chapter label + progress line */}
                 <div className="absolute left-10 top-32">
                   <p className={`${MONO} text-[#6D7578]`}>
-                    <span className="text-[#F5F7F7]">03</span> / Intelligence
+                    <span className="text-(--afvar-text)">03</span> / Intelligence
                   </p>
                   <div className="mt-3 h-px w-28 bg-[rgba(255,255,255,0.12)]">
-                    <motion.div className="h-px origin-left bg-[#00E676]" style={{ scaleX: barScale }} />
+                    <motion.div className="h-px origin-left bg-(--afvar-mint)" style={{ scaleX: barScale }} />
                   </div>
                 </div>
 
                 {/* the question, typed in plain words */}
                 <WindowFade mv={scrollYProgress} w={QUESTION.window} className="absolute bottom-[20vh] left-10 max-w-xl">
-                  <p className={`${MONO} text-[#00E676]`}>Ask</p>
-                  <p className="mt-2 text-3xl font-medium leading-snug tracking-tight text-[#F5F7F7] xl:text-4xl">&ldquo;{QUESTION.text}&rdquo;</p>
+                  <p className={`${MONO} text-(--afvar-mint)`}>Ask</p>
+                  <p className="mt-2 text-3xl font-medium leading-snug tracking-tight text-(--afvar-text) xl:text-4xl">&ldquo;{QUESTION.text}&rdquo;</p>
                   <p className={`${MONO} mt-3 text-[#6D7578]`}>{QUESTION.langs}</p>
                 </WindowFade>
 
@@ -56,7 +56,7 @@ export function Chapter03() {
                 <div className="absolute bottom-[20vh] left-10 max-w-xl">
                   {CAPTIONS.map((c, i) => (
                     <WindowFade key={i} mv={scrollYProgress} w={c.window} className="absolute bottom-0 left-0 w-max max-w-xl">
-                      <WickText as="p" className="text-3xl font-medium leading-snug tracking-tight text-[#F5F7F7] xl:text-4xl" text={c.text} mv={scrollYProgress} at={[c.window[0], c.window[1]]} />
+                      <WickText as="p" className="text-3xl font-medium leading-snug tracking-tight text-(--afvar-text) xl:text-4xl" text={c.text} mv={scrollYProgress} at={[c.window[0], c.window[1]]} />
                     </WindowFade>
                   ))}
                 </div>
@@ -65,7 +65,7 @@ export function Chapter03() {
                 <div className="absolute right-10 top-1/3 flex flex-col items-end gap-2">
                   {CALCS.map((c) => (
                     <WindowFade key={c.label} mv={scrollYProgress} w={c.window}>
-                      <span className={`${MONO} rounded-full border ${HAIR} bg-[#111416] px-3 py-1.5 text-[#A3AAAC]`}>{c.label}</span>
+                      <span className={`${MONO} rounded-full border ${HAIR} bg-(--afvar-panel) px-3 py-1.5 text-[#A3AAAC]`}>{c.label}</span>
                     </WindowFade>
                   ))}
                 </div>
@@ -106,8 +106,8 @@ export function Chapter03() {
 function FinaleCopy({ mv, at }: { mv?: MotionValue<number>; at?: readonly [number, number] } = {}) {
   return (
     <div className="pointer-events-auto">
-      <p className={`${MONO} text-[#00E676]`}>Intelligence</p>
-      <WickText as="h2" className="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight text-[#F5F7F7] sm:text-4xl xl:text-5xl" text="From question to graded in{s|$}ight." mv={mv} at={at} />
+      <p className={`${MONO} text-(--afvar-mint)`}>Intelligence</p>
+      <WickText as="h2" className="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight text-(--afvar-text) sm:text-4xl xl:text-5xl" text="From question to graded in{s|$}ight." mv={mv} at={at} />
       <p className="mt-5 max-w-md text-base leading-relaxed text-[#A3AAAC]">
         Every verdict — BULLISH, BEARISH or WAIT — carries its levels, its invalidation and its reasoning. And every one is graded publicly
         against what price actually did, including every WAIT.
@@ -116,11 +116,11 @@ function FinaleCopy({ mv, at }: { mv?: MotionValue<number>; at?: readonly [numbe
       <div className="mt-7 flex flex-wrap items-center gap-4">
         <Link
           href="/platform"
-          className="afv-cta inline-block rounded-full bg-[#00E676] px-6 py-3 text-sm font-semibold text-[#05130C] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#69F0AE]"
+          className="afvar-glass-button afvar-glass-primary inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold"
         >
           Explore the platform
         </Link>
-        <Link href={REGISTER_HREF} prefetch={false} className="text-sm font-medium text-[#A3AAAC] transition-colors hover:text-[#F5F7F7] afv-link">
+        <Link href={REGISTER_HREF} prefetch={false} className="text-sm font-medium text-[#A3AAAC] transition-colors hover:text-(--afvar-text) afv-link">
           Register Now
         </Link>
       </div>
@@ -131,7 +131,7 @@ function FinaleCopy({ mv, at }: { mv?: MotionValue<number>; at?: readonly [numbe
 /** No-WebGL poster: a branching lattice, zero canvas. */
 function Poster() {
   return (
-    <div className="relative h-full w-full bg-[#080A0B]" aria-hidden="true">
+    <div className="relative h-full w-full" aria-hidden="true">
       <div className="absolute left-[18%] top-[48%] h-2 w-2 rounded-full bg-[#69F0AE] shadow-[0_0_20px_5px_rgba(0,230,118,0.5)]" />
       <div className="absolute left-[22%] right-[30%] top-[49%] h-px bg-gradient-to-r from-[rgba(0,230,118,0.5)] via-[rgba(0,230,118,0.2)] to-[rgba(0,230,118,0.55)]" />
       <div className="absolute right-[26%] top-[46%] h-4 w-4 rounded-full bg-[radial-gradient(circle,rgba(0,230,118,0.6),transparent_70%)]" />

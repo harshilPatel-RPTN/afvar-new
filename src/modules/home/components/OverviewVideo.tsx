@@ -69,10 +69,10 @@ export function VideoSpotlight({ children, playing = false, badge = "PREVIEW" }:
     {CORNERS.map((pos, i) => (
       <Corner key={pos} pos={pos} dir={CORNER_DIR[i]} gap={gap} opacity={halo} />
     ))}
-    <div className="group relative aspect-video w-full overflow-hidden rounded-[18px] border border-white/[.11] bg-[#080A0B] shadow-[0_30px_80px_-30px_rgba(0,0,0,.9)]">
+    <div className="group relative aspect-video w-full overflow-hidden rounded-[18px] border border-white/[.11] bg-(--afvar-charcoal) shadow-[0_30px_80px_-30px_rgba(0,0,0,.9)]">
       {children}
       {playing && (
-        <p className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/[.11] bg-[#030405] px-2.5 py-1 font-mono text-[10px] tracking-[.12em] text-(--mk-text)">
+        <p className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/[.11] bg-(--afvar-charcoal) px-2.5 py-1 font-mono text-[10px] tracking-[.12em] text-(--mk-text)">
           <span className="ov-rec h-1.5 w-1.5 rounded-full bg-[#FF3B3B]" aria-hidden="true" />
           {badge}
         </p>
@@ -130,12 +130,12 @@ export function OverviewVideoFrame({ onExpand }: { onExpand: () => void }) {
         className="absolute inset-0 grid place-items-center bg-transparent transition-colors hover:bg-black/20"
       >
         <span
-          className={`grid h-16 w-16 place-items-center rounded-full border border-white/[.16] bg-[#111416] text-(--mk-text) transition-opacity duration-200 ${playing ? "opacity-0 group-hover:opacity-100" : "opacity-100"}`}
+          className={`grid h-16 w-16 place-items-center rounded-full border border-white/[.16] bg-(--afvar-panel) text-(--mk-text) transition-opacity duration-200 ${playing ? "opacity-0 group-hover:opacity-100" : "opacity-100"}`}
         >
           <Icon name={playing ? "arrow" : "play"} className="h-6 w-6 translate-x-0.5" />
         </span>
       </button>
-      <p className="pointer-events-none absolute bottom-3 left-3 rounded-full border border-white/[.11] bg-[#030405] px-3 py-1 font-mono text-[10.5px] tracking-wide text-(--mk-dim)">
+      <p className="pointer-events-none absolute bottom-3 left-3 rounded-full border border-white/[.11] bg-(--afvar-charcoal) px-3 py-1 font-mono text-[10.5px] tracking-wide text-(--mk-dim)">
         {OVERVIEW.playNote}
       </p>
     </VideoSpotlight>

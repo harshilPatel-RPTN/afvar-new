@@ -23,7 +23,7 @@ export function OverviewHero() {
         tint="market"
         natural
         priority
-        opacity={0.85}
+        opacity={0.55}
         position="center 70%"
         className="absolute inset-x-0 top-0 h-[900px]"
         fade="linear-gradient(to bottom, black 45%, transparent)"

@@ -8,7 +8,7 @@ import { useId } from "react";
 export interface ChartLevel {
   value: number;
   label: string;
-  tone?: "gold" | "up" | "down";
+  tone?: "ai" | "gold" | "up" | "down";
 }
 
 export function MiniChart({ closes, levels = [], className = "" }: { closes: readonly number[]; levels?: readonly ChartLevel[]; className?: string }) {
@@ -25,7 +25,7 @@ export function MiniChart({ closes, levels = [], className = "" }: { closes: rea
   const line = closes.map((v, i) => `${x(i).toFixed(2)},${y(v).toFixed(2)}`).join(" ");
   const up = closes[closes.length - 1] >= closes[0];
   const stroke = up ? "#00E676" : "#FF4D4D";
-  const toneColor = (t?: ChartLevel["tone"]) => (t === "up" ? "#00E676" : t === "down" ? "#FF6B6B" : "#E9B44C");
+  const toneColor = (t?: ChartLevel["tone"]) => (t === "up" ? "#00E676" : t === "down" ? "#FF6B6B" : "#A8DEC2");
 
   return (
     <div className={`relative ${className}`}>
@@ -54,7 +54,7 @@ export function MiniChart({ closes, levels = [], className = "" }: { closes: rea
           {l.label}
         </span>
       ))}
-      <span className="absolute right-1.5 rounded px-1 py-0.5 font-mono text-[10px] text-[#050607]" style={{ top: `calc(${y(closes[closes.length - 1])}% - 8px)`, background: stroke }}>
+      <span className="absolute right-1.5 rounded px-1 py-0.5 font-mono text-[10px] text-[#171717]" style={{ top: `calc(${y(closes[closes.length - 1])}% - 8px)`, background: stroke }}>
         {closes[closes.length - 1].toLocaleString("en-US", { maximumFractionDigits: closes[closes.length - 1] < 10 ? 4 : 2 })}
       </span>
     </div>

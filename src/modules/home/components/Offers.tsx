@@ -175,7 +175,7 @@ function WaitlistCard() {
                 }}
                 placeholder={WAITLIST.placeholder}
                 aria-invalid={error}
-                className={`h-12 w-full rounded-full border bg-[#080A0B] pl-11 pr-4 text-[14px] text-(--mk-text) outline-none transition-colors placeholder:text-(--mk-faint) ${
+                className={`h-12 w-full rounded-full border bg-(--afvar-charcoal) pl-11 pr-4 text-[14px] text-(--mk-text) outline-none transition-colors placeholder:text-(--mk-faint) ${
                   error ? "border-(--mk-accent)/70" : "border-white/[.11] focus:border-white/[.3]"
                 } focus-visible:border-white/[.4] focus-visible:ring-2 focus-visible:ring-[rgba(245,247,247,.6)]`}
               />

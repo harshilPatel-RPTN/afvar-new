@@ -157,7 +157,7 @@ function HeadingTape() {
         const up = quote.changePct >= 0;
         return (
           <span key={symbol} className="flex items-center gap-1.5 pr-6">
-            <span className="text-[#F5F7F7]">{symbol}</span>
+            <span className="text-(--afvar-text)">{symbol}</span>
             <span className="text-[#A3AAAC]">{fmtPrice(quote.last, quote.decimals)}</span>
             <span style={{ color: up ? UP_HEX : DOWN_HEX }}>
               {up ? "+" : ""}
@@ -339,19 +339,17 @@ export const DOWN_HEX = "#FF3B3B";
 export const UP_TEXT = "text-[#00E676]";
 export const DOWN_TEXT = "text-[#FF6464]";
 
-/** Primary action: solid light neutral pill — never green/blue (§2.5). */
 export const BTN_PRIMARY =
-  "inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#F5F7F7] px-6 text-[14.5px] font-semibold text-[#030405] transition-colors duration-200 hover:bg-white active:bg-[#E3E7E7]";
+  "afvar-glass-button afvar-glass-primary inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-[14.5px] font-semibold";
 
-/** Secondary action: transparent with a hairline border. */
 export const BTN_OUTLINE =
-  "inline-flex h-11 items-center justify-center gap-2 rounded-full border border-white/[.16] bg-transparent px-6 text-[14.5px] font-medium text-(--mk-text) transition-colors duration-200 hover:border-white/[.3] hover:bg-white/[.04] active:bg-white/[.07]";
+  "afvar-glass-button inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-[14.5px] font-medium";
 
 /** Card surface: solid raised panel + hairline border (README §0.3 — no glass). */
-export const CARD = "rounded-2xl border border-white/[.11] bg-[#111416]";
+export const CARD = "rounded-2xl border border-white/[.11] bg-(--afvar-panel)";
 
 /** Solid raised panel — the section surface language (README §3.2). */
-export const PANEL = "rounded-2xl border border-white/[.11] bg-[#111416]";
+export const PANEL = "rounded-2xl border border-white/[.11] bg-(--afvar-panel)";
 
 /** Neutral icon tile: opaque graphite, hairline, neutral glyph. `tone` only for semantic market icons. */
 /** The glyph draws in (stroke-dashoffset) once the tile is revealed and bobs on hover (CSS in marketMotion). */

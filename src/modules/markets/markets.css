@@ -1,47 +1,31 @@
-/*
- * Public website theme (Markets): deep-space blacks from the nebula with a warm
- * gold accent, as in the approved reference. Scoped to `.mk` so it never leaks
- * into the lock screen or auth views.
- * Gold = primary actions and links; red = warnings and down-moves; cyan = up-moves.
- * A move never relies on colour alone: it always carries a sign and an arrow.
- */
+/* Marketing routes inherit the same materials as the home and account screens. */
 @layer base {
   .mk {
-    /* Deep space and dust */
-    --mk-page: #05060a;
-    --mk-surface: #0f1010;
-    --mk-raised: #171a18;
-    --mk-footer: #030407;
-
-    /* Gold (primary) */
-    --mk-primary: #ecc574;
-    --mk-primary-bright: #f7dc9c;
-    --mk-primary-deep: #6b4a14;
-    /* Text on the gold fill — white fails contrast there. */
-    --mk-on-primary: #1a1206;
-
-    /* Hydrogen red (accent / warnings / down-moves) and oxygen cyan (up-moves) */
-    --mk-accent: #e5484d;
-    --mk-accent-bright: #ff5a3c;
-    --mk-up: #00E676;
-    --mk-glow: #ffebb8;
-
-    --mk-text: #f4f2ee;
-    --mk-dim: #b3ada3;
-    --mk-faint: #6f6a62;
-    --mk-line: rgba(255, 236, 200, 0.1);
-
-    /* Glass surfaces */
-    --mk-glass: rgba(20, 22, 21, 0.55);
-    --mk-glass-strong: rgba(15, 17, 16, 0.82);
-    --mk-glass-border: rgba(255, 236, 200, 0.12);
-    --mk-glass-border-hover: rgba(236, 197, 116, 0.5);
-    --mk-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(0, 0, 0, 0.35);
-    --mk-glow-primary: 0 0 0 1px rgba(247, 220, 156, 0.4), 0 10px 30px -8px rgba(236, 197, 116, 0.55);
-    --mk-glow-primary-strong: 0 0 0 1px rgba(247, 220, 156, 0.6), 0 14px 40px -8px rgba(236, 197, 116, 0.75);
-    --mk-glow-card: 0 0 0 1px rgba(236, 197, 116, 0.28), 0 18px 48px -18px rgba(236, 197, 116, 0.3);
-
-    background: var(--mk-page);
+    --mk-page: var(--afvar-charcoal);
+    --mk-surface: var(--afvar-forest);
+    --mk-raised: var(--afvar-panel);
+    --mk-footer: var(--afvar-forest);
+    --mk-primary: var(--afvar-mint);
+    --mk-primary-bright: #d7f6e5;
+    --mk-primary-deep: #214934;
+    --mk-on-primary: var(--afvar-forest);
+    --mk-accent: var(--afvar-loss);
+    --mk-accent-bright: #ffc5bf;
+    --mk-up: var(--positive);
+    --mk-glow: #dbf4e5;
+    --mk-text: var(--afvar-text);
+    --mk-dim: var(--afvar-muted);
+    --mk-faint: #99aba1;
+    --mk-line: rgb(183 218 199 / .17);
+    --mk-glass: rgb(11 27 19 / .76);
+    --mk-glass-strong: rgb(8 22 15 / .95);
+    --mk-glass-border: rgb(200 231 214 / .25);
+    --mk-glass-border-hover: rgb(183 231 204 / .54);
+    --mk-shadow: 0 12px 30px -16px rgb(0 0 0 / .72);
+    --mk-glow-primary: inset 0 1px 0 rgb(231 255 240 / .36), 0 5px 16px -8px rgb(0 0 0 / .8);
+    --mk-glow-primary-strong: inset 0 1px 0 rgb(235 255 241 / .5), 0 5px 18px -7px rgb(28 79 51 / .7);
+    --mk-glow-card: 0 0 0 1px rgb(168 222 194 / .22), 0 12px 30px -18px rgb(23 62 40 / .6);
+    background: transparent;
     color: var(--mk-text);
     font-family: var(--mk-font-latin), var(--mk-font-deva), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -64,7 +48,7 @@
   }
 
   .mk ::selection {
-    background: rgba(236, 197, 116, 0.35);
+    background: rgb(168 222 194 / .3);
     color: var(--mk-text);
   }
 
@@ -80,9 +64,9 @@
 }
 
 @layer components {
-  /* Gold gradient text, e.g. "global markets." in the hero heading. */
+  /* Mint gradient text, e.g. "global markets." in the hero heading. */
   .mk-gradient-text {
-    background-image: linear-gradient(100deg, #f7dc9c 0%, #ecc574 45%, #d9a24a 100%);
+    background-image: linear-gradient(100deg, #eafbf1 0%, var(--afvar-mint) 45%, #75b792 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -219,7 +203,7 @@
 
   .mk-hero-shimmer {
     opacity: 0;
-    background-image: linear-gradient(100deg, transparent 38%, rgba(255, 248, 228, 0.95) 50%, transparent 62%);
+    background-image: linear-gradient(100deg, transparent 38%, rgba(232, 250, 239, 0.95) 50%, transparent 62%);
     background-size: 250% 100%;
     background-repeat: no-repeat;
   }
@@ -289,11 +273,11 @@
   z-index: 1;
 }
 .mk-spot::before {
-  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(236, 197, 116, 0.13), transparent 60%);
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(168, 222, 194, 0.13), transparent 60%);
 }
 .mk-spot::after {
   padding: 1px;
-  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(247, 220, 156, 0.85), rgba(236, 197, 116, 0.12) 45%, transparent 70%);
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(210, 242, 222, 0.85), rgba(168, 222, 194, 0.12) 45%, transparent 70%);
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);

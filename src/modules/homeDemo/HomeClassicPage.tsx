@@ -30,7 +30,7 @@ import { DEMO_CSS, REGISTER_HREF } from "./ui";
 
 export function HomeClassicPage() {
   return (
-    <div className={`${HOME_SCOPE} min-h-svh bg-[#080A0B] text-[#F5F7F7]`}>
+    <div className={`${HOME_SCOPE} min-h-svh text-(--afvar-text)`}>
       <HomeStyles />
       <style>{DEMO_CSS}</style>
       {/* The site-wide navbar (same as every page), with the demo ticker under it. */}
@@ -76,7 +76,7 @@ export function HomeClassicPage() {
           the shared footer with the clickable bull and bear. */}
       <EarthHorizon labelledBy="demo-closing-title">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 id="demo-closing-title" className="text-[clamp(2.1rem,4.2vw,3.5rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-[#F5F7F7]">
+          <h2 id="demo-closing-title" className="text-[clamp(2.1rem,4.2vw,3.5rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-(--afvar-text)">
             The AI operating system <span className="text-[#A3AAAC]">for trading.</span>
           </h2>
           <div className="mt-9 flex justify-center">

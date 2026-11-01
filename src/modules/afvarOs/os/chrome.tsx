@@ -78,12 +78,12 @@ export function AppGlyph({ name, size = 16, color = "currentColor" }: { name: Ap
   );
 }
 
-/** The AI's mark everywhere in the OS: a small gold orb. */
+/** The AI's mark everywhere in the OS: a small mint orb. */
 export function AiOrb({ size = 14, pulse = true }: { size?: number; pulse?: boolean }) {
   return (
     <span
       aria-hidden="true"
-      className={`inline-block shrink-0 rounded-full bg-[radial-gradient(circle_at_35%_35%,#FFF4DA,#FFD98A_25%,#E9B44C_55%,#7A4E10)] ${pulse ? "afv-orb" : ""}`}
+      className={`inline-block shrink-0 rounded-full bg-[radial-gradient(circle_at_35%_35%,#EEF9F2,#D8F3E4_25%,#A8DEC2_55%,#315947)] ${pulse ? "afv-orb" : ""}`}
       style={{ width: size, height: size }}
     />
   );
@@ -127,7 +127,7 @@ export function OsScreen({
     <motion.div ref={box} className={`relative ${className}`} style={style}>
       <section
         aria-label={label}
-        className="absolute left-1/2 top-1/2 overflow-hidden rounded-[18px] border border-[rgba(255,255,255,0.14)] bg-[#07090A] shadow-[0_40px_120px_-30px_rgba(0,0,0,0.9),0_0_0_1px_rgba(0,0,0,0.6)]"
+        className="afvar-os-desktop-frame absolute left-1/2 top-1/2 overflow-hidden rounded-[18px] border border-[rgba(255,255,255,0.14)] bg-[#07090A] shadow-[0_40px_120px_-30px_rgba(0,0,0,0.9),0_0_0_1px_rgba(0,0,0,0.6)]"
         style={{ width, height, transform: `translate(-50%, -50%) scale(${scale})`, visibility: scale ? "visible" : "hidden" }}
       >
         <Wallpaper />
@@ -139,8 +139,8 @@ export function OsScreen({
 
 function Wallpaper() {
   return (
-    <div aria-hidden="true" className="absolute inset-0">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_115%,rgba(233,180,76,0.16),transparent_55%),radial-gradient(ellipse_at_15%_0%,rgba(255,255,255,0.05),transparent_45%)]" />
+    <div aria-hidden="true" className="afvar-os-wallpaper absolute inset-0">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_115%,rgba(168,222,194,0.16),transparent_55%),radial-gradient(ellipse_at_15%_0%,rgba(255,255,255,0.05),transparent_45%)]" />
       <div className="absolute inset-0 opacity-[0.35] [background-image:linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] [background-size:40px_40px]" />
     </div>
   );
@@ -167,21 +167,21 @@ export function MenuBar({
   return (
     <div className="absolute inset-x-0 top-0 z-40 flex h-[30px] items-center justify-between border-b border-[rgba(255,255,255,0.08)] bg-[rgba(9,11,12,0.94)] px-4 text-[12px] text-[#C9CFD1]">
       <div className="flex items-center gap-5">
-        <span className="font-semibold tracking-[0.22em] text-[#E9B44C]">AFVAR</span>
+        <span className="font-semibold tracking-[0.22em] text-[#A8DEC2]">AFVAR</span>
         {menus.map((m) => (
-          <span key={m} className={`rounded px-1.5 py-0.5 ${openMenu === m ? "bg-[rgba(233,180,76,0.18)] text-[#F5F7F7]" : ""}`}>
+          <span key={m} className={`rounded px-1.5 py-0.5 ${openMenu === m ? "bg-[rgba(168,222,194,0.18)] text-[#F2F5F2]" : ""}`}>
             {m}
           </span>
         ))}
       </div>
       <div className="flex items-center gap-4 font-mono text-[10.5px] tracking-[0.08em]">
-        {focus ? <span className="rounded-full border border-[rgba(233,180,76,0.5)] px-2 py-0.5 text-[#E9B44C]">◐ FOCUS · {focus}</span> : null}
-        <span className="flex items-center gap-1.5 text-[#E9B44C]">
+        {focus ? <span className="rounded-full border border-[rgba(168,222,194,0.5)] px-2 py-0.5 text-[#A8DEC2]">◐ FOCUS · {focus}</span> : null}
+        <span className="flex items-center gap-1.5 text-[#A8DEC2]">
           <AiOrb size={8} />
           {status.toUpperCase()}
         </span>
         <span>{space.toUpperCase()}</span>
-        {clock ? <span className="tabular-nums text-[#F5F7F7]">{clock}</span> : null}
+        {clock ? <span className="tabular-nums text-[#F2F5F2]">{clock}</span> : null}
       </div>
     </div>
   );
@@ -214,19 +214,19 @@ export function Dock({ items, style }: { items: readonly DockItem[]; style?: Mot
       className="absolute bottom-3 left-1/2 z-40 flex -translate-x-1/2 items-end gap-[10px] rounded-[18px] border border-[rgba(255,255,255,0.12)] bg-[rgba(14,17,19,0.94)] px-3 py-2"
       style={style}
     >
-      <span title="AFVAR AI" className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#1A1408] ring-1 ring-[rgba(233,180,76,0.5)]">
+      <span title="AFVAR AI" className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#1A1408] ring-1 ring-[rgba(168,222,194,0.5)]">
         <AiOrb size={22} />
       </span>
       {items.map((it) => (
         <span key={it.id} title={it.label} className="relative flex flex-col items-center">
           <span
             className={`flex h-11 w-11 items-center justify-center rounded-xl border ${
-              it.attention ? "border-[rgba(233,180,76,0.7)] bg-[#221A0B] text-[#E9B44C]" : "border-[rgba(255,255,255,0.1)] bg-[#181C1F] text-[#C9CFD1]"
+              it.attention ? "border-[rgba(168,222,194,0.7)] bg-[#10231B] text-[#A8DEC2]" : "border-[rgba(255,255,255,0.1)] bg-[#181C1F] text-[#C9CFD1]"
             }`}
           >
             <AppGlyph name={it.glyph} size={20} />
           </span>
-          <span className={`absolute -bottom-1.5 h-1 w-1 rounded-full ${it.running ? "bg-[#E9B44C]" : "bg-transparent"}`} />
+          <span className={`absolute -bottom-1.5 h-1 w-1 rounded-full ${it.running ? "bg-[#A8DEC2]" : "bg-transparent"}`} />
         </span>
       ))}
     </motion.nav>

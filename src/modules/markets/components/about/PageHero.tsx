@@ -37,7 +37,7 @@ export function PageHero({
       {/* Live silk in place of the /about hero artwork: same 760px band, same fade into the page. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[760px] bg-[#05060a] opacity-95"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[760px] bg-(--afvar-charcoal) opacity-95"
         style={{ maskImage: FADE, WebkitMaskImage: FADE }}
       >
         <SilkBackdrop tone={tone} />

@@ -43,7 +43,7 @@ export function TroubleshootChecks({ topic, supportTopic }: { topic: TroubleTopi
             type="button"
             onClick={() => setOutcome("fixed")}
             aria-pressed={outcome === "fixed"}
-            className={outcome === "fixed" ? "rs-btn !h-10 !px-5 !text-[14px]" : "rs-ghost !h-10 !px-5 !text-[14px]"}
+            className={outcome === "fixed" ? "afvar-glass-button afvar-glass-primary rs-btn !h-10 !px-5 !text-[14px]" : "afvar-glass-button rs-ghost !h-10 !px-5 !text-[14px]"}
           >
             <PIcon name="check" size={14} />
             Yes, it&rsquo;s fixed
@@ -52,7 +52,7 @@ export function TroubleshootChecks({ topic, supportTopic }: { topic: TroubleTopi
             type="button"
             onClick={() => setOutcome("blocked")}
             aria-pressed={outcome === "blocked"}
-            className={`rs-ghost !h-10 !px-5 !text-[14px] ${outcome === "blocked" ? "!border-[#FF3B3B]/60 !bg-[#FF3B3B]/15 !text-[#ff8080]" : ""}`}
+            className={`afvar-glass-button rs-ghost !h-10 !px-5 !text-[14px] ${outcome === "blocked" ? "!border-(--afvar-loss)/60 !bg-(--afvar-crimson)/20 !text-(--afvar-loss)" : ""}`}
           >
             <PIcon name="close" size={13} />
             Still blocked

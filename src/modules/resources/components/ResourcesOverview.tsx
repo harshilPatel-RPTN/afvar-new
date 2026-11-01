@@ -19,7 +19,7 @@ export function ResourcesOverview() {
     <ResourcesShell>
       <ResourcesHero eyebrow={RESOURCES_HERO.eyebrow} title={RESOURCES_HERO.title} lede={RESOURCES_HERO.lede}>
         <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-4">
-          <Link href="/resources/getting-started" className="rs-primary">
+          <Link href="/resources/getting-started" className="afvar-glass-button afvar-glass-primary rs-primary">
             Get started
           </Link>
           <ResLink href="/resources/guides">Browse product guides</ResLink>
@@ -101,7 +101,7 @@ export function ResourcesOverview() {
         </div>
         <Reveal className="mx-auto mt-10 max-w-6xl">
           <div className="flex items-start gap-3 rounded-2xl border border-(--negative)/25 bg-(--negative)/[.05] p-5 text-[14px] leading-relaxed text-(--text-secondary)">
-            <PIcon name="shield" size={18} className="mt-0.5 shrink-0 text-[#ff6464]" />
+            <PIcon name="shield" size={18} className="mt-0.5 shrink-0 text-(--afvar-loss)" />
             <p>
               <span className="font-semibold text-(--text-primary)">AFVAR will never</span> {HELP.never[0].charAt(0).toLowerCase() + HELP.never[0].slice(1)}{" "}
               <Link href="/resources/help#never" className="text-(--accent) hover:underline">

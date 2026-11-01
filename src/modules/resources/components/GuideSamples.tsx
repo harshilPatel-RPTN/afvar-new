@@ -35,7 +35,7 @@ export function BadgeSample() {
             onFocus={() => setHot(b.key)}
             onClick={() => setHot(b.key)}
             aria-pressed={hot === b.key}
-            className={`rounded-md px-2.5 py-1.5 transition-colors ${hot === b.key ? "rs-on" : "bg-white/[.06] text-(--text-secondary) hover:bg-white/[.1]"}`}
+            className="afvar-glass-tab rounded-md px-2.5 py-1.5 transition-colors"
           >
             {b.sample}
           </button>
@@ -66,9 +66,7 @@ export function VerdictSample() {
             onFocus={() => setHot(p.key)}
             onClick={() => setHot(p.key)}
             aria-pressed={hot === p.key}
-            className={`rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors ${
-              hot === p.key ? "rs-on" : p.key === "view" ? "bg-(--positive)/15 text-(--positive)" : "bg-white/[.06] text-(--text-secondary) hover:bg-white/[.1]"
-            }`}
+            className="afvar-glass-tab rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors"
           >
             {p.text}
           </button>
@@ -100,10 +98,10 @@ function AlertSample() {
         <AnimatePresence mode="wait" initial={false}>
           {state === "review" ? (
             <motion.div key="review" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-3 flex gap-2">
-              <button type="button" onClick={() => setState("confirmed")} className="rs-btn !h-8 !px-4 !text-[12.5px]">
+              <button type="button" onClick={() => setState("confirmed")} className="afvar-glass-button afvar-glass-primary rs-btn !h-8 !px-4 !text-[12.5px]">
                 Confirm
               </button>
-              <button type="button" onClick={() => setState("editing")} className="rs-ghost !h-8 !px-4 !text-[12.5px]">
+              <button type="button" onClick={() => setState("editing")} className="afvar-glass-button rs-ghost !h-8 !px-4 !text-[12.5px]">
                 Edit
               </button>
             </motion.div>
@@ -138,7 +136,7 @@ function CommandSample() {
         </AnimatePresence>
         <PIcon name="mic" size={16} className="ml-auto text-(--accent)" />
       </div>
-      <p className={`mt-3 flex items-center gap-2 text-[13px] ${declined ? "text-[#ff6464]" : "text-(--text-secondary)"}`}>
+      <p className={`mt-3 flex items-center gap-2 text-[13px] ${declined ? "text-(--afvar-loss)" : "text-(--text-secondary)"}`}>
         <PIcon name={declined ? "close" : "check"} size={14} />
         {declined ? "Politely declined — AFVAR never trades. Use your own broker terminal." : "Understood — the workspace acts and reports the verified outcome."}
       </p>
@@ -149,7 +147,7 @@ function CommandSample() {
             type="button"
             onClick={() => setPicked(c)}
             aria-pressed={picked === c}
-            className={`rounded-full px-3 py-1.5 text-[12.5px] transition-colors ${picked === c ? "rs-on" : "bg-white/[.06] text-(--text-secondary) hover:bg-white/[.1]"}`}
+            className="afvar-glass-tab rounded-full px-3 py-1.5 text-[12.5px] transition-colors"
           >
             {c}
           </button>

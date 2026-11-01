@@ -18,5 +18,6 @@ export { PageScene3D } from "./components/three/PageScene3D";
 export type { PageModelKind } from "./components/three/PageModels3D";
 export { EarthBlock } from "./components/closing/EarthBlock";
 export { EarthHorizon } from "./components/closing/EarthHorizon";
+export { horizonStars } from "./components/closing/horizonStars";
 export { AnimatedBackdrop } from "./components/mac/AnimatedBackdrop";
 export type { BackdropEffect, BackdropTint } from "./components/mac/AnimatedBackdrop";

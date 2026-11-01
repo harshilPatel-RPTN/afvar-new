@@ -58,7 +58,7 @@ export function GuideSteps({ steps }: { steps: Guide["steps"] }) {
           type="button"
           onClick={() => setCurrent((c) => Math.max(0, c - 1))}
           disabled={current === 0}
-          className="rs-ghost"
+          className="afvar-glass-button rs-ghost"
         >
           <PIcon name="chevron" size={12} className="rotate-180" />
           Previous
@@ -70,7 +70,7 @@ export function GuideSteps({ steps }: { steps: Guide["steps"] }) {
           type="button"
           onClick={() => setCurrent((c) => Math.min(steps.length - 1, c + 1))}
           disabled={current === steps.length - 1}
-          className="rs-btn"
+          className="afvar-glass-button afvar-glass-primary rs-btn"
         >
           Next
           <PIcon name="chevron" size={12} weight="bold" />

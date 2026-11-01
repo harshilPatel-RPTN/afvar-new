@@ -75,9 +75,9 @@ export function FaqBrowser() {
                       window.history.replaceState(null, "", `#${g.id}`);
                     }}
                     aria-pressed={active}
-                    className={`flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors ${active ? "bg-(--mac-select) text-(--text-primary)" : "text-(--text-secondary) hover:bg-white/[.04]"}`}
+                    className="afvar-glass-tab flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors"
                   >
-                    <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-[6px] ${active ? "bg-(--accent) text-(--text-inverse)" : "bg-white/[.07] text-(--text-secondary)"}`}>
+                    <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-[6px] ${active ? "bg-(--afvar-mint)/10 text-(--afvar-mint)" : "bg-white/[.07] text-(--text-secondary)"}`}>
                       <PIcon name={ICONS[g.id] ?? "info"} size={13} />
                     </span>
                     <span className="whitespace-nowrap md:whitespace-normal">{g.title}</span>

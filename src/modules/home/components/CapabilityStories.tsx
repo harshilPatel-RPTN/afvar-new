@@ -15,7 +15,7 @@ import { StopGuard } from "./StopGuard";
 import { fmtPrice, type HomeQuote } from "./useLiveMarket";
 
 /** Shared visual frame — one fixed height so every card in a row matches. */
-export const VIS = "relative mt-5 h-[184px] overflow-hidden rounded-xl border border-white/[.08] bg-[#080A0B] px-3 py-2.5";
+export const VIS = "relative mt-5 h-[184px] overflow-hidden rounded-xl border border-white/[.08] bg-(--afvar-charcoal) px-3 py-2.5";
 
 type Extra = Record<string, unknown>;
 /** hidden → visible variant pair, starting at `t` seconds; zero-duration under reduced motion
@@ -512,7 +512,7 @@ export function RoomStory({ t }: { t: number }) {
           <span className="max-w-[86%] rounded-xl rounded-bl-sm border border-white/[.08] bg-[#171B1D] px-2.5 py-1.5 text-[11.5px] leading-snug text-(--mk-text)">
             Shared my gold chart for the London open. <SampleTag />
             {/* Shared-chart thumbnail: candles grow in (sample — no prices). */}
-            <span className="mt-1.5 flex h-[22px] w-[86px] items-end gap-[5px] rounded-md border border-white/[.08] bg-[#080A0B] px-1.5 pb-1" aria-hidden="true">
+            <span className="mt-1.5 flex h-[22px] w-[86px] items-end gap-[5px] rounded-md border border-white/[.08] bg-(--afvar-charcoal) px-1.5 pb-1" aria-hidden="true">
               {THUMB.map((h, i) => (
                 <motion.span
                   key={i}
@@ -525,7 +525,7 @@ export function RoomStory({ t }: { t: number }) {
           </span>
         </motion.div>
         <motion.div variants={V(reduce, { opacity: 0, y: 8 }, { opacity: 1, y: 0 }, t + 1.75)} className="flex items-end justify-end gap-2">
-          <span className="max-w-[80%] rounded-xl rounded-br-sm border border-white/[.08] bg-[#111416] px-2.5 py-1.5 text-[11.5px] leading-snug text-(--mk-dim)">
+          <span className="max-w-[80%] rounded-xl rounded-br-sm border border-white/[.08] bg-(--afvar-panel) px-2.5 py-1.5 text-[11.5px] leading-snug text-(--mk-dim)">
             Matches my journal — thanks. <SampleTag />
           </span>
           <span aria-hidden="true" className="grid h-5 w-5 shrink-0 place-items-center rounded-full font-mono text-[8.5px] text-[#030405]" style={{ background: "#A3AAAC" }}>
@@ -541,7 +541,7 @@ export function RoomStory({ t }: { t: number }) {
               <span
                 key={`${room}${dup ? "-dup" : ""}`}
                 aria-hidden={dup || undefined}
-                className="mr-1.5 shrink-0 rounded-full border border-white/[.08] bg-[#111416] px-2 py-[2px] font-mono text-[9px] text-(--mk-dim)"
+                className="mr-1.5 shrink-0 rounded-full border border-white/[.08] bg-(--afvar-panel) px-2 py-[2px] font-mono text-[9px] text-(--mk-dim)"
               >
                 # {room}
               </span>

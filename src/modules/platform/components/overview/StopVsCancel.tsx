@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import { useAfvarReducedMotion } from "@/modules/afvarOs";
+import { motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PIcon } from "../mac/icons";
 import { MacWindow } from "../mac/MacWindow";
@@ -43,7 +44,7 @@ export function StopVsCancel() {
  * stops pending steps. Completed steps always stay completed.
  */
 function TaskDemo() {
-  const still = useReducedMotion() ?? false;
+  const still = useAfvarReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const visible = useInView(ref, { amount: 0.4 });
 

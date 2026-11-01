@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useInView } from "framer-motion";
+import { useAfvarReducedMotion } from "@/modules/afvarOs";
 import { useCallback, useEffect, useReducer, useRef, useState, type KeyboardEvent } from "react";
 import { BrandMark } from "@/platform/ui";
 import { CAPABILITIES, getCapability } from "../../content";
@@ -27,7 +28,7 @@ const LOCALES: Record<Lang, string> = { en: "en-US", hi: "hi-IN" };
  * key hands control to the visitor. Wallpaper follows the local time of day.
  */
 export function TryDesktop() {
-  const still = useReducedMotion() ?? false;
+  const still = useAfvarReducedMotion();
   const desktopRef = useRef<HTMLDivElement>(null);
   const visible = useInView(desktopRef, { amount: 0.4 });
   const [state, dispatch] = useReducer(reducer, INITIAL);
@@ -197,14 +198,14 @@ export function TryDesktop() {
             </button>
           )}
         </div>
-        <div role="group" aria-label="Demo language" className="flex rounded-full bg-white/[0.05] p-0.5 text-[12px]">
+        <div role="group" aria-label="Demo language" className="afvar-glass-track flex rounded-full p-0.5 text-[12px]">
           {LANGS.map((l) => (
             <button
               key={l.id}
               type="button"
               aria-pressed={lang === l.id}
               onClick={() => setLang(l.id)}
-              className={`rounded-full px-3 py-1 transition-colors ${lang === l.id ? "bg-(--surface-active) text-(--text-primary)" : "text-(--text-muted) hover:text-(--text-primary)"}`}
+              className="afvar-glass-tab rounded-full px-3 py-1 transition-colors"
             >
               {l.label}
             </button>

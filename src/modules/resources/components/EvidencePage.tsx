@@ -130,7 +130,7 @@ export function EvidencePage() {
               <ul className="space-y-3">
                 {EVIDENCE.records.limits.map((p) => (
                   <li key={p} className="flex gap-2.5 text-[13.5px] leading-relaxed text-(--text-secondary)">
-                    <PIcon name="info" size={15} className="mt-0.5 shrink-0 text-[#ff6464]" />
+                    <PIcon name="info" size={15} className="mt-0.5 shrink-0 text-(--afvar-loss)" />
                     {p}
                   </li>
                 ))}

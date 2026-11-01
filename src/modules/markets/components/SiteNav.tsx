@@ -4,10 +4,11 @@ import Link from "next/link";
 import { BreadthStrip } from "@/modules/home/kit";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
-import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import { useT, type MessageKey } from "@/platform/i18n";
 import { REGISTER_URL } from "../data";
 import { SiteSearch } from "./SiteSearch";
+import { HomeNavMenu } from "./HomeNavMenu";
 import { ArrowIcon } from "./ui";
 import { SignatureHomeLink } from "@/platform/ui/SignatureHomeLink";
 
@@ -64,7 +65,7 @@ const focusRing =
   "outline-none focus-visible:ring-2 focus-visible:ring-(--mk-primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--mk-page)";
 
 /** Gold pill. Hover: colour + lift transition; the stronger glow is an opacity-only overlay (`JoinGlow`), never an animated box-shadow. */
-const joinButton = `group relative h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-(--mk-primary) px-5 text-[13px] font-semibold text-(--mk-on-primary) shadow-(--mk-glow-primary) transition-[color,background-color,border-color,opacity,transform] duration-300 hover:bg-(--mk-primary-bright) motion-safe:hover:-translate-y-0.5 motion-reduce:transition-none ${focusRing}`;
+const joinButton = `afvar-glass-button afvar-glass-primary group relative h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-(--mk-primary) px-5 text-[13px] font-semibold text-(--mk-on-primary) shadow-(--mk-glow-primary) transition-[color,background-color,border-color,opacity,transform] duration-300 hover:bg-(--mk-primary-bright) motion-safe:hover:-translate-y-0.5 motion-reduce:transition-none ${focusRing}`;
 
 function JoinGlow() {
   return (
@@ -265,7 +266,7 @@ function DesktopGroup({
               animate="show"
               exit="exit"
               transition={reduce ? { duration: 0.01 } : undefined}
-              className="mk-glass mk-glass-blur min-w-[240px] origin-top rounded-2xl p-2 shadow-(--mk-shadow) will-change-transform"
+              className="afvar-glass-panel mk-glass mk-glass-blur min-w-[240px] origin-top rounded-2xl p-2 shadow-(--mk-shadow) will-change-transform"
             >
               {item.children.map((child) => {
                 const current = pathname === child.href;
@@ -300,7 +301,11 @@ function DesktopGroup({
 /* Mobile panel                                                        */
 /* ------------------------------------------------------------------ */
 
-function MobilePanel({ pathname, onClose, returnFocus }: { pathname: string; onClose: () => void; returnFocus: () => void }) {
+function MobilePanel({ pathname, onClose, returnFocus }: {
+  pathname: string;
+  onClose: () => void;
+  returnFocus: () => void;
+}) {
   const { t } = useT();
   const reduce = useReducedMotion() ?? false;
   const panelRef = useRef<HTMLDivElement>(null);
@@ -350,7 +355,7 @@ function MobilePanel({ pathname, onClose, returnFocus }: { pathname: string; onC
     }`;
 
   return (
-    <div className="fixed inset-0 z-[60] xl:hidden" onKeyDown={onKeyDown}>
+    <div className="fixed inset-0 z-[140] xl:hidden" onKeyDown={onKeyDown}>
       <motion.div
         aria-hidden="true"
         className="absolute inset-0 bg-black/60"
@@ -369,7 +374,7 @@ function MobilePanel({ pathname, onClose, returnFocus }: { pathname: string; onC
         animate={reduce ? { opacity: 1 } : { x: 0 }}
         exit={reduce ? { opacity: 0 } : { x: "100%" }}
         transition={{ duration: reduce ? 0.01 : 0.32, ease: EASE }}
-        className="mk-glass-blur absolute inset-y-0 right-0 flex h-dvh w-full max-w-[400px] flex-col border-l border-(--mk-glass-border) bg-(--mk-glass-strong) shadow-(--mk-shadow)"
+        className="afvar-glass-panel mk-glass-blur absolute inset-y-0 right-0 flex h-dvh w-full max-w-[400px] flex-col border-l border-(--mk-glass-border) bg-(--mk-glass-strong) shadow-(--mk-shadow)"
       >
         <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-(--mk-line) px-4 sm:px-6">
           <SignatureHomeLink label={t("mk.nav.logoLabel")} onClick={onClose} className={focusRing} />
@@ -476,12 +481,13 @@ function MobilePanel({ pathname, onClose, returnFocus }: { pathname: string; onC
 /* SiteNav                                                             */
 /* ------------------------------------------------------------------ */
 
-export function SiteNav() {
+export function SiteNav({ menuOnly = false, children }: { menuOnly?: boolean; children?: ReactNode }) {
   const { t } = useT();
   const pathname = usePathname() ?? "/";
-  const [scrolled, setScrolled] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [panel, setPanel] = useState<"menu" | "search" | null>(null);
+  const menuOpen = panel === "menu";
+  const homeMenuId = useId();
   const [lastPath, setLastPath] = useState(pathname);
   const [hovered, setHovered] = useState<string | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -490,51 +496,38 @@ export function SiteNav() {
   if (lastPath !== pathname) {
     setLastPath(pathname);
     setOpenGroup(null);
-    setMobileOpen(false);
+    setPanel(null);
     setHovered(null);
   }
 
   const activeTop = NAV.find((item) => inSection(pathname, item.href))?.href ?? null;
   const underlined = hovered ?? activeTop;
 
+  // Other pages switch back to their full navigation at the desktop breakpoint.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // The mobile panel has no place on desktop widths.
-  useEffect(() => {
+    if (menuOnly) return;
     const mq = window.matchMedia("(min-width: 1280px)");
     const onChange = (e: MediaQueryListEvent) => {
-      if (e.matches) setMobileOpen(false);
+      if (e.matches) setPanel(current => current === "menu" ? null : current);
     };
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
-  }, []);
+  }, [menuOnly]);
 
-  const closeMobile = useCallback(() => setMobileOpen(false), []);
+  const closeMenu = useCallback(() => setPanel(null), []);
+  const openSearch = useCallback(() => setPanel("search"), []);
+  const setSearchOpen = useCallback((open: boolean) => setPanel(open ? "search" : null), []);
   const returnFocus = useCallback(() => menuButtonRef.current?.focus(), []);
-
-  const solid = scrolled || openGroup !== null;
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 h-[72px]">
-        {/* Glass layer: only its opacity animates, so scrolling never repaints the blur. */}
-        <div
-          aria-hidden="true"
-          className={`mk-glass mk-glass-blur pointer-events-none absolute inset-0 border-x-0 border-t-0 bg-(--mk-glass-strong) shadow-[0_10px_30px_-20px_rgba(0,0,0,0.9)] transition-opacity duration-500 ease-out motion-reduce:transition-none ${
-            solid ? "opacity-100" : "opacity-0"
-          }`}
-        />
+      <header className="fixed inset-x-0 top-0 z-50 h-[72px]" data-home-menu-open={menuOnly && menuOpen ? "" : undefined}>
         {/* /home-demo's bull vs bear tug line along the nav's bottom edge (real breadth). */}
-        <BreadthStrip />
+        {!menuOnly && <BreadthStrip />}
         <div className="relative flex h-full items-center gap-2 px-4 sm:gap-4 sm:px-6 lg:px-10">
           <SignatureHomeLink label={t("mk.nav.logoLabel")} landing className={focusRing} />
 
-          <nav aria-label={t("mk.nav.label")} className="hidden flex-1 justify-center xl:flex">
+          {!menuOnly && <nav aria-label={t("mk.nav.label")} className="hidden flex-1 justify-center xl:flex">
             <ul
               className="flex items-center gap-3 xl:gap-5"
               onPointerLeave={() => setHovered(null)}
@@ -573,35 +566,55 @@ export function SiteNav() {
                 );
               })}
             </ul>
-          </nav>
+          </nav>}
 
-          <div className="ml-auto flex items-center gap-2 sm:gap-3 xl:ml-0">
-            <SiteSearch />
-            <a href={REGISTER_URL} className={`${joinButton} hidden lg:inline-flex`}>
+          <div className={`ml-auto flex items-center gap-2 sm:gap-3 ${menuOnly ? "relative" : "xl:ml-0"}`}>
+            <SiteSearch open={panel === "search"} onOpenChange={setSearchOpen} menuFocus={menuOnly ? returnFocus : undefined} />
+            {!menuOnly && <a href={REGISTER_URL} className={`${joinButton} hidden lg:inline-flex`}>
               <JoinGlow />
               {t("mk.waitlist.cta")}
               <ArrowIcon className="h-3.5 w-3.5" />
-            </a>
+            </a>}
             <button
               ref={menuButtonRef}
               type="button"
-              onClick={() => setMobileOpen(true)}
-              aria-expanded={mobileOpen}
-              aria-haspopup="dialog"
+              onClick={() => setPanel(menuOpen ? null : "menu")}
+              onKeyDown={event => {
+                if (!menuOnly) return;
+                if (event.key === "Escape") setPanel(null);
+                if (event.key === "ArrowDown") {
+                  event.preventDefault();
+                  setPanel("menu");
+                  requestAnimationFrame(() => document.getElementById(homeMenuId)?.querySelector<HTMLElement>("a[href]")?.focus());
+                }
+              }}
+              aria-expanded={menuOpen}
+              aria-haspopup={menuOnly ? undefined : "dialog"}
+              aria-controls={menuOnly && menuOpen ? homeMenuId : undefined}
               aria-label={t("mk.nav.menu")}
-              className={`grid h-11 w-11 place-items-center rounded-full mk-glass mk-glass-blur text-(--mk-text) transition-[color,background-color,border-color,opacity,transform] hover:border-(--mk-glass-border-hover) hover:text-(--mk-primary) xl:hidden ${focusRing}`}
+              className={`afvar-glass-button afvar-menu-trigger inline-flex h-11 items-center justify-center gap-2 rounded-full text-(--mk-text) transition-[color,background-color,border-color,opacity,transform] ${menuOnly ? "px-4" : "w-11 xl:hidden"} ${focusRing}`}
             >
               <svg viewBox="0 0 20 20" className="h-5 w-5" aria-hidden="true">
-                <path d="M3.5 6h13M3.5 10h13M3.5 14h13" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" />
+                <g fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round">
+                  <path className="afvar-menu-line-first" d="M3.5 6h13" />
+                  <path className="afvar-menu-line-middle" d="M3.5 10h13" />
+                  <path className="afvar-menu-line-last" d="M3.5 14h13" />
+                </g>
               </svg>
+              {menuOnly && <span className="text-[13px] font-medium">{t("mk.nav.menu")}</span>}
             </button>
+            {menuOnly && <AnimatePresence>
+              {menuOpen && <HomeNavMenu id={homeMenuId} items={NAV} pathname={pathname} trigger={menuButtonRef} onClose={closeMenu} onSearch={openSearch}>
+                {children}
+              </HomeNavMenu>}
+            </AnimatePresence>}
           </div>
         </div>
       </header>
 
-      <AnimatePresence>
-        {mobileOpen && <MobilePanel key="mobile-nav" pathname={pathname} onClose={closeMobile} returnFocus={returnFocus} />}
-      </AnimatePresence>
+      {!menuOnly && panel !== "search" && <AnimatePresence>
+        {menuOpen && <MobilePanel key="mobile-nav" pathname={pathname} onClose={closeMenu} returnFocus={returnFocus} />}
+      </AnimatePresence>}
     </>
   );
 }

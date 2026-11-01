@@ -7,8 +7,8 @@
 import { frame, motion, useReducedMotion, type Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
-const GREEN = "#00E676";
-const RED = "#FF3B3B";
+const GREEN = "var(--afvar-mint)";
+const RED = "var(--afvar-loss)";
 const EASE = [0.16, 1, 0.3, 1] as const;
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 
@@ -325,7 +325,7 @@ export function CandleCard({
       <style href="rs-candle-card" precedence="default">
         {CARD_CSS}
       </style>
-      <motion.span aria-hidden="true" variants={wick} className="pointer-events-none absolute bottom-full left-1/2 z-10 h-6 w-px origin-bottom bg-[linear-gradient(0deg,#00E676,rgba(0,230,118,0))]" />
+      <motion.span aria-hidden="true" variants={wick} className="pointer-events-none absolute bottom-full left-1/2 z-10 h-6 w-px origin-bottom bg-[linear-gradient(0deg,var(--afvar-mint),transparent)]" />
       <motion.div variants={body} className="relative h-full">
         {children}
         <HoverCandles up={index % 2 === 0} />
@@ -423,8 +423,8 @@ export function SparkBurst() {
       <style href="rs-spark-burst" precedence="default">
         {[
           ".rsb-layer{position:fixed;inset:0;overflow:clip;pointer-events:none;z-index:130;contain:strict}",
-          ".rsb-c{position:absolute;left:0;top:0;width:6px;height:16px;margin:-8px 0 0 -3px;opacity:0;will-change:transform,opacity;--k:#FF3B3B}",
-          ".rsb-c[data-up]{--k:#00E676}",
+          ".rsb-c{position:absolute;left:0;top:0;width:6px;height:16px;margin:-8px 0 0 -3px;opacity:0;will-change:transform,opacity;--k:var(--afvar-loss)}",
+          ".rsb-c[data-up]{--k:var(--afvar-mint)}",
           ".rsb-w{position:absolute;left:2.5px;top:0;width:1px;height:16px;background:var(--k);opacity:.7}",
           ".rsb-b{position:absolute;left:0;top:4px;width:6px;height:8px;border-radius:1px;background:var(--k);box-shadow:0 0 6px var(--k)}",
           "@media (prefers-reduced-motion:reduce){.rsb-layer{display:none}}",

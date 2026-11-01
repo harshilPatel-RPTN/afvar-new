@@ -50,7 +50,7 @@ export function Chapter02() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <section ref={trackRef} className={`relative bg-[#080A0B] text-[#F5F7F7] ${cinematic ? "lg:h-[420vh]" : ""}`} aria-label="Chapter 02 — The Market World">
+      <section ref={trackRef} className={`relative text-(--afvar-text) ${cinematic ? "lg:h-[420vh]" : ""}`} aria-label="Chapter 02 — The Market World">
         <div className={`overflow-hidden ${cinematic ? "lg:sticky lg:top-0 lg:h-svh" : ""}`}>
           {cinematic ? (
             <div className="relative h-svh w-full">
@@ -63,10 +63,10 @@ export function Chapter02() {
                 {/* chapter label + progress line */}
                 <div className="absolute left-10 top-32">
                   <p className={`${MONO} text-[#6D7578]`}>
-                    <span className="text-[#F5F7F7]">02</span> / The Market World
+                    <span className="text-(--afvar-text)">02</span> / The Market World
                   </p>
                   <div className="mt-3 h-px w-28 bg-[rgba(255,255,255,0.12)]">
-                    <motion.div className="h-px origin-left bg-[#00E676]" style={{ scaleX: barScale }} />
+                    <motion.div className="h-px origin-left bg-(--afvar-mint)" style={{ scaleX: barScale }} />
                   </div>
                 </div>
 
@@ -79,7 +79,7 @@ export function Chapter02() {
                 <div className="absolute bottom-[20vh] left-10 max-w-xl">
                   {CAPTIONS.map((c, i) => (
                     <WindowFade key={i} mv={scrollYProgress} w={c.window} className="absolute bottom-0 left-0 w-max max-w-xl">
-                      <WickText as="p" className="text-3xl font-medium leading-snug tracking-tight text-[#F5F7F7] xl:text-4xl" text={c.text} mv={scrollYProgress} at={[c.window[0], c.window[1]]} />
+                      <WickText as="p" className="text-3xl font-medium leading-snug tracking-tight text-(--afvar-text) xl:text-4xl" text={c.text} mv={scrollYProgress} at={[c.window[0], c.window[1]]} />
                       {i === OIL.caption ? <OilPour mv={scrollYProgress} at={OIL.at} /> : null}
                     </WindowFade>
                   ))}
@@ -107,7 +107,7 @@ export function Chapter02() {
                 {/* provenance anatomy — shown during the scan sweep */}
                 <WindowFade mv={scrollYProgress} w={DOM2.provCard} className="absolute right-10 top-1/2 w-72 -translate-y-1/2">
                   <PanelCard mv={scrollYProgress} at={[DOM2.provCard[0], DOM2.provCard[1]]}>
-                    <p className={`${MONO} text-[#00E676]`}>These lanes show</p>
+                    <p className={`${MONO} text-(--afvar-mint)`}>These lanes show</p>
                     <dl className="mt-3 space-y-2">
                       {(
                         [
@@ -120,7 +120,7 @@ export function Chapter02() {
                       ).map(([f, v]) => (
                         <div key={f} className="flex items-baseline justify-between gap-4">
                           <dt className="text-sm text-[#A3AAAC]">{f}</dt>
-                          <dd className={`${MONO} text-[#F5F7F7]`}>{v}</dd>
+                          <dd className={`${MONO} text-(--afvar-text)`}>{v}</dd>
                         </div>
                       ))}
                     </dl>
@@ -134,7 +134,7 @@ export function Chapter02() {
                 </RampFade>
 
                 {/* honesty label */}
-                <WindowFade mv={scrollYProgress} w={DATA_LABEL_WINDOW} className={`${MONO} absolute left-10 top-56 max-w-sm rounded-full border ${HAIR} bg-[#111416] px-3 py-2 leading-relaxed text-[#A3AAAC]`}>
+                <WindowFade mv={scrollYProgress} w={DATA_LABEL_WINDOW} className={`${MONO} absolute left-10 top-56 max-w-sm rounded-full border ${HAIR} bg-(--afvar-panel) px-3 py-2 leading-relaxed text-[#A3AAAC]`}>
                   {live ? "Lanes drawn from recent hourly closes" : "Lanes drawn from a stored snapshot — not live"} · candles &amp; motion stylised · not
                   investment advice
                 </WindowFade>
@@ -164,7 +164,7 @@ export function Chapter02() {
 /** States exactly what the data layer reports: how many lanes are live vs delayed, or the stored snapshot. */
 function DataBadge({ live, text }: { live: boolean; text: string }) {
   return (
-    <div className={`inline-flex items-center gap-2 rounded-full border ${HAIR} bg-[#111416] px-3 py-1.5`}>
+    <div className={`inline-flex items-center gap-2 rounded-full border ${HAIR} bg-(--afvar-panel) px-3 py-1.5`}>
       <span className={`h-1.5 w-1.5 rounded-full ${live ? "bg-[#00E676]" : "bg-[#6D7578]"}`} aria-hidden="true" />
       <span className={`${MONO} ${live ? "text-[#00E676]" : "text-[#A3AAAC]"}`}>{text}</span>
       <span className={`${MONO} text-[#6D7578]`}>· {live ? "recent hourly closes" : "stored data"}</span>
@@ -177,8 +177,8 @@ function DataBadge({ live, text }: { live: boolean; text: string }) {
 function FinaleCopy({ mv, at }: { mv?: MotionValue<number>; at?: readonly [number, number] } = {}) {
   return (
     <div className="pointer-events-auto">
-      <p className={`${MONO} text-[#00E676]`}>Markets</p>
-      <WickText as="h2" className="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight text-[#F5F7F7] sm:text-4xl xl:text-5xl" text="International market{s|$}. Covered deeply." mv={mv} at={at} />
+      <p className={`${MONO} text-(--afvar-mint)`}>Markets</p>
+      <WickText as="h2" className="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight text-(--afvar-text) sm:text-4xl xl:text-5xl" text="International market{s|$}. Covered deeply." mv={mv} at={at} />
       <p className="mt-5 max-w-md text-base leading-relaxed text-[#A3AAAC]">
         Eight confirmed coverage lanes across three categories — every number with its source and freshness.
       </p>
@@ -186,11 +186,11 @@ function FinaleCopy({ mv, at }: { mv?: MotionValue<number>; at?: readonly [numbe
       <div className="mt-7 flex flex-wrap items-center gap-4">
         <Link
           href="/market"
-          className="afv-cta inline-block rounded-full bg-[#00E676] px-6 py-3 text-sm font-semibold text-[#05130C] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#69F0AE]"
+          className="afvar-glass-button afvar-glass-primary inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold"
         >
           Explore markets
         </Link>
-        <Link href={REGISTER_HREF} prefetch={false} className="text-sm font-medium text-[#A3AAAC] transition-colors hover:text-[#F5F7F7] afv-link">
+        <Link href={REGISTER_HREF} prefetch={false} className="text-sm font-medium text-[#A3AAAC] transition-colors hover:text-(--afvar-text) afv-link">
           Register Now
         </Link>
       </div>
@@ -201,7 +201,7 @@ function FinaleCopy({ mv, at }: { mv?: MotionValue<number>; at?: readonly [numbe
 /** No-WebGL poster: eight faint lanes, zero canvas. */
 function Poster() {
   return (
-    <div className="relative h-full w-full bg-[#080A0B]" aria-hidden="true">
+    <div className="relative h-full w-full" aria-hidden="true">
       {Array.from({ length: 8 }, (_, i) => (
         <div
           key={i}

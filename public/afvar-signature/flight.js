@@ -1,13 +1,15 @@
 import { createGaze } from "./cursor-gaze.mjs";
-import { sample, TIMING } from "./timeline.mjs";
+import { sample } from "./timeline.mjs";
 import { createFollowingLogo } from "./golden-reveal/reveal.js";
 import { createLockup } from "./golden-reveal/lockup.js";
 
-const entranceMs = 5100;
-const firstExpression = TIMING.firstBlink + TIMING.close + TIMING.shut + TIMING.unclose;
+// The ribbon reveal is a single short signature. Only real page readiness
+// can extend the centered, interactive part of a first visit.
+const entranceMs = 330;
+const dockMs = 450;
+const openingMs = 230;
+const clamp = value => Math.min(1, Math.max(0, value));
 
-// The route can be streamed after the shared layout hydrates. Wait for its
-// actual header and content; market APIs, background video and chat are optional.
 function waitForRoute(signal) {
   return new Promise(resolve => {
     let timer;
@@ -21,42 +23,53 @@ function waitForRoute(signal) {
     }
     function cancel() { done(null); }
     function check() {
-      if (document.readyState === "loading" || !document.querySelector("main,[role=main],h1")) return;
-      const mark = document.querySelector('[data-afvar-brand-mark][data-afvar-brand-ready="true"]');
-      const name = mark?.closest("a")?.querySelector("[data-afvar-brand-name]");
+      if (document.readyState === "loading") return;
+      const main = document.querySelector("main,[role=main],h1");
+      if (!main) return;
+      const mark = document.querySelector("[data-afvar-brand-mark]");
+      if (!mark) return done(null);
+      // The root story's boot layout is replaced when the first chapter has
+      // hydrated. Do not wait on the AI avatar, market feeds, fonts or video.
+      if (mark.dataset.afvarBrandReady !== "true" || main.querySelector('#afvar-ai[data-mode="boot"]')) return;
+      const name = mark.closest("a")?.querySelector("[data-afvar-brand-name]");
       if (name && mark.getBoundingClientRect().width && name.getBoundingClientRect().width) done({mark, name});
     }
     if (signal.aborted) return done(null);
     signal.addEventListener("abort", cancel, {once:true});
     document.addEventListener("DOMContentLoaded", check);
-    observer.observe(document.body, {childList:true, subtree:true, attributes:true, attributeFilter:["data-afvar-brand-ready"]});
-    timer = setTimeout(cancel, 1500);
+    observer.observe(document.body, {childList:true, subtree:true, attributes:true,
+      attributeFilter:["data-afvar-brand-ready", "data-mode"]});
+    timer = setTimeout(cancel, 5500);
     check();
   });
 }
 
-export async function startFlight(root, signal, finish, started) {
-  const targets = await waitForRoute(signal);
-  if (signal.aborted) return;
-  if (!targets) return finish();
+// Decode the actual selected picture source. A <picture> may have chosen the
+// mobile image while its fallback src still points at the desktop artwork.
+function decodeImages(...elements) {
+  const images = elements.flatMap(el => el instanceof HTMLImageElement ? [el] : [...el.querySelectorAll("img")]);
+  return Promise.all(images.map(image => image.decode()));
+}
 
+export async function startFlight(root, signal, finish, started) {
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  if (signal.aborted) return;
+  if (reduced.matches) return finish();
   const stage = root.querySelector("[data-signature-stage]");
   const caption = root.querySelector("[data-signature-caption]");
   const backdrop = root.querySelector("[data-signature-backdrop]");
-  // Each mount owns its own buffers. A late image decode from a discarded
-  // StrictMode effect cannot replace the new run's artwork.
   const mount = document.createElement("div");
   mount.dataset.signatureMount = "";
   const canvas = document.createElement("canvas");
   stage.append(mount, canvas);
-  let renderer, raf = 0;
-  const resize = new ResizeObserver(measure);
-  const lockup = createLockup(stage, caption, backdrop, targets.name);
-  const gaze = createGaze();
-  let elapsed = 0, readyAt = null, lastTick = null, lastPaint = -Infinity;
-  let headerVisibility;
-  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 
+  let raf = 0, renderer, targets, headerVisibility;
+  let elapsed = 0, readyAt = null, lastTick = null, lastPaint = -Infinity;
+  // At dock=0, only the center geometry is used. Bind the real destination
+  // as soon as the actual route and its lettering have become usable.
+  let lockup = createLockup(stage, caption, backdrop, caption);
+  const gaze = createGaze();
+  const resize = new ResizeObserver(measure);
   signal.addEventListener("abort", () => {
     cancelAnimationFrame(raf);
     resize.disconnect();
@@ -71,7 +84,8 @@ export async function startFlight(root, signal, finish, started) {
   }, {once:true});
 
   function measure() {
-    lockup.measure(targets.mark.getBoundingClientRect(), root.getBoundingClientRect());
+    const viewport = root.getBoundingClientRect();
+    lockup.measure(targets?.mark.getBoundingClientRect() ?? viewport, viewport);
   }
   function visibility() {
     lastTick = null;
@@ -90,20 +104,26 @@ export async function startFlight(root, signal, finish, started) {
   function tick(now) {
     if (signal.aborted || document.hidden) return;
     try {
-      if (!targets.name.isConnected) return finish();
+      if (targets && !targets.name.isConnected) return finish();
       elapsed += lastTick == null ? 0 : now - lastTick;
       lastTick = now;
-      if (readyAt === null && elapsed >= entranceMs + firstExpression) {
+      if (targets && readyAt === null) {
         readyAt = elapsed;
         gaze.release(elapsed);
-        measure();
       }
-      // Limit the software ribbon draw to 30fps. The smaller CSS-transformed
-      // signature and aperture get a higher budget while moving to the header.
-      const minFrame = readyAt === null ? 1000 / 30 - 1 : 1000 / 60 - 1;
+      // The eye blinks naturally during a real wait. The exit begins
+      // immediately after both the route and the formed signature are ready.
+      const frame = sample(elapsed, null, {entranceMs});
+      if (readyAt !== null && frame.formation === 1) {
+        const moving = elapsed - Math.max(entranceMs, readyAt);
+        frame.dock = clamp(moving / dockMs);
+        frame.open = clamp((moving - dockMs) / openingMs);
+        frame.phase = frame.dock < 1 ? "docking" : frame.open < 1 ? "opening" : "complete";
+        frame.gazeStrength = 1 - clamp(moving / 180);
+      }
+      const minFrame = frame.dock || frame.open ? 1000 / 60 - 1 : 1000 / 30 - 1;
       if (now - lastPaint >= minFrame) {
         lastPaint = now;
-        const frame = sample(elapsed, readyAt, {entranceMs, pairedExit:true});
         const face = gaze.sample(elapsed, {waiting:frame.phase === "waiting", blink:frame.blink, reduced:false});
         renderer.draw(frame.formation, {
           waiting:frame.phase === "waiting", gazeStrength:frame.gazeStrength,
@@ -123,23 +143,8 @@ export async function startFlight(root, signal, finish, started) {
     }
   }
 
-  // Paint only when both the real landing artwork and the moving layers are ready.
-  const inputs = [...caption.querySelectorAll("img"), ...targets.mark.querySelectorAll("img"), ...targets.name.querySelectorAll("img")];
-  if (targets.name instanceof HTMLImageElement) inputs.push(targets.name);
-  if (targets.mark instanceof HTMLImageElement) inputs.push(targets.mark);
-  const candidate = await createFollowingLogo(mount, canvas);
-  if (signal.aborted) { candidate.dispose(); return; }
-  renderer = candidate;
-  await Promise.all(inputs.map(image => image.decode()));
-  if (signal.aborted) return;
   measure();
   resize.observe(root);
-  resize.observe(targets.mark);
-  resize.observe(targets.name);
-  headerVisibility = {mark:targets.mark.style.visibility, name:targets.name.style.visibility};
-  targets.mark.style.visibility = "hidden";
-  targets.name.style.visibility = "hidden";
-  document.documentElement.setAttribute("data-afvar-signature-flying", "");
   const passive = {passive:true, signal};
   window.addEventListener("resize", measure, passive);
   window.addEventListener("scroll", measure, passive);
@@ -149,7 +154,30 @@ export async function startFlight(root, signal, finish, started) {
   window.addEventListener("blur", leave, passive);
   document.addEventListener("visibilitychange", visibility, {signal});
   reduced.addEventListener("change", event => { if (event.matches) finish(); }, {signal});
-  if (reduced.matches) return finish();
-  started();
-  visibility();
+
+  const route = waitForRoute(signal).then(async destination => {
+    if (signal.aborted) return;
+    if (!destination) return finish();
+    await decodeImages(caption, destination.mark, destination.name);
+    if (signal.aborted) return;
+    if (!destination.name.isConnected) return finish();
+    targets = destination;
+    headerVisibility = {mark:targets.mark.style.visibility, name:targets.name.style.visibility};
+    targets.mark.style.visibility = "hidden";
+    targets.name.style.visibility = "hidden";
+    document.documentElement.setAttribute("data-afvar-signature-flying", "");
+    lockup = createLockup(stage, caption, backdrop, targets.name);
+    resize.observe(targets.mark);
+    resize.observe(targets.name);
+    measure();
+  });
+  const art = createFollowingLogo(mount, canvas).then(candidate => {
+    if (signal.aborted) { candidate.dispose(); return; }
+    renderer = candidate;
+    started();
+    visibility();
+  });
+  // A failed critical asset opens the real page immediately. The owner also
+  // enforces a wall-clock deadline if a network request never settles.
+  await Promise.all([art, route]);
 }

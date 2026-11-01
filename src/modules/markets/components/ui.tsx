@@ -5,29 +5,16 @@ import type { CoverageStatus, Quote } from "../data";
 
 export type Translate = (key: MessageKey, vars?: MessageVars) => string;
 
-/*
- * Only compositor-cheap properties transition (never box-shadow or filter).
- * Hover glows are therefore cross-faded between two absolutely positioned
- * pseudo-element layers whose *opacity* changes, which looks identical to
- * animating the shadow itself but never repaints the shadow each frame.
- */
 const pill =
-  "inline-flex h-12 items-center justify-center gap-2 rounded-full px-6 text-[14px] font-semibold transition-[color,background-color,border-color,opacity,transform] duration-300 motion-reduce:transition-none";
+  "afvar-glass-button inline-flex h-12 items-center justify-center gap-2 rounded-full px-6 text-[14px] font-semibold motion-reduce:transition-none";
 
-/** Resting glow on `::before` fades out while the stronger hover glow on `::after` fades in. */
-const primaryGlow =
-  "relative isolate before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-full before:shadow-(--mk-glow-primary) before:transition-opacity before:duration-300 motion-reduce:before:transition-none hover:before:opacity-0 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-full after:opacity-0 after:shadow-(--mk-glow-primary-strong) after:transition-opacity after:duration-300 motion-reduce:after:transition-none hover:after:opacity-100";
-
-/** Gold glowing pill with dark text — the one primary action per view. */
-export const primaryButton = `${pill} ${primaryGlow} bg-(--mk-primary) text-(--mk-on-primary) hover:bg-(--mk-primary-bright) motion-safe:hover:-translate-y-0.5`;
-/** Dark glass pill with a hairline border. */
-export const secondaryButton = `${pill} mk-glass text-(--mk-text) hover:border-(--mk-glass-border-hover)`;
-/** Transparent pill with a gold outline. */
-export const outlineButton = `${pill} border border-(--mk-primary)/60 text-(--mk-primary) hover:bg-(--mk-primary)/10 hover:border-(--mk-primary)`;
+export const primaryButton = `${pill} afvar-glass-primary motion-safe:hover:-translate-y-0.5`;
+export const secondaryButton = pill;
+export const outlineButton = pill;
 /** 40px round glass icon button (carousel arrows, card corners). Always give it an aria-label. */
 export const iconButton =
   "grid h-10 w-10 shrink-0 place-items-center rounded-full mk-glass text-(--mk-text) transition-[color,background-color,border-color,opacity,transform] hover:border-(--mk-glass-border-hover) hover:text-(--mk-primary) disabled:pointer-events-none disabled:opacity-60";
-/** Inline gold text link with an arrow, e.g. "Explore Forex →". */
+/** Inline accent link with an arrow, e.g. "Explore Forex →". */
 export const textLink = "group inline-flex items-center gap-1.5 text-[14px] font-semibold text-(--mk-primary) hover:text-(--mk-primary-bright)";
 
 export function ArrowIcon({ className = "h-4 w-4", direction = "right" }: { className?: string; direction?: "right" | "left" }) {

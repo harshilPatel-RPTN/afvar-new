@@ -267,20 +267,20 @@ export function OsDesktop({ mv, quotes, className = "" }: { mv: MotionValue<numb
           ["New York", "current"],
           ["Asia morning", ""],
         ].map(([n, m], i) => (
-          <div key={n} className={`flex items-center justify-between rounded-md px-2.5 py-1.5 ${i === 0 && londonPick ? "bg-[rgba(233,180,76,0.2)] text-[#F5F7F7]" : "text-[#C9CFD1]"}`}>
+          <div key={n} className={`flex items-center justify-between rounded-md px-2.5 py-1.5 ${i === 0 && londonPick ? "bg-[rgba(168,222,194,0.2)] text-[#F2F5F2]" : "text-[#C9CFD1]"}`}>
             <span>{n}</span>
-            <span className="font-mono text-[9.5px] text-[#6D7578]">{m}</span>
+            <span className="font-mono text-[9.5px] text-[#92A399]">{m}</span>
           </div>
         ))}
         <div className="mt-1 border-t border-[rgba(255,255,255,0.08)] px-2.5 pt-1.5 text-[#8A9295]">Save current layout…</div>
       </motion.div>
 
       <Spotlight typedRef={typed} style={{ opacity: spot, y: spotY }}>
-        <p className={`${MONO} mb-2 text-[9.5px] text-[#E9B44C]`}>AI plan · 5 steps</p>
+        <p className={`${MONO} mb-2 text-[9.5px] text-[#A8DEC2]`}>AI plan · 5 steps</p>
         <ul className="space-y-1.5 text-[13px] text-[#C9CFD1]">
           {["Open Calendar with today's events", "Open Risk Guardian", "Arrange Chart · Research · AI side by side", "Alert: XAU/USD 1H close above 4,040", "Save as layout “London open”"].map((t, i) => (
             <li key={t} className={`flex items-center gap-2 transition-opacity duration-200 ${plan >= i ? "opacity-100" : "opacity-0"}`}>
-              <span className="text-[#E9B44C]">›</span>
+              <span className="text-[#A8DEC2]">›</span>
               {t}
             </li>
           ))}
@@ -289,7 +289,7 @@ export function OsDesktop({ mv, quotes, className = "" }: { mv: MotionValue<numb
 
       <motion.div className="absolute bottom-[86px] left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-xl border border-[rgba(255,255,255,0.12)] bg-[#14181A] px-3 py-2 text-[12px] text-[#C9CFD1]" style={{ opacity: keyHint }}>
         {["⌃", "⌥", "→"].map((c) => (
-          <kbd key={c} className="rounded-md border border-[rgba(255,255,255,0.18)] bg-[#0D1012] px-2 py-0.5 font-mono text-[12px] text-[#F5F7F7]">
+          <kbd key={c} className="rounded-md border border-[rgba(255,255,255,0.18)] bg-[#10231B] px-2 py-0.5 font-mono text-[12px] text-[#F2F5F2]">
             {c}
           </kbd>
         ))}
@@ -314,7 +314,7 @@ export function OsDesktop({ mv, quotes, className = "" }: { mv: MotionValue<numb
       <motion.div className="pointer-events-none absolute left-[540px] top-[240px] z-[45] flex h-[120px] w-[120px] items-center justify-center" style={{ opacity: orbO, x: orbX, y: orbY, scale: orbS }}>
         <AiOrb size={120} />
       </motion.div>
-      <motion.p className={`${MONO} absolute left-1/2 top-[390px] z-[45] -translate-x-1/2 text-[11px] text-[#E9B44C]`} style={{ opacity: bootText }}>
+      <motion.p className={`${MONO} absolute left-1/2 top-[390px] z-[45] -translate-x-1/2 text-[11px] text-[#A8DEC2]`} style={{ opacity: bootText }}>
         AFVAR OS · the AI is awake
       </motion.p>
 
@@ -334,13 +334,13 @@ export function OsDesktop({ mv, quotes, className = "" }: { mv: MotionValue<numb
           <path d="M4 9v6h4l5 4V5L8 9zM17 9a4 4 0 010 6" />
         </svg>
         <span>Text</span>
-        <span className="relative h-3.5 w-6 rounded-full bg-[#E9B44C]">
-          <span className="absolute right-0.5 top-0.5 h-2.5 w-2.5 rounded-full bg-[#1A1206]" />
+        <span className="relative h-3.5 w-6 rounded-full bg-[#A8DEC2]">
+          <span className="absolute right-0.5 top-0.5 h-2.5 w-2.5 rounded-full bg-[#06110C]" />
         </span>
-        <span className="tracking-[-0.1em] text-[#6D7578]">⋮⋮</span>
-        <span className="text-[10px] text-[#6D7578]">Drag to move</span>
+        <span className="tracking-[-0.1em] text-[#92A399]">⋮⋮</span>
+        <span className="text-[10px] text-[#92A399]">Drag to move</span>
       </motion.div>
-      <motion.div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[52] bg-[#050607]" style={{ opacity: dim }} />
+      <motion.div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[52] bg-(--afvar-charcoal)" style={{ opacity: dim }} />
       {STEP_FORWARD.map((sf, i) => (
         <SpeechBubble key={i} mv={mv} at={sf.at} line={sf.line} />
       ))}
@@ -360,28 +360,28 @@ export function OsFilm({ mv, quotes, avatarHere }: { mv: MotionValue<number>; qu
   const phoneY = useTransform(phone, (o) => (1 - o) * 40);
 
   return (
-    <motion.div className="pointer-events-none absolute inset-0 z-20 bg-[#050607]" style={{ opacity: layer }} data-act="os">
-      <div className="absolute inset-x-0 top-[112px] flex items-end justify-between gap-8 px-[4vw]">
-        <div className="relative h-[92px] min-w-0 flex-1">
+    <motion.div className="pointer-events-none absolute inset-0 z-20" style={{ opacity: layer }} data-act="os">
+      <div className="home-os-bar absolute inset-x-0 top-[112px] flex items-end justify-between gap-8 px-[4vw]">
+        <div className="home-os-captions relative h-[92px] min-w-0 flex-1">
           {OS_BEATS.map((b, i) => (
             <BeatCaption key={b.id} mv={mv} at={b.at} index={i} title={b.title} body={b.body} />
           ))}
         </div>
-        <ol className="flex shrink-0 items-center gap-1.5 pb-1" aria-label="OS chapters">
+        <ol className="afvar-glass-track flex shrink-0 items-center gap-1.5 rounded-full pb-1" aria-label="OS chapters">
           {BEAT_NAMES.map((n, i) => (
-            <li key={n} className={`${MONO} rounded-full border px-2.5 py-1 text-[9.5px] transition-colors ${i === beat ? "border-[rgba(233,180,76,0.7)] text-[#E9B44C]" : i < beat ? "border-[rgba(255,255,255,0.14)] text-[#A3AAAC]" : "border-[rgba(255,255,255,0.08)] text-[#5E6669]"}`}>
+            <li key={n} data-selected={i === beat} className={`afvar-glass-tab ${MONO} rounded-full px-2.5 py-1 text-[9.5px]`}>
               {n}
             </li>
           ))}
         </ol>
       </div>
-      <motion.div className="absolute inset-x-[4vw] bottom-[3vh] top-[218px]" style={{ scale: screenScale }}>
+      <motion.div className="home-os-screen absolute inset-x-[4vw] bottom-[3vh] top-[218px]" style={{ scale: screenScale }}>
         <OsDesktop mv={mv} quotes={quotes} className="h-full w-full" />
         {avatarHere ? <AvatarOverlay mv={mv} track={osAvatarTrack} className="absolute inset-0" /> : null}
       </motion.div>
-      <motion.div className="absolute bottom-[5vh] left-[7vw] z-30 w-[176px] rounded-[26px] border border-[rgba(255,255,255,0.18)] bg-[#0A0C0D] p-2.5 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.9)]" style={{ opacity: phone, y: phoneY }}>
+      <motion.div className="home-os-phone absolute bottom-[5vh] left-[7vw] z-30 w-[176px] rounded-[26px] border border-[rgba(255,255,255,0.18)] bg-[#06110C] p-2.5 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.9)]" style={{ opacity: phone, y: phoneY }}>
         <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-[#2A2F33]" />
-        <p className="text-center font-mono text-[22px] text-[#F5F7F7]">
+        <p className="text-center font-mono text-[22px] text-[#F2F5F2]">
           <UtcHm />
         </p>
         <div className="mt-3 rounded-xl border border-[rgba(255,107,107,0.5)] bg-[#141719] p-2">
@@ -390,9 +390,9 @@ export function OsFilm({ mv, quotes, avatarHere }: { mv: MotionValue<number>; qu
           </p>
           <p className="mt-1 text-[10.5px] leading-snug text-[#C9CFD1]">80% of today&apos;s loss limit. Your London open layout is waiting on desktop.</p>
         </div>
-        <p className={`${MONO} mt-2 text-center text-[8.5px] text-[#6D7578]`}>Desktop ↔ phone</p>
+        <p className={`${MONO} mt-2 text-center text-[8.5px] text-[#92A399]`}>Desktop ↔ phone</p>
       </motion.div>
-      <p className={`${MONO} absolute bottom-1 left-1/2 -translate-x-1/2 text-[9.5px] text-[#4E5659]`}>Illustration of the AFVAR OS · prices real, everything else sample</p>
+      <p className={`home-os-note ${MONO} absolute bottom-1 left-1/2 -translate-x-1/2 text-[9.5px] text-[#4E5659]`}>Illustration of the AFVAR OS · prices real, everything else sample</p>
     </motion.div>
   );
 }
@@ -405,7 +405,7 @@ function BeatCaption({ mv, at, index, title, body }: { mv: MotionValue<number>; 
       <p className={EYEBROW}>06 · The OS · {String(index + 1).padStart(2, "0")}</p>
       <div className="mt-2 flex items-baseline gap-6">
         <h2 className={`${H3} shrink-0`}>{title}</h2>
-        <p className="max-w-[34rem] text-[14px] leading-snug text-[#A3AAAC]">{body}</p>
+        <p className="max-w-[34rem] text-[14px] leading-snug text-[#B7C5BC]">{body}</p>
       </div>
     </motion.div>
   );
@@ -415,11 +415,11 @@ function SpeechBubble({ mv, at, line }: { mv: MotionValue<number>; at: readonly 
   const o = useTransform(mv, (p) => window4(p, [U(at[1]), U(at[1] + 0.006), U(at[2] - 0.004), U(at[2] + 0.002)]));
   const typed = useTypedText(mv, line, [U(at[1] + 0.004), U(at[2] - 0.012)]);
   return (
-    <motion.div className="absolute left-[800px] top-[140px] z-[56] w-[330px] rounded-2xl rounded-bl-sm border border-[rgba(233,180,76,0.5)] bg-[rgba(16,19,21,0.97)] px-4 py-3" style={{ opacity: o }}>
-      <p className={`${MONO} mb-1 flex items-center gap-1.5 text-[9.5px] text-[#E9B44C]`}>
+    <motion.div className="absolute left-[800px] top-[140px] z-[56] w-[330px] rounded-2xl rounded-bl-sm border border-[rgba(168,222,194,0.5)] bg-[rgba(16,19,21,0.97)] px-4 py-3" style={{ opacity: o }}>
+      <p className={`${MONO} mb-1 flex items-center gap-1.5 text-[9.5px] text-[#A8DEC2]`}>
         <AiOrb size={7} pulse={false} /> AFVAR · speaking
       </p>
-      <p className="min-h-[2.8em] text-[15px] leading-snug text-[#F5F7F7]">
+      <p className="min-h-[2.8em] text-[15px] leading-snug text-[#F2F5F2]">
         <span ref={typed} />
       </p>
     </motion.div>
@@ -450,13 +450,13 @@ function ChartBody({ quotes, sym }: { quotes: Quotes; sym: "XAUUSD" | "EURUSD" |
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-3 px-3 pt-2 font-mono text-[11px]">
-        <span className="text-[#F5F7F7]">{SYM_NAME[sym]}</span>
-        <span className="tabular-nums text-[#F5F7F7]">{fmtPrice(last, q.decimals)}</span>
+        <span className="text-[#F2F5F2]">{SYM_NAME[sym]}</span>
+        <span className="tabular-nums text-[#F2F5F2]">{fmtPrice(last, q.decimals)}</span>
         <span className={up ? "text-[#00E676]" : "text-[#FF6B6B]"}>
           {up ? "▲" : "▼"}
           {Math.abs(q.changePct).toFixed(2)}%
         </span>
-        <span className="ml-auto text-[9.5px] uppercase tracking-wider text-[#6D7578]">{q.status}</span>
+        <span className="ml-auto text-[9.5px] uppercase tracking-wider text-[#92A399]">{q.status}</span>
       </div>
       <MiniChart closes={q.closes} levels={levels} className="mx-2 mb-2 mt-1 min-h-0 flex-1" />
     </div>
@@ -466,16 +466,16 @@ function ChartBody({ quotes, sym }: { quotes: Quotes; sym: "XAUUSD" | "EURUSD" |
 function ResearchBody() {
   return (
     <div className="space-y-2 p-3 text-[12px] leading-snug text-[#C9CFD1]">
-      <p className="flex items-center gap-1.5 font-semibold text-[#E9B44C]">
+      <p className="flex items-center gap-1.5 font-semibold text-[#A8DEC2]">
         <AiOrb size={8} pulse={false} /> Gold · morning brief
       </p>
       <p>Gold held last week&apos;s high overnight. Payrolls at 12:30 UTC are the main risk today; a strong number has pushed gold lower on recent release days.</p>
       <p className="text-[#8A9295]">Levels the AI is watching are drawn on your chart.</p>
-      <p className="flex gap-2 pt-1 font-mono text-[9.5px] text-[#6D7578]">
+      <p className="flex gap-2 pt-1 font-mono text-[9.5px] text-[#92A399]">
         <span className="rounded bg-[#181C1F] px-1.5 py-0.5">MARKET</span>
         <span className="rounded bg-[#181C1F] px-1.5 py-0.5">MACRO</span>
         <span className="rounded bg-[#181C1F] px-1.5 py-0.5">NEWS</span>
-        <span className="rounded bg-[#181C1F] px-1.5 py-0.5 text-[#E9B44C]">3 SOURCES</span>
+        <span className="rounded bg-[#181C1F] px-1.5 py-0.5 text-[#A8DEC2]">3 SOURCES</span>
       </p>
     </div>
   );
@@ -483,9 +483,9 @@ function ResearchBody() {
 
 function AlertsBody() {
   const rows = [
-    ["XAU/USD 1H close above level", "armed", "text-[#E9B44C]"],
+    ["XAU/USD 1H close above level", "armed", "text-[#A8DEC2]"],
     ["EUR/USD weekly high break", "fired 09:14", "text-[#00E676]"],
-    ["BTC −3% within 1 hour", "armed", "text-[#E9B44C]"],
+    ["BTC −3% within 1 hour", "armed", "text-[#A8DEC2]"],
   ];
   return (
     <ul className="divide-y divide-[rgba(255,255,255,0.06)] px-3 text-[12px]">
@@ -511,7 +511,7 @@ function CalendarBody() {
         <li key={e} className="flex items-center gap-3">
           <span className="w-10 font-mono text-[10.5px] text-[#8A9295]">{t}</span>
           <span className="flex-1 text-[#C9CFD1]">{e}</span>
-          <span className="text-[10px] text-[#E9B44C]">{s}</span>
+          <span className="text-[10px] text-[#A8DEC2]">{s}</span>
         </li>
       ))}
     </ul>
@@ -524,10 +524,10 @@ function RiskBody({ high }: { high: boolean }) {
     <div className="space-y-2.5 p-3 text-[12px]">
       <div className="flex justify-between text-[#C9CFD1]">
         <span>Daily loss limit used</span>
-        <span className={`font-mono ${high ? "text-[#FF6B6B]" : "text-[#F5F7F7]"}`}>{used}%</span>
+        <span className={`font-mono ${high ? "text-[#FF6B6B]" : "text-[#F2F5F2]"}`}>{used}%</span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-[#1E2326]">
-        <div className={`h-full rounded-full transition-all duration-700 ${high ? "bg-[#FF6B6B]" : "bg-[#E9B44C]"}`} style={{ width: `${used}%` }} />
+        <div className={`h-full rounded-full transition-all duration-700 ${high ? "bg-[#FF6B6B]" : "bg-[#A8DEC2]"}`} style={{ width: `${used}%` }} />
       </div>
       <div className="flex justify-between text-[#8A9295]">
         <span>Open positions</span>
@@ -545,13 +545,13 @@ function JournalBody() {
   return (
     <ul className="space-y-2 p-3 text-[12px] text-[#C9CFD1]">
       <li>
-        <span className="font-mono text-[10px] text-[#6D7578]">MON</span> Followed plan · waited for the 15:00 close.
+        <span className="font-mono text-[10px] text-[#92A399]">MON</span> Followed plan · waited for the 15:00 close.
       </li>
       <li>
-        <span className="font-mono text-[10px] text-[#6D7578]">TUE</span> Entered before CPI. Stopped out. <span className="text-[#E9B44C]">AI: avoid pre-release entries.</span>
+        <span className="font-mono text-[10px] text-[#92A399]">TUE</span> Entered before CPI. Stopped out. <span className="text-[#A8DEC2]">AI: avoid pre-release entries.</span>
       </li>
       <li>
-        <span className="font-mono text-[10px] text-[#6D7578]">WED</span> +1.2R on BTC breakout.
+        <span className="font-mono text-[10px] text-[#92A399]">WED</span> +1.2R on BTC breakout.
       </li>
     </ul>
   );
@@ -562,7 +562,7 @@ function NewsBody() {
     <ul className="space-y-2 p-3 text-[12px] text-[#C9CFD1]">
       {["US session opens · equities firm", "Oil steady ahead of inventories", "Crypto volumes rise into US hours"].map((h) => (
         <li key={h} className="flex gap-2">
-          <AppGlyph name="news" size={12} color="#6D7578" />
+          <AppGlyph name="news" size={12} color="#92A399" />
           {h}
         </li>
       ))}
@@ -582,7 +582,7 @@ const AI_STEPS = [
 
 function Msg({ show, children, tone = "ai" }: { show: boolean; children: ReactNode; tone?: "ai" | "risk" }) {
   return show ? (
-    <div className={`rounded-lg border px-2.5 py-2 text-[12px] leading-snug ${tone === "risk" ? "border-[rgba(255,107,107,0.4)] text-[#F5D0D0]" : "border-[rgba(233,180,76,0.3)] text-[#E6E9EB]"} bg-[#14171A]`}>{children}</div>
+    <div className={`rounded-lg border px-2.5 py-2 text-[12px] leading-snug ${tone === "risk" ? "border-[rgba(255,107,107,0.4)] text-[#F5D0D0]" : "border-[rgba(168,222,194,0.3)] text-[#E6E9EB]"} bg-[#14171A]`}>{children}</div>
   ) : null;
 }
 
@@ -590,9 +590,9 @@ function AiPanel({ mv }: { mv: MotionValue<number> }) {
   const step = useStep(mv, [...AI_STEPS.map((s) => U(s.u)), U(0.566), U(0.71), U(0.775)]);
   return (
     <div className="flex h-full flex-col justify-end gap-2 p-3">
-      <div className="ml-auto rounded-lg bg-[#1E2326] px-2.5 py-1.5 text-[12px] text-[#F5F7F7]">Set up my London open</div>
-      <div className="rounded-lg border border-[rgba(233,180,76,0.3)] bg-[#14171A] p-2.5">
-        <p className={`${MONO} mb-1.5 text-[9px] text-[#E9B44C]`}>Done · step by step</p>
+      <div className="ml-auto rounded-lg bg-[#1E2326] px-2.5 py-1.5 text-[12px] text-[#F2F5F2]">Set up my London open</div>
+      <div className="rounded-lg border border-[rgba(168,222,194,0.3)] bg-[#14171A] p-2.5">
+        <p className={`${MONO} mb-1.5 text-[9px] text-[#A8DEC2]`}>Done · step by step</p>
         <ul className="space-y-1">
           {AI_STEPS.map((s, i) => (
             <li key={s.text} className={`flex gap-2 text-[11.5px] leading-snug transition-opacity duration-200 ${step >= i ? "opacity-100" : "opacity-0"}`}>
@@ -607,7 +607,7 @@ function AiPanel({ mv }: { mv: MotionValue<number> }) {
       <Msg show={step >= AI_STEPS.length + 2} tone="risk">
         You&apos;re at 80% of today&apos;s loss limit. Turn on Focus so only risk alerts reach you?
       </Msg>
-      <div className="flex items-center gap-2 rounded-lg border border-[rgba(255,255,255,0.1)] bg-[#0D1012] px-2.5 py-1.5 text-[11px] text-[#6D7578]">
+      <div className="flex items-center gap-2 rounded-lg border border-[rgba(255,255,255,0.1)] bg-[#10231B] px-2.5 py-1.5 text-[11px] text-[#92A399]">
         <AiOrb size={8} pulse={false} /> Ask or tell AFVAR…
       </div>
     </div>
@@ -661,7 +661,7 @@ function Widgets({ step, quotes }: { step: number; quotes: Quotes }) {
             return (
               <li key={s} className="flex justify-between">
                 <span className="text-[#C9CFD1]">{SYM_NAME[s]}</span>
-                <span className="tabular-nums text-[#F5F7F7]">{fmtPrice(q.last, q.decimals)}</span>
+                <span className="tabular-nums text-[#F2F5F2]">{fmtPrice(q.last, q.decimals)}</span>
                 <span className={q.changePct >= 0 ? "text-[#00E676]" : "text-[#FF6B6B]"}>{q.changePct.toFixed(2)}%</span>
               </li>
             );

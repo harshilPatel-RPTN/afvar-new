@@ -94,7 +94,7 @@ export function Capabilities() {
             </CandleCard>
           ))}
         </ul>
-        <div className="mt-5 flex justify-center gap-2 md:hidden">
+        <div className="afvar-glass-track mx-auto mt-5 flex w-fit justify-center gap-2 rounded-full md:hidden" role="group" aria-label="Capability tour chapters">
           {CAPABILITIES.map((cap, i) => (
             <button
               key={cap.n}
@@ -102,9 +102,10 @@ export function Capabilities() {
               onClick={() => goTo(i)}
               aria-label={`Show ${cap.title}`}
               aria-current={i === active}
-              className="grid h-6 w-6 place-items-center"
+              data-selected={i === active}
+              className="afvar-glass-tab grid h-6 w-6 place-items-center rounded-full"
             >
-              <span className={`block w-1.5 rounded-[1px] transition-all duration-300 ${i === active ? "h-4 bg-[#00E676]" : "h-2 bg-white/25"}`} />
+              <span className={`block w-1.5 rounded-[1px] transition-all duration-300 ${i === active ? "h-4 bg-(--afvar-mint)" : "h-2 bg-white/25"}`} />
             </button>
           ))}
         </div>

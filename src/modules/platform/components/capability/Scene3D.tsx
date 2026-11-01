@@ -1,12 +1,12 @@
 "use client";
 
+import { useAfvarReducedMotion } from "@/modules/afvarOs";
 import {
   motion,
   useAnimationFrame,
   useInView,
   useMotionTemplate,
   useMotionValue,
-  useReducedMotion,
   useSpring,
   type TargetAndTransition,
   type Transition,
@@ -38,7 +38,7 @@ function hasWebGL() {
  * names or results (WA-T06).
  */
 export function Scene3D({ capability: c }: { capability: Capability }) {
-  const still = useReducedMotion() ?? false;
+  const still = useAfvarReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const visible = useInView(ref, { amount: 0.3 });
   const run = visible && !still;

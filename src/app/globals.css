@@ -1,17 +1,30 @@
 @import "tailwindcss";
 
-/* Design tokens — port the real brand tokens from the existing Vite app here. */
+/* AFVAR's shared site palette. Use the lighter ink shades for small text. */
 :root {
-  --background: #0b0e14;
-  --foreground: #e6e9ef;
-  --surface: #11151f;
-  --surface-raised: #182032;
-  --border-subtle: #232a3b;
-  --accent: #4f8cff;
-  --positive: #22c55e;
-  --negative: #ef4444;
-  --warning: #f59e0b;
-  --muted: #8b93a7;
+  color-scheme: dark;
+  --afvar-charcoal: #040404;
+  --afvar-forest: #06110c;
+  --afvar-oxblood: #240a0d;
+  --afvar-background-scene:
+    radial-gradient(ellipse 69% 110% at 0% 24%, var(--afvar-forest) 16%, transparent 96%),
+    radial-gradient(ellipse 61% 105% at 100% 64%, var(--afvar-oxblood) 16%, transparent 92%);
+  --afvar-crimson: #a31c1b;
+  --afvar-panel: #10231b;
+  --afvar-mint: #a8dec2;
+  --afvar-text: #f2f5f2;
+  --afvar-muted: #b7c5bc;
+  --afvar-loss: #ff918b;
+  --background: var(--afvar-charcoal);
+  --foreground: var(--afvar-text);
+  --surface: var(--afvar-forest);
+  --surface-raised: var(--afvar-panel);
+  --border-subtle: rgb(185 221 201 / .22);
+  --accent: var(--afvar-mint);
+  --positive: #85ddb0;
+  --negative: var(--afvar-loss);
+  --warning: #f7b5a7;
+  --muted: var(--afvar-muted);
 }
 
 @theme inline {
@@ -56,10 +69,25 @@
   }
 }
 
+html { background-color: var(--afvar-charcoal); }
 body {
-  background: var(--background);
+  isolation: isolate;
+  background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+/* The color field spans the viewport even where content stops at its width cap. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--afvar-charcoal);
+  background-image: var(--afvar-background-scene);
+}
+@media (forced-colors: active) {
+  body::before { display: none; }
 }
 
 /* Cache key bump: forces Turbopack to rebuild this stylesheet (2026-10-28). */

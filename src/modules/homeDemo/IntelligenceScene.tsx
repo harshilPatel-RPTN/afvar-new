@@ -7,7 +7,7 @@
 // chapter — damped master progress, spline camera, pure functions of p.
 import { Environment, Lightformer } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
+import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import {
@@ -52,10 +52,9 @@ export default function IntelligenceScene({ progress, active, still }: Intellige
       dpr={[1, 1.75]}
       frameloop={active && !still ? "always" : "demand"}
       camera={{ position: CAMERA_KEYS[0].pos as unknown as THREE.Vector3, fov: FOV[0] }}
-      gl={{ antialias: true, powerPreference: "high-performance" }}
+      gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
       aria-hidden="true"
     >
-      <color attach="background" args={[COLORS.bg]} />
       <fog attach="fog" args={[COLORS.bg, 9, 22]} />
 
       <ProgressDamper progress={progress} smoothed={smoothed} still={still} settledP={SETTLED_P} lambda={PROGRESS_DAMP} />
@@ -84,7 +83,7 @@ export default function IntelligenceScene({ progress, active, still }: Intellige
 
       <EffectComposer multisampling={4}>
         <Bloom mipmapBlur luminanceThreshold={0.9} intensity={0.5} />
-        <Vignette darkness={0.45} offset={0.3} />
+
       </EffectComposer>
     </Canvas>
   );

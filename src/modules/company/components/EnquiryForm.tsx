@@ -159,7 +159,7 @@ export function EnquiryForm() {
         <button
           type="submit"
           disabled={status === "submitting"}
-          className="inline-flex h-10 items-center justify-center rounded-full bg-(--accent) px-5 text-[14px] font-medium text-(--text-inverse) transition-[background-color,transform] duration-150 hover:bg-(--accent-hover) active:scale-[.98] disabled:pointer-events-none disabled:opacity-60"
+          className="afvar-glass-button afvar-glass-primary inline-flex h-10 items-center justify-center rounded-full px-5 text-[14px] font-medium active:scale-[.98] disabled:pointer-events-none disabled:opacity-60"
         >
           {status === "submitting" ? "Validating…" : status === "failed" ? "Try again" : "Keep my enquiry"}
         </button>

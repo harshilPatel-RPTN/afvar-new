@@ -10,7 +10,7 @@ import { COMPANY_LINE, DISCLAIMER, FOOTER_COLS, LANG_CHIPS, PRELAUNCH_NOTE } fro
  */
 export function HomeFooter() {
   return (
-    <footer className="border-t border-white/[.11] bg-[#030405]">
+    <footer className="border-t border-white/[.11] bg-(--afvar-charcoal)">
       <div className="mx-auto w-full max-w-[1280px] px-5 py-14 sm:px-8 lg:px-10">
         {/* 0 — bull vs bear face-off strip (decorative, scroll-linked). */}
         <BullBearFaceoff />
@@ -24,13 +24,13 @@ export function HomeFooter() {
             // Columns rise in sequence on first view (client island; the footer stays a server component).
             <RiseIn key={column.title} delay={columnIndex * 0.07}>
             <nav aria-label={column.title}>
-              <p className="text-[12.5px] font-semibold text-[#F5F7F7]">{column.title}</p>
+              <p className="text-[12.5px] font-semibold text-(--afvar-text)">{column.title}</p>
               <ul className="mt-4 space-y-2.5">
                 {column.links.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="mkc-flink rounded-sm text-[12.5px] text-[#6D7578] outline-none transition-colors duration-200 hover:text-[#F5F7F7] focus-visible:ring-2 focus-visible:ring-[rgba(245,247,247,.6)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0B] motion-reduce:transition-none"
+                      className="mkc-flink rounded-sm text-[12.5px] text-[#6D7578] outline-none transition-colors duration-200 hover:text-(--afvar-text) focus-visible:ring-2 focus-visible:ring-[rgba(245,247,247,.6)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0B] motion-reduce:transition-none"
                     >
                       {link.label}
                     </Link>

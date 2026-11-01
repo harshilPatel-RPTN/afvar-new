@@ -62,7 +62,7 @@ export function Modal({ label, onClose, children, wide = false }: { label: strin
       <div aria-hidden="true" className="absolute inset-0 bg-black/75" />
       <div
         onClick={(event) => event.stopPropagation()}
-        className={`relative w-full animate-[modal-in_.25s_ease-out] ${wide ? "max-w-[760px]" : "max-w-[540px]"} rounded-2xl border border-white/[.11] bg-[#111416] shadow-[0_40px_90px_-30px_rgba(0,0,0,.9)]`}
+        className={`relative w-full animate-[modal-in_.25s_ease-out] ${wide ? "max-w-[760px]" : "max-w-[540px]"} rounded-2xl border border-white/[.11] bg-(--afvar-panel) shadow-[0_40px_90px_-30px_rgba(0,0,0,.9)]`}
       >
         <button
           type="button"
@@ -196,7 +196,7 @@ export function KeyTopics() {
   // The loop speeds up with scroll velocity and eases back to 1× (Web Animations playbackRate).
   const trackRef = useMarqueeVelocity<HTMLDivElement>();
   return (
-    <section ref={pauseRef} id="topics" className="relative mt-16 border-y border-white/[.08] bg-[#080A0B] py-10 md:mt-20">
+    <section ref={pauseRef} id="topics" className="relative mt-16 border-y border-white/[.08] py-10 md:mt-20">
       <div className={`${GUTTER} flex flex-wrap items-center justify-between gap-x-8 gap-y-3`}>
         <p className="mk-eyebrow">Key topics</p>
         <Link href="/desk" className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-(--mk-text) underline-offset-4 hover:text-white hover:underline">

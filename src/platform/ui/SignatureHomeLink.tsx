@@ -2,12 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { SignatureMark } from "./SignatureMark";
 import "./signature-home-link.css";
-
-// The signature can land once the real navigation has hydrated.
-function markHeaderReady(node: HTMLPictureElement | null) {
-  if (node) node.dataset.afvarBrandReady = "true";
-}
 
 export function SignatureHomeLink({
   label, onClick, landing = false, className = "",
@@ -19,10 +15,7 @@ export function SignatureHomeLink({
 }) {
   return (
     <Link href="/" aria-label={label} onClick={onClick} className={`afvar-header-brand rounded-sm ${className}`}>
-      <picture className="afvar-header-symbol" data-afvar-brand-mark={landing ? "" : undefined} ref={landing ? markHeaderReady : undefined}>
-        <source media="(max-width: 600px)" srcSet="/afvar-signature/assets/approved-lite.webp" />
-        <img src="/afvar-signature/assets/approved.webp" alt="" width="46" height="46" />
-      </picture>
+      <SignatureMark landing={landing} />
       <Image
         className="afvar-header-name"
         data-afvar-brand-name={landing ? "" : undefined}

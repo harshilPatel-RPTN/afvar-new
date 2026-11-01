@@ -21,7 +21,7 @@
 // run slow. Per frame, candle instances re-upload only what actually changed.
 import { Environment, Lightformer } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
+import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { useCallback, useMemo, useRef, useState, type RefObject } from "react";
 import type { EffectComposer as EffectComposerImpl } from "postprocessing";
 import * as THREE from "three";
@@ -159,13 +159,12 @@ export default function MarketTerrainScene({ progress, active, still, frozen = f
       camera={{ position: CAMERA_KEYS[0].pos, fov: 40, near: 0.05, far: 120 }}
       // With a composer the default framebuffer only receives a full-screen copy:
       // context MSAA there is pure fill/memory cost, so lite turns it off.
-      gl={{ antialias: !lite, powerPreference: "high-performance" }}
+      gl={{ alpha: true, antialias: !lite, powerPreference: "high-performance" }}
       // No pointer events here, so the canvas never needs its page offset: don't
       // re-measure (and re-render) on every scroll stop.
       resize={lite ? { scroll: false } : undefined}
       aria-hidden="true"
     >
-      <color attach="background" args={[COLORS.black]} />
       <fog attach="fog" args={[COLORS.black, 11, 38]} />
 
       <Lighting progress={progress} still={still} />
@@ -186,7 +185,6 @@ export default function MarketTerrainScene({ progress, active, still, frozen = f
 
       <EffectComposer ref={composer} multisampling={lite ? tiers[0].msaa : 4}>
         <Bloom mipmapBlur luminanceThreshold={0.9} intensity={0.38} />
-        <Vignette darkness={0.48} offset={0.28} />
       </EffectComposer>
     </Canvas>
   );

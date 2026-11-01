@@ -137,33 +137,31 @@ export interface CategoryTab {
   href: string;
 }
 
-/** Market tabs with a gold indicator that slides to the active pill (shared layoutId). */
+/** Each market is a real route; the shared indicator follows the current link. */
 export function CategoryTabs({ tabs, activeId, label }: { tabs: CategoryTab[]; activeId: string; label: string }) {
   const reduce = useReducedMotion();
   return (
     <nav aria-label={label} className="mk-no-scrollbar -mx-4 overflow-x-auto px-4">
-      {/* Sits over the header photo, so this one keeps the backdrop blur. */}
-      <ul className="mk-glass mk-glass-blur inline-flex gap-1 rounded-full p-1.5">
+      <ul className="afvar-glass-track inline-flex gap-1 rounded-full p-1.5">
         {tabs.map((tab) => {
           const active = tab.id === activeId;
           return (
-            <li key={tab.id} className="relative">
-              {active && (
-                <motion.span
-                  layoutId="mk-category-tab"
-                  aria-hidden="true"
-                  className="absolute inset-0 rounded-full bg-(--mk-primary) shadow-(--mk-glow-primary)"
-                  transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 34 }}
-                />
-              )}
+            <li key={tab.id}>
               <Link
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative z-10 inline-flex h-11 min-w-[44px] items-center rounded-full px-5 text-[14px] font-semibold transition-colors duration-300 ${
-                  active ? "text-(--mk-on-primary)" : "text-(--mk-dim) hover:text-(--mk-text)"
-                }`}
+                data-selected={active}
+                className="afvar-glass-tab relative inline-flex h-11 min-w-[44px] items-center rounded-full px-5 text-[14px] font-semibold"
               >
-                {tab.label}
+                {active && (
+                  <motion.span
+                    layoutId="mk-category-tab"
+                    aria-hidden="true"
+                    className="afvar-glass-indicator absolute inset-0 rounded-full"
+                    transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 34 }}
+                  />
+                )}
+                <span className="relative">{tab.label}</span>
               </Link>
             </li>
           );

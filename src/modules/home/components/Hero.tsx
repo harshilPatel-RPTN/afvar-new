@@ -192,7 +192,6 @@ function HeroStage({ quotes }: { quotes: Record<string, HomeQuote> }) {
 
   // Overlays + release, all derived from the one master value.
   const canvasOpacity = useTransform(uMV, (u) => 1 - (1 - RELEASE_DIM) * easeInOut(ramp(u, DOM.release[0], DOM.release[1])));
-  const releaseFade = useTransform(uMV, (u) => ramp(u, DOM.release[0], DOM.release[1]));
   const callout1 = useTransform(uMV, (u) => window4(u, DOM.callout1));
   const dock = useTransform(uMV, (u) => easeOut(ramp(u, DOM.dock[0], DOM.dock[1])));
 
@@ -212,26 +211,18 @@ function HeroStage({ quotes }: { quotes: Record<string, HomeQuote> }) {
   const [sym1] = HERO_CALLOUTS;
 
   return (
-    <section ref={trackRef} className={`relative bg-[#030405] ${cinematic ? "lg:h-[280vh]" : ""}`}>
+    <section ref={trackRef} className={`relative ${cinematic ? "lg:h-[280vh]" : ""}`}>
       <div
         className={`relative overflow-hidden ${
           cinematic ? "lg:sticky lg:top-0 lg:h-svh" : "lg:h-[calc(100svh-120px)] lg:min-h-[620px]"
         }`}
       >
-        {/* ── lg backdrop: full-bleed live 3D scene (one still frame under reduced motion), copy scrim, release ── */}
+        {/* ── lg backdrop: transparent live 3D scene (one still frame under reduced motion) ── */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden lg:block">
           <motion.div style={{ opacity: cinematic ? canvasOpacity : 1 }} className="absolute inset-0">
             {desktop && <HeroLive progressRef={deskU} view="desktop" active={deskActive} still={still} onReady={handleSceneReady} />}
           </motion.div>
-          {/* left copy scrim: text contrast holds on every frame (no hard edge — the film stays full-bleed) */}
-          <div className="absolute inset-y-0 left-0 w-[62%] bg-[linear-gradient(90deg,rgba(3,4,5,.96)_0%,rgba(3,4,5,.88)_40%,rgba(3,4,5,.45)_74%,rgba(3,4,5,0)_100%)]" />
-          {/* nav band + caption band */}
-          <div className="absolute inset-x-0 top-0 h-28 bg-linear-to-b from-[#030405]/75 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-[#030405]/80 to-transparent" />
-          {/* release (Chapter F): the stage settles from #030405 into the section surface #080A0B */}
-          {cinematic && (
-            <motion.div style={{ opacity: releaseFade }} className="absolute inset-x-0 bottom-0 h-[55%] bg-linear-to-b from-transparent to-[#080A0B]" />
-          )}
+
         </div>
 
         {/* ── overlays (lg, cinematic): ONE late real-data callout (Chapter E), then quiet dock labels ── */}
@@ -257,7 +248,7 @@ function HeroStage({ quotes }: { quotes: Record<string, HomeQuote> }) {
             transition={{ duration: 0.4 }}
             className="flex flex-col pt-8 lg:min-h-0 lg:w-[48%] lg:max-w-[660px] lg:flex-1 lg:justify-center lg:pb-6 lg:pt-0"
           >
-            <p className="inline-flex w-max items-center gap-2 rounded-full border border-(--mk-line) bg-[#111416] px-3.5 py-1.5 text-[11.5px] font-medium tracking-wide text-(--mk-dim)">
+            <p className="inline-flex w-max items-center gap-2 rounded-full border border-(--mk-line) bg-(--afvar-panel) px-3.5 py-1.5 text-[11.5px] font-medium tracking-wide text-(--mk-dim)">
               <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#A3AAAC]" />
               {HERO.badge}
             </p>
@@ -272,7 +263,7 @@ function HeroStage({ quotes }: { quotes: Record<string, HomeQuote> }) {
                 {HERO.primary.label}
                 <Icon name="arrow" className="h-4 w-4" strokeWidth={2} />
               </Link>
-              <Link href={HERO.secondary.href} className={`${BTN_OUTLINE} bg-[#030405]`}>
+              <Link href={HERO.secondary.href} className={BTN_OUTLINE}>
                 <span className="grid h-6 w-6 place-items-center rounded-full border border-white/[.22] text-(--mk-text)">
                   <Icon name="play" className="h-3 w-3 translate-x-px" />
                 </span>
@@ -296,12 +287,12 @@ function HeroStage({ quotes }: { quotes: Record<string, HomeQuote> }) {
           {/* ── < lg: large full-bleed portrait scene directly under the copy — no frame, no void (README §7) ── */}
           <div
             ref={boxRef}
-            className="relative -mx-5 mt-6 h-[max(420px,min(115vw,72svh))] overflow-hidden bg-[#030405] sm:-mx-10 lg:hidden"
+            className="relative -mx-5 mt-6 h-[max(420px,min(115vw,72svh))] overflow-hidden sm:-mx-10 lg:hidden"
           >
             {!desktop && <HeroLive progressRef={mobU} view="mobile" active={boxActive} still={still} />}
             {/* soft top/bottom fades so the render meets the page without a hard edge */}
-            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-linear-to-b from-[#030405] to-transparent" />
-            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-[#030405] to-transparent" />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-linear-to-b from-(--afvar-charcoal) to-transparent" />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-(--afvar-charcoal) to-transparent" />
           </div>
 
           {/* caption: honest framing — the film is illustrative, the quotes are real */}
@@ -333,7 +324,7 @@ function Callout({ symbol, quote, opacity }: { symbol: string; quote: HomeQuote;
   return (
     <motion.div
       style={{ opacity, y, visibility }}
-      className="w-[236px] rounded-xl border border-white/[.11] bg-[#111416] px-4 py-3"
+      className="w-[236px] rounded-xl border border-white/[.11] bg-(--afvar-panel) px-4 py-3"
     >
       <div className="flex items-center justify-between gap-3">
         <span className="font-mono text-[12px] font-semibold text-(--mk-text)">{symbol}</span>
@@ -362,7 +353,7 @@ function Dock({ opacity }: { opacity: MotionValue<number> }) {
     <motion.ul
       style={{ opacity, y, visibility }}
       aria-label="AFVAR desk apps"
-      className="flex items-center gap-1 rounded-full border border-white/[.11] bg-[#080A0B] px-2 py-1.5"
+      className="flex items-center gap-1 rounded-full border border-white/[.11] bg-(--afvar-charcoal) px-2 py-1.5"
     >
       {DOCK.map((app) => (
         <li key={app.label} className="flex items-center gap-1.5 px-2 py-0.5">
@@ -382,10 +373,10 @@ function Ticker({ quotes, live }: { quotes: Record<string, HomeQuote>; live: boo
   const loop = [...entries, ...entries];
   const pauseRef = usePauseOffscreen<HTMLDivElement>();
   return (
-    <div ref={pauseRef} className="border-y border-(--mk-line) bg-[#080A0B]">
+    <div ref={pauseRef} className="border-y border-(--mk-line) bg-(--afvar-charcoal)">
       <div className="group flex h-12 items-center overflow-hidden">
         {/* Opaque block so the scrolling tape never shows through the state pill. */}
-        <span className="z-10 flex h-full shrink-0 items-center bg-[#080A0B] pl-5 pr-4 sm:pl-10">
+        <span className="z-10 flex h-full shrink-0 items-center bg-(--afvar-charcoal) pl-5 pr-4 sm:pl-10">
           <LiveChip live={live} />
         </span>
         <div className="flex w-max animate-[home-tape_54s_linear_infinite] group-hover:[animation-play-state:paused] motion-reduce:animate-none" aria-hidden="true">

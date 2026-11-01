@@ -3,10 +3,10 @@
 import type { ButtonHTMLAttributes } from "react";
 
 const VARIANTS = {
-  primary: "bg-accent text-white hover:bg-accent/85",
+  primary: "afvar-glass-primary",
   ghost:
     "border border-border-subtle text-foreground hover:bg-surface-raised",
-  danger: "bg-negative text-white hover:bg-negative/85",
+  danger: "afvar-glass-primary",
 } as const;
 
 export type ButtonVariant = keyof typeof VARIANTS;
@@ -19,7 +19,7 @@ export function Button({
   return (
     <button
       type="button"
-      className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${VARIANTS[variant]} ${className}`}
+      className={`afvar-glass-button rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${VARIANTS[variant]} ${className}`}
       {...props}
     />
   );

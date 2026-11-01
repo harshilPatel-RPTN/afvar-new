@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
+import { useAfvarReducedMotion } from "@/modules/afvarOs";
+import { AnimatePresence, motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { getCapability } from "../../content";
 import { AppIcon } from "../mac/AppIcon";
@@ -19,10 +20,11 @@ const BEATS = [900, 1000, 900, 900, 2200, 600];
  * both paths share actions and state; F.01 shell.window.open).
  */
 export function ManualVsAI() {
-  const still = useReducedMotion() ?? false;
+  const still = useAfvarReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const visible = useInView(ref, { amount: 0.4 });
-  const [beat, setBeat] = useState(still ? 4 : 0);
+  const [playbackBeat, setBeat] = useState(0);
+  const beat = still ? 4 : playbackBeat;
   const [typed, setTyped] = useState("");
 
   useEffect(() => {

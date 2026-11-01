@@ -143,7 +143,7 @@ export function CategoryPreview({ id }: { id: CategoryId }) {
   return (
     <Window title="Help & Support" bodyClassName="p-5">
       <div className="rounded-xl border border-(--negative)/30 bg-(--negative)/[.07] p-4">
-        <p className="flex items-center gap-2 text-[12.5px] font-semibold text-[#ff6464]">
+        <p className="flex items-center gap-2 text-[12.5px] font-semibold text-(--afvar-loss)">
           <PIcon name="shield" size={14} />
           AFVAR support will never
         </p>

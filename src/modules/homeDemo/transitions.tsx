@@ -468,7 +468,7 @@ export function OilCaptionInView({ text }: { text: string }) {
   const k = useRevealProgress(ref, undefined, undefined, 3.2);
   return (
     <div ref={ref} className="relative mt-6 pb-10 pt-[230px]">
-      <WickText as="p" className="text-3xl font-medium leading-snug tracking-tight text-[#F5F7F7]" text={text} />
+      <WickText as="p" className="text-3xl font-medium leading-snug tracking-tight text-(--afvar-text)" text={text} />
       <OilPour mv={k} at={[0, 1]} place="top-[2px] left-[4px]" />
     </div>
   );

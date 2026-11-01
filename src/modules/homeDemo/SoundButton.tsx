@@ -18,7 +18,7 @@ export function SoundButton() {
       aria-label={state === "on" ? "Sound on — turn off" : locked ? "Sound is on but paused by the browser — tap to start" : "Sound off — turn on"}
       onClick={() => (locked ? resumeSound() : setOn(state === "off"))}
       className={`flex h-10 items-center gap-2 rounded-full border px-3 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#69F0AE] ${
-        state === "on" ? "border-[#00E676] text-[#00E676]" : locked ? "animate-pulse border-[#FFB020] text-[#FFB020]" : `${HAIR} text-[#A3AAAC] hover:text-[#F5F7F7]`
+        state === "on" ? "border-[#00E676] text-[#00E676]" : locked ? "animate-pulse border-[#FFB020] text-[#FFB020]" : `${HAIR} text-[#A3AAAC] hover:text-(--afvar-text)`
       }`}
     >
       <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
@@ -45,7 +45,7 @@ export function MotionButton() {
       aria-label={reduced ? "Motion reduced — turn animations back on" : "Reduce motion"}
       onClick={() => setReduced(!reduced)}
       className={`flex h-10 items-center gap-2 rounded-full border px-3 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#69F0AE] ${
-        reduced ? "border-[#FFB020] text-[#FFB020]" : `${HAIR} text-[#A3AAAC] hover:text-[#F5F7F7]`
+        reduced ? "border-[#FFB020] text-[#FFB020]" : `${HAIR} text-[#A3AAAC] hover:text-(--afvar-text)`
       }`}
     >
       <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">

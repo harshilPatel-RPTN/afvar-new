@@ -105,7 +105,7 @@ export function SessionClock() {
               data-session={session.id}
               data-open={open ? "true" : "false"}
               className={`min-w-0 rounded-lg border px-2 py-1.5 transition-colors duration-300 ${
-                inOverlap ? "border-[#00E676]/45 bg-[#00E676]/[.07]" : open ? "border-white/[.14] bg-[#171B1D]" : "border-white/[.06] bg-[#111416]"
+                inOverlap ? "border-[#00E676]/45 bg-[#00E676]/[.07]" : open ? "border-white/[.14] bg-[#171B1D]" : "border-white/[.06] bg-(--afvar-panel)"
               } ${open && ring ? "mk-bell-ring" : ""}`}
             >
               <div className="flex items-center gap-1.5">
@@ -113,7 +113,7 @@ export function SessionClock() {
                   aria-hidden="true"
                   className={`h-1.5 w-1.5 shrink-0 rounded-full ${open ? "bg-[#00E676] motion-safe:animate-pulse" : "bg-[#6D7578]/60"}`}
                 />
-                <span className="truncate text-[11.5px] font-semibold text-[#F5F7F7]">{session.city}</span>
+                <span className="truncate text-[11.5px] font-semibold text-(--afvar-text)">{session.city}</span>
               </div>
               <p className={`mt-0.5 font-mono text-[9.5px] font-semibold uppercase tracking-wide ${now ? (open ? "text-[#00E676]" : "text-[#6D7578]") : "text-[#6D7578]/60"}`}>
                 {now ? (open ? "Open" : "Closed") : "—"}

@@ -1,68 +1,4 @@
-/*
- * W5 Resources theme: the platform pages' macOS kit (pf tokens) re-pointed at
- * the home page's market palette — graphite blacks, bull green #00E676 and
- * bear red #FF3B3B (home SiteShell `.afvar-home`). Scoped to `.rs-theme`.
- */
-.ds-theme.pf-theme.pf-theme.rs-theme {
-  --canvas: #07090a;
-  --surface-inset: #050607;
-  --surface-1: #080a0b;
-  --surface-2: #111416;
-  --surface-3: #171b1d;
-  --surface-hover: #1d2327;
-  --surface-active: #262d32;
-
-  --text-primary: #f5f7f7;
-  --text-secondary: #a3aaac;
-  --text-tertiary: #858e91;
-  --text-muted: #6d7578;
-  --text-disabled: #4a545a;
-  --text-inverse: #030405;
-  --text-link: #00e676;
-
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-default: rgba(255, 255, 255, 0.11);
-  --border-strong: rgba(255, 255, 255, 0.22);
-
-  --accent: #00e676;
-  --accent-hover: #3ff09a;
-  --accent-pressed: #00c765;
-  --accent-highlight: #3ff09a;
-  --accent-dark: #00a85a;
-  --accent-border: rgba(0, 230, 118, 0.45);
-  --accent-subtle: rgba(0, 230, 118, 0.3);
-  --accent-soft: rgba(0, 230, 118, 0.1);
-
-  --positive: #00e676;
-  --positive-soft: rgba(0, 230, 118, 0.12);
-  --negative: #ff3b3b;
-  --negative-soft: rgba(255, 59, 59, 0.12);
-  --chart-grid: #1b2024;
-
-  --focus-ring: #00e676;
-
-  --mac-window: #111416;
-  --mac-sidebar: rgba(17, 20, 22, 0.78);
-  --mac-chrome: rgba(8, 10, 11, 0.6);
-  --mac-select: rgba(0, 230, 118, 0.16);
-
-  --segment-fill: #111416;
-  --segment-active: #262d32;
-
-  background: var(--canvas);
-}
-
-.rs-theme .pf-vibrant {
-  background: rgba(20, 24, 27, 0.78);
-}
-
-.rs-theme .pf-wallpaper {
-  background:
-    radial-gradient(110% 80% at 0% 110%, rgba(0, 230, 118, 0.26), transparent 55%),
-    radial-gradient(90% 70% at 100% 105%, rgba(255, 59, 59, 0.2), transparent 55%),
-    linear-gradient(180deg, #0c1012 0%, #070909 100%);
-}
-
+/* Resources shares the platform kit's wallpaper and surface colors. */
 /* No visible scrollbars anywhere on the Resources pages (page and panes still scroll). */
 html:has(.rs-theme) {
   scrollbar-width: none;
@@ -75,8 +11,7 @@ html:has(.rs-theme)::-webkit-scrollbar,
   scrollbar-width: none;
 }
 
-/* Buttons in the Resources green (the home theme's bull green #00E676): primary
-   actions are green pills with dark text; secondary ones a green-edged outline. */
+/* Resource controls retain their original sizing; shared glass classes paint them. */
 .rs-btn,
 .rs-ghost {
   display: inline-flex;
@@ -95,25 +30,8 @@ html:has(.rs-theme)::-webkit-scrollbar,
     box-shadow 200ms ease-out,
     transform 150ms ease-out;
 }
-.rs-btn {
-  background: #00e676;
-  color: #030405;
-  font-weight: 600;
-  box-shadow: 0 0 0 0 rgba(0, 230, 118, 0);
-}
-.rs-btn:hover {
-  background: #3ff09a;
-  box-shadow: 0 6px 24px -6px rgba(0, 230, 118, 0.55);
-}
-.rs-ghost {
-  border: 1px solid rgba(0, 230, 118, 0.35);
-  color: var(--text-primary);
-  font-weight: 500;
-}
-.rs-ghost:hover {
-  border-color: rgba(0, 230, 118, 0.7);
-  background: rgba(0, 230, 118, 0.08);
-}
+.rs-btn { font-weight: 600; }
+.rs-ghost { font-weight: 500; }
 .rs-btn:active,
 .rs-ghost:active {
   transform: scale(0.97);
@@ -123,13 +41,7 @@ html:has(.rs-theme)::-webkit-scrollbar,
   opacity: 0.4;
   pointer-events: none;
 }
-/* A chosen chip / segment. */
-.rs-on {
-  background: #00e676 !important;
-  color: #030405 !important;
-}
-
-/* Primary call to action: the large green pill. */
+/* Large resource call to action. */
 .rs-primary {
   display: inline-flex;
   align-items: center;
@@ -138,18 +50,12 @@ html:has(.rs-theme)::-webkit-scrollbar,
   height: 46px;
   padding: 0 24px;
   border-radius: 999px;
-  background: #00e676;
-  color: #030405;
   font-size: 16px;
   font-weight: 600;
   transition:
     background-color 200ms ease-out,
     box-shadow 200ms ease-out,
     transform 150ms ease-out;
-}
-.rs-primary:hover {
-  background: #3ff09a;
-  box-shadow: 0 10px 34px -8px rgba(0, 230, 118, 0.6);
 }
 .rs-primary:active {
   transform: scale(0.98);
@@ -171,14 +77,14 @@ html:has(.rs-theme)::-webkit-scrollbar,
   color: var(--text-secondary);
 }
 .rs-chip[data-tone="up"] {
-  color: #00e676;
-  border-color: rgba(0, 230, 118, 0.4);
-  background: rgba(0, 230, 118, 0.08);
+  color: var(--positive);
+  border-color: var(--accent-border);
+  background: var(--positive-soft);
 }
 .rs-chip[data-tone="down"] {
-  color: #ff6464;
-  border-color: rgba(255, 59, 59, 0.4);
-  background: rgba(255, 59, 59, 0.08);
+  color: var(--negative);
+  border-color: color-mix(in srgb, var(--negative) 40%, transparent);
+  background: var(--negative-soft);
 }
 .rs-chip[data-tone="warn"] {
   color: #f5c451;

@@ -88,7 +88,7 @@ function Ticker() {
             />
             <span className="text-[#A3AAAC]">{symbol}</span>
             <span className="sr-only">({STATUS_WORD[q.status]})</span>
-            <span className="text-[#F5F7F7]">{fmt(q)}</span>
+            <span className="text-(--afvar-text)">{fmt(q)}</span>
             <span className={up ? "text-[#00E676]" : "text-[#FF3B3B]"}>
               {up ? "▲" : "▼"}
               {Math.abs(q.changePct).toFixed(2)}%
@@ -162,7 +162,7 @@ function Ticker() {
           onClick={() => setPaused((v) => !v)}
           aria-pressed={paused}
           aria-label={paused ? "Play market ticker" : "Pause market ticker"}
-          className={`hidden shrink-0 items-center justify-center border-l ${HAIR} px-3 text-[#A3AAAC] hover:text-[#F5F7F7] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#69F0AE] md:flex`}
+          className={`hidden shrink-0 items-center justify-center border-l ${HAIR} px-3 text-[#A3AAAC] hover:text-(--afvar-text) focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#69F0AE] md:flex`}
         >
           <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
             {paused ? (

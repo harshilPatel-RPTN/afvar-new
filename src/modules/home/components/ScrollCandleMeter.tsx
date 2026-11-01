@@ -87,7 +87,7 @@ export function ScrollCandleMeter() {
       ref={rootRef}
       aria-hidden="true"
       data-testid="scroll-candle-meter"
-      className="mkc-meter pointer-events-none fixed left-4 z-40 hidden h-[44px] w-[120px] rounded-lg border border-white/[.11] bg-[#111416] px-1 pt-1 shadow-[0_10px_30px_-12px_rgba(0,0,0,.9)] sm:left-6 sm:block motion-reduce:!hidden"
+      className="mkc-meter pointer-events-none fixed left-4 z-40 hidden h-[44px] w-[120px] rounded-lg border border-white/[.11] bg-(--afvar-panel) px-1 pt-1 shadow-[0_10px_30px_-12px_rgba(0,0,0,.9)] sm:left-6 sm:block motion-reduce:!hidden"
       style={{ bottom: "calc(max(1rem, env(safe-area-inset-bottom)) + 46px)" }}
     >
       <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} className="block overflow-visible">

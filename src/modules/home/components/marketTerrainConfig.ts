@@ -189,8 +189,8 @@ export const DOM = {
 
 /** README §3 market palette — scene only; UI uses the same values via tokens. */
 export const COLORS = {
-  black: "#030405",
-  deep: "#080A0B",
+  black: "#040404",
+  deep: "#06110C",
   green: "#00E676",
   greenDeep: "#00A85A",
   red: "#FF3B3B",
@@ -209,7 +209,7 @@ export const ramp = (p: number, a: number, b: number) => clamp01((p - a) / (b - 
 export const window4 = (p: number, [a, b, c, d]: readonly [number, number, number, number]) => ramp(p, a, b) * (1 - ramp(p, c, d));
 export const easeOut = (x: number) => 1 - Math.pow(1 - clamp01(x), 3);
 export const easeInOut = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
-/** Chapter F: the whole scene settles darker for the hand-off to #080A0B. */
+/** Chapter F: the whole scene settles darker for the hand-off to charcoal. */
 export const releaseDim = (p: number) => 1 - 0.6 * easeInOut(ramp(p, STAGES.release[0], STAGES.release[1]));
 
 /** Deterministic PRNG (mulberry32). */

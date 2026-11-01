@@ -77,7 +77,7 @@ export function HomeScreen() {
   };
 
   return (
-    <div className="relative min-h-svh overflow-hidden bg-[#010205]">
+    <div className="relative min-h-svh overflow-hidden">
       <LiveNebula dimmed={!unlocked} />
       <AnimatePresence mode="wait">
         {unlocked ? (

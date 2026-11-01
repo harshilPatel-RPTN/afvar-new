@@ -44,7 +44,7 @@ export function Chapter01() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <section ref={trackRef} className={`relative bg-[#080A0B] text-[#F5F7F7] ${cinematic ? "lg:h-[420vh]" : ""}`} id="chapter-01" aria-label="Chapter 01 — Origin">
+      <section ref={trackRef} className={`relative text-(--afvar-text) ${cinematic ? "lg:h-[420vh]" : ""}`} id="chapter-01" aria-label="Chapter 01 — Origin">
         <div className={`overflow-hidden ${cinematic ? "lg:sticky lg:top-0 lg:h-svh" : ""}`}>
           {cinematic ? (
             <div className="relative h-svh w-full">
@@ -59,10 +59,10 @@ export function Chapter01() {
                 {/* chapter label + progress line */}
                 <div className="absolute left-10 top-32">
                   <p className={`${MONO} text-[#6D7578]`}>
-                    <span className="text-[#F5F7F7]">01</span> / Origin
+                    <span className="text-(--afvar-text)">01</span> / Origin
                   </p>
                   <div className="mt-3 h-px w-28 bg-[rgba(255,255,255,0.12)]">
-                    <motion.div className="h-px origin-left bg-[#00E676]" style={{ scaleX: barScale }} />
+                    <motion.div className="h-px origin-left bg-(--afvar-mint)" style={{ scaleX: barScale }} />
                   </div>
                 </div>
 
@@ -70,7 +70,7 @@ export function Chapter01() {
                 <div className="absolute bottom-[18vh] left-10 max-w-xl">
                   {CAPTIONS.map((c, i) => (
                     <motion.div key={i} className="absolute bottom-0 left-0 w-max max-w-xl" style={{ opacity: caps[i] }}>
-                      <WickText as="p" className="text-3xl font-medium leading-snug tracking-tight text-[#F5F7F7] xl:text-4xl" text={c.text} mv={scrollYProgress} at={[c.window[0], c.window[1]]} />
+                      <WickText as="p" className="text-3xl font-medium leading-snug tracking-tight text-(--afvar-text) xl:text-4xl" text={c.text} mv={scrollYProgress} at={[c.window[0], c.window[1]]} />
                     </motion.div>
                   ))}
                 </div>
@@ -89,7 +89,7 @@ export function Chapter01() {
                 {/* scroll hint */}
                 <motion.div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2" style={{ opacity: hintOpacity }}>
                   <p className={`${MONO} text-[#6D7578]`}>Scroll</p>
-                  <div className="h-8 w-px bg-gradient-to-b from-[#00E676] to-transparent" />
+                  <div className="h-8 w-px bg-gradient-to-b from-(--afvar-mint) to-transparent" />
                 </motion.div>
               </div>
             </div>
@@ -115,9 +115,9 @@ function FinaleCopy({ mv, at }: { mv?: MotionValue<number>; at?: readonly [numbe
   const beastP = useMomentWindow(mv, at);
   return (
     <div className="pointer-events-auto">
-      <p className={`${MONO} text-[#00E676]`}>Pre-launch · OS in development</p>
+      <p className={`${MONO} text-(--afvar-mint)`}>Pre-launch · OS in development</p>
       <BullCharge side="right" p={beastP}>
-        <WickText as="h1" className="mt-4 text-4xl font-semibold leading-[1.08] tracking-tight text-[#F5F7F7] sm:text-5xl xl:text-6xl" text="Your AI trading a{s|$}sistant." mv={mv} at={at} />
+        <WickText as="h1" className="mt-4 text-4xl font-semibold leading-[1.08] tracking-tight text-(--afvar-text) sm:text-5xl xl:text-6xl" text="Your AI trading a{s|$}sistant." mv={mv} at={at} />
       </BullCharge>
       <p className="mt-5 max-w-md text-base leading-relaxed text-[#A3AAAC]">
         One desk that follows commodities, forex and crypto with you, explains every move with its source — and never places a trade.
@@ -125,11 +125,11 @@ function FinaleCopy({ mv, at }: { mv?: MotionValue<number>; at?: readonly [numbe
       <div className="mt-7 flex flex-wrap items-center gap-4">
         <Link
           href={REGISTER_HREF} prefetch={false}
-          className="afv-cta inline-block rounded-full bg-[#00E676] px-6 py-3 text-sm font-semibold text-[#05130C] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#69F0AE]"
+          className="afvar-glass-button afvar-glass-primary inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold"
         >
           Register Now
         </Link>
-        <Link href="/platform" className="text-sm font-medium text-[#A3AAAC] transition-colors hover:text-[#F5F7F7] afv-link">
+        <Link href="/platform" className="text-sm font-medium text-[#A3AAAC] transition-colors hover:text-(--afvar-text) afv-link">
           Explore the platform
         </Link>
       </div>
@@ -137,7 +137,7 @@ function FinaleCopy({ mv, at }: { mv?: MotionValue<number>; at?: readonly [numbe
         {FACTS.map(([n, label], i) => (
           <div key={label} className={`${i % 2 === 1 ? `border-l ${HAIR} pl-4` : ""} ${i > 0 ? "sm:border-l sm:border-[rgba(255,255,255,0.1)] sm:pl-4" : ""}`}>
             <dt className="sr-only">{label}</dt>
-            <dd className="text-lg font-semibold text-[#F5F7F7]">
+            <dd className="text-lg font-semibold text-(--afvar-text)">
               <FactValue n={n} mv={mv} at={at} />
             </dd>
             <dd className="mt-0.5 text-[11px] leading-tight text-[#6D7578]">{label}</dd>
@@ -151,7 +151,7 @@ function FinaleCopy({ mv, at }: { mv?: MotionValue<number>; at?: readonly [numbe
 /** No-WebGL poster: same meaning, zero canvas. */
 function Poster() {
   return (
-    <div className="relative h-full w-full bg-[#080A0B]" aria-hidden="true">
+    <div className="relative h-full w-full" aria-hidden="true">
       <div className="absolute right-[22%] top-[38%] h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(0,230,118,0.35),transparent_70%)]" />
       <div className="absolute right-[22%] top-[38%] mt-20 ml-20 h-2 w-2 rounded-full bg-[#69F0AE] shadow-[0_0_24px_6px_rgba(0,230,118,0.6)]" />
       <div className="absolute inset-x-[8%] bottom-[28%] h-px bg-gradient-to-r from-transparent via-[rgba(0,230,118,0.5)] to-transparent" />

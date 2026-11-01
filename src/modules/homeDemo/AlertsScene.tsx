@@ -7,7 +7,7 @@
 // every chapter.
 import { Environment, Lightformer } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
+import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import {
@@ -80,10 +80,9 @@ export default function AlertsScene({
           position: CAMERA_KEYS[0].pos as unknown as THREE.Vector3,
           fov: FOV[0],
         }}
-        gl={{ antialias: true, powerPreference: "high-performance" }}
+        gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
         aria-hidden="true"
       >
-        <color attach="background" args={[COLORS.bg]} />
         <fog attach="fog" args={[COLORS.bg, 10, 24]} />
 
         <ProgressDamper
@@ -182,7 +181,7 @@ export default function AlertsScene({
 
         <EffectComposer multisampling={4}>
           <Bloom mipmapBlur luminanceThreshold={0.9} intensity={0.5} />
-          <Vignette darkness={0.45} offset={0.3} />
+
         </EffectComposer>
       </Canvas>
       <div

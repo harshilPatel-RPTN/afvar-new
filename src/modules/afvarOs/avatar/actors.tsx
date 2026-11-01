@@ -80,7 +80,7 @@ export function AvatarOverlay({
         <directionalLight position={[500, 300, 200]} intensity={1.1} color="#c8e4ff" />
         <Environment resolution={128} frames={1}>
           <Lightformer form="rect" intensity={1.4} position={[0, 5, -4]} scale={[12, 4, 1]} />
-          <Lightformer form="rect" intensity={0.8} color="#E9B44C" position={[-6, 1, 2]} rotation-y={Math.PI / 2} scale={[8, 3, 1]} />
+          <Lightformer form="rect" intensity={0.8} color="#A8DEC2" position={[-6, 1, 2]} rotation-y={Math.PI / 2} scale={[8, 3, 1]} />
         </Environment>
         <OverlayActor mv={mv} track={track} design={design} still={still} />
       </Canvas>

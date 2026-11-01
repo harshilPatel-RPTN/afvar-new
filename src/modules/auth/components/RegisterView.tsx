@@ -15,10 +15,10 @@ import { GoogleButton, OrDivider, useAfterAuth, useRedirectIfSignedIn } from "./
 
 const STRENGTH: { key: MessageKey; color: string }[] = [
   { key: "auth.strength.tooShort", color: "bg-white/20" },
-  { key: "auth.strength.weak", color: "bg-[#F08A7E]" },
+  { key: "auth.strength.weak", color: "bg-(--afvar-loss)" },
   { key: "auth.strength.fair", color: "bg-[#F2C46D]" },
-  { key: "auth.strength.good", color: "bg-[#8AB4F8]" },
-  { key: "auth.strength.strong", color: "bg-[#6FD3A8]" },
+  { key: "auth.strength.good", color: "bg-(--afvar-mint)/70" },
+  { key: "auth.strength.strong", color: "bg-(--afvar-mint)" },
 ];
 
 export function passwordStrength(password: string) {
@@ -37,15 +37,15 @@ export function StrengthMeter({ password }: { password: string }) {
           <span key={level} className={`h-1 flex-1 rounded-full transition-colors ${strength >= level ? STRENGTH[strength].color : "bg-white/10"}`} />
         ))}
       </div>
-      <span className="w-16 text-end text-[10px] text-white/55">{password ? t(STRENGTH[strength].key) : ""}</span>
+      <span className="w-16 text-end text-[10px] text-(--afvar-muted)">{password ? t(STRENGTH[strength].key) : ""}</span>
     </div>
   );
 }
 
 function Consent({ checked, onChange, children }: { checked: boolean; onChange: (value: boolean) => void; children: ReactNode }) {
   return (
-    <label className="flex cursor-pointer items-start gap-2.5 text-[12px] leading-snug text-white/75">
-      <input type="checkbox" required checked={checked} onChange={(event) => onChange(event.target.checked)} className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#8AB4F8]" />
+    <label className="flex cursor-pointer items-start gap-2.5 text-[12px] leading-snug text-(--afvar-muted)">
+      <input type="checkbox" required checked={checked} onChange={(event) => onChange(event.target.checked)} className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-(--afvar-mint)" />
       <span>{children}</span>
     </label>
   );
@@ -54,7 +54,7 @@ function Consent({ checked, onChange, children }: { checked: boolean; onChange: 
 /** Opens a legal page in the same tab, with a way back to this form (`?from=`). */
 function LegalLink({ href, from, children }: { href: string; from: string; children: ReactNode }) {
   return (
-    <Link href={`${href}?from=${encodeURIComponent(from)}`} className="font-medium text-[#8AB4F8] underline-offset-2 hover:underline">
+    <Link href={`${href}?from=${encodeURIComponent(from)}`} className="font-medium text-(--afvar-mint) underline-offset-2 hover:underline">
       {children}
     </Link>
   );
@@ -91,7 +91,7 @@ function Stepper({ step }: { step: number }) {
         {STEPS.map((key, index) => (
           <span key={key} className="relative h-1 flex-1 overflow-hidden rounded-full bg-white/10">
             <motion.span
-              className="absolute inset-0 origin-left rounded-full bg-[linear-gradient(90deg,#9BC0FF,#C9DBFF)]"
+              className="absolute inset-0 origin-left rounded-full bg-(--afvar-mint)"
               initial={false}
               animate={{ scaleX: index <= step ? 1 : 0 }}
               transition={{ duration: 0.45, ease: EASE }}
@@ -101,7 +101,7 @@ function Stepper({ step }: { step: number }) {
       </div>
       <div className="flex items-baseline justify-between text-[11px]">
         <span className="font-medium text-white/85">{t(STEPS[step])}</span>
-        <span className="text-white/50">{t("auth.register.stepOf", { current: step + 1, total: STEPS.length })}</span>
+        <span className="text-(--afvar-muted)">{t("auth.register.stepOf", { current: step + 1, total: STEPS.length })}</span>
       </div>
     </div>
   );
@@ -254,7 +254,7 @@ export function RegisterView() {
         value={confirm}
         onChange={(event) => setConfirm(event.target.value)}
         aria-invalid={mismatch}
-        hint={mismatch && <span className="text-[11px] text-[#F08A7E]">{t("auth.register.mismatch")}</span>}
+        hint={mismatch && <span className="text-[11px] text-(--afvar-loss)">{t("auth.register.mismatch")}</span>}
       />
     </Fragment>,
     <Fragment key="profile">
@@ -337,7 +337,7 @@ export function RegisterView() {
                   type="button"
                   onClick={() => go(step - 1)}
                   disabled={pending}
-                  className="mt-1 flex h-12 shrink-0 items-center gap-1.5 rounded-xl border border-white/15 bg-white/[.06] px-4 text-[13px] font-medium text-white/85 backdrop-blur-md transition-colors hover:bg-white/[.12] disabled:opacity-60"
+                  className="afvar-glass-button mt-1 flex h-12 shrink-0 items-center gap-1.5 rounded-xl px-4 text-[13px] font-medium disabled:opacity-60"
                 >
                   <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true">
                     <path d="M16 10H5M9 6l-4 4 4 4" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />

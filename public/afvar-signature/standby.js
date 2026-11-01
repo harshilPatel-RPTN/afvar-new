@@ -1,11 +1,9 @@
 import { createLockup } from "./golden-reveal/lockup.js";
 import { createGaze } from "./cursor-gaze.mjs";
-import { sample, TIMING } from "./timeline.mjs";
+import { nextBlinkDelay, sample, TIMING } from "./timeline.mjs";
 
 const IDLE_MS = 10000;
 const FLIGHT_MS = TIMING.pairedDock;
-const blinkStarts = [TIMING.firstBlink, 5760, 10220];
-const blinkDuration = TIMING.close + TIMING.shut + TIMING.unclose;
 const clamp = n => Math.max(0, Math.min(1, n));
 
 // A Hermite segment starts at the actual last pose and velocity. Interrupting
@@ -68,6 +66,7 @@ export function startStandby(root, signal, lastActivity) {
   }
   function reset() {
     stopFrames();
+    face?.setActive(false);
     restoreTarget();
     position = speed = 0; segment = null; enteredAt = null;
     root.dataset.phase = "armed";
@@ -97,10 +96,7 @@ export function startStandby(root, signal, lastActivity) {
   }
   function nextBlink(now) {
     if (!face || reduced.matches || enteredAt == null) return;
-    const beat = (now-enteredAt) % TIMING.blinkCycle;
-    const blinking = blinkStarts.some(start=>beat >= start && beat <= start+blinkDuration);
-    const upcoming = blinkStarts.find(start=>start>beat) ?? TIMING.blinkCycle+blinkStarts[0];
-    blinkTimer = setTimeout(()=>{raf=requestAnimationFrame(frame);}, blinking ? 24 : Math.max(20,upcoming-beat));
+    blinkTimer = setTimeout(()=>{raf=requestAnimationFrame(frame);}, nextBlinkDelay(now-enteredAt));
   }
   function frame(now) {
     if (signal.aborted || document.hidden || !target) return;
@@ -127,7 +123,7 @@ export function startStandby(root, signal, lastActivity) {
     if (end === 0 && (root.dataset.phase==="armed" || root.dataset.phase==="returning")) return;
     stopFrames();
     const now=performance.now();
-    if (end) { selectTarget(); startFace(); }
+    if (end) { selectTarget(); face?.setActive(true); startFace(); }
     root.dataset.phase=end ? "centering" : "returning";
     if (reduced.matches || Math.abs(end-position)<.00001) {
       position=end; speed=0; segment=null;
@@ -151,7 +147,7 @@ export function startStandby(root, signal, lastActivity) {
       if (signal.aborted) return;
       const instance=await createFollowingLogo(holder);
       if (signal.aborted) { instance.dispose(); return; }
-      face=instance; root.dataset.face="true";
+      face=instance; face.setActive(Boolean(target)); root.dataset.face="true";
       if (target) {
         paint(performance.now());
         if (!segment) { stopFrames(); nextBlink(performance.now()); }

@@ -72,7 +72,7 @@ export function PrelaunchBanner() {
             >
               <aside
                 aria-label={t("mk.shell.prelaunchLabel")}
-                className="pointer-events-auto flex min-h-10 items-center gap-3 rounded-xl border border-white/10 bg-[#111312] py-1 pl-4 pr-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_8px_24px_-12px_rgba(0,0,0,0.8)]"
+                className="pointer-events-auto flex min-h-10 items-center gap-3 rounded-xl border border-white/10 bg-(--afvar-panel) py-1 pl-4 pr-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_8px_24px_-12px_rgba(0,0,0,0.8)]"
               >
                 <span
                   aria-hidden="true"

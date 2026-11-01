@@ -137,7 +137,7 @@ export function PricingView() {
         </h1>
         <p className="mx-auto max-w-[520px] text-[14px] leading-relaxed text-[#B0BBC8]">{t("pricing.subtitle")}</p>
 
-        <div role="radiogroup" aria-label={t("pricing.billingPeriod")} className="mx-auto mt-7 inline-flex rounded-full border border-white/12 bg-white/[.04] p-1">
+        <div role="radiogroup" aria-label={t("pricing.billingPeriod")} className="afvar-glass-track mx-auto mt-7 inline-flex rounded-full p-1">
           {(["monthly", "yearly"] as const).map((option) => (
             <button
               key={option}
@@ -145,9 +145,9 @@ export function PricingView() {
               role="radio"
               aria-checked={interval === option}
               onClick={() => setInterval(option)}
-              className={`relative rounded-full px-4 py-1.5 text-[12px] font-medium transition-colors ${interval === option ? "text-[#0B1220]" : "text-white/70 hover:text-white"}`}
+              className="afvar-glass-tab relative rounded-full px-4 py-1.5 text-[12px] font-medium"
             >
-              {interval === option && <motion.span layoutId="interval-pill" className="absolute inset-0 rounded-full bg-[#8AB4F8]" transition={{ type: "spring", stiffness: 400, damping: 32 }} />}
+              {interval === option && <motion.span layoutId="interval-pill" aria-hidden="true" className="afvar-glass-indicator pointer-events-none absolute inset-0 rounded-full" transition={{ type: "spring", stiffness: 400, damping: 32 }} />}
               <span className="relative">
                 {t(option === "monthly" ? "pricing.monthly" : "pricing.yearly")}
                 {option === "yearly" && <span className="ms-1.5 text-[10px] font-bold">{t("pricing.save", { percent: savings })}</span>}

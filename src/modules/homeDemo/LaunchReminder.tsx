@@ -88,18 +88,18 @@ export function LaunchReminder() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className={`fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 border ${HAIR} bg-[#111416] sm:inset-x-auto sm:bottom-auto sm:right-6 sm:top-[124px] sm:w-80`}
+          className={`fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 border ${HAIR} bg-(--afvar-panel) sm:inset-x-auto sm:bottom-auto sm:right-6 sm:top-[124px] sm:w-80`}
         >
           <div className="flex items-center gap-3 px-3 py-2.5 sm:items-start sm:p-4">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center bg-[#00E676] text-sm font-bold text-[#05130C] sm:mt-0.5 sm:h-8 sm:w-8" aria-hidden="true">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center bg-(--afvar-mint) text-sm font-bold text-(--afvar-forest) sm:mt-0.5 sm:h-8 sm:w-8" aria-hidden="true">
               A
             </span>
             <div className="flex min-w-0 flex-1 items-center justify-between gap-3 sm:block">
-              <p className={`${MONO} hidden text-[#6D7578] sm:block`}>AFVAR · Pre-launch</p>
-              <p className="text-[13px] leading-snug text-[#F5F7F7] sm:mt-1 sm:text-sm">Join the Launch Queue</p>
+              <p className={`${MONO} hidden text-(--afvar-muted) sm:block`}>AFVAR · Pre-launch</p>
+              <p className="text-[13px] leading-snug text-(--afvar-text) sm:mt-1 sm:text-sm">Join the Launch Queue</p>
               <Link
                 href={REGISTER_HREF}
-                className="shrink-0 rounded-full bg-[#00E676] px-3.5 py-2 text-[13px] font-semibold text-[#05130C] sm:mt-2 sm:inline-block sm:bg-transparent sm:p-0 sm:text-sm sm:text-[#00E676] sm:hover:underline"
+                className="afvar-glass-button afvar-glass-primary inline-flex shrink-0 items-center rounded-full px-3.5 py-2 text-[13px] font-semibold sm:mt-2"
               >
                 Register now
               </Link>
@@ -108,7 +108,7 @@ export function LaunchReminder() {
               type="button"
               onClick={dismiss}
               aria-label="Dismiss reminder"
-              className="-mr-1 -mt-1 flex h-8 w-8 shrink-0 items-center justify-center text-[#6D7578] transition-colors hover:text-[#F5F7F7] focus-visible:outline-2 focus-visible:outline-[#69F0AE]"
+              className="-mr-1 -mt-1 flex h-8 w-8 shrink-0 items-center justify-center text-(--afvar-muted) transition-colors hover:text-(--afvar-text) focus-visible:outline-2 focus-visible:outline-(--afvar-mint)"
             >
               <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
                 <path d="M2 2l8 8M10 2 2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />

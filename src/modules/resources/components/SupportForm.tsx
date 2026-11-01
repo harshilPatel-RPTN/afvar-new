@@ -101,7 +101,7 @@ export function SupportForm() {
   const field = "mt-1.5 w-full rounded-lg bg-white/[.05] px-3.5 py-2.5 text-[14.5px] text-(--text-primary) shadow-[inset_0_0_0_0.5px_rgba(255,255,255,0.12)] outline-none transition-shadow placeholder:text-(--text-muted) focus:shadow-[inset_0_0_0_1.5px_var(--accent)]";
   const err = (k: keyof Draft) =>
     touched && errors[k] ? (
-      <p id={`${ids}-${k}-err`} className="mt-1.5 text-[12.5px] text-[#ff6464]">
+      <p id={`${ids}-${k}-err`} className="mt-1.5 text-[12.5px] text-(--afvar-loss)">
         {errors[k]}
       </p>
     ) : null;
@@ -166,7 +166,7 @@ export function SupportForm() {
         </label>
 
         <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
-          <button type="submit" disabled={status === "sending"} className="rs-primary !h-11 disabled:opacity-60">
+          <button type="submit" disabled={status === "sending"} className="afvar-glass-button afvar-glass-primary rs-primary !h-11 disabled:opacity-60">
             {status === "sending" ? (
               <>
                 <motion.span className="h-3.5 w-3.5 rounded-full border-2 border-black/30 border-t-black" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }} />
@@ -189,7 +189,7 @@ export function SupportForm() {
             exit={{ opacity: 0 }}
             className={`mt-6 rounded-2xl border p-5 ${status === "kept" ? "border-(--accent)/30 bg-(--accent)/[.06]" : "border-(--negative)/35 bg-(--negative)/[.07]"}`}
           >
-            <p className={`flex items-center gap-2 text-[14.5px] font-semibold ${status === "kept" ? "text-(--accent)" : "text-[#ff6464]"}`}>
+            <p className={`flex items-center gap-2 text-[14.5px] font-semibold ${status === "kept" ? "text-(--accent)" : "text-(--afvar-loss)"}`}>
               <PIcon name={status === "kept" ? "check" : "info"} size={16} weight="bold" />
               {status === "kept" ? "Request kept — not sent yet" : "We couldn't keep your request"}
             </p>
@@ -199,12 +199,12 @@ export function SupportForm() {
                 : "This browser blocked local storage, so nothing was saved. Try again, or copy the request to keep it yourself."}
             </p>
             <div className="mt-4 flex flex-wrap gap-2.5">
-              <button type="button" onClick={copySummary} className="rs-ghost">
+              <button type="button" onClick={copySummary} className="afvar-glass-button rs-ghost">
                 <PIcon name={copied ? "check" : "file"} size={13} className={copied ? "text-(--accent)" : ""} />
                 {copied ? "Copied" : "Copy request"}
               </button>
               {status === "failed" && (
-                <button type="button" onClick={keep} className="rs-btn">
+                <button type="button" onClick={keep} className="afvar-glass-button afvar-glass-primary rs-btn">
                   Retry
                 </button>
               )}

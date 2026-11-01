@@ -104,12 +104,14 @@ export function StoryRail<Id extends string>({
   story,
   trackRef,
   visible,
+  segmented = false,
 }: {
   mv: MotionValue<number>;
   story: Story<Id>;
   trackRef: RefObject<HTMLElement | null>;
   /** Rail opacity as a function of progress (default: hidden on the first act). */
   visible?: (p: number) => number;
+  segmented?: boolean;
 }) {
   const [current, setCurrent] = useState<Id>(story.order[0]);
   useMotionValueEvent(mv, "change", (p) => {
@@ -128,7 +130,7 @@ export function StoryRail<Id extends string>({
   };
 
   return (
-    <motion.nav aria-label="Story chapters" className="pointer-events-auto absolute right-5 top-1/2 z-30 -translate-y-1/2" style={{ opacity }}>
+    <motion.nav aria-label="Story chapters" className={`pointer-events-auto absolute right-5 top-1/2 z-30 -translate-y-1/2 ${segmented ? "afvar-glass-track rounded-full" : ""}`} style={{ opacity }}>
       <ol className="flex flex-col items-end gap-3">
         {story.order.map((id, i) => {
           const on = id === current;
@@ -136,17 +138,19 @@ export function StoryRail<Id extends string>({
             <li key={id}>
               <button
                 type="button"
+                data-glass-hit-area={segmented ? undefined : ""}
+                data-selected={segmented ? on : undefined}
                 onClick={() => go(id)}
                 aria-current={on ? "step" : undefined}
                 aria-label={`Go to ${story.labels[id]}`}
-                className="group flex items-center gap-3 py-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E9B44C]"
+                className={`group flex items-center gap-3 py-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#A8DEC2] ${segmented ? "afvar-glass-tab rounded-full" : ""}`}
               >
                 <span
-                  className={`${MONO} text-[10px] transition-opacity ${on ? "text-[#E9B44C] opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 min-[1440px]:opacity-100" : "text-[#8A9295] opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"}`}
+                  className={`${MONO} text-[10px] transition-opacity ${on ? "text-[#A8DEC2] opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 min-[1440px]:opacity-100" : "text-[#8A9295] opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"}`}
                 >
                   {String(i + 1).padStart(2, "0")} {story.labels[id]}
                 </span>
-                <span className={`block h-px transition-all ${on ? "w-8 bg-[#E9B44C]" : "w-4 bg-[#4A5256] group-hover:bg-[#A3AAAC]"}`} />
+                <span className={`block h-px transition-all ${on ? "w-8 bg-[#A8DEC2]" : "w-4 bg-[#4A5256] group-hover:bg-[#B7C5BC]"}`} />
               </button>
             </li>
           );
@@ -161,7 +165,7 @@ export function ProgressBar({ mv, from, to, className = "" }: { mv: MotionValue<
   const scaleX = useTransform(mv, (p) => Math.max(0.001, ramp(p, from, to)));
   return (
     <div className={`h-px bg-[rgba(255,255,255,0.12)] ${className}`}>
-      <motion.div className="h-px origin-left bg-[#E9B44C]" style={{ scaleX }} />
+      <motion.div className="h-px origin-left bg-[#A8DEC2]" style={{ scaleX }} />
     </div>
   );
 }

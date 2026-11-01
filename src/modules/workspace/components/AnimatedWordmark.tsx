@@ -9,7 +9,7 @@ const CYCLE = 7;
 // Short gone gap: ~0.5 s to drift away, ~0.35 s rest before the letter returns.
 const CYCLE_TIMES = [0, 0.08, 0.88, 0.95, 1];
 /** Aurora palette the glow flows through, letter after letter. */
-const AURORA = ["#FFFFFF", "#A9C8FF", "#C4B5FD", "#7DE3F4", "#FFFFFF"];
+const AURORA = ["#F2F5F2", "#A8DEC2", "#EAD1C7", "#B9E6CC", "#F2F5F2"];
 const auroraGlow = (hex: string) => `0 0 16px ${hex}cc, 0 0 2px ${hex}`;
 
 /**

@@ -151,7 +151,7 @@ export function RollChip({ mv, at, symbol, pct }: { mv: MotionValue<number>; at:
   const value = useTransform(k, (v) => `${(Math.abs(pct) * easeOut(Math.floor(v * 12) / 12)).toFixed(2)}%`);
   const up = pct >= 0;
   return (
-    <motion.span className={`${MONO} inline-flex items-baseline gap-1 text-[#F5F7F7] tabular-nums`} style={{ opacity }}>
+    <motion.span className={`${MONO} inline-flex items-baseline gap-1 text-(--afvar-text) tabular-nums`} style={{ opacity }}>
       <span>{symbol}</span>
       <motion.span className={up ? "text-[#00E676]" : "text-[#FF3B3B]"} style={{ scale: arrowScale, display: "inline-block" }} aria-hidden="true">
         {up ? "▲" : "▼"}

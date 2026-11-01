@@ -52,8 +52,8 @@ export function MarketCard({
   const ry = useSpring(0, { stiffness: 220, damping: 22 });
   const mx = useMotionValue(50);
   const my = useMotionValue(30);
-  const color = tone === "up" ? "0,230,118" : "255,59,59";
-  const glow = useMotionTemplate`radial-gradient(380px circle at ${mx}% ${my}%, rgba(${color},0.13), transparent 55%)`;
+  const color = tone === "up" ? "var(--afvar-mint)" : "var(--afvar-crimson)";
+  const glow = useMotionTemplate`radial-gradient(380px circle at ${mx}% ${my}%, color-mix(in srgb, ${color} 13%, transparent), transparent 55%)`;
 
   function onMove(event: PointerEvent<HTMLDivElement>) {
     if (event.pointerType !== "mouse") return;
@@ -81,7 +81,7 @@ export function MarketCard({
           <motion.span aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover/card:opacity-100" style={{ background: glow }} />
           <span
             aria-hidden="true"
-            className={`pointer-events-none absolute inset-x-6 top-0 h-px scale-x-0 bg-gradient-to-r from-transparent to-transparent transition-transform duration-500 group-hover/card:scale-x-100 ${tone === "up" ? "via-[#00E676]" : "via-[#FF3B3B]"}`}
+            className={`pointer-events-none absolute inset-x-6 top-0 h-px scale-x-0 bg-gradient-to-r from-transparent to-transparent transition-transform duration-500 group-hover/card:scale-x-100 ${tone === "up" ? "via-(--afvar-mint)" : "via-(--afvar-loss)"}`}
           />
           <div className="relative h-full">{children}</div>
         </motion.div>

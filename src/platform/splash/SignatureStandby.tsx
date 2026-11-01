@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { SignatureMark } from "@/platform/ui/SignatureMark";
 import { SignatureCaption } from "./SignatureCaption";
 import "./standby.css";
 
@@ -43,10 +44,7 @@ export function SignatureStandby() {
         <SignatureCaption />
       </div>
       <div className="afvar-standby-fallback">
-        <picture data-standby-mark-target="">
-          <source media="(max-width:600px)" srcSet="/afvar-signature/assets/approved-lite.webp" />
-          <Image unoptimized src="/afvar-signature/assets/approved.webp" width={640} height={640} alt="" />
-        </picture>
+        <SignatureMark fallback />
         <Image unoptimized src="/afvar-signature/golden-reveal/afvar-wordmark-dock.webp" width={1009} height={150} alt="" data-standby-name-target="" />
       </div>
     </div>

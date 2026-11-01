@@ -20,7 +20,7 @@ export function HomePage() {
     <SiteShell footer={false}>
       <Hero />
       {/* Everything after the hero sits on the deep section surface (README §3: #080A0B). */}
-      <div data-candle-trail className="bg-[#080A0B]">
+      <div data-candle-trail>
         <VideoSection />
         <Capabilities />
         <MarketsCovered />
@@ -33,9 +33,9 @@ export function HomePage() {
       </div>
 
       {/* The site-wide ending: the /market earth horizon, then the shared footer. */}
-      <EarthHorizon labelledBy="home-closing-title" className="bg-[#080A0B]">
+      <EarthHorizon labelledBy="home-closing-title">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 id="home-closing-title" className="text-[clamp(2.1rem,4.2vw,3.5rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-[#F5F7F7]">
+          <h2 id="home-closing-title" className="text-[clamp(2.1rem,4.2vw,3.5rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-(--afvar-text)">
             {HERO.titleA} <span className="text-[#A3AAAC]">{HERO.titleB}</span>
           </h2>
           <div className="mt-9 flex justify-center">

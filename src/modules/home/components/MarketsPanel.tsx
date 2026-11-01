@@ -201,7 +201,7 @@ export function MarketsCovered() {
                   </div>
                 </BearSwipe>
 
-                <div className="mt-4 rounded-xl border border-(--mk-line) bg-[#080A0B] p-3">
+                <div className="mt-4 rounded-xl border border-(--mk-line) bg-(--afvar-charcoal) p-3">
                   <AreaChart closes={quote.closes} up={up} className="h-[260px] w-full" draw />
                   <div className="mt-1 flex justify-between px-1 font-mono text-[9.5px] text-(--mk-faint)" aria-hidden="true">
                     <span>series start</span>

@@ -11,13 +11,14 @@
 //   </CoreCanvas>
 import { Environment, Html, Lightformer, PerformanceMonitor } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
+import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { createContext, useContext, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import * as THREE from "three";
 import { COLORS } from "../theme";
-import { clamp01, easeInOut, ramp, window4, type Window4 } from "../story/timeline";
+import { clamp01, window4, type Window4 } from "../story/timeline";
+import { cameraViewport, createCameraTrack, sampleCameraTrack, type CameraKey } from "./framing";
 
-export type CameraKey = { at: number; pos: readonly [number, number, number]; look: readonly [number, number, number] };
+export type { CameraKey } from "./framing";
 export type SceneCue<C extends string = string> = { at: number; cue: C };
 
 interface StoryFrame {
@@ -47,11 +48,15 @@ export interface CoreCanvasProps<C extends string> {
   camera: readonly CameraKey[];
   fov?: number;
   parallax?: number;
+  /** The canvas already occupies only the usable space beneath the navigation. */
+  belowHeader?: boolean;
   /** Damping strength of the scroll → scene progress (higher = snappier). */
   damp?: number;
   cues?: readonly SceneCue<C>[];
   onCue?: (cue: C) => void;
   bloom?: number;
+  bloomLevels?: number;
+  background?: string;
   /** Device-pixel-ratio range (lower on phones). */
   dpr?: [number, number];
   children: ReactNode;
@@ -65,10 +70,13 @@ export function CoreCanvas<C extends string>({
   camera,
   fov = 38,
   parallax = 0.12,
+  belowHeader = false,
   damp = 4.2,
   cues,
   onCue,
   bloom = 0.75,
+  bloomLevels,
+  background,
   dpr = [1, 1.75],
   children,
 }: CoreCanvasProps<C>) {
@@ -82,30 +90,30 @@ export function CoreCanvas<C extends string>({
       dpr={dpr}
       frameloop={active && !still ? "always" : "demand"}
       camera={{ position: [...camera[0].pos], fov }}
-      gl={{ antialias: true, powerPreference: "high-performance" }}
+      gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+      onCreated={({ gl }) => gl.setClearColor(background ?? 0x000000, background ? 1 : 0)}
       aria-hidden="true"
     >
       <StoryFrameContext.Provider value={ctx}>
-        <color attach="background" args={[COLORS.bg]} />
-        <fog attach="fog" args={[COLORS.bg, 10, 28]} />
+        {background && <color attach="background" args={[background]} />}
+        <fog attach="fog" args={[background ?? COLORS.bg, 10, 28]} />
         <ProgressDamper progress={progress} smoothed={smoothed} still={still} settledP={settledP} lambda={damp} />
         <AdaptiveQuality />
         {cues && onCue ? <CueRunner smoothed={smoothed} cues={cues} onCue={onCue} /> : null}
-        <CameraRig smoothed={smoothed} still={still} keys={camera} fov={fov} parallax={parallax} />
+        <CameraRig smoothed={smoothed} still={still} keys={camera} fov={fov} parallax={parallax} belowHeader={belowHeader} />
 
         <ambientLight intensity={0.16} />
-        <spotLight position={[5, 7, 6]} angle={0.5} penumbra={1} intensity={40} color="#f1ece2" />
+        <spotLight position={[5, 7, 6]} angle={0.5} penumbra={1} intensity={40} color="#E5F1E8" />
         <Environment resolution={256} frames={1}>
           <Lightformer form="rect" intensity={1.6} position={[0, 5, -4]} scale={[12, 4, 1]} />
-          <Lightformer form="rect" intensity={1.1} color={COLORS.gold} position={[-6, 1, 2]} rotation-y={Math.PI / 2} scale={[8, 3, 1]} />
-          <Lightformer form="rect" intensity={0.4} color="#9fb3c8" position={[6, -1, 1]} rotation-y={-Math.PI / 2} scale={[8, 2, 1]} />
+          <Lightformer form="rect" intensity={1.1} color={COLORS.mint} position={[-6, 1, 2]} rotation-y={Math.PI / 2} scale={[8, 3, 1]} />
+          <Lightformer form="rect" intensity={0.4} color="#90ACA0" position={[6, -1, 1]} rotation-y={-Math.PI / 2} scale={[8, 2, 1]} />
         </Environment>
 
         {children}
 
         <EffectComposer multisampling={4}>
-          <Bloom mipmapBlur luminanceThreshold={0.85} intensity={bloom} />
-          <Vignette darkness={0.5} offset={0.3} />
+          <Bloom mipmapBlur levels={bloomLevels} luminanceThreshold={0.85} intensity={bloom} />
         </EffectComposer>
       </StoryFrameContext.Provider>
     </Canvas>
@@ -185,25 +193,21 @@ function CameraRig({
   keys,
   fov,
   parallax,
+  belowHeader,
 }: {
   smoothed: RefObject<number>;
   still: boolean;
   keys: readonly CameraKey[];
   fov: number;
   parallax: number;
+  belowHeader: boolean;
 }) {
-  const posCurve = useMemo(() => new THREE.CatmullRomCurve3(keys.map((k) => new THREE.Vector3(...k.pos)), false, "centripetal"), [keys]);
-  const lookCurve = useMemo(() => new THREE.CatmullRomCurve3(keys.map((k) => new THREE.Vector3(...k.look)), false, "centripetal"), [keys]);
+  const track = useMemo(() => createCameraTrack(keys), [keys]);
   const drift = useRef({ x: 0, y: 0 });
 
   useFrame((s, dt) => {
     const p = smoothed.current ?? 0;
-    let i = 0;
-    while (i < keys.length - 2 && p > keys[i + 1].at) i++;
-    const t = easeInOut(ramp(p, keys[i].at, keys[i + 1].at));
-    const u = (i + t) / (keys.length - 1);
-    posCurve.getPoint(u, camPos);
-    lookCurve.getPoint(u, camLook);
+    sampleCameraTrack(track, p, camPos, camLook);
     if (!still) {
       drift.current.x = THREE.MathUtils.damp(drift.current.x, s.pointer.x * parallax, 3.5, dt);
       drift.current.y = THREE.MathUtils.damp(drift.current.y, s.pointer.y * parallax * 0.6, 3.5, dt);
@@ -218,11 +222,7 @@ function CameraRig({
     // so the 3D keeps clear of the copy, as it does on a 1920 screen.
     const { width: w, height: h } = s.size;
     // 1920 → none · 1280 → 0.87× and 56 px right · 1024 (4:3) → 0.72× and 46 px right.
-    const k = w >= h * 1.2 ? Math.min(1, Math.max(0, (1680 - w) / 656)) : 0;
-    const zoom = Math.round((1 - 0.28 * k ** 1.5) * 1000) / 1000;
-    const shift = Math.round(w * 0.045 * Math.min(1, k * 1.6));
-    // Short landscape screens: the header + ticker take ~108 px, so centre the 3D in the space below them.
-    const drop = w >= h * 1.2 ? Math.round(Math.min(28, Math.max(0, (900 - h) * 0.15))) : 0;
+    const { zoom, shift, drop } = cameraViewport(w, h, belowHeader);
     const vo = cam.view;
     if (cam.fov !== fov || cam.zoom !== zoom || (vo ? -vo.offsetX : 0) !== shift || (vo ? -vo.offsetY : 0) !== drop || (vo && (vo.fullWidth !== w || vo.fullHeight !== h))) {
       cam.fov = fov;
@@ -246,7 +246,7 @@ export function SceneLabel({
 }: {
   position: readonly [number, number, number];
   show: Window4 | ((p: number) => number);
-  tone?: "neutral" | "gold" | "up" | "down";
+  tone?: "neutral" | "ai" | "gold" | "up" | "down";
   children: ReactNode;
 }) {
   const { smoothed, labels } = useStoryFrame();
@@ -259,14 +259,14 @@ export function SceneLabel({
       ref.current.style.visibility = o < 0.01 ? "hidden" : "visible";
     }
   });
-  const color = tone === "up" ? COLORS.up : tone === "down" ? COLORS.down : tone === "gold" ? COLORS.gold : COLORS.ink;
+  const color = tone === "up" ? COLORS.up : tone === "down" ? COLORS.down : (tone === "ai" || tone === "gold") ? COLORS.mint : COLORS.ink;
   const border = tone === "neutral" ? "rgba(255,255,255,0.18)" : color;
   return (
     <Html position={position as [number, number, number]} portal={labels as RefObject<HTMLElement>} center zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
       <div
         ref={ref}
         style={{ opacity: 0, visibility: "hidden", color, borderColor: border }}
-        className="whitespace-nowrap border bg-[#0F1214] px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.16em] [@media(max-height:520px)]:px-1.5 [@media(max-height:520px)]:py-0.5 [@media(max-height:520px)]:text-[8.5px] [@media(max-height:520px)]:tracking-[0.1em]"
+        className="whitespace-nowrap border bg-[#10231B] px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.16em] [@media(max-height:520px)]:px-1.5 [@media(max-height:520px)]:py-0.5 [@media(max-height:520px)]:text-[8.5px] [@media(max-height:520px)]:tracking-[0.1em]"
       >
         {children}
       </div>

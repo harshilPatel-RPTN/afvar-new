@@ -22,7 +22,10 @@ export async function createFollowingLogo(mount, canvas) {
   }
   const map = new Image();
   map.src = new URL('./ribbon-material.webp', import.meta.url).href;
-  const [face] = await Promise.all([createFace(mount), map.decode()]);
+  // Decode the gold map in parallel with the approved art. If the optional
+  // map is missing, retain ownership of the successfully created live surface.
+  const [face, mapped] = await Promise.all([createFace(mount), map.decode().then(() => true, () => false)]);
+  if (!mapped) { canvas.hidden = true; return face; }
   const context = canvas.getContext('2d');
   if (!context) { canvas.hidden = true; return face; }
 
@@ -91,6 +94,7 @@ export async function createFollowingLogo(mount, canvas) {
       face.draw(1, options);
       previousFrame = progress;
     },
+    setActive(active) { face.setActive(active); },
     dispose() {
       canvas.hidden = true;
       canvas.width = canvas.height = 1;

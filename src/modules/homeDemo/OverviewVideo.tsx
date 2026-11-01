@@ -55,9 +55,9 @@ export function OverviewVideo() {
   };
 
   return (
-    <section className="border-t border-white/[.08] bg-[#080A0B] text-(--mk-text)" aria-label={OVERVIEW.title}>
-      <div className="mx-auto max-w-[1100px] px-5 py-24 sm:px-10">
-        <motion.div initial="hidden" whileInView="visible" viewport={VIEW_ONCE}>
+    <section className="demo-home-overview border-t border-white/[.08] text-(--mk-text)" aria-label={OVERVIEW.title}>
+      <div className="demo-overview-body mx-auto max-w-[1100px] px-5 py-24 sm:px-10">
+        <motion.div className="demo-overview-heading" initial="hidden" whileInView="visible" viewport={VIEW_ONCE}>
           <AnimatedHeading
             kicker={OVERVIEW.kicker}
             title={OVERVIEW.title}
@@ -69,9 +69,9 @@ export function OverviewVideo() {
         </motion.div>
 
         {/* narration language */}
-        <div className="mt-10 flex flex-wrap items-center gap-3">
+        <div className="demo-overview-languages mt-10 flex flex-wrap items-center gap-3">
           <span className="text-[11px] font-semibold uppercase tracking-[.16em] text-(--mk-faint)">Narration</span>
-          <div role="radiogroup" aria-label="Narration language" className="inline-flex rounded-full border border-white/[.11] p-0.5">
+          <div role="radiogroup" aria-label="Narration language" className="afvar-glass-track inline-flex rounded-full p-0.5">
             {LANGS.map((l) => {
               const on = l.code === lang;
               return (
@@ -82,7 +82,7 @@ export function OverviewVideo() {
                   aria-checked={on}
                   lang={l.code}
                   onClick={() => choose(l.code)}
-                  className={`rounded-full px-4 py-1.5 text-[13px] transition-colors ${on ? "bg-[#00E676] font-semibold text-[#03140A]" : "text-(--mk-dim) hover:text-(--mk-text)"}`}
+                  className={`afvar-glass-tab rounded-full px-4 py-1.5 text-[13px] ${on ? "font-semibold" : ""}`}
                 >
                   {l.label}
                 </button>

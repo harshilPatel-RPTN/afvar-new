@@ -23,15 +23,16 @@ export function SectionSpy({ sections, label }: { sections: readonly { id: strin
 
   return (
     <nav aria-label={label} className="sticky top-[76px] z-20 mt-6 flex justify-center px-4">
-      <ul className="flex max-w-full gap-1 overflow-x-auto rounded-full bg-[#111416]/95 p-1 shadow-[0_8px_30px_rgba(0,0,0,0.5),inset_0_0_0_0.5px_rgba(255,255,255,0.1)] backdrop-blur-xl [scrollbar-width:none]">
+      <ul className="afvar-glass-track flex max-w-full gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none]">
         {sections.map((s) => (
           <li key={s.id} className="relative shrink-0">
-            {active === s.id && <motion.span layoutId={`spy-${label}`} className="absolute inset-0 rounded-full bg-(--accent)/15" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
             <a
               href={`#${s.id}`}
-              className={`relative flex h-8 items-center rounded-full px-3.5 text-[12.5px] font-medium transition-colors ${active === s.id ? "text-(--accent)" : "text-(--text-secondary) hover:text-(--text-primary)"}`}
+              aria-current={active === s.id ? "location" : undefined}
+              className="afvar-glass-tab relative flex h-8 items-center rounded-full px-3.5 text-[12.5px] font-medium transition-colors"
             >
-              {s.title}
+              {active === s.id && <motion.span aria-hidden="true" layoutId={`spy-${label}`} className="afvar-glass-indicator absolute inset-0 rounded-full" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
+              <span className="relative">{s.title}</span>
             </a>
           </li>
         ))}

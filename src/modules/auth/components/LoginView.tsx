@@ -16,7 +16,7 @@ export function GoogleButton({ onClick, pending }: { onClick: () => void; pendin
       type="button"
       onClick={onClick}
       disabled={pending}
-      className="flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-white/15 bg-white/[.06] text-[13px] font-medium text-white transition-colors hover:bg-white/[.1] disabled:opacity-60"
+      className="afvar-glass-button flex h-11 w-full items-center justify-center gap-2.5 rounded-xl text-[13px] font-medium disabled:opacity-60"
     >
       <svg viewBox="0 0 18 18" className="h-4 w-4" aria-hidden="true">
         <path fill="#EA4335" d="M9 3.6c1.3 0 2.5.5 3.4 1.3l2.5-2.5A8.9 8.9 0 0 0 9 0 9 9 0 0 0 1 5l2.9 2.2A5.4 5.4 0 0 1 9 3.6Z" />
@@ -32,7 +32,7 @@ export function GoogleButton({ onClick, pending }: { onClick: () => void; pendin
 export function OrDivider() {
   const { t } = useT();
   return (
-    <div className="flex items-center gap-3 text-[11px] text-white/45">
+    <div className="flex items-center gap-3 text-[11px] text-(--afvar-muted)">
       <span className="h-px flex-1 bg-white/10" />
       {t("auth.or")}
       <span className="h-px flex-1 bg-white/10" />
@@ -133,7 +133,7 @@ export function LoginView() {
             }}
           />
           <div className="flex justify-end text-[12px]">
-            <Link href="/forgot-password" className="text-[#8AB4F8] hover:underline">
+            <Link href="/forgot-password" className="text-(--afvar-mint) hover:underline">
               {t("auth.login.forgot")}
             </Link>
           </div>
@@ -142,7 +142,7 @@ export function LoginView() {
             {t("auth.login.submit")}
           </SubmitButton>
           {process.env.NODE_ENV !== "production" && (
-            <p className="rounded-xl border border-dashed border-white/15 px-3 py-2 text-center text-[11px] leading-relaxed text-white/55">
+            <p className="rounded-xl border border-dashed border-white/15 px-3 py-2 text-center text-[11px] leading-relaxed text-(--afvar-muted)">
               {t("auth.login.demoHint")}
             </p>
           )}

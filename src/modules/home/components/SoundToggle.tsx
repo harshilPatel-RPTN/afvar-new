@@ -15,7 +15,7 @@ export function SoundToggle() {
       onClick={() => setOn(!on)}
       aria-pressed={on}
       aria-label={on ? "Turn homepage sound off" : "Turn homepage sound on"}
-      className="inline-flex items-center gap-2 rounded-full border border-white/[.11] bg-[#111416] px-3.5 py-2 text-[12px] font-medium text-(--mk-dim) shadow-[0_10px_30px_-12px_rgba(0,0,0,.9)] transition-colors hover:border-white/[.25] hover:text-(--mk-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(245,247,247,.6)] "
+      className="inline-flex items-center gap-2 rounded-full border border-white/[.11] bg-(--afvar-panel) px-3.5 py-2 text-[12px] font-medium text-(--mk-dim) shadow-[0_10px_30px_-12px_rgba(0,0,0,.9)] transition-colors hover:border-white/[.25] hover:text-(--mk-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(245,247,247,.6)] "
     >
       <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
         <path d="M3.5 8h3l4-3.5v11L6.5 12h-3z" />

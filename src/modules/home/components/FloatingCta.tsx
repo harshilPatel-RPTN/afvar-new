@@ -97,12 +97,12 @@ export function FloatingCta() {
           className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 sm:inset-x-auto sm:right-[max(1.5rem,env(safe-area-inset-right))] sm:bottom-[max(1.5rem,env(safe-area-inset-bottom))]"
         >
           {/* Spec §15 — solid dark notification-style surface, not glass. */}
-          <div className="flex items-center gap-1 rounded-2xl border border-white/[.11] bg-[#111416] p-1.5 shadow-[0_24px_60px_-24px_rgba(0,0,0,.85)] sm:max-w-[360px]">
+          <div className="flex items-center gap-1 rounded-2xl border border-white/[.11] bg-(--afvar-panel) p-1.5 shadow-[0_24px_60px_-24px_rgba(0,0,0,.85)] sm:max-w-[360px]">
             <Link
               href="/register"
               className="group flex min-w-0 flex-1 items-baseline gap-x-2 rounded-xl px-3.5 py-2.5 text-[13.5px] leading-snug transition-colors duration-300 hover:bg-white/[.05]"
             >
-              <span className="truncate font-medium text-[#F5F7F7]">Join the Launch Queue</span>
+              <span className="truncate font-medium text-(--afvar-text)">Join the Launch Queue</span>
               <span className="shrink-0 text-[#A3AAAC]">—</span>
               <span className="shrink-0 font-semibold text-white underline-offset-4 group-hover:underline">Register now</span>
             </Link>
@@ -110,7 +110,7 @@ export function FloatingCta() {
               type="button"
               aria-label="Dismiss"
               onClick={dismiss}
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[13px] leading-none text-[#A3AAAC] transition-colors duration-300 hover:bg-white/[.06] hover:text-[#F5F7F7]"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[13px] leading-none text-[#A3AAAC] transition-colors duration-300 hover:bg-white/[.06] hover:text-(--afvar-text)"
             >
               ✕
             </button>

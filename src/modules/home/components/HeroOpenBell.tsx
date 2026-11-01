@@ -108,7 +108,7 @@ export function HeroOpenBell() {
           <p
             role="status"
             data-hero-bell-pill=""
-            className="hb-pill absolute right-4 top-1 flex items-center gap-2 rounded-full border border-[#00E676]/35 bg-[#111416] py-1 pl-1.5 pr-3 sm:right-10 lg:py-1.5 lg:pl-2 text-[11.5px] font-medium text-[#F5F7F7] lg:right-[4%] lg:top-[84px]"
+            className="hb-pill absolute right-4 top-1 flex items-center gap-2 rounded-full border border-[#00E676]/35 bg-(--afvar-panel) py-1 pl-1.5 pr-3 sm:right-10 lg:py-1.5 lg:pl-2 text-[11.5px] font-medium text-(--afvar-text) lg:right-[4%] lg:top-[84px]"
             style={bell.leaving ? { opacity: 0 } : undefined}
           >
             <span aria-hidden="true" className="grid h-5 w-5 place-items-center rounded-full bg-[#00E676]/[.14] text-[#00E676]">

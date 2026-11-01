@@ -1,0 +1,37 @@
+.afvar-responsive-home .home-globe-closing {
+  display: grid;
+  grid-template-columns: minmax(0, .86fr) minmax(0, 1.14fr);
+  align-items: center;
+  gap: clamp(8px, 3vw, 48px);
+  padding: clamp(28px, 5vw, 80px) clamp(20px, 6vw, 90px);
+}
+.home-globe-copy { max-width: 32rem; }
+.home-fx-route { max-width:29rem; margin-top:clamp(1.5rem,3.2vw,3rem); padding-top:1rem; border-top:1px solid rgb(182 208 194 / .21); text-align:start; }
+.home-fx-kicker, .home-fx-handoff small, .home-fx-picker button {
+  font-family:var(--font-geist-mono), monospace; font-variant-numeric:tabular-nums;
+}
+.home-fx-kicker { display:flex; justify-content:space-between; color:var(--afvar-muted); font-size:.68rem; text-transform:uppercase; letter-spacing:.12em; }
+.home-fx-handoff { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:.85rem; padding:1rem 0; }
+.home-fx-handoff div { display:flex; flex-direction:column; gap:.22rem; }
+.home-fx-handoff small { color:var(--afvar-muted); font-size:.65rem; }
+.home-fx-handoff strong { font-size:clamp(1.35rem,2.3vw,1.9rem); font-weight:550; line-height:1.1; letter-spacing:-.03em; }
+.home-fx-handoff [data-fx-source] { color:var(--afvar-mint); }
+.home-fx-handoff div > span { color:var(--afvar-muted); line-height:1.3; font-size:.78rem; }
+.home-fx-arrow { color:var(--afvar-muted); }
+.home-fx-picker { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:2px; padding:3px; border-radius:18px; }
+.home-fx-picker button { min-width:0; min-height:36px; font-size:.72rem; border-radius:14px; }
+.home-globe-figure { position:relative; width:100%; max-width:680px; margin-inline:auto; padding-bottom:48px; }
+.home-globe-disc { position:relative; width:100%; aspect-ratio:1; }
+.home-globe-disc canvas { position:absolute; inset:0; width:100%; height:100%; opacity:0; }
+.home-globe-disc canvas[data-ready] { opacity:1; cursor:grab; touch-action:pan-y pinch-zoom; }
+.home-globe-disc canvas[data-ready]:active { cursor:grabbing; }
+.home-globe-disc:has(canvas[data-ready]) .home-globe-still { visibility:hidden; }
+.home-globe-controls { position:absolute; inset-inline:0; bottom:0; display:flex; justify-content:center; gap:8px; }
+.home-globe-controls button { display:grid; place-items:center; width:44px; height:44px; color:var(--afvar-text); font-size:17px; }
+@media (max-width:700px) {
+  .afvar-responsive-home .home-globe-closing { grid-template-columns:1fr; gap:8px; padding:32px 16px; }
+  .home-globe-copy { text-align:center; margin-inline:auto; }
+  .home-globe-figure { width:min(100%, 460px); }
+  .home-fx-route { margin-top:1.15rem; max-width:26rem; }
+  .home-fx-picker button { min-height:44px; }
+}

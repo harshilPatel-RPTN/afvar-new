@@ -17,12 +17,15 @@
   height: var(--mark-size);
 }
 
-.afvar-header-symbol img {
+.afvar-header-symbol > picture > img {
   position: absolute;
   inset: 3%;
   width: 94%;
   height: 94%;
 }
+.afvar-header-symbol [data-dock-surface] { position:absolute; inset:0; pointer-events:none; visibility:hidden; }
+.afvar-header-symbol[data-dock-ready] > picture { opacity:0; }
+.afvar-header-symbol[data-dock-ready] [data-dock-surface] { visibility:inherit; }
 
 .afvar-header-name {
   display: block;

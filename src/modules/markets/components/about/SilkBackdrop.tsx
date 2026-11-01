@@ -12,21 +12,17 @@ import { useEffect, useRef } from "react";
 
 export type SilkTone = "gold" | "cyan" | "violet";
 
-const TONES: Record<SilkTone, [number[], number[]]> = {
-  // The /home-demo palette: market green over deep green, with a red curtain
-  // for contrast — no gold. (Tone names kept for the call sites.)
-  gold: [[0.0, 0.9, 0.46], [0.0, 0.32, 0.18]],
-  cyan: [[0.41, 0.94, 0.68], [0.0, 0.28, 0.16]],
-  violet: [[1.0, 0.23, 0.23], [0.0, 0.5, 0.28]],
+// The market keeps its category-specific curtain while using the page palette.
+const TONES: Record<SilkTone, [string, string]> = {
+  gold: ["--afvar-mint", "--afvar-panel"],
+  cyan: ["--afvar-mint", "--afvar-forest"],
+  violet: ["--afvar-loss", "--afvar-panel"],
 };
-
-/** The right-hand curtain: bear red (front ribbons) over deep red (back ribbons). */
-const BEAR: [number[], number[]] = [[1.0, 0.23, 0.23], [0.34, 0.03, 0.05]];
 
 const VERT = `attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }`;
 
 const FRAG = `precision highp float;
-uniform vec2 uRes; uniform float uTime; uniform vec2 uPointer; uniform vec3 uA; uniform vec3 uB; uniform vec3 uC; uniform vec3 uD;
+uniform vec2 uRes; uniform float uTime; uniform vec2 uPointer; uniform vec3 uA; uniform vec3 uB; uniform vec3 uC; uniform vec3 uD; uniform vec3 uBase;
 // Precision-safe hash (no large sin arguments, so no banding patterns).
 float hash(vec2 p){ vec3 q = fract(vec3(p.xyx) * 0.1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
 // One curtain of silk: six wavy ribbons, front ones bright (uA), back ones dim (uB).
@@ -73,7 +69,7 @@ void main(){
   float tw = 0.5 + 0.5 * sin(t * (1.0 + h * 2.0) + h * 40.0);
   col += vec3(0.88, 0.9, 1.0) * step(0.9975, h) * (0.25 + 0.6 * tw);
   col += (hash(gl_FragCoord.xy + fract(t) * 91.0) - 0.5) / 255.0;
-  gl_FragColor = vec4(col, 1.0);
+  gl_FragColor = vec4(mix(uBase, vec3(1.0), col), 1.0);
 }`;
 
 function compile(gl: WebGLRenderingContext, type: number, src: string) {
@@ -106,11 +102,17 @@ export function SilkBackdrop({ tone = "gold", className = "" }: { tone?: SilkTon
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 
     const u = (name: string) => gl.getUniformLocation(program, name);
-    const [a, b] = TONES[tone];
-    gl.uniform3f(u("uA"), a[0], a[1], a[2]);
-    gl.uniform3f(u("uB"), b[0], b[1], b[2]);
-    gl.uniform3f(u("uC"), BEAR[0][0], BEAR[0][1], BEAR[0][2]);
-    gl.uniform3f(u("uD"), BEAR[1][0], BEAR[1][1], BEAR[1][2]);
+    const palette = getComputedStyle(canvas);
+    const setTone = (uniform: string, token: string) => {
+      const hex = palette.getPropertyValue(token).trim().slice(1);
+      const rgb = Number.parseInt(hex, 16);
+      gl.uniform3f(u(uniform), ((rgb >> 16) & 255) / 255, ((rgb >> 8) & 255) / 255, (rgb & 255) / 255);
+    };
+    setTone("uA", TONES[tone][0]);
+    setTone("uB", TONES[tone][1]);
+    setTone("uC", "--afvar-crimson");
+    setTone("uD", "--afvar-forest");
+    setTone("uBase", "--afvar-charcoal");
 
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const pointer = { x: 0, y: 0, tx: 0, ty: 0 };

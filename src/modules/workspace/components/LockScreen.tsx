@@ -46,17 +46,17 @@ export function LockScreen({ onLock }: { onLock?: () => void }) {
   const initial = user?.displayName.trim().charAt(0).toUpperCase() || "A";
 
   return (
-    <main className="relative z-10 flex min-h-svh select-none flex-col items-center text-[#F3F6FA]" aria-label={t("lock.label")}>
+    <main className="relative z-10 flex min-h-svh select-none flex-col items-center text-(--afvar-text)" aria-label={t("lock.label")}>
       <header className="flex w-full items-center justify-between px-6 pt-5 text-[13px] sm:px-10">
         <span className="flex items-center gap-2 font-semibold tracking-[.22em] text-white/90">
-          <BrandMark className="h-8 w-8 text-[#8AB4F8]" />
+          <BrandMark className="h-8 w-8 text-(--afvar-mint)" />
           {/* Starts once the lock screen has faded in, so every letter's arrival is visible. */}
           <AnimatedWordmark text={t("brand.name")} delay={0.5} className="text-[30px]" />
         </span>
-        <span className="flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[11px] text-white/70 backdrop-blur-md">
+        <span className="flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[11px] text-(--afvar-muted) backdrop-blur-md">
           <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#8AB4F8] opacity-70 motion-reduce:hidden" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#8AB4F8]" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-(--afvar-mint) opacity-70 motion-reduce:hidden" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-(--afvar-mint)" />
           </span>
           {t(unlocked ? "lock.unlocked" : "lock.locked")}
         </span>
@@ -69,9 +69,9 @@ export function LockScreen({ onLock }: { onLock?: () => void }) {
         transition={{ duration: 0.7, ease: EASE }}
         style={{ marginTop: "clamp(12px, 4vh, 48px)" }}
       >
-        <p className="min-h-[1.5em] text-base font-medium text-white/70 sm:text-lg" suppressHydrationWarning>{date}</p>
+        <p className="min-h-[1.5em] text-base font-medium text-(--afvar-muted) sm:text-lg" suppressHydrationWarning>{date}</p>
         <p
-          className="min-h-[1em] bg-[linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,.42))] bg-clip-text font-semibold leading-none tracking-[-.035em] tabular-nums text-transparent [text-shadow:none] drop-shadow-[0_2px_18px_rgba(0,0,0,.35)]"
+          className="min-h-[1em] font-semibold leading-none tracking-[-.035em] tabular-nums text-(--afvar-text) [text-shadow:none] drop-shadow-[0_2px_18px_rgba(0,0,0,.35)]"
           style={{ fontSize: "clamp(56px, 7vw, 96px)" }}
           suppressHydrationWarning
         >
@@ -87,7 +87,7 @@ export function LockScreen({ onLock }: { onLock?: () => void }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.15, ease: EASE }}
       >
-        <div className="grid h-[64px] w-[64px] place-items-center rounded-full border border-white/25 bg-[linear-gradient(140deg,rgba(255,255,255,.28),rgba(138,180,248,.12))] text-[24px] font-semibold text-white shadow-[0_10px_40px_-12px_rgba(0,0,0,.7)] backdrop-blur-xl">
+        <div className="afvar-glass-panel grid h-[64px] w-[64px] place-items-center rounded-full text-[24px] font-semibold text-(--afvar-text)">
           {signedIn ? initial : <BrandMark className="h-8 w-8 text-white" />}
         </div>
         <p className="text-[15px] font-semibold text-white [text-shadow:0_1px_10px_rgba(0,0,0,.6)]">
@@ -98,13 +98,13 @@ export function LockScreen({ onLock }: { onLock?: () => void }) {
           <div className="h-[280px]" />
         ) : unlocked ? (
           <div className="mt-2 flex gap-2">
-            <button type="button" onClick={lock} className="rounded-full bg-white px-5 py-2 text-[13px] font-semibold text-[#0B1220] hover:bg-white/90">
+            <button type="button" onClick={lock} className="afvar-glass-button afvar-glass-primary rounded-full px-5 py-2 text-[13px] font-semibold">
               {t("desktop.lock")}
             </button>
             <button
               type="button"
               onClick={() => void logout()}
-              className="rounded-full border border-white/30 bg-white/10 px-5 py-2 text-[13px] text-white backdrop-blur-xl hover:bg-white/20"
+              className="afvar-glass-button rounded-full px-5 py-2 text-[13px]"
             >
               {t("lock.logOut")}
             </button>
@@ -113,12 +113,12 @@ export function LockScreen({ onLock }: { onLock?: () => void }) {
           <AppUnlock />
         ) : (
           <div className="mt-2 flex flex-col items-center gap-3">
-            <p className="text-[13px] text-white/75 [text-shadow:0_1px_10px_rgba(0,0,0,.6)]">{t("lock.signedOut")}</p>
+            <p className="text-[13px] text-(--afvar-muted) [text-shadow:0_1px_10px_rgba(0,0,0,.6)]">{t("lock.signedOut")}</p>
             <div className="flex gap-2">
-              <Link href={`/login?next=${encodeURIComponent(next)}`} className="rounded-full bg-white px-5 py-2 text-[13px] font-semibold text-[#0B1220] hover:bg-white/90">
+              <Link href={`/login?next=${encodeURIComponent(next)}`} className="afvar-glass-button afvar-glass-primary rounded-full px-5 py-2 text-[13px] font-semibold">
                 {t("auth.register.signIn")}
               </Link>
-              <Link href="/register" className="rounded-full border border-white/30 bg-white/10 px-5 py-2 text-[13px] text-white backdrop-blur-xl hover:bg-white/20">
+              <Link href="/register" className="afvar-glass-button rounded-full px-5 py-2 text-[13px]">
                 {t("auth.login.createAccount")}
               </Link>
             </div>
@@ -126,13 +126,13 @@ export function LockScreen({ onLock }: { onLock?: () => void }) {
         )}
 
         {signedIn && (
-          <p className="mt-2 text-[11px] text-white/70">
+          <p className="mt-2 text-[11px] text-(--afvar-muted)">
             {t("lock.shortcutHint", { keys: isMacPlatform() ? "⌘ ⇧ L" : "Ctrl + Shift + L" })}
           </p>
         )}
 
         {onLock && (
-          <button type="button" onClick={onLock} className="mt-3 min-h-6 py-1 text-[11px] text-white/70 hover:text-white">
+          <button type="button" onClick={onLock} className="mt-3 min-h-6 py-1 text-[11px] text-(--afvar-muted) hover:text-white">
             {t("lock.exitFullscreen")}
           </button>
         )}

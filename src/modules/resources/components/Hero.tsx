@@ -43,7 +43,7 @@ export function ResourcesHero({
         tint="market"
         natural
         priority
-        opacity={sub ? 0.8 : 0.95}
+        opacity={sub ? 0.46 : 0.56}
         position="center 70%"
         className={`absolute inset-x-0 top-0 ${sub ? "h-[600px]" : "h-[800px]"}`}
         fade="linear-gradient(to bottom, black 46%, transparent)"
@@ -99,27 +99,26 @@ export function ResourcesTabs() {
   const pathname = usePathname();
   return (
     <nav aria-label="Resources" className="relative z-10 mt-12 flex justify-center px-4">
-      <ul className="pf-vibrant flex max-w-full gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none]">
+      <ul className="afvar-glass-track flex max-w-full gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none]">
         {CATEGORIES.map((c) => {
           const active = pathname === c.href || pathname.startsWith(`${c.href}/`);
           return (
             <li key={c.id} className="relative shrink-0">
-              {active && (
-                <motion.span
-                  layoutId="resources-tab"
-                  className="absolute inset-0 rounded-full bg-(--surface-active) shadow-[inset_0_0.5px_0_rgba(255,255,255,0.14)]"
-                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                />
-              )}
               <Link
                 href={c.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative flex h-9 items-center gap-2 rounded-full px-4 text-[13px] font-medium transition-colors ${
-                  active ? "text-(--text-primary)" : "text-(--text-secondary) hover:text-(--text-primary)"
-                }`}
+                className="afvar-glass-tab relative flex h-9 items-center gap-2 rounded-full px-4 text-[13px] font-medium transition-colors"
               >
-                <PIcon name={c.icon} size={15} className={active ? "text-(--accent)" : ""} />
-                {c.title}
+                {active && (
+                  <motion.span
+                    aria-hidden="true"
+                    layoutId="resources-tab"
+                    className="afvar-glass-indicator absolute inset-0 rounded-full"
+                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                  />
+                )}
+                <PIcon name={c.icon} size={15} className="relative" />
+                <span className="relative">{c.title}</span>
               </Link>
             </li>
           );

@@ -1,4 +1,5 @@
 import { eyeEdges, lidSourceV } from './lids.mjs';
+import { createRibbonOrbit } from './ribbon-orbit.js';
 
 const clamp = (value, low=0, high=1) => Math.max(low,Math.min(high,value));
 function easing(lo, hi, value) {
@@ -190,30 +191,40 @@ function paintNose(p,gx,gy) {
   drawChangedPixels(p);
 }
 
-export async function createFollowingLogo(mount) {
+export async function createFollowingLogo(mount, { compact=false, artwork, features=true }={}) {
   const art=new Image();
   art.decoding='async';
   art.alt='AFVAR bull within the ribbon A';
   // Match the real header's picture source so the dock uses the same pixels and browser cache.
   const artFile = matchMedia('(max-width: 600px)').matches ? './assets/approved-lite.webp' : './assets/approved.webp';
-  art.src = new URL(artFile, import.meta.url).href;
+  art.src = artwork?.currentSrc || new URL(artFile, import.meta.url).href;
   await art.decode();
   const container=document.createElement('div');
   container.dataset.followSurface='true';
   Object.assign(container.style,{position:'absolute',inset:'3%',width:'94%',height:'94%',pointerEvents:'none'});
   Object.assign(art.style,{position:'absolute',inset:'0',width:'100%',height:'100%',display:'block'});
   container.appendChild(art);
-  const reference=document.createElement('canvas');
-  reference.width=art.naturalWidth;reference.height=art.naturalHeight;
-  const ref=reference.getContext('2d',{willReadFrequently:true});
-  if(!ref)throw Error('Face patch sampling unavailable');
-  ref.drawImage(art,0,0);
-  const pieces=patches.map(def=>createPatch(def,reference,container));
   mount.replaceChildren(container);
   mount.dataset.surface='follow';
+  // The original remains a decoded, correctly registered fallback even if
+  // the canvas/masks are unsupported. Expression patches sit above the orbit.
+  let orbit;
+  try { orbit=createRibbonOrbit(container,art,compact); } catch { /* Native artwork is already visible. */ }
+  // Most first visits finish before the eyes need to move. Sample the original
+  // artwork for the three movable patches only on a genuine gaze or blink.
+  let pieces=null;
+  function prepareFeatures() {
+    const reference=document.createElement('canvas');
+    const size=compact?Math.min(128,art.naturalWidth):art.naturalWidth;
+    reference.width=reference.height=size;
+    const ref=reference.getContext('2d',{willReadFrequently:true});
+    if(!ref)return [];
+    ref.drawImage(art,0,0,size,size);
+    return patches.map(def=>createPatch(def,reference,container));
+  }
   let previousFeatures='none', lastX=NaN,lastY=NaN,lastBlink=NaN,dead=false;
   function draw(_progress,options={}) {
-    if(dead)return;
+    if(dead || !features)return;
     const reduced=!!options.reducedMotion;
     const strength=reduced?0:clamp(options.gazeStrength??(options.waiting?1:0));
     const gx=clamp(options.gazeX||0,-1,1)*strength;
@@ -222,6 +233,11 @@ export async function createFollowingLogo(mount) {
     if(gx===lastX && gy===lastY && blink===lastBlink)return;
     const gaze=Math.hypot(gx,gy), expression=clamp(gaze*2.5);
     const key=gaze>.0002?'all':blink>.0002?'eyes':'none';
+    if(key!=='none' && !pieces) {
+      try { pieces=prepareFeatures(); }
+      catch { container.querySelectorAll('[data-feature]').forEach(node=>node.remove()); pieces=[]; }
+    }
+    if(!pieces?.length) { lastX=gx;lastY=gy;lastBlink=blink;return; }
     if(key!==previousFeatures){
       pieces.forEach((p,i)=>{p.canvas.style.display=(key==='all'||(key==='eyes'&&i<2))?'block':'none';});
       previousFeatures=key;
@@ -234,5 +250,9 @@ export async function createFollowingLogo(mount) {
     lastX=gx;lastY=gy;lastBlink=blink;
   }
   draw(1);
-  return {draw,dispose(){dead=true;container.remove();for(const p of pieces)p.canvas.width=p.canvas.height=1;}};
+  return {
+    draw,
+    setActive(active){orbit?.setActive(active);},
+    dispose(){dead=true;orbit?.dispose();container.remove();for(const p of pieces||[])p.canvas.width=p.canvas.height=1;}
+  };
 }

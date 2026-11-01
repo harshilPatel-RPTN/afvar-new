@@ -1,7 +1,7 @@
 "use client";
 
 // W4 · Pricing, built as a sibling of the W2 /platform pages: same PlatformShell
-// (`pf` tokens on the gold palette), macOS window/dock/app-icon kit, Apple-scale
+// (`pf` tokens on the AFVAR palette), macOS window/dock/app-icon kit, Apple-scale
 // type, Backdrop artwork and the Scene3D look-around pattern for the 3D tiers.
 import { useEffect, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -115,9 +115,9 @@ function Slab({ tier, run }: { tier: (typeof PODIUM)[number]; run: boolean }) {
     width,
     height: tier.height,
     borderRadius: 10,
-    background: tier.accent ? "rgba(0,230,118,0.14)" : "rgba(255,255,255,0.05)",
+    background: tier.accent ? "rgba(168,222,194,0.14)" : "rgba(255,255,255,0.05)",
     border: `1px solid ${tier.accent ? "var(--accent-subtle)" : "var(--mac-hairline)"}`,
-    boxShadow: tier.accent ? "0 0 44px rgba(0,230,118,0.22), inset 0 0.5px 0 rgba(255,255,255,0.2)" : "inset 0 0.5px 0 rgba(255,255,255,0.1)",
+    boxShadow: tier.accent ? "0 0 44px rgba(168,222,194,0.22), inset 0 0.5px 0 rgba(255,255,255,0.2)" : "inset 0 0.5px 0 rgba(255,255,255,0.1)",
   };
   return (
     <motion.div
@@ -140,7 +140,7 @@ function Slab({ tier, run }: { tier: (typeof PODIUM)[number]; run: boolean }) {
           height: depth,
           borderRadius: 10,
           transform: `translateY(${-tier.height + depth / 2}px) translateZ(0px) rotateX(90deg)`,
-          background: tier.accent ? "rgba(0,230,118,0.22)" : "rgba(255,255,255,0.08)",
+          background: tier.accent ? "rgba(168,222,194,0.22)" : "rgba(255,255,255,0.08)",
         }}
       />
       <span className="absolute" style={{ bottom: tier.height + 26, left: width / 2, transform: `translateX(-50%) translateZ(${depth / 2}px)` }}>
@@ -160,7 +160,7 @@ function PodiumFallback() {
         className="absolute inset-x-0 bottom-0 h-[55%] [transform:rotateX(72deg)] [transform-origin:bottom]"
         style={{
           background:
-            "radial-gradient(60% 50% at 50% 60%, rgba(0,230,118,0.14), transparent 70%), repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 56px), repeating-linear-gradient(0deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 56px)",
+            "radial-gradient(60% 50% at 50% 60%, rgba(168,222,194,0.14), transparent 70%), repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 56px), repeating-linear-gradient(0deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 56px)",
         }}
       />
       {PODIUM.map((tier) => (
@@ -176,7 +176,7 @@ function PodiumFallback() {
 
 function BillingSwitch({ yearly, onChange }: { yearly: boolean; onChange: (next: boolean) => void }) {
   return (
-    <div role="group" aria-label="Billing period" className="flex h-8 items-center rounded-[9px] bg-(--segment-fill) p-0.5 shadow-[inset_0_0_0_0.5px_var(--mac-hairline)]">
+    <div role="group" aria-label="Billing period" className="afvar-glass-track flex h-8 items-center rounded-[9px] p-0.5">
       {([false, true] as const).map((isYearly) => {
         const active = yearly === isYearly;
         return (
@@ -185,13 +185,13 @@ function BillingSwitch({ yearly, onChange }: { yearly: boolean; onChange: (next:
             type="button"
             aria-pressed={active}
             onClick={() => onChange(isYearly)}
-            className={`relative h-7 rounded-[7px] px-3 text-[12px] font-medium transition-colors duration-150 ${active ? "text-(--text-primary)" : "text-(--text-tertiary) hover:text-(--text-secondary)"}`}
+            className="afvar-glass-tab relative h-7 rounded-[7px] px-3 text-[12px] font-medium"
           >
             {active && (
               <motion.span
                 layoutId="pricing-billing-segment"
                 transition={{ type: "spring", stiffness: 420, damping: 36, mass: 0.75 }}
-                className="absolute inset-0 rounded-[7px] bg-(--segment-active) shadow-[inset_0_0.5px_0_rgba(255,255,255,0.12),0_1px_3px_rgba(0,0,0,0.4)]"
+                className="afvar-glass-indicator pointer-events-none absolute inset-0 rounded-[7px]"
                 aria-hidden="true"
               />
             )}
@@ -247,7 +247,7 @@ function PlansWindow({ onReview }: { onReview: (state: ReviewState) => void }) {
                   }}
                   className={`relative flex h-full cursor-pointer flex-col rounded-2xl p-5 outline-none transition-[background-color,box-shadow] duration-200 ${
                     isSelected
-                      ? "bg-(--accent-soft) shadow-[inset_0_0_0_1px_var(--accent-border),0_12px_40px_-18px_rgba(0,230,118,0.45)]"
+                      ? "bg-(--accent-soft) shadow-[inset_0_0_0_1px_var(--accent-border),0_12px_40px_-18px_rgba(168,222,194,0.45)]"
                       : "bg-(--surface-2) shadow-[inset_0_0_0_0.5px_var(--mac-hairline)] hover:bg-(--surface-hover) focus-visible:shadow-[inset_0_0_0_1px_var(--accent-border)]"
                   }`}
                 >
@@ -294,11 +294,7 @@ function PlansWindow({ onReview }: { onReview: (state: ReviewState) => void }) {
                       setSelected(index);
                       onReview({ tierIndex: index, yearly });
                     }}
-                    className={`mt-6 inline-flex h-11 w-full items-center justify-center rounded-full text-[14px] font-medium transition-[background-color,transform] duration-150 active:scale-[.98] ${
-                      isSelected
-                        ? "bg-(--accent) text-(--text-inverse) hover:bg-(--accent-hover)"
-                        : "bg-(--surface-3) text-(--text-primary) hover:bg-(--surface-active)"
-                    }`}
+                    className={`afvar-glass-button mt-6 inline-flex h-11 w-full items-center justify-center rounded-full text-[14px] font-medium ${isSelected ? "afvar-glass-primary" : ""}`}
                   >
                     Review & join queue
                   </button>
@@ -376,7 +372,7 @@ function ReviewDialog({ review, onClose }: { review: ReviewState; onClose: () =>
           Indicative pricing — final values are confirmed at launch under approved terms. Queue position never changes because of a plan choice.
         </p>
         <div className="mt-6 flex items-center justify-end gap-3">
-          <button type="button" onClick={onClose} autoFocus className="inline-flex h-10 items-center rounded-full px-4 text-[14px] font-medium text-(--text-secondary) transition-colors hover:bg-(--surface-3) hover:text-(--text-primary)">
+          <button type="button" onClick={onClose} autoFocus className="afvar-glass-button inline-flex h-10 items-center rounded-full px-4 text-[14px] font-medium">
             Cancel
           </button>
           <RegisterLink size="md" />

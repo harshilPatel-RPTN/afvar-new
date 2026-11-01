@@ -48,13 +48,13 @@ export function SessionSync() {
 export function SessionSplash() {
   const { t } = useT();
   return (
-    <div className="grid min-h-svh place-items-center text-[#E6EDF3]" role="status" aria-live="polite">
+    <div className="grid min-h-svh place-items-center text-(--afvar-text)" role="status" aria-live="polite">
       <div className="flex flex-col items-center gap-4">
         <span className="relative grid h-14 w-14 place-items-center rounded-2xl border border-white/15 bg-white/[.06]">
-          <BrandMark className="h-7 w-7 text-[#8AB4F8]" />
-          <span className="absolute inset-0 animate-ping rounded-2xl border border-[#8AB4F8]/40 motion-reduce:hidden" />
+          <BrandMark className="h-7 w-7 text-(--afvar-mint)" />
+          <span className="absolute inset-0 animate-ping rounded-2xl border border-(--afvar-mint)/40 motion-reduce:hidden" />
         </span>
-        <span className="text-[12px] tracking-[.2em] text-white/60">{t("session.loading")}</span>
+        <span className="text-[12px] tracking-[.2em] text-(--afvar-muted)">{t("session.loading")}</span>
       </div>
     </div>
   );

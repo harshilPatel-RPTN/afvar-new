@@ -1,0 +1,47 @@
+/* The root homepage shares a single frame, including its fixed controls. */
+.afvar-responsive-home {
+  --home-max-width: 1440px;
+  --home-header-height: 72px;
+  --home-edge: max(0px, calc((100vw - var(--home-max-width)) / 2));
+  width: 100%;
+  max-width: var(--home-max-width);
+  min-width: 0;
+  margin-inline: auto;
+}
+.afvar-responsive-home > header {
+  width: 100%;
+  max-width: var(--home-max-width);
+  margin-inline: auto;
+}
+.afvar-responsive-home [aria-label="Launch queue reminder"] { inset-inline-end: calc(var(--home-edge) + 24px); }
+@media (min-width:1441px) {
+  body:has(.afvar-responsive-home) .fixed:has(> section[role="dialog"] + button[aria-expanded]) {
+    right: calc((100vw - 1440px) / 2 + 24px);
+  }
+}
+@media (max-width:1023px), (max-height:500px) {
+  body:has(.afvar-responsive-home) .fixed:has(> section[role="dialog"] + button[aria-expanded]) {
+    top: 72px; right: max(6px, env(safe-area-inset-right)); bottom: auto;
+    z-index: 43; flex-direction: column-reverse; gap: 6px;
+  }
+  body:has(.afvar-responsive-home) .fixed:has(> section[role="dialog"]) > button[aria-expanded] {
+    width: 44px; height: 44px; padding: 4px; flex: none;
+  }
+  body:has(.afvar-responsive-home) .fixed:has(> section[role="dialog"]) > button[aria-expanded] img { height: 34px; }
+  body:has(.afvar-responsive-home) .fixed > section[role="dialog"]:has(+ button[aria-expanded]) {
+    width: min(21rem, calc(100vw - 20px));
+    max-height: calc(100dvh - 128px);
+  }
+}
+@media (max-width:639px) {
+  .afvar-responsive-home [aria-label="Launch queue reminder"] { inset-inline: 12px; }
+}
+/* The shared viewport backdrop stays visible through both the full-width
+   wrapper and the capped film. The workspace and cards own their own glass. */
+.afvar-home-backdrop { width: 100%; min-height: 100svh; }
+.afvar-home-backdrop, .afvar-responsive-home,
+.afvar-responsive-home :is(#afvar-ai, .home-core-poster, .home-story-intro-art, [data-act="os"], .home-os-visual-layer,
+  .demo-home-overview, #launch-queue, section[aria-labelledby="demo-closing-title"], footer) { background-color: transparent; }
+.afvar-responsive-home :is(.demo-queue-card,.demo-queue-registration) {
+  background-color: var(--afvar-forest);
+}

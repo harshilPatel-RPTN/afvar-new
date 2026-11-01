@@ -32,7 +32,7 @@ export const SETTLED_P = 0.93;
 
 // Trader semantics: green = up / primary action, red = down, black foundation.
 export const COLORS = {
-  bg: "#080A0B",
+  bg: "#040404",
   up: "#00E676",
   upBright: "#69F0AE",
   down: "#FF3B3B",

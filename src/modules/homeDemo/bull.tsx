@@ -50,7 +50,7 @@ export function BullVerdictCard({ p, layout = "side" }: { p: MotionValue<number>
     <motion.div className="relative" style={{ x: cardX }}>
       <BeastStyles />
       <Bear p={p} />
-      <motion.div className="relative z-10 overflow-hidden rounded-2xl border bg-[#111416] p-6" style={{ borderColor }}>
+      <motion.div className="relative z-10 overflow-hidden rounded-2xl border bg-(--afvar-panel) p-6" style={{ borderColor }}>
         {/* "/" card accent: a green line across the top edge */}
         <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[2px] bg-[#00E676]" />
         <div className="flex items-baseline justify-between">

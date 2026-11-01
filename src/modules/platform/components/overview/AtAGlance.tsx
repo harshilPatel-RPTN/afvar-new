@@ -65,9 +65,7 @@ export function AtAGlance() {
                 aria-controls="glance-panel"
                 tabIndex={i === selected ? 0 : -1}
                 onClick={() => setSelected(i)}
-                className={`flex w-max shrink-0 items-center gap-2 rounded-[6px] px-2 py-[5px] text-left text-[13px] md:w-full ${
-                  i === selected ? "bg-(--mac-select) font-medium text-(--text-inverse)" : "text-(--text-primary)/90 hover:bg-white/5"
-                }`}
+                className="afvar-glass-tab flex w-max shrink-0 items-center gap-2 rounded-[6px] px-2 py-[5px] text-left text-[13px] aria-selected:font-medium md:w-full"
               >
                 <AppIcon icon={t.icon} tone={TONES[i]} size={20} />
                 <span className="whitespace-nowrap">{t.title}</span>

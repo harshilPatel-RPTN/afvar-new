@@ -9,10 +9,18 @@ const clamp = value => Math.max(0, Math.min(1, value));
 export function easeOut(value) { return 1 - (1 - value) ** 4; }
 
 const smooth = t => t * t * (3 - 2 * t);
-function lidClosure(waitMs) {
+const blinkStarts = [TIMING.firstBlink, 5760, 10220];
+export function nextBlinkDelay(waitMs) {
+  const phase = Math.max(0, waitMs) % TIMING.blinkCycle;
+  const duration = TIMING.close + TIMING.shut + TIMING.unclose;
+  if (blinkStarts.some(start => phase >= start && phase < start + duration)) return 24;
+  const next = blinkStarts.find(start => start > phase) ?? TIMING.blinkCycle + blinkStarts[0];
+  return Math.max(1, next - phase);
+}
+export function lidClosure(waitMs) {
   if (waitMs < 0) return 0;
   const time = waitMs % TIMING.blinkCycle;
-  for (const start of [TIMING.firstBlink, 5760, 10220]) {
+  for (const start of blinkStarts) {
     const phase = time - start;
     if (phase < 0 || phase > TIMING.close + TIMING.shut + TIMING.unclose) continue;
     if (phase < TIMING.close) return smooth(phase / TIMING.close);

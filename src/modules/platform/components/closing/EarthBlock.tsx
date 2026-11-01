@@ -5,32 +5,12 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 // The star twinkle lives in the platform stylesheet; load it wherever the earth is used.
 import "../../platform.css";
+import { horizonStars } from "./horizonStars";
 
 const EarthScene = dynamic(() => import("./EarthScene"), { ssr: false });
 
 /** Top fade only: the earth must run unmasked down to the section's bottom edge (the footer's top border). */
 const FADE = "linear-gradient(to bottom, transparent, black 24%)";
-
-/**
- * Deterministic star field (same on server and client): x/y in %, size in px,
- * twinkle delay/duration in s. Shaped like a real sky: a magnitude distribution
- * (most stars faint and small, a handful bright), colour temperatures (cool
- * blue-whites dominate, with the odd warm orange and hot blue star), varied
- * base brightness, and a soft glow only on the bright ones.
- */
-const STARS = Array.from({ length: 180 }, (_, i) => {
-  const r = (n: number) => {
-    const x = Math.sin(i * 12.9898 + n * 78.233) * 43758.5453;
-    return x - Math.floor(x);
-  };
-  // Rounded so tiny Math.sin differences between Node and the browser cannot cause a hydration mismatch.
-  const round = (v: number) => Math.round(v * 10) / 10;
-  const m = r(3); // magnitude
-  const size = m < 0.55 ? 1 : m < 0.85 ? 1.5 : m < 0.96 ? 2.5 : 3.5;
-  const hue = r(6);
-  const color = hue < 0.1 ? "#FFD9A8" : hue < 0.18 ? "#BFD4FF" : hue < 0.5 ? "#FFFFFF" : "#E7EDF6";
-  return { x: round(r(1) * 100), y: round(r(2) * 52), size, color, alpha: round(4.5 + r(7) * 5.5) / 10, delay: round(r(4) * 6), duration: round(2.5 + r(5) * 4) };
-});
 
 function hasWebGL() {
   try {
@@ -80,22 +60,21 @@ export function EarthBlock() {
   return (
     <div ref={ref} aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" style={{ maskImage: FADE, WebkitMaskImage: FADE }}>
       <motion.div className="absolute inset-0" style={{ y: still ? 0 : rise }}>
-        {/* A faint deep-blue glow across the band behind the glass footer, so the
-            glass has something to frost and never reads as solid black. */}
+        {/* Keep the horizon above the glass footer in the same tones as the page. */}
         {inset > 0 && (
           <div
             className="absolute inset-x-0 bottom-0"
-            style={{ height: inset + 80, background: "radial-gradient(130% 150% at 50% 0%, rgba(44, 76, 148, 0.3), rgba(14, 24, 52, 0.14) 45%, transparent 78%)" }}
+            style={{ height: inset + 80, background: "radial-gradient(130% 150% at 50% 0%, color-mix(in srgb, var(--afvar-oxblood) 65%, transparent), color-mix(in srgb, var(--afvar-forest) 40%, transparent) 45%, transparent 78%)" }}
           />
         )}
         {near && webgl && (
-          <motion.div className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: ready ? 1 : 0 }} transition={{ duration: 0.9, delay: 0.3 }}>
+          <motion.div className="absolute inset-0" data-earth-world="" initial={{ opacity: 0 }} animate={{ opacity: ready ? 1 : 0 }} transition={{ duration: 0.9, delay: 0.3 }}>
             <EarthScene bottomInset={inset} onReady={() => setReady(true)} />
           </motion.div>
         )}
         {/* Stars live in the sky above the footer line, never behind the glass. */}
         <div className="absolute inset-x-0 top-0" style={{ bottom: inset }}>
-          {STARS.map((star, i) => (
+          {horizonStars.map((star, i) => (
             <span
               key={i}
               className="pf-twinkle absolute rounded-full"

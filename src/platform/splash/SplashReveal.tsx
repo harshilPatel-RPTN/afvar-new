@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { INTRO_SEEN, readStorage, setCookie, writeStorage } from "@/platform/storage";
 import { SignatureCaption } from "./SignatureCaption";
 import { SignatureStandby } from "./SignatureStandby";
 import "./signature.css";
 
 const runtimeURL = "/afvar-signature/flight.js";
+// If cookies are blocked, apply the local visit preference before painting server HTML.
+const hideSeenIntro = `try{if(localStorage.getItem("${INTRO_SEEN}")==="1")document.currentScript.parentElement.hidden=true}catch{}`;
 
-export function SplashReveal() {
+export function SplashReveal({ previouslySeen = false }: { previouslySeen?: boolean }) {
   const root = useRef<HTMLDivElement>(null);
-  const [finished, setFinished] = useState(false);
+  const [finished, setFinished] = useState(previouslySeen);
+  const skip = useRef<boolean | null>(null);
 
   useEffect(() => {
     const host = root.current;
@@ -23,12 +27,24 @@ export function SplashReveal() {
       window.dispatchEvent(new Event("afvar:opened"));
     };
 
+    // Decide once per mount, including when React re-runs this effect in development.
+    // The cookie lets a repeat document render the page directly from the server.
+    if (skip.current === null) {
+      skip.current = readStorage(INTRO_SEEN) === "1";
+      try { setCookie(INTRO_SEEN, "1", 365); } catch { /* Site data may be disabled. */ }
+      writeStorage(INTRO_SEEN, "1");
+    }
+    if (skip.current) {
+      queueMicrotask(finish);
+      return () => controller.abort();
+    }
+
     const connection = (navigator as Navigator & {
       connection?: { saveData?: boolean; effectiveType?: string };
     }).connection;
     const economical = connection?.saveData || ["slow-2g", "2g"].includes(connection?.effectiveType ?? "");
     // The timer also releases the actual page if the module, artwork or renderer fails.
-    const deadline = window.setTimeout(finish, 14000);
+    const deadline = window.setTimeout(finish, 12000);
     const startupDeadline = window.setTimeout(finish, 2800);
     const started = () => window.clearTimeout(startupDeadline);
     if (matchMedia("(prefers-reduced-motion: reduce)").matches || economical) {
@@ -55,9 +71,11 @@ export function SplashReveal() {
 
   if (finished) return <SignatureStandby />;
   return (
-    <div ref={root} className="afvar-flight-splash" data-afvar-splash="" data-phase="preparing" aria-hidden="true">
+    <div ref={root} className="afvar-flight-splash" data-afvar-splash="" data-phase="preparing" aria-hidden="true" suppressHydrationWarning>
+      <script dangerouslySetInnerHTML={{ __html: hideSeenIntro }} />
       <noscript><style>{"[data-afvar-splash]{display:none!important}"}</style></noscript>
       <div className="afvar-flight-backdrop" data-signature-backdrop="" />
+      <div className="afvar-flight-stage afvar-flight-poster" aria-hidden="true" />
       <div className="afvar-flight-stage" data-signature-stage="" />
       <SignatureCaption />
     </div>

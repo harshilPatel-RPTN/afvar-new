@@ -46,6 +46,8 @@ export const safeLocalStorage = {
 export const SESSION_COOKIE = "afwar_session";
 export const ONBOARDED_COOKIE = "afwar_onboarded";
 export const EDITION_COOKIE = "afwar_edition";
+// A first-party display preference shared by the server layout and the browser.
+export const INTRO_SEEN = "afvar_intro_seen";
 
 export function setCookie(name: string, value: string | null, maxAgeDays = 30) {
   if (typeof document === "undefined") return;

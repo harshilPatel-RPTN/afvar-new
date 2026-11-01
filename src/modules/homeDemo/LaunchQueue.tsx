@@ -51,12 +51,12 @@ const OFFERS = [
   },
 ] as const;
 
-export function LaunchQueue() {
+export function LaunchQueue({ showRain = true }: { showRain?: boolean }) {
   const reduce = useReducedMotion();
   const [ref, inView] = useOnce<HTMLDivElement>();
   return (
     <section id="launch-queue" aria-label="Launch queue" className="relative isolate scroll-mt-28 overflow-x-clip border-t border-white/[.08] px-5 pb-24 pt-16 sm:px-10 md:pb-28">
-      <PercentRain />
+      {showRain && <PercentRain />}
       <CandleSnake from="left" />
       <motion.div className="mx-auto max-w-[680px] text-center" initial="hidden" whileInView="visible" viewport={VIEW_ONCE}>
         <AnimatedHeading
@@ -72,21 +72,21 @@ export function LaunchQueue() {
 
       {/* Cards rise with a small stagger; each top accent line draws on view; the disclaimer lands last. */}
       <motion.div ref={ref} initial="hidden" animate={inView ? "visible" : "hidden"}>
-        <div className="mx-auto mt-10 grid max-w-[920px] gap-4 md:grid-cols-2">
+        <div className="demo-queue-offers mx-auto mt-10 grid max-w-[920px] gap-4 md:grid-cols-2">
           {OFFERS.map((offer, index) => (
             <CandleCard key={offer.title} index={index} delay={index * 0.1} snakeTarget={index === 0}>
               <div
-                className={`relative flex h-full flex-col overflow-hidden p-7 transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-white/[.2] ${PANEL} ${
-                  offer.primary ? "ring-1 ring-[#00A85A]/30 hover:ring-[#00A85A]/55" : "ring-1 ring-[#FF3B3B]/25 hover:ring-[#FF3B3B]/50"
+                className={`demo-queue-card relative flex h-full flex-col overflow-hidden p-7 transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-white/[.2] ${PANEL} ${
+                  offer.primary ? "ring-1 ring-[#76A58C]/30 hover:ring-[#76A58C]/55" : "ring-1 ring-[#A31C1B]/25 hover:ring-[#A31C1B]/50"
                 }`}
               >
                 <motion.span
                   aria-hidden="true"
                   variants={drawX(reduce, 0.25 + index * 0.08, 0.7)}
-                  className={`absolute inset-x-0 top-0 h-[2px] origin-left ${offer.primary ? "bg-[#00E676]" : "bg-[#FF3B3B]"}`}
+                  className={`absolute inset-x-0 top-0 h-[2px] origin-left ${offer.primary ? "bg-[#A8DEC2]" : "bg-[#A31C1B]"}`}
                 />
                 <div className="flex items-baseline justify-between">
-                  <p className={`text-[12px] font-semibold uppercase tracking-[.16em] ${offer.primary ? "text-[#00E676]" : "text-[#FF6464]"}`}>
+                  <p className={`text-[12px] font-semibold uppercase tracking-[.16em] ${offer.primary ? "text-[#A8DEC2]" : "text-[#FF918B]"}`}>
                     <RollNumber value={offer.n} />
                   </p>
                   {"tag" in offer ? <p className="text-[11px] font-semibold uppercase tracking-[.16em] text-(--mk-faint)">{offer.tag}</p> : null}
@@ -95,7 +95,7 @@ export function LaunchQueue() {
                 <ul className="mt-5 space-y-3">
                   {offer.points.map((point) => (
                     <li key={point} className="flex gap-2.5 text-[13.5px] leading-relaxed text-(--mk-dim)">
-                      <Icon name="check" className={`mt-1 h-3.5 w-3.5 shrink-0 ${offer.primary ? "text-[#00E676]" : "text-[#FF6464]"}`} strokeWidth={2} />
+                      <Icon name="check" className={`mt-1 h-3.5 w-3.5 shrink-0 ${offer.primary ? "text-[#A8DEC2]" : "text-[#FF918B]"}`} strokeWidth={2} />
                       {point}
                     </li>
                   ))}
@@ -115,12 +115,12 @@ export function LaunchQueue() {
       </motion.div>
 
       {/* Register */}
-      <CandleCard standalone index={0} delay={0.1} className="mx-auto mt-10 max-w-[920px]">
-        <div className={`flex h-full flex-col gap-6 p-7 transition-colors duration-200 hover:border-white/[.2] sm:flex-row sm:items-center sm:justify-between sm:p-9 ${PANEL}`}>
+      <CandleCard standalone index={0} delay={0.1} className="demo-queue-signup mx-auto mt-10 max-w-[920px]">
+        <div className={`demo-queue-registration flex h-full flex-col gap-6 p-7 transition-colors duration-200 hover:border-white/[.2] sm:flex-row sm:items-center sm:justify-between sm:p-9 ${PANEL}`}>
           <p className="max-w-md text-[13.5px] leading-relaxed text-(--mk-dim)">
             Registration is free and reserves your place. It doesn&apos;t grant access to the OS yet — access comes later by invitation.
           </p>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="demo-queue-actions flex flex-wrap items-center gap-3">
             <Link href={REGISTER_HREF} prefetch={false} className={BTN_PRIMARY}>
               Register Now
               <Icon name="arrow" className="h-4 w-4" strokeWidth={2} />

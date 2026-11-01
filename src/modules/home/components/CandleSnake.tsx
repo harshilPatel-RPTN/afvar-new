@@ -204,10 +204,10 @@ export function CandleSnake({
           <path ref={fullRef} d={geo.full} fill="none" stroke="none" />
           <path ref={approachRef} d={geo.approach} fill="none" stroke="none" />
           {/* trail line */}
-          <path ref={trailRef} d={geo.full} fill="none" stroke={GREEN} strokeWidth={1.4} strokeLinecap="round" style={{ opacity: 0 }} />
+          <path ref={trailRef} d={geo.full} fill="none" stroke="var(--afvar-mint)" strokeWidth={1.4} strokeLinecap="round" style={{ opacity: 0 }} />
           {/* card top border: soft glow underlay + crisp line */}
-          <path ref={glowRef} d={geo.border} fill="none" stroke={GREEN} strokeWidth={4} strokeLinecap="round" opacity={0.45} filter="url(#snk-soft)" />
-          <path ref={borderRef} d={geo.border} fill="none" stroke={GREEN} strokeWidth={1.5} strokeLinecap="round" />
+          <path ref={glowRef} d={geo.border} fill="none" stroke="var(--afvar-mint)" strokeWidth={4} strokeLinecap="round" opacity={0.45} filter="url(#snk-soft)" />
+          <path ref={borderRef} d={geo.border} fill="none" stroke="var(--afvar-mint)" strokeWidth={1.5} strokeLinecap="round" />
           {/* tail candles */}
           {tail.map((c, i) => (
             <g key={i} ref={(el) => void (candleRefs.current[i] = el)} style={{ opacity: 0 }}>
@@ -217,7 +217,7 @@ export function CandleSnake({
           ))}
           {/* head */}
           <g ref={headRef} style={{ opacity: 0 }}>
-            <circle r={11} fill={GREEN} opacity={0.3} filter="url(#snk-soft)" />
+            <circle r={11} fill="var(--afvar-mint)" opacity={0.3} filter="url(#snk-soft)" />
             <circle r={4.5} fill="#E9FFF3" />
           </g>
           {/* twinkles once the border is complete */}

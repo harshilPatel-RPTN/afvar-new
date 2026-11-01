@@ -23,7 +23,7 @@ export function Chapter06() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <section ref={trackRef} className={`relative bg-[#080A0B] text-[#F5F7F7] ${cinematic ? "lg:h-[420vh]" : ""}`} aria-label="Chapter 06 — Risk Guardian">
+      <section ref={trackRef} className={`relative text-(--afvar-text) ${cinematic ? "lg:h-[420vh]" : ""}`} aria-label="Chapter 06 — Risk Guardian">
         <div className={`overflow-hidden ${cinematic ? "lg:sticky lg:top-0 lg:h-svh" : ""}`}>
           {cinematic ? (
             <div className="relative h-svh w-full">
@@ -35,10 +35,10 @@ export function Chapter06() {
               <div className="pointer-events-none absolute inset-0">
                 <div className="absolute left-10 top-32">
                   <p className={`${MONO} text-[#6D7578]`}>
-                    <span className="text-[#F5F7F7]">06</span> / Risk Guardian
+                    <span className="text-(--afvar-text)">06</span> / Risk Guardian
                   </p>
                   <div className="mt-3 h-px w-28 bg-[rgba(255,255,255,0.12)]">
-                    <motion.div className="h-px origin-left bg-[#00E676]" style={{ scaleX: barScale }} />
+                    <motion.div className="h-px origin-left bg-(--afvar-mint)" style={{ scaleX: barScale }} />
                   </div>
                 </div>
 
@@ -46,7 +46,7 @@ export function Chapter06() {
                 <div className="absolute bottom-[20vh] left-10 max-w-xl">
                   {CAPTIONS.map((c, i) => (
                     <WindowFade key={i} mv={scrollYProgress} w={c.window} className="absolute bottom-0 left-0 w-max max-w-xl">
-                      <WickText as="p" className="text-3xl font-medium leading-snug tracking-tight text-[#F5F7F7] xl:text-4xl" text={c.text} mv={scrollYProgress} at={[c.window[0], c.window[1]]} tone="down" />
+                      <WickText as="p" className="text-3xl font-medium leading-snug tracking-tight text-(--afvar-text) xl:text-4xl" text={c.text} mv={scrollYProgress} at={[c.window[0], c.window[1]]} tone="down" />
                     </WindowFade>
                   ))}
                 </div>
@@ -54,12 +54,12 @@ export function Chapter06() {
                 {/* the plain-words limit, confirmed back */}
                 <WindowFade mv={scrollYProgress} w={SENTENCE6.window} className="absolute right-10 top-1/2 w-80 -translate-y-1/2">
                   <PanelCard mv={scrollYProgress} at={[SENTENCE6.window[0], SENTENCE6.window[1]]}>
-                    <p className={`${MONO} text-[#00E676]`}>You say</p>
-                    <p className="mt-2 text-xl font-medium text-[#F5F7F7]">&ldquo;{SENTENCE6.text}&rdquo;</p>
+                    <p className={`${MONO} text-(--afvar-mint)`}>You say</p>
+                    <p className="mt-2 text-xl font-medium text-(--afvar-text)">&ldquo;{SENTENCE6.text}&rdquo;</p>
                     <dl className="mt-4 space-y-2">
                       <div className="flex items-baseline justify-between gap-4">
                         <dt className="text-sm text-[#A3AAAC]">Daily loss limit</dt>
-                        <dd className={`${MONO} text-[#00E676]`}>Set</dd>
+                        <dd className={`${MONO} text-(--afvar-mint)`}>Set</dd>
                       </div>
                       <div className="flex items-baseline justify-between gap-4">
                         <dt className="text-sm text-[#A3AAAC]">Drawdown · margin</dt>
@@ -77,7 +77,7 @@ export function Chapter06() {
                       <p className={`${MONO} text-[#FF3B3B]`}>Risk Guardian · Warning</p>
                       <p className={`${MONO} text-[#6D7578]`}>Illustrative</p>
                     </div>
-                    <p className="mt-3 text-lg font-semibold text-[#F5F7F7]">Daily loss approaching your limit</p>
+                    <p className="mt-3 text-lg font-semibold text-(--afvar-text)">Daily loss approaching your limit</p>
                     <dl className="mt-3 space-y-2">
                       {["Daily loss", "Drawdown", "Margin"].map((f) => (
                         <div key={f} className="flex items-baseline justify-between gap-4">
@@ -86,7 +86,7 @@ export function Chapter06() {
                         </div>
                       ))}
                     </dl>
-                    <p className={`${MONO} mt-5 border-t ${HAIR} pt-4 text-[#F5F7F7]`}>Warning only — it never acts on your account</p>
+                    <p className={`${MONO} mt-5 border-t ${HAIR} pt-4 text-(--afvar-text)`}>Warning only — it never acts on your account</p>
                   </PanelCard>
                 </WindowFade>
 
@@ -105,8 +105,8 @@ export function Chapter06() {
             <div className="px-5 pb-16 pt-20 sm:px-8">
               <FinaleCopy />
               <PanelCard className="mt-8 max-w-sm">
-                <p className={`${MONO} text-[#00E676]`}>You say</p>
-                <p className="mt-2 text-base text-[#F5F7F7]">&ldquo;{SENTENCE6.text}&rdquo;</p>
+                <p className={`${MONO} text-(--afvar-mint)`}>You say</p>
+                <p className="mt-2 text-base text-(--afvar-text)">&ldquo;{SENTENCE6.text}&rdquo;</p>
                 <p className={`${MONO} mt-3 text-[#6D7578]`}>Daily loss · drawdown · margin — watched. Warning only.</p>
               </PanelCard>
               <div ref={revealRef} className="relative mt-8 h-[55svh] min-h-[320px] overflow-hidden rounded-xl border border-[rgba(255,255,255,0.08)]">
@@ -126,9 +126,9 @@ function FinaleCopy({ mv, at }: { mv?: MotionValue<number>; at?: readonly [numbe
   const beastP = useMomentWindow(mv, at);
   return (
     <div className="pointer-events-auto">
-      <p className={`${MONO} text-[#00E676]`}>Risk Guardian</p>
+      <p className={`${MONO} text-(--afvar-mint)`}>Risk Guardian</p>
       <BearSwipe p={beastP}>
-        <WickText as="h2" className="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight text-[#F5F7F7] sm:text-4xl xl:text-5xl" text="It warns. It n{e|€}ver acts." mv={mv} at={at} tone="down" />
+        <WickText as="h2" className="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight text-(--afvar-text) sm:text-4xl xl:text-5xl" text="It warns. It n{e|€}ver acts." mv={mv} at={at} tone="down" />
       </BearSwipe>
       <p className="mt-5 max-w-md text-base leading-relaxed text-[#A3AAAC]">
         Read-only broker connections, exposure, personal limits and a journal. Risk Guardian warns — it never acts on your account.
@@ -137,11 +137,11 @@ function FinaleCopy({ mv, at }: { mv?: MotionValue<number>; at?: readonly [numbe
       <div className="mt-7 flex flex-wrap items-center gap-4">
         <Link
           href="/platform/trade-review"
-          className="afv-cta inline-block rounded-full bg-[#00E676] px-6 py-3 text-sm font-semibold text-[#05130C] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#69F0AE]"
+          className="afvar-glass-button afvar-glass-primary inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold"
         >
           Explore risk &amp; review
         </Link>
-        <Link href={REGISTER_HREF} prefetch={false} className="text-sm font-medium text-[#A3AAAC] transition-colors hover:text-[#F5F7F7] afv-link">
+        <Link href={REGISTER_HREF} prefetch={false} className="text-sm font-medium text-[#A3AAAC] transition-colors hover:text-(--afvar-text) afv-link">
           Register Now
         </Link>
       </div>
@@ -152,7 +152,7 @@ function FinaleCopy({ mv, at }: { mv?: MotionValue<number>; at?: readonly [numbe
 /** No-WebGL poster: a core inside a perimeter, zero canvas. */
 function Poster() {
   return (
-    <div className="relative h-full w-full bg-[#080A0B]" aria-hidden="true">
+    <div className="relative h-full w-full" aria-hidden="true">
       <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(0,230,118,0.35)]" />
       <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(0,230,118,0.15)]" />
       <div className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#69F0AE] shadow-[0_0_24px_6px_rgba(0,230,118,0.5)]" />

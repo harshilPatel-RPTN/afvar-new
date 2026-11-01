@@ -33,13 +33,13 @@ export function Heading({ id, title, sub, lede, align = "center" }: { id?: strin
   );
 }
 
-/** Gold pill button (RegisterLink look) with a translated label. */
+/** Primary registration action with a translated label. */
 export function PrimaryLink({ href = REGISTER_URL, children }: { href?: string; children: ReactNode }) {
   return (
     <Magnetic>
     <a
       href={href}
-      className="inline-flex h-12 items-center justify-center rounded-full bg-(--accent) px-7 text-[17px] font-medium text-(--text-inverse) transition-[background-color,transform] duration-150 hover:bg-(--accent-hover) active:scale-[.98] active:bg-(--accent-pressed)"
+      className="afvar-glass-button afvar-glass-primary inline-flex h-12 items-center justify-center rounded-full px-7 text-[17px] font-medium active:scale-[.98]"
     >
       {children}
     </a>

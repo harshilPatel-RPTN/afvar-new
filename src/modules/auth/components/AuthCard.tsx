@@ -48,7 +48,7 @@ interface AuthCardProps {
 export function AuthCard({ eyebrow, title, subtitle, shake, children, footer, width = "max-w-[440px]" }: AuthCardProps) {
   const brandInFrame = useContext(BrandInFrame);
   return (
-    <main className="relative z-10 flex min-h-svh flex-col items-center justify-center px-4 py-14 text-[#E6EDF3]">
+    <main className="relative z-10 flex min-h-svh flex-col items-center justify-center px-4 py-14 text-(--afvar-text)">
       {!brandInFrame && <AuthHomeLink />}
 
       <motion.div
@@ -59,28 +59,32 @@ export function AuthCard({ eyebrow, title, subtitle, shake, children, footer, wi
       >
         <motion.div animate={shake} className="relative rounded-[28px] p-px">
           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
-            <div className="absolute inset-[-60%] animate-[spin_10s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0deg,rgba(138,180,248,.7)_40deg,transparent_95deg,transparent_180deg,rgba(255,170,130,.5)_220deg,transparent_275deg)] motion-reduce:animate-none" />
+            <div className="absolute inset-[-60%] animate-[spin_10s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0deg,rgba(168,222,194,.42)_40deg,transparent_95deg,transparent_180deg,rgba(163,28,27,.32)_220deg,transparent_275deg)] motion-reduce:animate-none" />
           </div>
           {/* Frosted glass: a translucent tinted pane over the nebula, a light top edge and a soft sheen. */}
-          <section className="relative overflow-hidden rounded-[27px] border border-white/[.14] bg-[linear-gradient(155deg,rgba(255,255,255,.13),rgba(255,255,255,.04)_42%,rgba(12,17,26,.38))] px-7 pb-7 pt-8 shadow-[0_40px_100px_-30px_rgba(0,0,0,.8),inset_0_1px_0_rgba(255,255,255,.28),inset_0_-1px_0_rgba(255,255,255,.05)] backdrop-blur-[28px] backdrop-saturate-[1.8] sm:px-9">
-            <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[120%] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(138,180,248,.2),transparent)]" />
+          <section className="afvar-glass-panel relative overflow-hidden rounded-[27px] px-7 pb-7 pt-8 sm:px-9">
+            <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[120%] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(168,222,194,.1),transparent)]" />
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent)]" />
-            <p className="relative mb-2 text-[10px] font-medium tracking-[.28em] text-[#8AB4F8]">{eyebrow}</p>
-            <h1 className="relative mb-2 bg-[linear-gradient(180deg,#fff,rgba(214,226,245,.78))] bg-clip-text text-[28px] font-semibold leading-tight tracking-[-.03em] text-transparent">
+            <p className="relative mb-2 text-[10px] font-medium tracking-[.28em] text-(--afvar-mint)">{eyebrow}</p>
+            <h1 className="relative mb-2 text-[28px] font-semibold leading-tight tracking-[-.03em] text-(--afvar-text)">
               {title}
             </h1>
-            {subtitle && <p className="relative mb-6 text-[13px] leading-relaxed text-[#B0BBC8]">{subtitle}</p>}
+            {subtitle && <p className="relative mb-6 text-[13px] leading-relaxed text-(--afvar-muted)">{subtitle}</p>}
             <div className="relative">{children}</div>
           </section>
         </motion.div>
-        {footer && <div className="mt-5 text-center text-[12px] text-[#B0BBC8]">{footer}</div>}
+        {footer && (
+          <div className="mt-5 text-center text-[12px] text-(--afvar-muted) max-sm:pl-7 max-sm:pr-28 max-sm:text-start max-sm:[&_a]:inline-block">
+            {footer}
+          </div>
+        )}
       </motion.div>
     </main>
   );
 }
 
 const FIELD_CLASS =
-  "h-11 w-full rounded-xl border border-white/15 bg-white/[.07] px-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,.06)] backdrop-blur-md text-[13px] text-white outline-none transition-colors placeholder:text-white/35 focus:border-[#8AB4F8]/60 focus:bg-white/[.09] focus:shadow-[0_0_0_3px_rgba(138,180,248,.12)] aria-[invalid=true]:border-[#F08A7E]/70";
+  "h-11 w-full rounded-xl border border-(--afvar-mint)/30 bg-(--afvar-forest)/70 px-3.5 text-[13px] text-(--afvar-text) outline-none transition-colors placeholder:text-(--afvar-muted)/75 focus:border-(--afvar-mint) focus:shadow-[0_0_0_3px_rgb(168_222_194/.17)] aria-[invalid=true]:border-(--afvar-loss)";
 
 interface AuthFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -104,7 +108,7 @@ export function AuthField({ label, hint, id, type, ...input }: AuthFieldProps) {
             type="button"
             onClick={() => setRevealed((value) => !value)}
             aria-label={revealed ? t("auth.field.hidePassword") : t("auth.field.showPassword")}
-            className="absolute inset-e-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-lg text-white/50 hover:bg-white/10 hover:text-white"
+            className="absolute inset-e-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-lg text-(--afvar-muted) hover:bg-white/10 hover:text-white"
           >
             <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true">
               <path d="M2 10s3-5.5 8-5.5S18 10 18 10s-3 5.5-8 5.5S2 10 2 10Z" fill="none" stroke="currentColor" strokeWidth={1.5} />
@@ -130,7 +134,7 @@ export function AuthSelect({ label, options, id, ...select }: AuthSelectProps) {
       <label htmlFor={id} className="text-[11px] font-medium text-white/80">
         {label}
       </label>
-      <select id={id} className={`${FIELD_CLASS} appearance-none bg-[rgba(20,26,38,.55)] [&>option]:bg-[#141A26]`} {...select}>
+      <select id={id} className={`${FIELD_CLASS} appearance-none [&>option]:bg-(--afvar-panel) [&>option]:text-(--afvar-text)`} {...select}>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -147,11 +151,11 @@ export function SubmitButton({ children, pending = false, pendingLabel }: { chil
       type="submit"
       disabled={pending}
       aria-busy={pending}
-      className="group relative mt-1 flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-[linear-gradient(135deg,#9BC0FF,#7FA9F5)] text-[14px] font-semibold text-[#0B1220] shadow-[0_12px_32px_-12px_rgba(138,180,248,.8),inset_0_1px_0_rgba(255,255,255,.5)] transition-[transform,box-shadow,opacity] duration-300 hover:-translate-y-0.5 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#8AB4F8] active:translate-y-0 disabled:cursor-wait disabled:opacity-70 disabled:hover:translate-y-0"
+      className="afvar-glass-button afvar-glass-primary group relative mt-1 flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl text-[14px] font-semibold transition-transform duration-300 hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-wait disabled:hover:translate-y-0"
     >
       {pending ? (
         <>
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#0B1220]/30 border-t-[#0B1220]" aria-hidden="true" />
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" aria-hidden="true" />
           {pendingLabel ?? children}
         </>
       ) : (
@@ -169,7 +173,7 @@ export function SubmitButton({ children, pending = false, pendingLabel }: { chil
 /** Inline status line under a form: errors in red, confirmations in green. */
 export function FormNotice({ tone = "error", children }: { tone?: "error" | "success" | "info"; children: ReactNode }) {
   if (!children) return null;
-  const color = tone === "error" ? "border-[#F08A7E]/30 bg-[#F08A7E]/10 text-[#FFC2BA]" : tone === "success" ? "border-[#6FD3A8]/30 bg-[#6FD3A8]/10 text-[#B9F0D6]" : "border-[#8AB4F8]/30 bg-[#8AB4F8]/10 text-[#CFE0FF]";
+  const color = tone === "error" ? "border-(--afvar-loss)/30 bg-(--afvar-loss)/10 text-(--afvar-loss)" : tone === "success" ? "border-(--afvar-mint)/30 bg-(--afvar-mint)/10 text-(--afvar-mint)" : "border-(--afvar-mint)/30 bg-(--afvar-mint)/10 text-(--afvar-text)";
   return (
     <p role={tone === "error" ? "alert" : "status"} className={`rounded-xl border px-3 py-2 text-[12px] leading-snug ${color}`}>
       {children}
@@ -179,7 +183,7 @@ export function FormNotice({ tone = "error", children }: { tone?: "error" | "suc
 
 export function TextLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link href={href} className="font-semibold text-[#8AB4F8] hover:underline">
+    <Link href={href} className="font-semibold text-(--afvar-mint) hover:underline">
       {children}
     </Link>
   );

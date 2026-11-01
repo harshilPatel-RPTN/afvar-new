@@ -1,83 +1,64 @@
-/*
- * Platform pages theme. Colours: AFVAR gold palette from the product owner,
- * on DESIGN-GUIDE §2 token names. Look: macOS materials (window, menu bar,
- * Spotlight, Dock, System Settings lists) with Apple-style restraint —
- * solid surfaces, one accent, glass only on chrome (guide §5.1).
- */
-/* Doubled class (specificity 0,3,0): must beat tokens.css's dark-mode block
-   `.ds-theme:not([data-theme="light"])` (0,2,0), which would otherwise turn the
-   accent Apple-blue on dark-mode machines whenever it happens to load later. */
+/* Shared marketing palette applied to the platform, market, company and
+   resources surfaces that use the macOS component kit. */
 .ds-theme.pf-theme.pf-theme {
   color-scheme: dark;
+  --canvas: var(--afvar-charcoal);
+  --surface-inset: var(--afvar-forest);
+  --surface-1: var(--afvar-forest);
+  --surface-2: var(--afvar-panel);
+  --surface-3: color-mix(in srgb, var(--afvar-panel) 90%, var(--afvar-mint));
+  --surface-hover: color-mix(in srgb, var(--afvar-panel) 86%, var(--afvar-mint));
+  --surface-active: color-mix(in srgb, var(--afvar-panel) 80%, var(--afvar-mint));
 
-  /* Values mirror markets.css (`.mk`): var(--mk-*) where a token exists,
-     warm derived shades where the platform needs more steps. */
-  --canvas: var(--mk-page, #05060a);
-  --surface-inset: #050607;
-  --surface-1: var(--mk-surface, #080a0b);
-  --surface-2: var(--mk-raised, #111416);
-  --surface-3: #171b1d;
-  --surface-hover: #1d2327;
-  --surface-active: #262d32;
+  --text-primary: var(--afvar-text);
+  --text-secondary: var(--afvar-muted);
+  --text-tertiary: color-mix(in srgb, var(--afvar-muted) 86%, var(--afvar-forest));
+  --text-muted: color-mix(in srgb, var(--afvar-muted) 77%, var(--afvar-forest));
+  --text-disabled: color-mix(in srgb, var(--afvar-muted) 50%, var(--afvar-forest));
+  --text-inverse: var(--afvar-forest);
+  --text-link: var(--afvar-mint);
 
-  --text-primary: var(--mk-text, #f4f2ee);
-  --text-secondary: var(--mk-dim, #b3ada3);
-  --text-tertiary: #938d82;
-  --text-muted: var(--mk-faint, #6f6a62);
-  --text-disabled: #57534b;
-  --text-inverse: var(--mk-on-primary, #1a1206);
-  --text-link: var(--mk-primary, #ecc574);
+  --border-subtle: color-mix(in srgb, var(--afvar-mint) 10%, transparent);
+  --border-default: color-mix(in srgb, var(--afvar-mint) 18%, transparent);
+  --border-strong: color-mix(in srgb, var(--afvar-mint) 32%, transparent);
 
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-default: var(--mk-line, rgba(255, 236, 200, 0.1));
-  --border-strong: rgba(255, 255, 255, 0.22);
+  --accent: var(--afvar-mint);
+  --accent-hover: color-mix(in srgb, var(--afvar-mint) 70%, var(--afvar-text));
+  --accent-pressed: color-mix(in srgb, var(--afvar-mint) 82%, var(--afvar-forest));
+  --accent-highlight: var(--accent-hover);
+  --accent-dark: color-mix(in srgb, var(--afvar-mint) 58%, var(--afvar-forest));
+  --accent-border: color-mix(in srgb, var(--afvar-mint) 45%, transparent);
+  --accent-subtle: color-mix(in srgb, var(--afvar-mint) 26%, transparent);
+  --accent-soft: color-mix(in srgb, var(--afvar-mint) 12%, transparent);
+  --focus-ring: var(--afvar-mint);
+  --info: var(--afvar-mint);
+  --ai: var(--afvar-mint);
+  --ai-bg: var(--afvar-panel);
 
-  --accent: var(--mk-primary, #ecc574);
-  --accent-hover: var(--mk-primary-bright, #f7dc9c);
-  --accent-pressed: #00A85A;
-  --accent-highlight: var(--mk-primary-bright, #f7dc9c);
-  --accent-dark: #00753F;
-  --accent-border: rgba(0, 230, 118, 0.45);
-  --accent-subtle: rgba(0, 230, 118, 0.35);
-  --accent-soft: rgba(0, 230, 118, 0.12);
+  --positive: var(--afvar-mint);
+  --positive-soft: var(--accent-soft);
+  --negative: var(--afvar-loss);
+  --negative-soft: color-mix(in srgb, var(--afvar-crimson) 20%, var(--afvar-forest));
+  --chart-purple: var(--afvar-loss);
+  --chart-grid: var(--surface-3);
 
-  --info: #69f0ae;
-  --ai: #69F0AE;
-  --ai-bg: #0d2a1d;
-
-  /* Markets convention: cyan up-moves, hydrogen-red down-moves. */
-  --positive: var(--mk-up, #00E676);
-  --positive-soft: rgba(0, 230, 118, 0.12);
-  --negative: var(--mk-accent, #e5484d);
-  --negative-soft: #3a1518;
-  --chart-purple: #FF6464;
-  --chart-grid: #1b2024;
-
-  --focus-ring: var(--mk-primary, #ecc574);
-
-  /* macOS materials, tinted to the warm mk blacks */
-  --mac-window: #111416;
-  --mac-sidebar: rgba(17, 20, 22, 0.72);
-  --mac-chrome: rgba(8, 10, 11, 0.6);
-  --mac-hairline: rgba(255, 255, 255, 0.08);
+  --mac-window: var(--afvar-panel);
+  --mac-sidebar: color-mix(in srgb, var(--afvar-panel) 78%, transparent);
+  --mac-chrome: color-mix(in srgb, var(--afvar-forest) 75%, transparent);
+  --mac-hairline: var(--border-subtle);
   --mac-edge: rgba(0, 0, 0, 0.85);
-  --mac-select: rgba(0, 230, 118, 0.16);
+  --mac-select: var(--accent-soft);
+  --card: color-mix(in srgb, var(--afvar-panel) 78%, var(--afvar-charcoal));
+  --card-hover: var(--surface-hover);
+  --card-edge: var(--border-subtle);
+  --segment-fill: var(--surface-2);
+  --segment-active: var(--surface-active);
 
-  /* Shared surfaces (sampled from the About "Product Principles" window):
-     desktop windows are --mac-window, cards everywhere are --card. */
-  --card: #191c1e;
-  --card-hover: #1e2124;
-  --card-edge: rgba(255, 255, 255, 0.08);
-
-  --segment-fill: var(--mk-raised, #111416);
-  --segment-active: #262d32;
-
-  /* macOS window controls (decorative) */
+  /* Conventional decorative macOS window controls. */
   --light-close: #ff5f57;
   --light-minimize: #febc2e;
   --light-zoom: #28c840;
-
-  background: var(--canvas);
+  background: transparent;
   color: var(--text-primary);
   min-height: 100vh;
 }
@@ -216,7 +197,7 @@
 /* ------------------------------------------------ mac: glass panels */
 
 .pf-vibrant {
-  background: rgba(20, 24, 27, 0.78);
+  background: color-mix(in srgb, var(--afvar-panel) 78%, transparent);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
   backdrop-filter: blur(40px) saturate(180%);
   box-shadow:
@@ -248,9 +229,8 @@
 /* Original abstract wallpaper (no Apple assets): soft palette dunes. */
 .pf-wallpaper {
   background:
-    radial-gradient(120% 80% at 10% 110%, rgba(0, 230, 118, 0.26), transparent 55%),
-    radial-gradient(90% 70% at 95% 105%, rgba(255, 59, 59, 0.2), transparent 55%),
-    linear-gradient(180deg, #0c1012 0%, #070909 100%);
+    radial-gradient(105% 80% at 95% 110%, var(--afvar-oxblood), transparent 64%),
+    linear-gradient(140deg, var(--afvar-panel), var(--afvar-forest) 55%, var(--afvar-charcoal));
 }
 
 /* ------------------------------------------------------- app icons */
@@ -356,31 +336,31 @@
 
 /* ------------------------------------------- dynamic wallpaper (#5) */
 
-/* Original artwork per time of day; phase chosen from the visitor's clock. */
+/* The clock chooses a wallpaper phase. Each keeps its own horizon position
+   and intensity within the same palette as the surrounding desktop. */
 .pf-wall-dawn {
   background:
-    radial-gradient(120% 80% at 15% 110%, rgba(246, 166, 91, 0.42), transparent 55%),
-    radial-gradient(90% 70% at 90% 0%, rgba(255,59,59, 0.22), transparent 60%),
-    linear-gradient(180deg, #161a1b 0%, #0b0d0e 100%);
+    radial-gradient(120% 80% at 15% 110%, color-mix(in srgb, var(--afvar-crimson) 38%, transparent), transparent 55%),
+    radial-gradient(90% 70% at 90% 0%, var(--accent-soft), transparent 60%),
+    linear-gradient(180deg, var(--afvar-charcoal), var(--afvar-forest));
 }
 .pf-wall-day {
   background:
-    radial-gradient(120% 80% at 10% 110%, rgba(236, 197, 116, 0.4), transparent 55%),
-    radial-gradient(90% 70% at 95% 105%, rgba(105,240,174, 0.28), transparent 55%),
-    linear-gradient(180deg, #112019 0%, #0a120e 100%);
+    radial-gradient(120% 80% at 10% 110%, var(--accent-subtle), transparent 55%),
+    radial-gradient(90% 70% at 95% 105%, var(--accent-soft), transparent 55%),
+    linear-gradient(180deg, var(--afvar-panel), var(--afvar-forest));
 }
 .pf-wall-dusk {
   background:
-    radial-gradient(120% 80% at 50% 115%, rgba(229, 72, 77, 0.32), transparent 55%),
-    radial-gradient(90% 70% at 10% 0%, rgba(236, 197, 116, 0.3), transparent 60%),
-    linear-gradient(180deg, #1a1414 0%, #0d0c0c 100%);
+    radial-gradient(120% 80% at 50% 115%, color-mix(in srgb, var(--afvar-crimson) 36%, transparent), transparent 55%),
+    radial-gradient(90% 70% at 10% 0%, color-mix(in srgb, var(--afvar-loss) 14%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--afvar-charcoal), var(--afvar-forest));
 }
 .pf-wall-night {
   background:
-    radial-gradient(120% 80% at 10% 110%, rgba(236, 197, 116, 0.28), transparent 55%),
-    radial-gradient(90% 70% at 95% 105%, rgba(105,240,174, 0.14), transparent 55%),
-    radial-gradient(80% 60% at 70% -10%, rgba(255,59,59, 0.14), transparent 60%),
-    linear-gradient(180deg, #171a18 0%, #101211 100%);
+    radial-gradient(120% 80% at 10% 110%, var(--accent-soft), transparent 55%),
+    radial-gradient(80% 60% at 70% -10%, color-mix(in srgb, var(--afvar-crimson) 12%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--afvar-forest), var(--afvar-charcoal));
 }
 .pf-wall-layer {
   position: absolute;

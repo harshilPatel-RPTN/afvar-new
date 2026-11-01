@@ -46,7 +46,7 @@ export function RegisterLink({ size = "lg" }: { size?: "md" | "lg" }) {
   return (
     <a
       href={REGISTER_URL}
-      className={`inline-flex items-center justify-center rounded-full bg-(--accent) font-medium text-(--text-inverse) transition-[background-color,transform] duration-150 hover:bg-(--accent-hover) active:scale-[.98] active:bg-(--accent-pressed) ${
+      className={`afvar-glass-button afvar-glass-primary inline-flex items-center justify-center rounded-full font-medium active:scale-[.98] ${
         size === "lg" ? "h-12 px-7 text-[17px]" : "h-10 px-5 text-[15px]"
       }`}
     >

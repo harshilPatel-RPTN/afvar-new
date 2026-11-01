@@ -11,7 +11,7 @@ import { defineStory, useStory, StoryAct, StoryRail, CoreCanvas, AiCore, OsScree
 
 ## Theme (`theme.ts`)
 
-- **Gold is the AI.** Anything the AI does, says or owns is gold (`COLORS.gold`, `EYEBROW`, `GOLD_CTA`, `CARD_AI`, `<AiOrb/>`).
+- **Mint identifies the AI.** Interface labels, the core and the AI’s actions use pale mint (`COLORS.mint`, `EYEBROW`, `AI_CTA`, `CARD_AI`, `<AiOrb/>`).
 - **Green / red only mean up / down** (or allowed / refused).
 - Near-black surfaces (`COLORS.bg`, `CARD`), hairlines (`HAIR`), no glass.
 - Headline pattern: `<h2 className={H2}>Statement. <span className={SOFT}>Explanation.</span></h2>`.

@@ -166,7 +166,7 @@ export function OilDrum({ label }: { label: string }) {
       </motion.svg>
 
       {/* The label, re-rendered white where the crude coats it. */}
-      <motion.p className="absolute left-0 top-0 whitespace-nowrap px-2 text-[11px] font-semibold uppercase tracking-[.14em] text-[#F5F7F7]" style={{ opacity: copyO }}>
+      <motion.p className="absolute left-0 top-0 whitespace-nowrap px-2 text-[11px] font-semibold uppercase tracking-[.14em] text-(--afvar-text)" style={{ opacity: copyO }}>
         {label}
       </motion.p>
 

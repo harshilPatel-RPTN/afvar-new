@@ -73,13 +73,17 @@ function SearchIcon({ className = "h-[18px] w-[18px]" }: { className?: string })
   );
 }
 
-export function SiteSearch() {
+export function SiteSearch({ open, onOpenChange, menuFocus }: {
+  open: boolean;
+  onOpenChange: (value: boolean) => void;
+  /** When search is launched from the navigation drawer, restore its visible Menu trigger. */
+  menuFocus?: () => void;
+}) {
   const { t } = useT();
   const router = useRouter();
   const reduceMotion = useReducedMotion();
   const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
 
-  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
 
@@ -109,20 +113,25 @@ export function SiteSearch() {
   const openSearch = useCallback(() => {
     setQuery("");
     setActive(0);
-    setOpen(true);
-  }, []);
+    onOpenChange(true);
+  }, [onOpenChange]);
 
   const closeSearch = useCallback((restoreFocus = true) => {
-    setOpen(false);
-    if (restoreFocus) buttonRef.current?.focus();
-  }, []);
+    setQuery("");
+    setActive(0);
+    onOpenChange(false);
+    if (restoreFocus) {
+      if (menuFocus) menuFocus();
+      else buttonRef.current?.focus();
+    }
+  }, [menuFocus, onOpenChange]);
 
   const go = useCallback(
     (result: Result) => {
-      setOpen(false);
+      closeSearch(false);
       router.push(result.href);
     },
-    [router],
+    [router, closeSearch],
   );
 
   // Global shortcuts: Ctrl/⌘+K toggles, "/" opens when not typing in a field.
@@ -212,7 +221,7 @@ export function SiteSearch() {
   const dialog = (
     <AnimatePresence>
       {open && (
-        <div key="mk-site-search" className="fixed inset-0 z-[100] flex items-start justify-center px-4 pt-[12vh] sm:pt-[14vh]">
+        <div key="mk-site-search" className={`fixed inset-0 ${menuFocus ? "z-[130]" : "z-[100]"} flex items-start justify-center px-4 pt-[12vh] sm:pt-[14vh]`}>
           <motion.div
             aria-hidden="true"
             className="absolute inset-0 bg-black/65 backdrop-blur-md"
@@ -228,7 +237,7 @@ export function SiteSearch() {
             aria-modal="true"
             aria-labelledby={titleId}
             onKeyDown={onPanelKeyDown}
-            className="mk-glass mk-glass-blur relative flex max-h-[min(560px,76vh)] w-full max-w-[600px] flex-col overflow-hidden rounded-2xl bg-(--mk-glass-strong) text-(--mk-text) shadow-(--mk-shadow)"
+            className="afvar-glass-panel mk-glass mk-glass-blur relative flex max-h-[min(560px,76vh)] w-full max-w-[600px] flex-col overflow-hidden rounded-2xl bg-(--mk-glass-strong) text-(--mk-text) shadow-(--mk-shadow)"
             initial={reduceMotion ? false : { opacity: 0, scale: 0.96, y: -8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={reduceMotion ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, scale: 0.97, y: -6 }}
@@ -361,7 +370,7 @@ export function SiteSearch() {
 
   return (
     <>
-      <button
+      {!menuFocus && <button
         ref={buttonRef}
         type="button"
         onClick={openSearch}
@@ -372,7 +381,7 @@ export function SiteSearch() {
         className={`${iconButton} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--mk-primary)`}
       >
         <SearchIcon />
-      </button>
+      </button>}
       {mounted && createPortal(dialog, document.body)}
     </>
   );

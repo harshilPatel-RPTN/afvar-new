@@ -135,7 +135,7 @@ function spawnShootingStar(width: number, height: number): ShootingStar {
   };
 }
 
-/** Falls back to CSS gradients without WebGL; draws one still frame for reduced motion. */
+/** The shared page backdrop shows through the nebula and remains visible without WebGL. */
 export function LiveNebula({ dimmed = false }: { dimmed?: boolean }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const nebulaRef = useRef<HTMLCanvasElement>(null);
@@ -223,9 +223,9 @@ export function LiveNebula({ dimmed = false }: { dimmed?: boolean }) {
         const radius = 30 + t * Math.max(width, height) * 0.55;
         const alpha = 0.16 * Math.sin(t * Math.PI) * (1 - t);
         const ring = ctx.createRadialGradient(coreX, coreY, radius * 0.82, coreX, coreY, radius);
-        ring.addColorStop(0, "rgba(255,200,150,0)");
-        ring.addColorStop(0.7, `rgba(255,205,160,${alpha})`);
-        ring.addColorStop(1, "rgba(160,210,255,0)");
+        ring.addColorStop(0, "rgba(168,222,194,0)");
+        ring.addColorStop(0.7, `rgba(168,222,194,${alpha})`);
+        ring.addColorStop(1, "rgba(168,222,194,0)");
         ctx.fillStyle = ring;
         ctx.beginPath();
         ctx.arc(coreX, coreY, radius, 0, Math.PI * 2);
@@ -246,7 +246,7 @@ export function LiveNebula({ dimmed = false }: { dimmed?: boolean }) {
         projected[i] = { x, y, depth: mote.depth };
         const radius = 0.6 + mote.depth * 1.8;
         const glow = ctx.createRadialGradient(x, y, 0, x, y, radius * 5);
-        const tint = mote.hue === "cool" ? "150,210,255" : "255,190,150";
+        const tint = mote.hue === "cool" ? "168,222,194" : "247,174,164";
         glow.addColorStop(0, `rgba(${tint},${0.5 * flicker * mote.depth})`);
         glow.addColorStop(1, `rgba(${tint},0)`);
         ctx.fillStyle = glow;
@@ -267,7 +267,7 @@ export function LiveNebula({ dimmed = false }: { dimmed?: boolean }) {
           const distance = Math.hypot(dx, dy);
           if (distance > LINK_DISTANCE) continue;
           const alpha = (1 - distance / LINK_DISTANCE) * 0.22 * pa.depth;
-          ctx.strokeStyle = `rgba(150,195,255,${alpha})`;
+          ctx.strokeStyle = `rgba(152,192,167,${alpha})`;
           ctx.beginPath();
           ctx.moveTo(pa.x, pa.y);
           ctx.lineTo(pb.x, pb.y);
@@ -294,9 +294,9 @@ export function LiveNebula({ dimmed = false }: { dimmed?: boolean }) {
         const tailX = star.x - (star.vx / speed) * star.length;
         const tailY = star.y - (star.vy / speed) * star.length;
         const trail = ctx.createLinearGradient(star.x, star.y, tailX, tailY);
-        trail.addColorStop(0, `rgba(235,245,255,${0.9 * fade})`);
-        trail.addColorStop(0.3, `rgba(160,205,255,${0.35 * fade})`);
-        trail.addColorStop(1, "rgba(120,170,255,0)");
+        trail.addColorStop(0, `rgba(242,245,242,${0.9 * fade})`);
+        trail.addColorStop(0.3, `rgba(168,222,194,${0.35 * fade})`);
+        trail.addColorStop(1, "rgba(136,190,163,0)");
         ctx.strokeStyle = trail;
         ctx.lineWidth = 1.4;
         ctx.lineCap = "round";
@@ -381,22 +381,14 @@ export function LiveNebula({ dimmed = false }: { dimmed?: boolean }) {
     <div
       ref={hostRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 overflow-hidden bg-[#010205] transition-[filter] duration-700"
+      className="pointer-events-none fixed inset-0 overflow-hidden transition-[filter] duration-700"
       style={{ filter: dimmed ? "blur(5px) brightness(.8) saturate(1.1)" : "none" }}
     >
-      <div
-        className={`absolute inset-0 transition-opacity duration-1000 ${webglReady ? "opacity-0" : "opacity-100"}`}
-        style={{
-          background:
-            "radial-gradient(ellipse 22% 24% at 51% 44%,rgba(255,207,145,.55),transparent),radial-gradient(ellipse 61% 29% at 35% 68%,rgba(209,48,32,.72),transparent),radial-gradient(ellipse 20% 54% at 22% 46%,rgba(91,212,219,.62),transparent),radial-gradient(ellipse 39% 53% at 82% 39%,rgba(30,142,180,.7),transparent),radial-gradient(ellipse 70% 70% at 51% 48%,rgba(100,29,79,.52),transparent),#07111F",
-        }}
-      />
       <canvas
         ref={nebulaRef}
-        className={`absolute inset-0 h-full w-full transition-opacity duration-1000 ${webglReady ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 h-full w-full transition-opacity duration-1000 ${webglReady ? "opacity-[.32]" : "opacity-0"}`}
       />
       <canvas ref={overlayRef} className="absolute inset-0 h-full w-full" />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(1,5,16,.28),transparent_26%,transparent_70%,rgba(1,4,13,.45))]" />
     </div>
   );
 }

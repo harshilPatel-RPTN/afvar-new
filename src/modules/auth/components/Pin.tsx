@@ -91,7 +91,7 @@ export function PinPad({ label, value, onChange, onComplete, disabled, errorSign
               animate={{ scale: index < value.length ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 500, damping: 22 }}
               className={`h-3.5 w-3.5 rounded-full border-[1.5px] transition-colors ${
-                index < value.length ? "border-white bg-white shadow-[0_0_14px_rgba(255,255,255,.55)]" : "border-white/55 bg-transparent"
+                index < value.length ? "border-(--afvar-mint) bg-(--afvar-mint) shadow-[0_0_14px_rgba(168,222,194,.4)]" : "border-(--afvar-muted)/70 bg-transparent"
               }`}
             />
           ))}
@@ -213,7 +213,7 @@ export function AppUnlock({ onUnlocked }: { onUnlocked?: () => void }) {
         <p role="status" className="min-h-4 text-[12px] text-white/80 [text-shadow:0_1px_8px_rgba(0,0,0,.7)]">
           {creator.error ? t(creator.error) : t("pin.createHint")}
         </p>
-        <button type="button" onClick={() => void signInWithPassword()} className="text-[12px] text-white/70 underline-offset-4 hover:text-white hover:underline">
+        <button type="button" onClick={() => void signInWithPassword()} className="text-[12px] text-(--afvar-muted) underline-offset-4 hover:text-white hover:underline">
           {t("pin.signOut")}
         </button>
       </div>
@@ -262,7 +262,7 @@ export function AppUnlock({ onUnlocked }: { onUnlocked?: () => void }) {
       <p role="status" className="min-h-4 text-[12px] text-white/85 [text-shadow:0_1px_8px_rgba(0,0,0,.7)]">
         {error}
       </p>
-      <button type="button" onClick={() => void signInWithPassword()} className="text-[12px] text-white/70 underline-offset-4 hover:text-white hover:underline">
+      <button type="button" onClick={() => void signInWithPassword()} className="text-[12px] text-(--afvar-muted) underline-offset-4 hover:text-white hover:underline">
         {t("pin.forgot")}
       </button>
     </div>
@@ -292,7 +292,7 @@ function NewPinStep({ currentPin, onWrongCurrent, onDone }: { currentPin: string
         disabled={creator.pending}
         errorSignal={creator.errorSignal}
       />
-      <p role="status" className="min-h-4 text-[12px] text-[#FFC2BA]">{creator.error ? t(creator.error) : ""}</p>
+      <p role="status" className="min-h-4 text-[12px] text-(--afvar-loss)">{creator.error ? t(creator.error) : ""}</p>
     </div>
   );
 }
@@ -334,7 +334,7 @@ export function ChangePinForm({ onDone }: { onDone: () => void }) {
         }}
         errorSignal={signal}
       />
-      <p role="status" className="min-h-4 text-[12px] text-[#FFC2BA]">{currentError ? t(currentError) : ""}</p>
+      <p role="status" className="min-h-4 text-[12px] text-(--afvar-loss)">{currentError ? t(currentError) : ""}</p>
     </div>
   );
 }

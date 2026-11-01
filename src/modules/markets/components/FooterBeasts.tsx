@@ -83,6 +83,7 @@ export function FooterBull({ children }: { children: ReactNode }) {
       <motion.button
         type="button"
         onClick={charge}
+        data-glass-hit-area=""
         aria-label="Make the bull charge"
         title="Click the bull"
         className={`relative w-16 shrink-0 cursor-pointer ${focusRing}`}
@@ -144,6 +145,7 @@ export function FooterBear({ className = "" }: { className?: string }) {
     <motion.button
       type="button"
       onClick={scratch}
+      data-glass-hit-area=""
       aria-label="Make the bear swipe"
       title="Click the bear"
       className={`cursor-pointer ${focusRing} ${className || "relative"}`}

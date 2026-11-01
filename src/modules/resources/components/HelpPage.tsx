@@ -79,14 +79,14 @@ export function HelpPage() {
           </Reveal>
           <Reveal delay={0.06} className="space-y-6">
             <div id="never" className="scroll-mt-32 rounded-2xl border border-(--negative)/30 bg-(--negative)/[.06] p-6">
-              <p className="flex items-center gap-2 text-[14px] font-semibold text-[#ff6464]">
+              <p className="flex items-center gap-2 text-[14px] font-semibold text-(--afvar-loss)">
                 <PIcon name="shield" size={16} />
                 AFVAR support will never
               </p>
               <ul className="mt-4 space-y-3">
                 {HELP.never.map((n) => (
                   <li key={n} className="flex gap-2.5 text-[13.5px] leading-relaxed text-(--text-secondary)">
-                    <PIcon name="close" size={13} className="mt-1 shrink-0 text-[#ff6464]" />
+                    <PIcon name="close" size={13} className="mt-1 shrink-0 text-(--afvar-loss)" />
                     {n}
                   </li>
                 ))}

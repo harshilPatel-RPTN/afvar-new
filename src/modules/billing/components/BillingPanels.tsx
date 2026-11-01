@@ -37,9 +37,9 @@ export function DevPlanToggle() {
   };
 
   return (
-    <div className="fixed bottom-3 right-3 z-[90] flex items-center gap-1.5 rounded-full border border-dashed border-[#F2C46D]/50 bg-[rgba(20,16,4,.85)] p-1 ps-3 text-[11px] text-[#F7E3B0] shadow-lg backdrop-blur-md" aria-busy={pending}>
+    <div className="afvar-glass-panel fixed bottom-3 right-3 z-[90] flex items-center gap-1.5 rounded-full p-1 ps-3 text-[11px] text-(--afvar-muted)" aria-busy={pending}>
       <span className="font-semibold">{t("dev.plan")}</span>
-      <div className="flex rounded-full bg-black/40 p-0.5" role="radiogroup" aria-label={t("dev.plan")}>
+      <div className="afvar-glass-track flex rounded-full p-0.5" role="radiogroup" aria-label={t("dev.plan")}>
         {(["free", "pro"] as const).map((plan) => (
           <button
             key={plan}
@@ -48,13 +48,13 @@ export function DevPlanToggle() {
             aria-checked={user.plan === plan}
             disabled={pending}
             onClick={() => void flip(plan)}
-            className={`rounded-full px-2.5 py-0.5 font-semibold transition-colors ${user.plan === plan ? "bg-[#F2C46D] text-[#2A1A00]" : "text-[#F7E3B0]/70 hover:text-white"}`}
+            className="afvar-glass-tab rounded-full px-2.5 py-0.5 font-semibold"
           >
             {t(plan === "pro" ? "plan.badge.pro" : "plan.badge.free")}
           </button>
         ))}
       </div>
-      <button type="button" onClick={() => void resetUsage()} className="rounded-full px-2 py-0.5 text-[#F7E3B0]/80 hover:bg-white/10 hover:text-white" title={t("dev.resetUsageHint")}>
+      <button type="button" onClick={() => void resetUsage()} className="afvar-glass-button rounded-full px-2 py-0.5" title={t("dev.resetUsageHint")}>
         {t("dev.resetUsage")}
       </button>
     </div>

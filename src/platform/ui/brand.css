@@ -1,0 +1,147 @@
+/* Dark glass catches a slim upper-left rim. Frosting is shared by each
+   floating panel, with a lighter filter on standalone glass controls. */
+:root {
+  --afvar-glass-tint: rgb(6 17 12 / .83);
+  --afvar-glass-reflection: radial-gradient(ellipse at 8% -15%, rgb(189 224 200 / .14), transparent 44%),
+    radial-gradient(ellipse at 94% 113%, rgb(163 28 27 / .12), transparent 37%),
+    linear-gradient(178deg, rgb(181 217 193 / .045), transparent 60%);
+  --afvar-glass-line: rgb(195 233 211 / .29);
+  --afvar-glass-shadow: inset 0 1px 1px rgb(244 255 247 / .40),
+    inset 1px 0 2px rgb(200 232 213 / .13), inset 0 -1px 2px rgb(167 212 186 / .23),
+    0 3px 9px rgb(0 0 0 / .28);
+  /* Controls use smoked glass, independently of the denser reading panels. */
+  --afvar-control-tint: rgb(12 24 19 / .48);
+  --afvar-control-tint-hover: rgb(23 38 30 / .58);
+  --afvar-control-tint-active: rgb(13 26 20 / .72);
+  --afvar-control-solid: #102019;
+  --afvar-control-reflection: linear-gradient(145deg, rgb(240 249 244 / .10), rgb(221 239 229 / .025) 36%, transparent 62%);
+  --afvar-control-rim: rgb(220 237 226 / .17);
+  --afvar-control-rim-lit: rgb(239 248 242 / .39);
+  --afvar-control-shadow: inset 0 1px 0 rgb(248 255 250 / .14), inset 1px 0 0 rgb(238 250 243 / .05), 0 3px 10px rgb(0 0 0 / .18);
+}
+@layer base {
+  :where(button:not([data-glass-hit-area]):not([class~="inset-0"]), .afvar-glass-button) {
+    color: var(--afvar-text);
+  }
+}
+:where(.afvar-glass-panel, .afvar-glass-track, .afvar-glass-tab) {
+  background-color: var(--afvar-glass-tint);
+  background-image: var(--afvar-glass-reflection);
+  border: 1px solid var(--afvar-glass-line);
+  box-shadow: var(--afvar-glass-shadow);
+}
+:where(button:not([data-glass-hit-area]):not([class~="inset-0"]), .afvar-glass-button) {
+  border-radius: 999px;
+}
+:where(button:not([data-glass-hit-area]):not([class~="inset-0"]):not(.afvar-glass-tab), .afvar-glass-button) {
+  background-color: var(--afvar-control-tint);
+  background-image: var(--afvar-control-reflection);
+  border: 1px solid var(--afvar-control-rim);
+  border-top-color: var(--afvar-control-rim-lit);
+  border-left-color: color-mix(in srgb, var(--afvar-control-rim-lit) 65%, transparent);
+  box-shadow: var(--afvar-control-shadow);
+  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease, transform 150ms ease;
+}
+/* Small opt-in controls frost their own backing. Rows inside a glass pane
+   share that pane instead, avoiding stacked backdrop filters. */
+.afvar-glass-button {
+  -webkit-backdrop-filter: blur(8px) saturate(110%);
+  backdrop-filter: blur(8px) saturate(110%);
+}
+:is(.afvar-glass-panel, .afvar-glass-track) .afvar-glass-button {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.afvar-glass-primary {
+  color: var(--afvar-text);
+  --afvar-control-tint: rgb(86 23 29 / .36);
+  --afvar-control-tint-hover: rgb(115 30 36 / .47);
+  --afvar-control-tint-active: rgb(62 17 22 / .78);
+  --afvar-control-solid: #48191e;
+  --afvar-control-rim: rgb(229 176 174 / .26);
+  --afvar-control-rim-lit: rgb(255 225 217 / .47);
+}
+:where(button:not([data-glass-hit-area]):not([class~="inset-0"]), .afvar-glass-button, .afvar-glass-tab):focus-visible {
+  outline: 2px solid var(--afvar-mint);
+  outline-offset: 3px;
+}
+@media (hover:hover) {
+  :where(button:not([data-glass-hit-area]):not([class~="inset-0"]):not(.afvar-glass-tab), .afvar-glass-button):not(:disabled):not([aria-disabled="true"]):hover {
+    background-color: var(--afvar-control-tint-hover);
+    border-color: var(--afvar-control-rim-lit);
+    box-shadow: inset 0 1px 0 rgb(248 255 250 / .19), inset 1px 0 0 rgb(238 250 243 / .07), 0 4px 12px rgb(0 0 0 / .22);
+  }
+}
+:where(button[aria-pressed="true"], button[aria-selected="true"], button[aria-expanded="true"],
+  button[aria-checked="true"], .afvar-glass-button[aria-current="page"]) {
+  border-color: var(--afvar-control-rim-lit);
+  background-color: var(--afvar-control-tint-active);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / .25), inset 0 -1px 0 rgb(232 249 238 / .08);
+}
+:where(button:not([data-glass-hit-area]):not([class~="inset-0"]):not(.afvar-glass-tab), .afvar-glass-button):not(:disabled):not([aria-disabled="true"]):active {
+  background-color: var(--afvar-control-tint-active);
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / .31), inset 0 -1px 0 rgb(232 249 238 / .08);
+}
+:where(button:disabled, .afvar-glass-button[aria-disabled="true"]) { opacity:.55; }
+.afvar-glass-panel, .afvar-glass-track {
+  -webkit-backdrop-filter:blur(16px) saturate(125%);
+  backdrop-filter:blur(16px) saturate(125%);
+}
+.afvar-glass-tab { color:var(--afvar-muted); }
+/* One pane of glass holds the group. Only the selected segment catches its own rim. */
+:is(.afvar-glass-track, .afvar-glass-panel) .afvar-glass-tab {
+  background:transparent; border:1px solid transparent; box-shadow:none;
+}
+@media (hover:hover) {
+  .afvar-glass-tab:not(:disabled):hover {
+    color:var(--afvar-text); background-color:rgb(168 222 194 / .065);
+    border-color:rgb(168 222 194 / .22); box-shadow:none;
+  }
+}
+.afvar-glass-tab:is([aria-selected="true"], [aria-checked="true"], [aria-pressed="true"],
+  [aria-expanded="true"], [aria-current="page"], [aria-current="location"], [data-selected="true"]),
+.afvar-glass-indicator {
+  color:var(--afvar-text);
+  background-color:#173326;
+  background-image:var(--afvar-glass-reflection);
+  border:1px solid rgb(168 222 194 / .47);
+  box-shadow:inset 0 1px 1px rgb(229 250 236 / .25);
+}
+.afvar-glass-tab:has(> .afvar-glass-indicator) {
+  background:transparent; border-color:transparent; box-shadow:none;
+}
+.afvar-glass-indicator { pointer-events:none; }
+.afvar-glass-tab:focus-visible { outline-offset:-2px; }
+@media (forced-colors:active) {
+  .afvar-glass-tab:is([aria-selected="true"], [aria-checked="true"], [aria-pressed="true"],
+    [aria-expanded="true"], [aria-current="page"], [aria-current="location"], [data-selected="true"]),
+  .afvar-glass-indicator { border-color:Highlight; }
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  :is(.afvar-glass-panel, .afvar-glass-track) { background-color:var(--afvar-forest); }
+  .afvar-glass-button { background-color:var(--afvar-control-solid); }
+}
+@media (prefers-reduced-transparency:reduce) {
+  :is(.afvar-glass-panel, .afvar-glass-track) { background-color:var(--afvar-forest); -webkit-backdrop-filter:none; backdrop-filter:none; }
+  :is(button:not([data-glass-hit-area]):not([class~="inset-0"]):not(.afvar-glass-tab), .afvar-glass-button) {
+    --afvar-control-tint:var(--afvar-control-solid);
+    --afvar-control-tint-hover:var(--afvar-control-solid);
+    --afvar-control-tint-active:var(--afvar-control-solid);
+  }
+  .afvar-glass-button { -webkit-backdrop-filter:none; backdrop-filter:none; }
+}
+@media (prefers-reduced-motion:reduce) {
+  :where(button:not([data-glass-hit-area]):not([class~="inset-0"]):not(.afvar-glass-tab), .afvar-glass-button) { transition:none; }
+}
+html[data-reduce-motion="true"] :where(button:not([data-glass-hit-area]):not([class~="inset-0"]):not(.afvar-glass-tab), .afvar-glass-button) { transition:none; }
+@media (forced-colors:active) {
+  :is(.afvar-glass-panel, .afvar-glass-button, .afvar-glass-track) { border:1px solid ButtonText; box-shadow:none; }
+  :is(button:not([data-glass-hit-area]):not([class~="inset-0"]):not(.afvar-glass-tab), .afvar-glass-button) {
+    /* System colors must also win against each component's hover recipe. */
+    background:ButtonFace !important; color:ButtonText !important; border-color:ButtonText !important;
+    box-shadow:none !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  }
+  :where(button[aria-pressed="true"],button[aria-expanded="true"],button[aria-selected="true"],button[aria-checked="true"],.afvar-glass-button[aria-current="page"]) {
+    outline:1px solid Highlight; outline-offset:-3px;
+  }
+}

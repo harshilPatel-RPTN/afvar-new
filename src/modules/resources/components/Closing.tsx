@@ -28,11 +28,11 @@ export function ResourcesClosing({
           <p className="pf-lede mx-auto mt-5 max-w-lg">{lede}</p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-x-7 gap-y-4">
             {primary.href.startsWith("http") ? (
-              <a href={primary.href} className="rs-primary">
+              <a href={primary.href} className="afvar-glass-button afvar-glass-primary rs-primary">
                 {primary.label}
               </a>
             ) : (
-              <Link href={primary.href} className="rs-primary">
+              <Link href={primary.href} className="afvar-glass-button afvar-glass-primary rs-primary">
                 {primary.label}
               </Link>
             )}

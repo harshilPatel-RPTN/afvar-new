@@ -27,7 +27,7 @@ export function GuidesIndex() {
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-col items-center gap-4 lg:flex-row lg:justify-between">
         <LayoutGroup id="guide-filter">
-          <div role="radiogroup" aria-label="Guide group" className="flex max-w-full gap-1 overflow-x-auto rounded-full bg-(--segment-fill) p-1 [scrollbar-width:none]">
+          <div role="radiogroup" aria-label="Guide group" className="afvar-glass-track flex max-w-full gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none]">
             {[{ id: "all" as const, title: "All guides" }, ...GUIDE_GROUPS].map((g) => {
               const active = group === g.id;
               return (
@@ -37,9 +37,9 @@ export function GuidesIndex() {
                   role="radio"
                   aria-checked={active}
                   onClick={() => setGroup(g.id)}
-                  className={`relative h-8 shrink-0 rounded-full px-3.5 text-[13px] font-medium transition-colors ${active ? "text-[#030405]" : "text-(--text-secondary) hover:text-(--text-primary)"}`}
+                  className="afvar-glass-tab relative h-8 shrink-0 rounded-full px-3.5 text-[13px] font-medium transition-colors"
                 >
-                  {active && <motion.span layoutId="guide-filter-pill" className="absolute inset-0 rounded-full bg-(--accent)" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
+                  {active && <motion.span aria-hidden="true" layoutId="guide-filter-pill" className="afvar-glass-indicator absolute inset-0 rounded-full" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
                   <span className="relative">{g.title}</span>
                 </button>
               );

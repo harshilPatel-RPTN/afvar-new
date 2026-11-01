@@ -42,7 +42,7 @@ export function FullscreenGate({
 
   if (!gated) return <>{children}</>;
   return (
-    <div className="relative min-h-svh overflow-hidden bg-[#010205]">
+    <div className="relative min-h-svh overflow-hidden">
       {withBackground && <LiveNebula />}
       <main className="relative z-10 grid min-h-svh place-items-center px-4">
         <LaunchCard isSupported={isSupported} requestFailed={requestFailed} onOpen={() => void open()} />

@@ -74,7 +74,7 @@ export function CopyScrim({ mv, at }: { mv: MotionValue<number>; at: readonly [n
   return (
     <motion.div
       aria-hidden="true"
-      className="absolute inset-y-0 left-0 w-[58%] bg-gradient-to-r from-[#080A0B] from-35% via-[rgba(5,5,5,0.82)] via-60% to-transparent"
+      className="absolute inset-y-0 left-0 w-[58%] bg-gradient-to-r from-(--afvar-charcoal) from-35% via-[rgba(5,5,5,0.82)] via-60% to-transparent"
       style={{ opacity }}
     />
   );
@@ -84,7 +84,7 @@ export function CopyScrim({ mv, at }: { mv: MotionValue<number>; at: readonly [n
 export function Chip({ mv, at, label }: { mv: MotionValue<number>; at: readonly [number, number]; label: string }) {
   const opacity = useTransform(mv, (p) => 0.25 + 0.75 * ramp(p, at[0], at[1]));
   return (
-    <motion.span className={`${MONO} text-[#F5F7F7]`} style={{ opacity }}>
+    <motion.span className={`${MONO} text-(--afvar-text)`} style={{ opacity }}>
       {label}
     </motion.span>
   );

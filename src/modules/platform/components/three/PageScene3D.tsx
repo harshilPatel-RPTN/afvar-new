@@ -3,7 +3,8 @@
 // Lazy 3D stage for the public pages, following platform/Scene3D: near the
 // viewport it loads the WebGL models; until then (or without WebGL) a CSS 3D
 // fallback shows — tilting layered planes, or a caller-supplied scene.
-import { motion, useAnimationFrame, useInView, useMotionTemplate, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
+import { useAfvarReducedMotion } from "@/modules/afvarOs";
+import { motion, useAnimationFrame, useInView, useMotionTemplate, useMotionValue, useSpring } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { PageModelKind } from "./PageModels3D";
 
@@ -40,7 +41,7 @@ export function PageScene3D({
   fallback?: ReactNode;
   className?: string;
 }) {
-  const still = useReducedMotion() ?? false;
+  const still = useAfvarReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const visible = useInView(ref, { amount: 0.3 });
   const run = visible && !still;

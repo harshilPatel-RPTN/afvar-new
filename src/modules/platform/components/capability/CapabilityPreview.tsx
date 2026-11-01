@@ -69,20 +69,20 @@ export function PreviewWindow({ capability: c, interactive = false }: { capabili
           <div role={interactive ? "group" : undefined} aria-label={interactive ? `${c.title} features` : undefined} className="space-y-px">
             {c.features.map((f, i) => {
               const on = i === index;
-              const cls = `relative flex w-full items-center gap-2 rounded-[5px] px-2 py-[5px] text-left text-[11.5px] transition-colors ${on ? "text-(--text-primary)" : "text-(--text-secondary) hover:bg-white/5"}`;
+              const cls = "relative flex w-full items-center gap-2 rounded-[5px] px-2 py-[5px] text-left text-[11.5px] transition-colors";
               const inner = (
                 <>
-                  {on && <motion.span layoutId={`pf-side-${c.slug}-${interactive}`} className="absolute inset-0 rounded-[5px] bg-white/10" transition={{ type: "spring", stiffness: 500, damping: 38 }} />}
+                  {on && <motion.span layoutId={`pf-side-${c.slug}-${interactive}`} className={`absolute inset-0 rounded-[5px] ${interactive ? "afvar-glass-indicator" : "bg-white/10"}`} transition={{ type: "spring", stiffness: 500, damping: 38 }} />}
                   <PIcon name={f.icon} size={13} weight={on ? "fill" : "regular"} className={`relative ${on ? "text-(--accent)" : ""}`} />
                   <span className="relative truncate">{f.title}</span>
                 </>
               );
               return interactive ? (
-                <button key={f.title} type="button" aria-pressed={on} onClick={() => select(i, true)} className={cls}>
+                <button key={f.title} type="button" aria-pressed={on} onClick={() => select(i, true)} className={`afvar-glass-tab ${cls}`}>
                   {inner}
                 </button>
               ) : (
-                <div key={f.title} className={cls}>
+                <div key={f.title} className={`${cls} ${on ? "text-(--text-primary)" : "text-(--text-secondary)"}`}>
                   {inner}
                 </div>
               );
@@ -111,14 +111,14 @@ export function PreviewWindow({ capability: c, interactive = false }: { capabili
             <AvailabilityBadge value={feature.availability} className="hidden md:inline-flex" />
           </div>
           {interactive && (
-            <div className="flex gap-1 overflow-x-auto border-b border-white/[0.06] px-3 py-2 sm:hidden">
+            <div className="afvar-glass-track flex gap-1 overflow-x-auto px-3 py-2 sm:hidden">
               {c.features.map((f, i) => (
                 <button
                   key={f.title}
                   type="button"
                   aria-pressed={i === index}
                   onClick={() => select(i, true)}
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] ${i === index ? "bg-(--accent) text-(--text-inverse)" : "bg-white/5 text-(--text-secondary)"}`}
+                  className="afvar-glass-tab shrink-0 rounded-full px-2.5 py-1 text-[11px]"
                 >
                   {f.title}
                 </button>
@@ -192,7 +192,7 @@ function ChartsSketch({ focus, animate, interactive }: SketchProps) {
               aria-pressed={i === tf}
               aria-label={`Sample timeframe ${t}`}
               onClick={() => setTf(i)}
-              className={`rounded-[5px] px-2 py-0.5 text-[11px] font-medium transition-colors ${i === tf ? "bg-white/10 text-(--text-primary)" : "text-(--text-muted) hover:text-(--text-primary)"}`}
+              className="afvar-glass-tab rounded-[5px] px-2 py-0.5 text-[11px] font-medium transition-colors"
             >
               {t}
             </button>

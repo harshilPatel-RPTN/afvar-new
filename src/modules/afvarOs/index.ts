@@ -1,6 +1,6 @@
 // afvarOs — the shared AFVAR OS design system for AI-first pages.
 //
-//   theme     colours, type and surface classes, global CSS (gold = the AI)
+//   theme     colours, type and surface classes, global CSS (mint = the AI)
 //   story     scroll-story engine: defineStory → useStory → StoryAct / StoryRail
 //   three     <CoreCanvas> (look + motion system) and <AiCore> (the protagonist)
 //   os        real OS UI: screen, menu bar, dock, windows with tabs, spotlight,
@@ -14,6 +14,7 @@ export * from "./story/timeline";
 export { useStory, useAfvarReducedMotion, prefersReducedMotion, type StoryStage } from "./story/useStory";
 export { StoryAct, StoryRail, ProgressBar, useStep, useTypedText, useInertWhileHidden, useBoxKeys, type BoxKeyframe } from "./story/components";
 export { CoreCanvas, SceneLabel, useStoryFrame, type CameraKey, type SceneCue, type CoreCanvasProps } from "./three/stage";
+export { cameraViewport, createCameraTrack, sampleCameraTrack } from "./three/framing";
 export { AiCore, CORE_SIZE, type CoreDrive } from "./three/AiCore";
 export { OsScreen, MenuBar, Dock, AppGlyph, AiOrb, dockSlotX, DOCK_ITEM, type DockItem, type AppGlyphName } from "./os/chrome";
 export { OsWindow, Spotlight, Toast, Pointer, SnapGhost } from "./os/window";

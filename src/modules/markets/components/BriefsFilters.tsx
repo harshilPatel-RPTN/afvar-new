@@ -169,7 +169,7 @@ export function BriefsFilters({
 function EmptyPanel({ message, children }: { message: string; children: ReactNode }) {
   return (
     <motion.div
-      className="relative overflow-hidden rounded-3xl border border-white/[.08] bg-[#191c1e] px-6 py-14 text-center shadow-(--mk-shadow) sm:px-12 sm:py-20"
+      className="relative overflow-hidden rounded-3xl border border-white/[.08] bg-(--afvar-panel) px-6 py-14 text-center shadow-(--mk-shadow) sm:px-12 sm:py-20"
       initial={{ opacity: 0, scale: 0.96, y: 16 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.98 }}
@@ -196,7 +196,7 @@ function BriefCard({ brief, featured = false, cta, editionLabel }: { brief: Brie
   return (
     <Link
       href={`/market/briefs/${encodeURIComponent(brief.edition)}`}
-      className={`group relative flex h-full flex-col rounded-2xl border border-white/[.08] bg-[#191c1e] shadow-(--mk-shadow) transition-[border-color,transform] duration-300 hover:border-(--mk-glass-border-hover) motion-safe:hover:-translate-y-1 motion-reduce:transition-none ${featured ? "p-7 sm:p-10" : "p-6"}`}
+      className={`group relative flex h-full flex-col rounded-2xl border border-white/[.08] bg-(--afvar-panel) shadow-(--mk-shadow) transition-[border-color,transform] duration-300 hover:border-(--mk-glass-border-hover) motion-safe:hover:-translate-y-1 motion-reduce:transition-none ${featured ? "p-7 sm:p-10" : "p-6"}`}
     >
       <span aria-hidden="true" className={glowLayer} />
       <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-(--mk-dim)">

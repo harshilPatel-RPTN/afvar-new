@@ -4,7 +4,7 @@ import { motionValue } from "framer-motion";
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { COMPACT_FILM, DESKTOP_FILM, type Film } from "../ai/aiConfig";
+import { COMPACT_FILM, DESKTOP_FILM, HOME_MOBILE_FILM, type Film } from "../ai/aiConfig";
 import { AlwaysCopy, AvatarCopy, CoresCopy, Dialogue, FilmUi, FinaleCopy, HeroCopy, PermissionsCard, SessionCard, StreamCopy, ThinkCard, ThinkCopy, TrustCopy } from "../ai/cards";
 import { OS_BEATS, OS_G, OS_KEYS, POINTER, STEP_FORWARD } from "../ai/OsFilm";
 
@@ -13,6 +13,7 @@ const increasing = (xs: number[]) => xs.every((x, i) => i === 0 || x >= xs[i - 1
 describe.each([
   ["desktop", DESKTOP_FILM],
   ["compact", COMPACT_FILM],
+  ["responsive homepage", HOME_MOBILE_FILM],
 ] as [string, Film][])("%s film", (_name, film) => {
   it("acts tile the whole progress without gaps", () => {
     const r = film.story.order.map((id) => film.story.range[id]);
@@ -53,7 +54,11 @@ describe.each([
 });
 
 describe("cuts", () => {
-  it("the OS is desktop-only; the avatar is in both", () => {
+  it("the responsive homepage fits every desktop chapter into a shorter mobile track", () => {
+    expect(HOME_MOBILE_FILM.story.order).toEqual(DESKTOP_FILM.story.order);
+    expect(HOME_MOBILE_FILM.story.totalVh).toBeLessThan(COMPACT_FILM.story.totalVh);
+  });
+  it("the original compact cut omits the OS and retains its avatar", () => {
     expect(DESKTOP_FILM.has("os")).toBe(true);
     expect(COMPACT_FILM.has("os")).toBe(false);
     expect(DESKTOP_FILM.has("avatar") && COMPACT_FILM.has("avatar")).toBe(true);

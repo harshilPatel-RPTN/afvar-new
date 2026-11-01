@@ -20,6 +20,12 @@
 import { defineStory, easeInOut, ramp, type CameraKey, type SceneCue, type Story } from "@/modules/afvarOs";
 import type { Cue } from "../audio";
 
+export const PANEL_CAMERA: CameraKey[] = [0, 1].map(at => ({ at, pos: [.2, .14, 3.8], look: [.35, -.55, 0] }));
+
+export function coreOpeningScale(film: Film, progress: number, openingScale: number) {
+  return 1 + (openingScale - 1) * (1 - easeInOut(ramp(progress, 0, film.at("cores", .3))));
+}
+
 export type FilmKind = "desktop" | "compact";
 export type ActId = "hero" | "cores" | "stream" | "think" | "always" | "avatar" | "os" | "trust" | "finale";
 
@@ -151,8 +157,8 @@ export interface Film {
   settledP: number;
 }
 
-export function createFilm(kind: FilmKind): Film {
-  const story = defineStory(ACTS[kind]);
+export function createFilm(kind: FilmKind, acts = ACTS[kind]): Film {
+  const story = defineStory(acts);
   const has = (id: ActId) => story.order.includes(id);
   const at = (id: ActId, f: number) => story.at(id, f);
   const S = at;
@@ -203,3 +209,12 @@ export function createFilm(kind: FilmKind): Film {
 
 export const DESKTOP_FILM = createFilm("desktop");
 export const COMPACT_FILM = createFilm("compact");
+
+
+// The root homepage keeps the OS chapter in the small-screen cut. The original
+// /home-demo cut and its desktop-only OS timeline remain available to that route.
+const mobileLengths: Record<ActId, number> = {
+  hero: 90, cores: 110, stream: 135, think: 135, always: 95, avatar: 220,
+  os: 340, trust: 110, finale: 90,
+};
+export const HOME_MOBILE_FILM = createFilm("compact", ACTS.desktop.map(act => ({ ...act, vh: mobileLengths[act.id] })));

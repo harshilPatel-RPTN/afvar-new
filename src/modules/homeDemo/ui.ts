@@ -14,9 +14,9 @@ export const REGISTER_HREF = REGISTER_URL;
 export const SIGN_IN_HREF = REGISTER_URL;
 
 /** Page-wide CSS for interactive bits (rendered once by HomeDemoPage).
- *  .afv-cta  primary pill: a brighter candle-fill rises from below on hover,
+ *  .afv-cta  primary pill: a mint candle-fill rises from below on hover,
  *            a price sparkline draws across it, and it presses in on click.
- *            While Register coins drop in (data-filling) it fills gold.
+ *            While Register coins drop in (data-filling) it fills mint.
  *  .afv-link text link: the underline draws left → right.
  *  Both go instant under reduced motion (OS or the page toggle). */
 const SPARK =
@@ -24,12 +24,12 @@ const SPARK =
 
 export const DEMO_CSS = `
 .afv-cta { position: relative; overflow: hidden; isolation: isolate; transition: transform .12s ease; }
-.afv-cta::before { content: ""; position: absolute; inset: 0; z-index: -1; background: #69F0AE; transform: translateY(101%); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+.afv-cta::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--afvar-mint); transform: translateY(101%); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
 .afv-cta::after { content: ""; position: absolute; left: 14%; right: 14%; bottom: 4px; height: 7px; background: url("${SPARK}") center / 100% 100% no-repeat; opacity: .5; clip-path: inset(0 100% 0 0); transition: clip-path .5s ease .05s; }
 .afv-cta:hover::before, .afv-cta:focus-visible::before { transform: translateY(0); }
 .afv-cta:hover::after, .afv-cta:focus-visible::after { clip-path: inset(0 0 0 0); }
 .afv-cta:active { transform: scale(.98); }
-.afv-cta[data-filling]::before { transform: translateY(0); background: #E8C547; transition-duration: .6s; }
+.afvar-glass-primary[data-filling] { border-color: var(--afvar-mint); }
 .afv-link { background: linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat; padding-bottom: 2px; transition: background-size .3s ease, color .2s; }
 .afv-link:hover, .afv-link:focus-visible { background-size: 100% 1px; }
 @media (prefers-reduced-motion: reduce) { .afv-cta, .afv-cta::before, .afv-cta::after, .afv-link { transition: none; } }

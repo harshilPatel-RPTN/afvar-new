@@ -22,14 +22,14 @@ export function FooterColumns({ columns }: { columns: readonly FooterColumn[] })
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.4, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
         >
-          <p className={`${MONO} text-[#F5F7F7]`}>{col.title}</p>
+          <p className={`${MONO} text-(--afvar-text)`}>{col.title}</p>
           <ul className="mt-4 space-y-2.5">
             {col.links.map((l) => (
               <li key={l.label}>
                 <Link
                   href={l.href}
                   prefetch={l.href === REGISTER_HREF ? false : undefined}
-                  className="afv-link text-sm text-[#A3AAAC] transition-colors hover:text-[#F5F7F7]"
+                  className="afv-link text-sm text-[#A3AAAC] transition-colors hover:text-(--afvar-text)"
                 >
                   {l.label}
                 </Link>

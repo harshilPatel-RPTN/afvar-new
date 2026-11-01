@@ -18,7 +18,7 @@ function BackToSignIn() {
 /** Shown only in the static demo, where no email is actually sent. */
 function DemoLink({ href, label }: { href: string; label: string }) {
   return (
-    <Link href={href} className="flex h-10 items-center justify-center rounded-xl border border-dashed border-[#8AB4F8]/40 text-[12px] font-medium text-[#8AB4F8] hover:bg-[#8AB4F8]/10">
+    <Link href={href} className="afvar-glass-button flex h-10 items-center justify-center rounded-xl text-[12px] font-medium">
       {label}
     </Link>
   );

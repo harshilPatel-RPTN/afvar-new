@@ -27,7 +27,7 @@ import {
 } from "@/modules/afvarOs";
 import { playCue } from "../audio";
 import { MachinedArc } from "../MachinedArc";
-import { AVATAR, GATE, ORBIT, RING, SATELLITES, SOURCES, THINK, THINK_OUT, columnPos, type ActId, type Film, type Layout } from "./aiConfig";
+import { AVATAR, GATE, ORBIT, PANEL_CAMERA, RING, SATELLITES, SOURCES, THINK, THINK_OUT, columnPos, coreOpeningScale, type ActId, type Film, type Layout } from "./aiConfig";
 
 export interface AiCoreSceneProps {
   film: Film;
@@ -38,6 +38,10 @@ export interface AiCoreSceneProps {
   portrait: boolean;
   /** Lighter scene for small / mobile GPUs. */
   lite: boolean;
+  compactBloom?: boolean;
+  belowHeader?: boolean;
+  compactPanel?: boolean;
+  openingScale: number;
   /** The avatar is on stage here (false while the OS overlay owns it). */
   avatarHere: boolean;
   /** Real price chips for the price source, e.g. "XAU/USD 4,012.10 ▼0.41%". */
@@ -52,16 +56,20 @@ function useFilm() {
 }
 const win = (film: Film, id: ActId, w: Window4): Window4 => [film.at(id, w[0]), film.at(id, w[1]), film.at(id, w[2]), film.at(id, w[3])];
 
-export default function AiCoreScene({ film, progress, active, still, portrait, lite, avatarHere, priceTexts }: AiCoreSceneProps) {
+// In an editorial panel the copy lives outside the canvas; frame the orb close
+// to the middle instead of leaving the desktop copy column empty.
+export default function AiCoreScene({ film, progress, active, still, portrait, lite, openingScale, compactPanel = false, compactBloom = false, belowHeader = false, avatarHere, priceTexts }: AiCoreSceneProps) {
   const ctx = useMemo(() => ({ film, lite, portrait }), [film, lite, portrait]);
-  const drive = useMemo(() => makeCoreDrive(film), [film]);
+  const drive = useMemo(() => makeCoreDrive(film, openingScale), [film, openingScale]);
   return (
     <CoreCanvas
+      belowHeader={belowHeader}
+      bloomLevels={compactBloom ? 3 : undefined}
       progress={progress}
       active={active}
       still={still}
       settledP={film.settledP}
-      camera={portrait ? film.cameraPortrait : film.camera}
+      camera={compactPanel ? PANEL_CAMERA : portrait ? film.cameraPortrait : film.camera}
       fov={portrait ? 50 : 38}
       parallax={portrait ? 0.04 : 0.12}
       bloom={lite ? 0.55 : 0.75}
@@ -70,6 +78,7 @@ export default function AiCoreScene({ film, progress, active, still, portrait, l
       onCue={playCue}
     >
       <FilmCtx.Provider value={ctx}>
+        <FirstCoreFrame />
         <AiCore drive={drive} />
         <Satellites />
         <Near acts={["stream"]}>
@@ -88,7 +97,24 @@ export default function AiCoreScene({ film, progress, active, still, portrait, l
   );
 }
 
-function makeCoreDrive(film: Film) {
+function FirstCoreFrame() {
+  const painted = useRef(false);
+  const pending = useRef(0);
+  useEffect(() => () => cancelAnimationFrame(pending.current), []);
+  useFrame(({ gl }) => {
+    if (!painted.current) {
+      painted.current = true;
+      // This callback runs before the WebGL draw. Keep the poster until that
+      // frame has actually been submitted, then reveal the initialized canvas.
+      pending.current = requestAnimationFrame(() => {
+        gl.domElement.dataset.afvarCorePainted = "";
+      });
+    }
+  });
+  return null;
+}
+
+function makeCoreDrive(film: Film, openingScale: number) {
   const out: CoreDrive = { glow: 1, scale: 1, think: 0, sparks: 1 };
   const A = (f: number) => film.at("avatar", f);
   return (p: number): CoreDrive => {
@@ -99,7 +125,10 @@ function makeCoreDrive(film: Film) {
     const inside = easeInOut(ramp(p, A(0.18), A(0.32))) * (1 - easeOut(ramp(p, film.at("trust", 0.0), film.at("trust", 0.15))));
     out.glow = 0.95 + 0.35 * stream + 0.3 * think + 0.6 * verdict + 0.35 * ramp(p, film.at("finale", 0.3), film.at("finale", 0.9));
     out.think = Math.max(think, window4(p, [A(0.56), A(0.6), A(0.64), A(0.68)]));
-    out.scale = Math.max(0.0001, 1 - inside);
+    // The solo core can use more of its column; return to its orbit size
+    // as the satellite cores appear around it.
+    const introScale = coreOpeningScale(film, p, openingScale);
+    out.scale = Math.max(0.0001, 1 - inside) * introScale;
     out.sparks = 1 - inside;
     return out;
   };
@@ -291,8 +320,8 @@ function Satellites() {
             <sphereGeometry args={[ORBIT.size, 28, 28]} />
             <meshStandardMaterial
               ref={(el) => void (mats.current[i] = el)}
-              color={COLORS.goldDeep}
-              emissive={sat.id === "verify" ? COLORS.goldHot : COLORS.gold}
+              color={COLORS.mintDeep}
+              emissive={sat.id === "verify" ? COLORS.mintHot : COLORS.mint}
               emissiveIntensity={1.4}
               roughness={0.3}
               toneMapped={false}
@@ -300,10 +329,10 @@ function Satellites() {
           </mesh>
           <mesh>
             <torusGeometry args={[ORBIT.size * 1.7, 0.006, 8, 48]} />
-            <meshBasicMaterial color={COLORS.gold} transparent opacity={0.5} toneMapped={false} />
+            <meshBasicMaterial color={COLORS.mint} transparent opacity={0.5} toneMapped={false} />
           </mesh>
           {labelsNear ? (
-            <SceneLabel position={[0, ORBIT.size + 0.3, 0]} show={labelShow} tone="gold">
+            <SceneLabel position={[0, ORBIT.size + 0.3, 0]} show={labelShow} tone="ai">
               {sat.label}
             </SceneLabel>
           ) : null}
@@ -392,11 +421,11 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
       {SOURCES.map((src, j) => (
         <group key={src.id}>
           <lineSegments geometry={lines[j]}>
-            <lineBasicMaterial ref={(el) => void (lineMats.current[j] = el)} color={src.id === "price" ? COLORS.up : COLORS.gold} transparent opacity={0} toneMapped={false} />
+            <lineBasicMaterial ref={(el) => void (lineMats.current[j] = el)} color={src.id === "price" ? COLORS.up : COLORS.mint} transparent opacity={0} toneMapped={false} />
           </lineSegments>
           <mesh position={[...src.pos]}>
             <sphereGeometry args={[0.07, 16, 16]} />
-            <meshBasicMaterial color={COLORS.goldHot} toneMapped={false} />
+            <meshBasicMaterial color={COLORS.mintHot} toneMapped={false} />
           </mesh>
           <SceneLabel position={[src.pos[0] + 0.55, src.pos[1] + 0.3, src.pos[2]]} show={showSources} tone="neutral">
             {src.label}
@@ -410,7 +439,7 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
                     ref={(el) => void (chipEls.current[idx] = el)}
                     style={{ opacity: 0 }}
                     className={`whitespace-nowrap rounded-md border px-2 py-0.5 font-mono text-[10.5px] tracking-[0.04em] [@media(max-height:520px)]:px-1 [@media(max-height:520px)]:text-[8px] [@media(max-height:520px)]:tracking-normal ${
-                      src.id === "price" ? "border-[rgba(0,230,118,0.45)] bg-[#07130D] text-[#C9F5DD]" : "border-[rgba(233,180,76,0.4)] bg-[#141006] text-[#F3DFAF]"
+                      src.id === "price" ? "border-[rgba(0,230,118,0.45)] bg-[#07130D] text-[#C9F5DD]" : "border-[rgba(168,222,194,0.4)] bg-[#06110C] text-[#DAECDF]"
                     }`}
                   />
                 </Html>
@@ -427,7 +456,7 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
 
 const PULSES_PER = 3;
 
-/** Gold pulses from every core into the centre while it streams and thinks; the speaking core burns brightest. */
+/** Light pulses from every core into the centre while it streams and thinks; the speaking core burns brightest. */
 function Reasoning() {
   const { film } = useFilm();
   const { smoothed, still } = useStoryFrame();
@@ -435,8 +464,8 @@ function Reasoning() {
   const m4 = useMemo(() => new THREE.Matrix4(), []);
   const col = useMemo(() => new THREE.Color(), []);
   const pos = useMemo(() => new THREE.Vector3(), []);
-  const gold = useMemo(() => new THREE.Color(COLORS.gold), []);
-  const hot = useMemo(() => new THREE.Color(COLORS.goldHot), []);
+  const mint = useMemo(() => new THREE.Color(COLORS.mint), []);
+  const hot = useMemo(() => new THREE.Color(COLORS.mintHot), []);
 
   useFrame((s) => {
     const p = smoothed.current ?? 0;
@@ -456,7 +485,7 @@ function Reasoning() {
         const size = (on ? 0.06 : 0.035) * w * (1 - u * 0.5);
         m4.makeScale(size, size, size).setPosition(pos);
         im.setMatrixAt(n, m4);
-        im.setColorAt(n, col.copy(on ? hot : gold).multiplyScalar(on ? 3 : speaking >= 0 ? 0.6 : 1.4));
+        im.setColorAt(n, col.copy(on ? hot : mint).multiplyScalar(on ? 3 : speaking >= 0 ? 0.6 : 1.4));
         n++;
       }
     }
@@ -512,7 +541,7 @@ function ClockRing() {
     <group ref={group} name="ClockRing" visible={false}>
       <mesh>
         <torusGeometry args={[RING.radius, RING.tube, 8, 200]} />
-        <meshBasicMaterial color={COLORS.gold} transparent opacity={0.7} toneMapped={false} />
+        <meshBasicMaterial color={COLORS.mint} transparent opacity={0.7} toneMapped={false} />
       </mesh>
       {Array.from({ length: 24 }, (_, h) => {
         const a = hourAngle(h);
@@ -520,7 +549,7 @@ function ClockRing() {
         return (
           <mesh key={h} position={[Math.cos(a) * (RING.radius - len / 2), Math.sin(a) * (RING.radius - len / 2), 0]} rotation={[0, 0, a]}>
             <boxGeometry args={[len, 0.012, 0.012]} />
-            <meshBasicMaterial color={h % 6 === 0 ? COLORS.goldHot : "#6D7578"} toneMapped={false} />
+            <meshBasicMaterial color={h % 6 === 0 ? COLORS.mintHot : "#92A399"} toneMapped={false} />
           </mesh>
         );
       })}
@@ -546,10 +575,10 @@ function ClockRing() {
       <group ref={hand}>
         <mesh position={[0, (RING.radius + 0.6) / 2, 0]}>
           <boxGeometry args={[0.018, RING.radius - 0.4, 0.018]} />
-          <meshBasicMaterial color={COLORS.goldHot} toneMapped={false} />
+          <meshBasicMaterial color={COLORS.mintHot} toneMapped={false} />
         </mesh>
       </group>
-      <SceneLabel position={[0, RING.radius + 0.95, 0]} show={labelWindow} tone="gold">
+      <SceneLabel position={[0, RING.radius + 0.95, 0]} show={labelWindow} tone="ai">
         Crypto · 24/7/365
       </SceneLabel>
     </group>
@@ -598,24 +627,24 @@ function PolicyGate() {
         <MachinedArc radius={GATE.radius} thickness={0.12} />
         <mesh>
           <torusGeometry args={[GATE.radius - 0.1, 0.012, 8, 120]} />
-          <meshBasicMaterial color={COLORS.gold} toneMapped={false} />
+          <meshBasicMaterial color={COLORS.mint} toneMapped={false} />
         </mesh>
       </group>
       <mesh position={[GATE.x, 0, 0]} rotation={[0, Math.PI / 2 - GATE.tilt, 0]}>
         <circleGeometry args={[GATE.radius - 0.08, 48]} />
-        <meshBasicMaterial color={COLORS.gold} transparent opacity={0.06} toneMapped={false} depthWrite={false} side={THREE.DoubleSide} />
+        <meshBasicMaterial color={COLORS.mint} transparent opacity={0.06} toneMapped={false} depthWrite={false} side={THREE.DoubleSide} />
       </mesh>
       {Array.from({ length: PASS }, (_, i) => (
         <mesh key={i} ref={(el) => void (packets.current[i] = el)}>
           <sphereGeometry args={[1, 16, 16]} />
-          <meshBasicMaterial color={COLORS.goldHot} toneMapped={false} />
+          <meshBasicMaterial color={COLORS.mintHot} toneMapped={false} />
         </mesh>
       ))}
       <mesh ref={refused}>
         <sphereGeometry args={[1, 20, 20]} />
         <meshBasicMaterial color={COLORS.down} toneMapped={false} />
       </mesh>
-      <SceneLabel position={[GATE.x, GATE.radius + 0.35, 0]} show={gateLabel} tone="gold">
+      <SceneLabel position={[GATE.x, GATE.radius + 0.35, 0]} show={gateLabel} tone="ai">
         Policy gate
       </SceneLabel>
       <SceneLabel position={[GATE.x - 0.4, -0.55, 0]} show={refuseLabel} tone="down">

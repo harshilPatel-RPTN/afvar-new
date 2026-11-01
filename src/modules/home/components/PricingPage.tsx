@@ -11,7 +11,7 @@ import { Ambience } from "@/modules/resources";
 export function PricingPage() {
   return (
     <SiteShell footer={false}>
-      <PlatformShell>
+      <PlatformShell className="afvar-pricing-backdrop">
         <div className="relative">
           <Ambience />
           <div className="relative">
