@@ -2,7 +2,9 @@
 // links it keeps, and the Earth closing.
 import { CATEGORIES, FAQ_GROUPS, GUIDE_GROUPS, GUIDES, TROUBLESHOOTING } from "@/modules/resources/kit";
 import { PageHero, type CapHeroText } from "../hero/CapHero";
-import { AboutSections, PricingSections } from "../sections/CompanySections";
+import { AboutSections, ContactSections, PricingSections } from "../sections/CompanySections";
+import { EnquiryForm } from "@/modules/company/kit";
+import { PfScope } from "./PfScope";
 import { BriefsSections, GroupSections, InstrumentSections, MarketsSections } from "../sections/MarketSections";
 import { EvidenceSections, FaqSections, GuidesSections, HelpSections, HubSections, StartSections } from "../sections/ResourceSections";
 import { GROUP, GROUP_IDS, INST, type GroupId } from "../sections/marketMap";
@@ -322,4 +324,41 @@ const EVIDENCE_T: CapHeroText = {
 };
 export function EvidenceFilmPage() {
   return <SitePage id="evidence" film={<><PageHero kind="evidence" id="evidence-hero" label="Sources & evidence" text={EVIDENCE_T} /><EvidenceSections /></>} closing="Check every number." soft="Register for launch." second={{ label: "FAQs", href: "/resources/faqs" }} />;
+}
+
+/* ------------------------------------------------------------- Contact */
+
+const CONTACT_T: CapHeroText = {
+  eyebrow: "Contact",
+  title: "Contact the team.",
+  gold: "Every message lands on one desk.",
+  body: "Company enquiries, partnerships, press and careers come here. Account and product problems have their own faster lane in Help.",
+  short: "Company enquiries come here; account problems go to Help.",
+  facts: ["One desk", "No reply-time promises", "Never asks for money"],
+  second: { label: "Write to us", href: "#enquiry" },
+};
+export function ContactFilmPage() {
+  return (
+    <SitePage
+      id="contact"
+      film={<><PageHero kind="contact" id="contact-hero" label="Contact" text={CONTACT_T} /><ContactSections /></>}
+      after={
+        <Directory id="enquiry" title="Write to us." soft="Topic, email, message.">
+          <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
+            <PfScope className="rounded-[14px] border border-[rgba(255,255,255,0.1)] bg-[#0B0E10] p-5 sm:p-6">
+              <EnquiryForm />
+            </PfScope>
+            <div className="space-y-4">
+              <DirCard href="/resources/help" tag="Faster for account problems" title="Help & support" />
+              <DirCard href="/resources/faqs" tag="Short answers" title="FAQs" />
+              <DirCard href="/about" tag="The company" title="About AFVAR" />
+            </div>
+          </div>
+        </Directory>
+      }
+      closing="Rather just get in line?"
+      soft="Register for launch."
+      second={{ label: "About AFVAR", href: "/about" }}
+    />
+  );
 }

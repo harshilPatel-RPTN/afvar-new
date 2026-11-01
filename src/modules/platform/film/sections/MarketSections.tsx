@@ -61,6 +61,10 @@ export function MarketsSections() {
         </Win>
         <Win at={0.32} x={690} y={20} w={470} h={200} title="Crypto" glyph="phone">
           <Para>Open 24 hours, 7 days. Weekend moves can be large with fewer traders.</Para>
+          <div className="mt-2">
+            <Row k="Bitcoin" v="live · 24 / 7" gold />
+            <Row k="Weekends" v="thinner trading" />
+          </div>
         </Win>
         <Note at={0.56} x={690} y={250} w={470} title="Times move by an hour when clocks change" sub="Europe and the US change on different dates" />
       </OsSection>
@@ -75,6 +79,11 @@ export function MarketsSections() {
         <AvatarLine at={0.44} x={720} y={60} text="These come straight from the candles. Ask me why any of them moved." />
         <Win at={0.62} x={690} y={250} w={470} h={260} title="Read it this way" glyph="research">
           <Para>A big move on a quiet market and a big move after a data release are different stories. Open the chart before drawing a conclusion.</Para>
+          <div className="mt-2">
+            <Row k="1 · Scheduled release?" v="check the calendar" />
+            <Row k="2 · Bigger than usual?" v="compare the hourly range" />
+            <Row k="3 · Did neighbours move?" v="same driver, or its own" />
+          </div>
         </Win>
       </OsSection>
 
@@ -214,6 +223,10 @@ export function GroupSections({ group }: { group: GroupId }) {
         <Note at={0.36} x={690} y={20} w={470} title="Reminder set · 15 minutes before" sub={`${c.events[0][0]} · ${g.name}`} />
         <Win at={0.52} x={690} y={110} w={470} h={210} title="Before an event" glyph="alerts">
           <Para>Spreads can widen and prices can jump. A reminder gives you time to decide what to do first.</Para>
+          <div className="mt-2">
+            <Row k="Reminder" v="15 minutes before" gold />
+            <Row k="Then" v="the release, live" />
+          </div>
         </Win>
       </OsSection>
 
@@ -294,7 +307,12 @@ export function InstrumentSections({ slug }: { slug: string }) {
       <OsSection n={3} label="Levels" title="The levels on the chart." soft="Drawn from the candles." body="The recent high and low and the 20-hour average, worked out by code and drawn as you scroll." app="Market data" active="charts">
         <LevelsChart i={i} />
         <Win at={0.44} x={830} y={20} w={330} h={260} title="How these were found" glyph="settings">
-          <Para>High and low of the last 44 hourly candles; average of the last 20 closes. No guessing.</Para>
+          <Para>Worked out by code from the feed. No guessing.</Para>
+          <div className="mt-2">
+            <Row k="Recent high" v="highest of 44 candles" gold />
+            <Row k="Recent low" v="lowest of 44 candles" />
+            <Row k="Average" v="mean of 20 closes" />
+          </div>
         </Win>
       </OsSection>
 
@@ -321,6 +339,14 @@ export function InstrumentSections({ slug }: { slug: string }) {
         </Win>
         <Win at={0.36} x={670} y={20} w={490} h={300} title="Past reactions" glyph="research" ai>
           <Para>For each past release AFVAR lists the first-hour move, taken from the candles — what happened, not what will.</Para>
+          <div className="mt-3">
+            <Row k="Last release" v="first-hour move · size" />
+            <Row k="The one before" v="first-hour move · size" />
+            <Row k="Typical hour" v="for comparison" />
+            <div className="mt-2">
+              <Chip tone="sample">Layout · values at launch</Chip>
+            </div>
+          </div>
         </Win>
       </OsSection>
 
@@ -373,6 +399,10 @@ function AlertDraft({ i }: { i: InstInfo }) {
       </Win>
       <Win at={0.36} x={690} y={74} w={470} h={230} title="An alert only tells you" glyph="risk">
         <Para>It never opens or closes a trade.</Para>
+        <div className="mt-2">
+          <Row k="Checked" v="on closed candles" />
+          <Row k="Arrives" v="in app, push or voice" gold />
+        </div>
       </Win>
     </>
   );
@@ -392,7 +422,12 @@ export function BriefsSections() {
         </Win>
         <Note at={0.34} x={630} y={20} w={530} title="Morning brief · ready" sub="07:00 IST · Commodities · Forex · Crypto" />
         <Win at={0.5} x={630} y={110} w={530} h={240} title="Length" glyph="journal">
-          <Para>About two minutes to read. One short block per market, then today’s scheduled releases.</Para>
+          <Para>About two minutes to read.</Para>
+          <div className="mt-2">
+            <Row k="Overview" v="two or three lines" />
+            <Row k="Each market" v="one or two lines" gold />
+            <Row k="Calendar" v="today’s releases" />
+          </div>
         </Win>
       </OsSection>
 
@@ -466,6 +501,12 @@ export function BriefsSections() {
         </Win>
         <Win at={0.32} x={630} y={20} w={530} h={300} title="Your markets first" glyph="research" ai>
           <Para>Pick the markets you follow and their sections come first in every edition.</Para>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Chip tone="gold">Gold</Chip>
+            <Chip tone="gold">EUR/USD</Chip>
+            <Chip>Silver</Chip>
+            <Chip>Bitcoin</Chip>
+          </div>
         </Win>
       </OsSection>
     </>

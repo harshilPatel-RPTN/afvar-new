@@ -3,7 +3,7 @@ import { AppIcon, PIcon } from "@/modules/platform/kit";
 import { getGuide, type TroubleTopic } from "../content";
 import { ResourcesClosing } from "./Closing";
 import { ResourcesHero, ResourcesTabs } from "./Hero";
-import { ResourcesShell } from "./ResourcesShell";
+import { ResourcesFrame } from "./ResourcesFrame";
 import { TroubleshootChecks } from "./TroubleshootChecks";
 import { Window } from "./Window";
 import { ResLink } from "./ui";
@@ -23,7 +23,7 @@ const SUPPORT_TOPIC: Record<string, string> = {
 export function TroubleshootDetail({ topic }: { topic: TroubleTopic }) {
   const guide = topic.guide ? getGuide(topic.guide) : undefined;
   return (
-    <ResourcesShell>
+    <ResourcesFrame>
       <ResourcesHero
         sub
         crumb={[
@@ -93,6 +93,6 @@ export function TroubleshootDetail({ topic }: { topic: TroubleTopic }) {
         primary={{ label: "Browse all resources", href: "/resources#browse" }}
         secondary={{ label: "Help & Support", href: "/resources/help" }}
       />
-    </ResourcesShell>
+    </ResourcesFrame>
   );
 }

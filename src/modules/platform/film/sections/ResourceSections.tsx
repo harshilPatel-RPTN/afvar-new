@@ -8,6 +8,13 @@ import { ChartWin, Para, ScrollSteps, fmt, useQuote, useRange } from "./shared";
 import { STATUS_LABEL, asOfText } from "../market/analysis";
 
 const guide = (slug: string) => getGuide(slug) as Guide;
+const HUB_COUNT: Record<string, string> = {
+  start: `${GETTING_STARTED.steps.length} STEPS`,
+  guides: `${GUIDES.length} GUIDES · ${GUIDE_GROUPS.length} GROUPS`,
+  evidence: `${EVIDENCE.badge.length} BADGE FIELDS · ${EVIDENCE.labels.length} LABELS`,
+  faqs: `${FAQ_GROUPS.reduce((n, g) => n + g.items.length, 0)} ANSWERS`,
+  help: `${TROUBLESHOOTING.length} TOPICS · ONE DESK`,
+};
 const topic = (slug: string) => getTopic(slug)!;
 const faq = (id: string) => FAQ_GROUPS.find((g) => g.id === id)!;
 
@@ -20,6 +27,7 @@ export function HubSections() {
         {CATEGORIES.map((c, i) => (
           <Win key={c.id} at={0.05 + i * 0.1} x={40 + (i % 3) * 380} y={i < 3 ? 20 : 290} w={360} h={230} title={c.title} glyph={(["calendar", "journal", "settings", "research", "phone"] as const)[i]} ai={i === 2}>
             <Para>{c.summary}</Para>
+            <p className="mt-3 font-mono text-[10.5px] tracking-[0.1em] text-[#E9B44C]">{HUB_COUNT[c.id]}</p>
           </Win>
         ))}
       </OsSection>
@@ -44,6 +52,10 @@ export function HubSections() {
         <Note at={0.4} x={690} y={20} w={470} title="2 of 5 done" sub="Verified · in the queue" />
         <Win at={0.56} x={690} y={110} w={470} h={270} title="Your device" glyph="layouts">
           <Para>{GETTING_STARTED.device}</Para>
+          <div className="mt-2">
+            <Row k="Workspace" v="1000 px and wider" gold />
+            <Row k="Website" v="any screen" />
+          </div>
         </Win>
       </OsSection>
 
@@ -132,6 +144,11 @@ export function StartSections() {
         </Win>
         <Win at={0.34} x={630} y={20} w={530} h={330} title="What changes your place" glyph="risk" ai>
           <Para>Nothing you choose later. Not a launch offer, not identity verification.</Para>
+          <div className="mt-3">
+            <Row k="Launch offer" v="no change" />
+            <Row k="Identity check" v="no change" />
+            <Row k="Your place" v="set when you registered" gold />
+          </div>
         </Win>
       </OsSection>
 
@@ -302,6 +319,10 @@ export function HelpSections() {
         <Note at={0.38} x={670} y={20} w={490} title="A newer code replaces the older one" sub="Use the latest code you received" />
         <Win at={0.56} x={670} y={110} w={490} h={250} title="Fixed when" glyph="calendar">
           <Para>{code.recovery}</Para>
+          <div className="mt-2">
+            <Row k="Mobile" v={<span className="text-[#00E676]">✓ verified</span>} />
+            <Row k="Email" v={<span className="text-[#00E676]">✓ verified</span>} />
+          </div>
         </Win>
       </OsSection>
 

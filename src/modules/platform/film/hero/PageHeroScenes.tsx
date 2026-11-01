@@ -9,7 +9,7 @@ import * as THREE from "three";
 import { AiSpark, COLORS, CoreCanvas, GlassPlate, GlowLine, GoldDust, hdr, useStoryFrame, type CameraKey } from "@/modules/afvarOs";
 import type { HeroSceneArgs } from "./HeroStage";
 
-export type PageHeroKind = "about" | "pricing" | "markets" | "group" | "instrument" | "briefs" | "resources" | "start" | "guides" | "help" | "faqs" | "evidence";
+export type PageHeroKind = "about" | "pricing" | "markets" | "group" | "instrument" | "briefs" | "resources" | "start" | "guides" | "help" | "faqs" | "evidence" | "contact";
 
 const CAM: CameraKey[] = [
   { at: 0, pos: [0.2, 0.15, 8.2], look: [-1.45, 0.05, 0] },
@@ -33,6 +33,7 @@ const SCENES: Record<PageHeroKind, () => ReactNode> = {
   help: HelpRing,
   faqs: QaColumn,
   evidence: ProvenanceChain,
+  contact: LetterRoutes,
 };
 
 export default function PageHeroScene({ kind, a }: { kind: PageHeroKind; a: HeroSceneArgs }) {
@@ -423,6 +424,54 @@ function ProvenanceChain() {
       </group>
       <group position={[0, -0.42, 0.25]}>
         <AiSpark size={0.07} />
+      </group>
+    </group>
+  );
+}
+
+/* Contact: letters travel along gold routes to one desk; product problems branch off to Help. */
+const ROUTE_FROM = [v(-2.2, 1.1, 0.3), v(-2.4, -0.1, -0.2), v(-1.9, -1.2, 0.4)];
+function LetterRoutes() {
+  const { still } = useStoryFrame();
+  const letters = useRef<(THREE.Group | null)[]>([]);
+  const curves = useMemo(() => ROUTE_FROM.map((a) => new THREE.QuadraticBezierCurve3(a, v(-0.6, a.y * 0.4 + 0.3, 0.6), v(0.9, 0.05, 0))), []);
+  const pts = useMemo(() => curves.map((c) => c.getPoints(32)), [curves]);
+  const help = useMemo(() => new THREE.QuadraticBezierCurve3(v(-0.6, -0.4, 0.4), v(0.2, -1.2, 0.6), v(1.4, -1.35, 0.2)).getPoints(24), []);
+  useFrame((st) => {
+    const t = st.clock.elapsedTime;
+    curves.forEach((c, i) => {
+      const g = letters.current[i];
+      if (!g) return;
+      const k = still ? 0.55 : ((t * 0.12 + i / 3) % 1);
+      g.position.copy(c.getPoint(k));
+      g.scale.setScalar(0.6 + 0.4 * Math.sin(Math.PI * k));
+    });
+  });
+  return (
+    <group position={[0.35, 0.05, 0]} rotation={[0.12, -0.3, 0]} scale={0.9}>
+      {pts.map((p, i) => (
+        <GlowLine key={i} points={p} color={COLORS.gold} intensity={1.05} width={1.1} opacity={0.55} />
+      ))}
+      <GlowLine points={help} color="#6D7578" intensity={1} width={1} dashed dashSize={0.08} gapSize={0.06} />
+      {curves.map((_c, i) => (
+        <group key={i} ref={(g) => { letters.current[i] = g; }}>
+          <Card w={0.5} h={0.34} edge={0.8} opacity={0.85}>
+            <GlowLine points={[v(-0.22, 0.14, 0.03), v(0, -0.02, 0.03), v(0.22, 0.14, 0.03)]} color={COLORS.gold} intensity={1.2} width={1.4} />
+          </Card>
+        </group>
+      ))}
+      <group position={[1.35, 0.05, 0]}>
+        <Card w={1.15} h={1.45} gold opacity={0.85}>
+          <Lines w={0.8} ys={[0.45, 0.25, 0.05, -0.15, -0.35]} goldAt={0} />
+        </Card>
+      </group>
+      <group position={[1.6, -1.35, 0.2]}>
+        <Card w={0.8} h={0.42} edge={0.5} opacity={0.7}>
+          <Lines w={0.5} ys={[0.06, -0.08]} />
+        </Card>
+      </group>
+      <group position={[1.35, 0.95, 0.2]}>
+        <AiSpark size={0.065} />
       </group>
     </group>
   );

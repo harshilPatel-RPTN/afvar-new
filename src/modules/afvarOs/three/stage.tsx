@@ -75,6 +75,8 @@ export function CoreCanvas<C extends string>({
   const smoothed = useRef(still ? settledP : 0);
   const labels = useRef<HTMLDivElement | null>(null);
   const ctx = useMemo(() => ({ smoothed, still, labels }), [still]);
+  // Phones get lighter edge smoothing (2× instead of 4×): the pixels are small anyway.
+  const [msaa] = useState(() => (typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches ? 2 : 4));
   return (
     <div className="relative h-full w-full">
     <div ref={labels} className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" />
@@ -82,7 +84,8 @@ export function CoreCanvas<C extends string>({
       dpr={dpr}
       frameloop={active && !still ? "always" : "demand"}
       camera={{ position: [...camera[0].pos], fov }}
-      gl={{ antialias: true, powerPreference: "high-performance" }}
+      // Edges are smoothed once, by the composer's multisampling; the canvas's own MSAA would be thrown away.
+      gl={{ antialias: false, powerPreference: "high-performance", stencil: false }}
       aria-hidden="true"
     >
       <StoryFrameContext.Provider value={ctx}>
@@ -103,7 +106,7 @@ export function CoreCanvas<C extends string>({
 
         {children}
 
-        <EffectComposer multisampling={4}>
+        <EffectComposer multisampling={msaa}>
           <Bloom mipmapBlur luminanceThreshold={0.85} intensity={bloom} />
           <Vignette darkness={0.5} offset={0.3} />
         </EffectComposer>

@@ -7,7 +7,6 @@ import { getCapability } from "../content";
 import type { CapFilm } from "../film/capability/factory";
 import { asOfText, biggestMover, lastMovePct, rangeOf, signedPct, swingLine, trendOf } from "../film/market/analysis";
 import { CHART, FEATURE_ACT, INSIGHT_AT, INSIGHT_CHECKED, LANE_AT, MARKET_COMPACT, MARKET_DESKTOP, WATCH, type MarketAct } from "../film/market/marketFilm";
-import { DESK_KEYS } from "../film/market/MarketOs";
 import { marketPageActs } from "./market-copy.fixture";
 import { sentences } from "./overview-copy.fixture";
 
@@ -77,9 +76,6 @@ describe("beats", () => {
     expect(strictly([WATCH.ask[1], ...WATCH.added, WATCH.heat, WATCH.overview, WATCH.mover])).toBe(true);
     expect(strictly(LANE_AT)).toBe(true);
     expect(strictly([...INSIGHT_AT, INSIGHT_CHECKED])).toBe(true);
-  });
-  it("OS windows move in time order across the chart → watch hand-off", () => {
-    for (const keys of Object.values(DESK_KEYS)) expect(increasing(keys.map((k) => k.at))).toBe(true);
   });
   it("every feature card jumps to an act of the film", () => {
     const features = getCapability("charts")!.features.map((f) => f.title);

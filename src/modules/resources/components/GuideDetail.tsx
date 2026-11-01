@@ -5,7 +5,7 @@ import { ResourcesClosing } from "./Closing";
 import { GuideSample } from "./GuideSamples";
 import { GuideSteps } from "./GuideSteps";
 import { ResourcesHero, ResourcesTabs } from "./Hero";
-import { ResourcesShell } from "./ResourcesShell";
+import { ResourcesFrame } from "./ResourcesFrame";
 import { Window } from "./Window";
 import { ResLink } from "./ui";
 import { MarketCard } from "./ui";
@@ -15,7 +15,7 @@ export function GuideDetail({ guide }: { guide: Guide }) {
   const group = GUIDE_GROUPS.find((g) => g.id === guide.group)!;
   const next = guide.next ? getGuide(guide.next) : undefined;
   return (
-    <ResourcesShell>
+    <ResourcesFrame>
       <ResourcesHero
         sub
         crumb={[
@@ -110,6 +110,6 @@ export function GuideDetail({ guide }: { guide: Guide }) {
         primary={{ label: "Browse all resources", href: "/resources#browse" }}
         secondary={{ label: "Product Guides", href: "/resources/guides" }}
       />
-    </ResourcesShell>
+    </ResourcesFrame>
   );
 }

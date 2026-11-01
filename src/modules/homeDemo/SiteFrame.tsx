@@ -9,11 +9,12 @@ import { SiteFooter, SiteNav } from "@/modules/markets";
 import { DemoHeader } from "./DemoHeader";
 import { HomeSoundToggle } from "./HomeSoundToggle";
 import { LaunchReminder } from "./LaunchReminder";
+import { PauseOffscreen } from "./PauseOffscreen";
 import { DEMO_CSS } from "./ui";
 
 export function SiteFrame({ children, closing }: { children: ReactNode; closing?: ReactNode }) {
   return (
-    <div className={`${HOME_SCOPE} min-h-svh bg-[#050607] text-[#F5F7F7]`}>
+    <div data-site-frame="" className={`${HOME_SCOPE} min-h-svh bg-[#050607] text-[#F5F7F7]`}>
       <HomeStyles />
       <style>{DEMO_CSS}</style>
       <AfvarStyles />
@@ -24,11 +25,12 @@ export function SiteFrame({ children, closing }: { children: ReactNode; closing?
 
       <main>{children}</main>
 
-      {closing}
+      {closing ? <div data-site-closing="">{closing}</div> : null}
       <SiteFooter />
 
       {/* The site-wide sound switch (same as every page); drives the page's audio engine too. */}
       <HomeSoundToggle />
+      <PauseOffscreen />
     </div>
   );
 }

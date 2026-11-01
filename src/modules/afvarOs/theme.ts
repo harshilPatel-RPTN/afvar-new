@@ -63,12 +63,16 @@ export const AFVAR_CSS = `
 .afv-voice > span { animation: afv-voice 1.1s ease-in-out infinite; transform-origin: center; }
 @keyframes afv-blink { 0%,49% { opacity: 1 } 50%,100% { opacity: 0 } }
 .afv-caret { display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -0.15em; background: #E9B44C; animation: afv-blink 1s steps(1) infinite; }
-@keyframes afv-orb { 0%,100% { box-shadow: 0 0 10px 2px rgba(233,180,76,.45) } 50% { box-shadow: 0 0 22px 6px rgba(233,180,76,.75) } }
-.afv-orb { animation: afv-orb 1.8s ease-in-out infinite; }
+/* The AI orb's glow breathes on opacity only (no box-shadow animation: that would repaint every frame). */
+@keyframes afv-orb { 0%,100% { opacity: .3 } 50% { opacity: 1 } }
+.afv-orb { position: relative; box-shadow: 0 0 10px 2px rgba(233,180,76,.45); }
+.afv-orb::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 0 22px 6px rgba(233,180,76,.75); opacity: .3; animation: afv-orb 1.8s ease-in-out infinite; will-change: opacity; }
+/* Anything scrolled out of view stops animating (set by PauseOffscreen). */
+[data-offscreen], [data-offscreen] *, [data-offscreen] *::before, [data-offscreen] *::after { animation-play-state: paused !important; }
 @media (prefers-reduced-motion: reduce) {
   .afv-cta, .afv-cta::before, .afv-link { transition: none; }
-  .afv-voice > span, .afv-caret, .afv-orb { animation: none; }
+  .afv-voice > span, .afv-caret, .afv-orb::after { animation: none; }
 }
 html[data-reduce-motion="true"] .afv-cta, html[data-reduce-motion="true"] .afv-cta::before, html[data-reduce-motion="true"] .afv-link { transition: none; }
-html[data-reduce-motion="true"] .afv-voice > span, html[data-reduce-motion="true"] .afv-caret, html[data-reduce-motion="true"] .afv-orb { animation: none; }
+html[data-reduce-motion="true"] .afv-voice > span, html[data-reduce-motion="true"] .afv-caret, html[data-reduce-motion="true"] .afv-orb::after { animation: none; }
 `;

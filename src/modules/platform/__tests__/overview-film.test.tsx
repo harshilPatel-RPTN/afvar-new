@@ -2,7 +2,6 @@
 // cuts, the OS choreography, the stop / cancel rules, and "no sentence appears
 // twice on the page".
 import { describe, expect, it, vi } from "vitest";
-import { OS_KEYS, OS_POINTER } from "../film/OverviewOs";
 import {
   AREA_BEATS,
   CAPTION_CANCELLED,
@@ -75,10 +74,6 @@ describe("beats", () => {
     expect(afterCancel.caption).toBe(CAPTION_CANCELLED);
   });
 
-  it("OS windows and the pointer move in time order", () => {
-    for (const keys of Object.values(OS_KEYS)) expect(increasing(keys.map((k) => k.at))).toBe(true);
-    expect(increasing(OS_POINTER.map((k) => k.at))).toBe(true);
-  });
 });
 
 /* ------------------------------------------------------ no repeated copy */

@@ -20,3 +20,4 @@ export { EarthBlock } from "./components/closing/EarthBlock";
 export { EarthHorizon } from "./components/closing/EarthHorizon";
 export { AnimatedBackdrop } from "./components/mac/AnimatedBackdrop";
 export type { BackdropEffect, BackdropTint } from "./components/mac/AnimatedBackdrop";
+export { PfScope } from "./film/pages/PfScope";

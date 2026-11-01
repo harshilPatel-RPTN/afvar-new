@@ -2,7 +2,7 @@
 
 // About and Pricing after their heroes: six OS sections each; the avatar speaks once per page.
 import { Ask, AvatarLine, Chip, Note, OsSection, Row, Win } from "@/modules/afvarOs";
-import { COMPANY_FACTS, ABOUT } from "@/modules/company/kit";
+import { ABOUT, COMPANY_FACTS, CONTACT } from "@/modules/company/kit";
 import { PRICING_FAQS, PRICING_TIERS, PRICING_USAGE } from "@/modules/home/kit";
 import { ChartWin, Para, ScrollSteps } from "./shared";
 
@@ -163,8 +163,13 @@ export function PricingSections() {
           ))}
         </Win>
         <Note at={0.42} x={830} y={20} w={330} title="Placement may change" sub="Final split across tiers is confirmed before launch" />
-        <Win at={0.6} x={830} y={130} w={330} h={200} title="Every tier" glyph="chart">
+        <Win at={0.6} x={830} y={130} w={330} h={260} title="Every tier" glyph="chart">
           <Para>Analysis only. No tier places, changes or closes an order.</Para>
+          <div className="mt-3">
+            <Row k="Labels on every price" v="yes" />
+            <Row k="Broker accounts" v="read-only" />
+            <Row k="English · हिन्दी" v="yes" />
+          </div>
         </Win>
       </OsSection>
 
@@ -177,6 +182,10 @@ export function PricingSections() {
         <Ask at={0.3} x={690} y={20} w={470} text="How many AI questions does Tier 02 include?" />
         <Win at={0.44} x={690} y={84} w={470} h={230} title="Answer" glyph="research" ai>
           <Para>That number is not set yet. It will be on this page, next to the price, before anyone is asked to pay.</Para>
+          <div className="mt-3">
+            <Row k="Status" v="not confirmed" />
+            <Row k="Published" v="before launch" gold />
+          </div>
         </Win>
         <AvatarLine at={0.62} x={720} y={350} text="I will not guess an allowance. When it is confirmed, you will see it here." />
       </OsSection>
@@ -215,6 +224,109 @@ export function PricingSections() {
             </div>
           ))}
         </Win>
+      </OsSection>
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------- Contact */
+
+export function ContactSections() {
+  return (
+    <>
+      <OsSection n={2} label="Two lanes" title="Two lanes in." soft="Pick the right one." body="Enquiries about the company go to the team. Problems with your account or the product go to Help, where they are picked up first." app="Mail">
+        <Win at={0.06} x={40} y={20} w={540} h={330} title="Team · enquiries" glyph="phone">
+          {CONTACT.topics.map((t, i) => (
+            <Row key={t} k={t} v="→ team" gold={i === 0} />
+          ))}
+        </Win>
+        <Win at={0.28} x={620} y={20} w={540} h={330} title="Help · product and account" glyph="settings" ai>
+          <Row k="A code did not arrive" v="→ help" />
+          <Row k="Queue status" v="→ help" />
+          <Row k="A price looks wrong" v="→ help" />
+          <Row k="Workspace will not open" v="→ help" />
+        </Win>
+        <Note at={0.6} x={40} y={380} w={1120} title="One support system" sub="Nothing gets lost between inboxes" />
+      </OsSection>
+
+      <OsSection n={3} label="Routing" title="Not sure which lane?" soft="Ask, and it is routed." body="Describe the problem in a sentence. AFVAR points you to the team or to the exact help topic." app="Mail">
+        <Ask at={0.04} x={40} y={10} w={620} text="my verification code never came" />
+        <Win at={0.16} x={40} y={74} w={620} h={300} title="Routed to Help" glyph="settings" ai>
+          <Row k="Topic" v="A verification code didn’t arrive" gold />
+          <Row k="First check" v="the country code on the number" />
+          <Row k="Then" v="spam and promotions folders" />
+        </Win>
+        <AvatarLine at={0.42} x={720} y={60} text="Account problems are faster through Help. I can take you straight to the right fix." />
+        <Win at={0.62} x={690} y={250} w={470} h={260} title="Still the team’s job" glyph="phone">
+          <Row k="Partnership proposal" v="→ team" />
+          <Row k="Press request" v="→ team" />
+          <Row k="Role you are interested in" v="→ team" />
+        </Win>
+      </OsSection>
+
+      <OsSection n={4} label="Your enquiry" title="Three fields." soft="Nothing more." body="A topic, an email to reply to and your message. No phone number, no documents, no account needed." app="Mail">
+        <Win at={0.06} x={40} y={20} w={640} h={420} title="New enquiry" glyph="phone">
+          <Row k="Topic" v="Partnerships" />
+          <Row k="Email" v="you@company.com" />
+          <div className="mt-3 rounded-lg border border-[rgba(255,255,255,0.12)] p-3 text-[13px] leading-relaxed text-[#C9CFD1]">We run a trading education programme in Pune and would like to talk about using AFVAR with our students after launch.</div>
+          <div className="mt-3 flex gap-2">
+            <Chip tone="sample">Sample enquiry</Chip>
+          </div>
+        </Win>
+        <Win at={0.36} x={710} y={20} w={450} h={300} title="Good to include" glyph="journal">
+          <Row k="Press" v="outlet and deadline" />
+          <Row k="Partnerships" v="who you are, what you propose" />
+          <Row k="Careers" v="the work you want to do" />
+        </Win>
+      </OsSection>
+
+      <OsSection n={5} label="After you send" title="What happens next." soft="Said honestly." body={CONTACT.formNote} app="Mail">
+        <Win at={0.06} x={40} y={20} w={600} h={330} title="Enquiry status" glyph="calendar">
+          <ScrollSteps
+            items={[
+              { label: "Checked", detail: "topic, email, message" },
+              { label: "Kept", detail: "on this device" },
+              { label: "Sent", detail: "when the line opens at launch" },
+              { label: "Answered", detail: "by email, from the team" },
+            ]}
+            at={[0.14, 0.26, 2, 2]}
+          />
+        </Win>
+        <Win at={0.34} x={670} y={20} w={490} h={330} title="No promises we cannot keep" glyph="risk" ai>
+          <Para>No reply times are stated until the team can meet them. Nothing is called delivered before it is.</Para>
+          <div className="mt-3">
+            <Row k="Reply time" v="not stated yet" />
+            <Row k="Your draft" v="stays on this device" gold />
+            <Row k="Marked sent" v="only once it is" />
+          </div>
+        </Win>
+      </OsSection>
+
+      <OsSection n={6} label="Verified details" title="Who you are writing to." soft="Registered facts." body={CONTACT.verified.note} app="Mail">
+        <Win at={0.06} x={40} y={20} w={640} h={300} title="Company" glyph="settings">
+          {COMPANY_FACTS.map(([k, val]) => (
+            <Row key={k} k={k} v={val} />
+          ))}
+        </Win>
+        <Win at={0.34} x={710} y={20} w={450} h={300} title="Direct channels" glyph="phone">
+          <Row k="Email address" v="published once verified" />
+          <Row k="Phone line" v="published once verified" />
+          <div className="mt-3">
+            <Chip tone="delayed">Awaiting verification</Chip>
+          </div>
+        </Win>
+      </OsSection>
+
+      <OsSection n={7} label="Stay safe" title="How to spot a fake AFVAR." soft="Before you reply." body="Anyone can copy a name. These are the things the real team will never do." app="Mail">
+        <Win at={0.06} x={40} y={20} w={720} h={360} title="The AFVAR team never" glyph="risk">
+          {["Asks for money, crypto or payment before launch.", "Asks for passwords, codes or API keys.", "Writes to you first on WhatsApp, Telegram or social media.", "Offers tips, signals or guaranteed returns."].map((n) => (
+            <p key={n} className="flex gap-2.5 border-b border-[rgba(255,255,255,0.06)] py-2.5 text-[13.5px] text-[#F5F7F7] last:border-b-0">
+              <span className="text-[#FF8A8A]">✕</span>
+              {n}
+            </p>
+          ))}
+        </Win>
+        <Note at={0.44} x={790} y={20} w={370} title="Got one of these?" sub="Report it through Help & Support" />
       </OsSection>
     </>
   );
