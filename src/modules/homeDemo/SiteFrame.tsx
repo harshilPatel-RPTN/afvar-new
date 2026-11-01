@@ -1,36 +1,68 @@
-// The AFVAR page frame, identical on every page built in the AI OS theme
-// (home, platform, …): the site-wide navbar with the live ticker under it, the
-// launch reminder, the page, its closing block (usually the earth horizon),
-// the shared footer and the sound switch. Flat dark surfaces only — no glass.
+// The AFVAR page frame, the same as the home page's (HomeDemoPage with
+// responsiveHome): the shared colour field with its quiet stars and drifting
+// +/− marks, the 1440 px frame, the glass menu navigation with the sound switch
+// inside it, the launch reminder, the page, the point-globe closing and the
+// shared footer. Every page outside the home is built on it.
 import type { ReactNode } from "react";
 import { AfvarStyles } from "@/modules/afvarOs";
-import { HOME_SCOPE, HomeStyles } from "@/modules/home/kit";
+import { BTN_PRIMARY, HOME_SCOPE, HomeStyles } from "@/modules/home/kit";
 import { SiteFooter, SiteNav } from "@/modules/markets";
-import { DemoHeader } from "./DemoHeader";
+import { GlobeClosing } from "./GlobeClosing";
+import { HomeAmbient } from "./HomeAmbient";
 import { HomeSoundToggle } from "./HomeSoundToggle";
 import { LaunchReminder } from "./LaunchReminder";
 import { PauseOffscreen } from "./PauseOffscreen";
-import { DEMO_CSS } from "./ui";
+import { DEMO_CSS, REGISTER_HREF } from "./ui";
+import "./home-layout.css";
 
 export function SiteFrame({ children, closing }: { children: ReactNode; closing?: ReactNode }) {
   return (
-    <div data-site-frame="" className={`${HOME_SCOPE} min-h-svh bg-[#050607] text-[#F5F7F7]`}>
-      <HomeStyles />
-      <style>{DEMO_CSS}</style>
-      <AfvarStyles />
-      {/* The site-wide navbar (same as every page), with the live ticker under it. */}
-      <SiteNav />
-      <DemoHeader />
-      <LaunchReminder />
+    <div className="afvar-home-backdrop">
+      <HomeAmbient />
+      <div data-site-frame="" className={`${HOME_SCOPE} afvar-responsive-home min-h-svh text-(--afvar-text)`}>
+        <HomeStyles />
+        <style>{DEMO_CSS}</style>
+        <AfvarStyles />
+        <SiteNav menuOnly>
+          <HomeSoundToggle inMenu />
+        </SiteNav>
+        <LaunchReminder />
 
-      <main>{children}</main>
+        <main>{children}</main>
 
-      {closing ? <div data-site-closing="">{closing}</div> : null}
-      <SiteFooter />
-
-      {/* The site-wide sound switch (same as every page); drives the page's audio engine too. */}
-      <HomeSoundToggle />
-      <PauseOffscreen />
+        {closing ? (
+          <div data-site-closing="">
+            <GlobeClosing>{closing}</GlobeClosing>
+          </div>
+        ) : null}
+        <SiteFooter />
+        <PauseOffscreen />
+      </div>
     </div>
+  );
+}
+
+/**
+ * The closing copy beside the globe, set like the home's: the headline (the
+ * globe reads it by id), then Register Now and an optional second link.
+ */
+export function ClosingCopy({ title, soft, lede, second }: { title: string; soft?: string; lede?: string; second?: { label: string; href: string } }) {
+  return (
+    <>
+      <h2 id="demo-closing-title" className="text-[clamp(2.1rem,4.2vw,3.5rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-(--afvar-text)">
+        {title} {soft ? <span className="text-(--afvar-muted)">{soft}</span> : null}
+      </h2>
+      {lede ? <p className="mt-5 max-w-lg text-[16px] leading-relaxed text-(--afvar-muted)">{lede}</p> : null}
+      <div className="mt-9 flex flex-wrap items-center gap-4 max-[700px]:justify-center">
+        <a href={REGISTER_HREF} className={BTN_PRIMARY}>
+          Register Now
+        </a>
+        {second ? (
+          <a href={second.href} className="afvar-glass-button inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-[14.5px] font-medium">
+            {second.label}
+          </a>
+        ) : null}
+      </div>
+    </>
   );
 }

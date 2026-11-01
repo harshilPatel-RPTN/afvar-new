@@ -29,26 +29,26 @@ export function CapHeroCopy({ t, compact = false }: { t: CapHeroText; compact?: 
   return (
     <div>
       {t.crumb ? (
-        <nav aria-label="Breadcrumb" className={`${MONO} mb-3 flex flex-wrap gap-1.5 text-[#6D7578]`}>
+        <nav aria-label="Breadcrumb" className={`${MONO} mb-3 flex flex-wrap gap-1.5 text-[#92A399]`}>
           {t.crumb.map((c, i) => (
             <span key={c.label} className="flex gap-1.5">
               {i ? <span aria-hidden="true">/</span> : null}
               {c.href ? (
-                <Link href={c.href} prefetch={false} className="inline-flex min-h-6 items-center hover:text-[#F5F7F7]">
+                <Link href={c.href} prefetch={false} className="inline-flex min-h-6 items-center hover:text-[#F2F5F2]">
                   {c.label}
                 </Link>
               ) : (
-                <span className="inline-flex min-h-6 items-center text-[#A3AAAC]">{c.label}</span>
+                <span className="inline-flex min-h-6 items-center text-[#B7C5BC]">{c.label}</span>
               )}
             </span>
           ))}
         </nav>
       ) : null}
       <p className={EYEBROW}>{t.eyebrow}</p>
-      <h1 className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F5F7F7]" : `mt-5 ${H1}`}>
-        {t.title} <span className="text-[#E9B44C]">{t.gold}</span>
+      <h1 className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]" : `mt-5 ${H1}`}>
+        {t.title} <span className="text-[#A8DEC2]">{t.gold}</span>
       </h1>
-      <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#A3AAAC]" : `mt-6 max-w-[31rem] ${BODY}`}>{compact ? t.short : t.body}</p>
+      <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#B7C5BC]" : `mt-6 max-w-[31rem] ${BODY}`}>{compact ? t.short : t.body}</p>
       <div className={`${compact ? "mt-5" : "mt-8"} flex flex-wrap items-center gap-5`}>
         <Link href={REGISTER_URL} prefetch={false} className={GOLD_CTA}>
           Register Now
@@ -59,7 +59,7 @@ export function CapHeroCopy({ t, compact = false }: { t: CapHeroText; compact?: 
       </div>
       <div className={`${compact ? "mt-5 pt-3" : "mt-10 pt-5"} flex flex-wrap items-center gap-x-6 gap-y-2 border-t ${HAIR}`}>
         {t.facts.map((f, i) => (
-          <span key={f} className={`${MONO} flex items-center gap-2 ${i === 0 ? "text-[#E9B44C]" : "text-[#6D7578]"}`}>
+          <span key={f} className={`${MONO} flex items-center gap-2 ${i === 0 ? "text-[#A8DEC2]" : "text-[#92A399]"}`}>
             {i === 0 ? <AiOrb size={8} /> : null}
             {f}
           </span>

@@ -44,11 +44,11 @@ function SpeakOrType() {
       <Win at={0.06} x={40} y={30} w={540} h={290} title="Voice · listening" glyph="phone" ai>
         <div className="afv-voice flex h-12 items-center gap-[3px]" aria-hidden="true">
           {Array.from({ length: 44 }, (_, i) => (
-            <span key={i} className="w-[4px] rounded-full bg-[#E9B44C]" style={{ height: 8 + Math.round(30 * Math.abs(Math.sin(i * 0.7) * Math.cos(i * 0.23))), animationDelay: `${(i % 7) * 0.09}s` }} />
+            <span key={i} className="w-[4px] rounded-full bg-[#A8DEC2]" style={{ height: 8 + Math.round(30 * Math.abs(Math.sin(i * 0.7) * Math.cos(i * 0.23))), animationDelay: `${(i % 7) * 0.09}s` }} />
           ))}
         </div>
-        <p className="mt-4 text-[16px] text-[#F5F7F7]">“गोल्ड का एक घंटे वाला चार्ट खोलो”</p>
-        <p className="mt-2 font-mono text-[11px] tracking-[0.1em] text-[#E9B44C]">UNDERSTOOD · OPEN THE GOLD CHART, 1H</p>
+        <p className="mt-4 text-[16px] text-[#F2F5F2]">“गोल्ड का एक घंटे वाला चार्ट खोलो”</p>
+        <p className="mt-2 font-mono text-[11px] tracking-[0.1em] text-[#A8DEC2]">UNDERSTOOD · OPEN THE GOLD CHART, 1H</p>
         <div className="mt-4 flex gap-2">
           <Chip tone="gold">हिन्दी</Chip>
           <Chip>Stop anytime</Chip>
@@ -116,7 +116,7 @@ function Workspace() {
     <OsSection n={6} label="Workspace" title="It remembers how you work." soft="Layouts, notes, languages." body="Save a layout, switch spaces and come back to it. Pin notes to charts. Connections are listed, and read-only." app="Workspace" active="charts">
       <ChartWin k="XAUUSD" at={0.06} x={40} y={20} w={560} h={340} />
       <Win at={0.18} x={640} y={20} w={520} h={180} title="Layouts" glyph="layouts">
-        <Row k="Morning desk" v={<span className="text-[#E9B44C]">✓ saved 08:12</span>} />
+        <Row k="Morning desk" v={<span className="text-[#A8DEC2]">✓ saved 08:12</span>} />
         <Row k="News check" v="saved 07:40" />
       </Win>
       <Win at={0.34} x={360} y={300} w={300} h={110} title="Note · Gold" glyph="journal">
@@ -129,9 +129,9 @@ function Workspace() {
       <Win at={0.66} x={640} y={380} w={520} h={130} title="Language" glyph="settings">
         <div className="flex items-center gap-3">
           <Chip>EN</Chip>
-          <span className="text-[#E9B44C]">⇄</span>
+          <span className="text-[#A8DEC2]">⇄</span>
           <Chip tone="gold">हिन्दी</Chip>
-          <span className="text-[12px] text-[#A3AAAC]">menus switch, your layout stays</span>
+          <span className="text-[12px] text-[#B7C5BC]">menus switch, your layout stays</span>
         </div>
       </Win>
     </OsSection>
@@ -142,11 +142,11 @@ function QuoteWin({ k, at, x, y, label }: { k: string; at: number; x: number; y:
   const q = useQuote(k);
   return (
     <Win at={at} x={x} y={y} w={270} h={160} title={label ?? k} glyph="chart">
-      <p className="text-[22px] font-semibold text-[#F5F7F7]">{q ? q.last.toLocaleString("en-US", { minimumFractionDigits: q.decimals, maximumFractionDigits: q.decimals }) : "—"}</p>
+      <p className="text-[22px] font-semibold text-[#F2F5F2]">{q ? q.last.toLocaleString("en-US", { minimumFractionDigits: q.decimals, maximumFractionDigits: q.decimals }) : "—"}</p>
       <div className="my-2">
         <StatusChip q={q} />
       </div>
-      <p className="truncate font-mono text-[10.5px] text-[#A3AAAC]">{sourceLine(q)}</p>
+      <p className="truncate font-mono text-[10.5px] text-[#B7C5BC]">{sourceLine(q)}</p>
     </Win>
   );
 }
@@ -158,11 +158,11 @@ function Trust() {
       <QuoteWin k="WTI" at={0.14} x={330} y={20} label="Crude oil" />
       <QuoteWin k="EURUSD" at={0.22} x={40} y={200} label="EUR/USD" />
       <Win at={0.3} x={330} y={200} w={270} h={160} title="Sample chart" glyph="chart">
-        <p className="text-[22px] font-semibold text-[#A3AAAC]">—</p>
+        <p className="text-[22px] font-semibold text-[#B7C5BC]">—</p>
         <div className="my-2">
           <Chip tone="sample">Sample</Chip>
         </div>
-        <p className="font-mono text-[10.5px] text-[#A3AAAC]">illustration · not live</p>
+        <p className="font-mono text-[10.5px] text-[#B7C5BC]">illustration · not live</p>
       </Win>
       <Win at={0.42} x={640} y={20} w={520} h={300} title="What AFVAR promises" glyph="risk" ai>
         <Row k="✓ Never places, changes or closes orders" />
@@ -198,12 +198,12 @@ function FiveAreas() {
         <ul aria-label="Capability pages">
           {AREAS.map((a) => (
             <li key={a.slug} className="border-b border-[rgba(255,255,255,0.06)] last:border-b-0">
-              <Link href={capabilityPath(a.slug)} className="flex items-center justify-between py-2.5 text-[13px] text-[#F5F7F7] hover:text-[#E9B44C]">
-                <span className="flex items-center gap-2.5 text-[#E9B44C]">
+              <Link href={capabilityPath(a.slug)} className="flex items-center justify-between py-2.5 text-[13px] text-[#F2F5F2] hover:text-[#A8DEC2]">
+                <span className="flex items-center gap-2.5 text-[#A8DEC2]">
                   <AppGlyph name={a.glyph} size={15} />
-                  <span className="text-[#F5F7F7]">{a.name}</span>
+                  <span className="text-[#F2F5F2]">{a.name}</span>
                 </span>
-                <span className="font-mono text-[11px] text-[#A3AAAC]">{a.line} →</span>
+                <span className="font-mono text-[11px] text-[#B7C5BC]">{a.line} →</span>
               </Link>
             </li>
           ))}

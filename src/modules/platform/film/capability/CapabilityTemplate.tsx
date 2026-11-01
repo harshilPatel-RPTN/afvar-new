@@ -1,9 +1,6 @@
 import type { ReactNode } from "react";
-import { GHOST_LINK } from "@/modules/afvarOs";
-import { BTN_PRIMARY } from "@/modules/home/kit";
-import { SiteFrame } from "@/modules/homeDemo";
-import { EarthHorizon } from "../../components/closing/EarthHorizon";
-import { REGISTER_URL, pathOf } from "../../routes";
+import { ClosingCopy, SiteFrame } from "@/modules/homeDemo";
+import { pathOf } from "../../routes";
 import type { Capability } from "../../types";
 import { FeatureJumpGrid, NotesAndRelated, OtherAreas, OutcomeLine } from "./sections";
 
@@ -35,23 +32,7 @@ export function CapabilityTemplate({
 }) {
   return (
     <SiteFrame
-      closing={
-        <EarthHorizon labelledBy="capability-closing-title">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 id="capability-closing-title" className="text-[clamp(2.1rem,4.2vw,3.5rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-[#F5F7F7]">
-              Join before launch. <span className="text-[#A3AAAC]">{closing}</span>
-            </h2>
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-6">
-              <a href={REGISTER_URL} className={BTN_PRIMARY}>
-                Register Now
-              </a>
-              <a href={pathOf("platform")} className={GHOST_LINK}>
-                Platform overview
-              </a>
-            </div>
-          </div>
-        </EarthHorizon>
-      }
+      closing={<ClosingCopy title="Join before launch." soft={closing} second={{ label: "Platform overview", href: pathOf("platform") }} />}
     >
       {film}
       <FeatureJumpGrid capability={capability} filmId={filmId} actOf={actOf} />

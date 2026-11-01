@@ -51,7 +51,7 @@ export function OsCaption({ text }: { text: ActText }) {
         <h2 className={`${H_OS} xl:max-w-[62%] xl:shrink-0`}>
           {text.title} <span className={SOFT}>{text.soft}</span>
         </h2>
-        <p className="mt-1.5 line-clamp-2 max-w-[44rem] text-[13.5px] leading-snug text-[#A3AAAC] xl:mt-0 xl:line-clamp-3 xl:min-w-[15rem] xl:max-w-[34rem] xl:flex-1 xl:text-[14px]">{text.body}</p>
+        <p className="mt-1.5 line-clamp-2 max-w-[44rem] text-[13.5px] leading-snug text-[#B7C5BC] xl:mt-0 xl:line-clamp-3 xl:min-w-[15rem] xl:max-w-[34rem] xl:flex-1 xl:text-[14px]">{text.body}</p>
       </div>
     </div>
   );

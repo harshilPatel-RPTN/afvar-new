@@ -133,10 +133,10 @@ function HeatTiles({ quotes }: { quotes: Quotes }) {
         return (
           <group key={key} ref={(el) => void (groups.current[i] = el)} visible={false}>
             <RoundedBox args={[0.5, 0.5, 0.08]} radius={0.08} smoothness={4}>
-              <meshStandardMaterial color="#0F1214" metalness={0.5} roughness={0.4} emissive={up ? COLORS.up : COLORS.down} emissiveIntensity={0.12 + 0.55 * heat} />
+              <meshStandardMaterial color="#10231B" metalness={0.5} roughness={0.4} emissive={up ? COLORS.up : COLORS.down} emissiveIntensity={0.12 + 0.55 * heat} />
             </RoundedBox>
             <Html center position={[0, 0, 0.06]} portal={labels as RefObject<HTMLElement>} zIndexRange={[19, 0]} style={{ pointerEvents: "none" }}>
-              <div ref={(el) => void (icons.current[i] = el)} style={{ opacity: 0 }} className="text-center font-mono leading-tight text-[#F5F7F7]">
+              <div ref={(el) => void (icons.current[i] = el)} style={{ opacity: 0 }} className="text-center font-mono leading-tight text-[#F2F5F2]">
                 <span className="block text-[9.5px] tracking-[0.08em]">{SHORT3[key]}</span>
                 <span className="block text-[8.5px] text-[#C9CFD1]">{q ? signedPct(q.changePct, 1) : ""}</span>
               </div>

@@ -71,15 +71,15 @@ export function OsSection({
       <p className={EYEBROW}>
         {String(n).padStart(2, "0")} · {label}
       </p>
-      <h2 id={`${id}-t`} className="mt-3 text-[clamp(1.7rem,2.6vw,2.6rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-[#F5F7F7]">
-        {title} {soft ? <span className="text-[#A3AAAC]">{soft}</span> : null}
+      <h2 id={`${id}-t`} className="mt-3 text-[clamp(1.7rem,2.6vw,2.6rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-[#F2F5F2]">
+        {title} {soft ? <span className="text-[#B7C5BC]">{soft}</span> : null}
       </h2>
-      {body ? <p className="mt-3 max-w-[40rem] text-[15px] leading-relaxed text-[#A3AAAC]">{body}</p> : null}
+      {body ? <p className="mt-3 max-w-[40rem] text-[15px] leading-relaxed text-[#B7C5BC]">{body}</p> : null}
     </header>
   );
   return (
     <Ctx.Provider value={{ p: scrollYProgress, mode }}>
-      <section ref={ref} id={id} aria-labelledby={`${id}-t`} className="relative bg-[#050607]" style={mode === "desk" ? { height: `${vh}vh` } : undefined}>
+      <section ref={ref} id={id} aria-labelledby={`${id}-t`} className="relative bg-transparent" style={mode === "desk" ? { height: `${vh}vh` } : undefined}>
         {mode === "desk" ? (
           <div className="sticky top-0 h-svh overflow-hidden">
             <div className="absolute left-[4vw] right-[4vw] top-[96px]">{caption}</div>
@@ -178,10 +178,10 @@ export function Ask({ at = 0, x = 40, y = 16, w = 560, text, voice = false }: { 
         {mode === "stack" ? text : ""}
       </span>
       <span className="afv-caret" aria-hidden="true" />
-      <span className="ml-auto font-mono text-[10px] tracking-[0.1em] text-[#6D7578]">{voice ? "VOICE" : "↵"}</span>
+      <span className="ml-auto font-mono text-[10px] tracking-[0.1em] text-[#92A399]">{voice ? "VOICE" : "↵"}</span>
     </>
   );
-  const cls = "flex items-center gap-2.5 rounded-xl border border-[rgba(233,180,76,0.55)] bg-[rgba(15,18,20,0.97)] px-3.5 py-2.5 text-[14px] text-[#F5F7F7] shadow-[0_10px_30px_rgba(0,0,0,0.5)]";
+  const cls = "flex items-center gap-2.5 rounded-xl border border-[rgba(168,222,194,0.55)] bg-[rgba(15,18,20,0.97)] px-3.5 py-2.5 text-[14px] text-[#F2F5F2] shadow-[0_10px_30px_rgba(0,0,0,0.5)]";
   if (mode === "stack") return <div className={cls}>{inner}</div>;
   return (
     <motion.div className={`absolute z-30 ${cls}`} style={{ left: x, top: y, width: w, opacity, y: rise }}>
@@ -196,11 +196,11 @@ export function Note({ at = 0, x = 820, y = 20, w = 340, title, sub }: { at?: nu
   const { opacity, y: rise } = useAppear(at);
   const inner = (
     <>
-      <b className="block text-[13px] font-semibold text-[#F5F7F7]">{title}</b>
-      {sub ? <span className="mt-0.5 block font-mono text-[10px] tracking-[0.06em] text-[#A3AAAC]">{sub}</span> : null}
+      <b className="block text-[13px] font-semibold text-[#F2F5F2]">{title}</b>
+      {sub ? <span className="mt-0.5 block font-mono text-[10px] tracking-[0.06em] text-[#B7C5BC]">{sub}</span> : null}
     </>
   );
-  const cls = "rounded-[10px] border border-[rgba(233,180,76,0.5)] bg-[#15191B] px-3 py-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]";
+  const cls = "rounded-[10px] border border-[rgba(168,222,194,0.5)] bg-[#10231B] px-3 py-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]";
   if (mode === "stack") return <div className={cls}>{inner}</div>;
   return (
     <motion.div className={`absolute z-30 ${cls}`} style={{ left: x, top: y, width: w, opacity, y: rise }}>
@@ -215,9 +215,9 @@ export function AvatarLine({ at = 0, x = 760, y = 400, text }: { at?: number; x?
   const { opacity, y: rise } = useAppear(at);
   const inner = (
     <>
-      <span className="max-w-[260px] rounded-[12px_12px_2px_12px] border border-[rgba(233,180,76,0.5)] bg-[#141006] px-3 py-2 text-[13px] text-[#F5F7F7]">{text}</span>
+      <span className="max-w-[260px] rounded-[12px_12px_2px_12px] border border-[rgba(168,222,194,0.5)] bg-[#10231B] px-3 py-2 text-[13px] text-[#F2F5F2]">{text}</span>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/avatar/launcher.png" alt="AFVAR avatar" width={60} height={60} className="h-[60px] w-[60px] rounded-full border border-[rgba(0,230,118,0.35)] bg-[#0F1214]" />
+      <img src="/avatar/launcher.png" alt="AFVAR avatar" width={60} height={60} className="h-[60px] w-[60px] rounded-full border border-[rgba(0,230,118,0.35)] bg-[#10231B]" />
     </>
   );
   if (mode === "stack") return <div className="flex items-end justify-end gap-2">{inner}</div>;
@@ -232,9 +232,9 @@ export function AvatarLine({ at = 0, x = 760, y = 400, text }: { at?: number; x?
 export function DeskLabel({ at = 0, x, y, children }: { at?: number; x: number; y: number; children: ReactNode }) {
   const { mode } = useSection();
   const { opacity } = useAppear(at);
-  if (mode === "stack") return <p className={`${MONO} text-[#E9B44C]`}>{children}</p>;
+  if (mode === "stack") return <p className={`${MONO} text-[#A8DEC2]`}>{children}</p>;
   return (
-    <motion.span className={`${MONO} absolute text-[#E9B44C]`} style={{ left: x, top: y, opacity }}>
+    <motion.span className={`${MONO} absolute text-[#A8DEC2]`} style={{ left: x, top: y, opacity }}>
       {children}
     </motion.span>
   );

@@ -59,15 +59,15 @@ function ResearchFan() {
         <group key={i} position={[-1.4 + i * 0.22, -0.1 - i * 0.05, -0.3 + i * 0.12]} rotation={[Math.PI / 2, 0, r]}>
           <GlassPlate width={1.3} depth={1.7} thickness={0.03} radius={0.06} edge={0.45} />
           {[0.5, 0.3, 0.1, -0.1, -0.3].map((y, k) => (
-            <GlowLine key={k} points={[v(-0.45, 0.03, -y), v(k === 2 - (i % 3) ? 0.45 : 0.3, 0.03, -y)]} color={k === 2 - (i % 3) ? COLORS.gold : "#3A4044"} intensity={k === 2 - (i % 3) ? 1.3 : 1} width={k === 2 - (i % 3) ? 1.6 : 1} />
+            <GlowLine key={k} points={[v(-0.45, 0.03, -y), v(k === 2 - (i % 3) ? 0.45 : 0.3, 0.03, -y)]} color={k === 2 - (i % 3) ? COLORS.gold : "#2A3F35"} intensity={k === 2 - (i % 3) ? 1.3 : 1} width={k === 2 - (i % 3) ? 1.6 : 1} />
           ))}
         </group>
       ))}
       <group position={[1.35, 0, 0.3]} rotation={[Math.PI / 2, 0, 0]}>
-        <GlassPlate width={1.5} depth={1.9} thickness={0.04} radius={0.08} edge={0.85} tint="#141109" opacity={0.75} />
+        <GlassPlate width={1.5} depth={1.9} thickness={0.04} radius={0.08} edge={0.85} tint="#0E1F17" opacity={0.75} />
         <GlowLine points={[v(-0.5, 0.03, -0.7), v(0.5, 0.03, -0.7)]} color={COLORS.gold} intensity={1.2} width={3} />
         {[-0.35, -0.1, 0.15, 0.4].map((y, k) => (
-          <GlowLine key={k} points={[v(-0.5, 0.03, y), v(0.45, 0.03, y)]} color="#4A5155" intensity={1} width={1.2} />
+          <GlowLine key={k} points={[v(-0.5, 0.03, y), v(0.45, 0.03, y)]} color="#355445" intensity={1} width={1.2} />
         ))}
       </group>
       {threads.map((p, i) => (
@@ -102,7 +102,7 @@ function AlertLevels() {
     <group position={[0.3, -0.1, 0]} rotation={[0.35, -0.3, 0]} scale={0.82}>
       {[-0.9, 0, 0.9].map((y, i) => (
         <group key={y} position={[0, y, 0]}>
-          <GlassPlate width={5} depth={1.6} thickness={0.03} radius={0.08} edge={i === 1 ? 0.95 : 0.3} edgeColor={i === 1 ? COLORS.gold : "#6D7578"} tint={i === 1 ? "#141109" : "#0A0D0F"} opacity={i === 1 ? 0.55 : 0.35} />
+          <GlassPlate width={5} depth={1.6} thickness={0.03} radius={0.08} edge={i === 1 ? 0.95 : 0.3} edgeColor={i === 1 ? COLORS.gold : "#92A399"} tint={i === 1 ? "#0E1F17" : "#06110C"} opacity={i === 1 ? 0.55 : 0.35} />
         </group>
       ))}
       <GlowLine points={line} color={COLORS.ink} intensity={1.2} width={2} />
@@ -116,7 +116,7 @@ function AlertLevels() {
         <AiSpark size={0.07} />
       </group>
       <group position={[1.3, 1.4, 0.2]} rotation={[Math.PI / 2 + 0.35, 0, 0]}>
-        <GlassPlate width={1.3} depth={0.45} thickness={0.03} radius={0.1} edge={0.9} tint="#0B0E10" opacity={0.85} />
+        <GlassPlate width={1.3} depth={0.45} thickness={0.03} radius={0.1} edge={0.9} tint="#06110C" opacity={0.85} />
         <GlowLine points={[v(-0.45, 0.03, -0.08), v(0.35, 0.03, -0.08)]} color={COLORS.gold} intensity={1.2} width={2.4} />
       </group>
     </group>
@@ -128,7 +128,7 @@ const TRADES = [0.9, -0.5, 1.3, 0.5, -0.8, -1.0, 0.7, 1.5, -0.4, 1.1, -0.6, 0.8]
 function RiskTimeline() {
   return (
     <group position={[0.5, -0.25, 0]} rotation={[0.25, -0.4, 0]} scale={0.7}>
-      <GlowLine points={[v(-2.6, 0, 0), v(2.6, 0, 0)]} color="#6D7578" intensity={1} width={1.2} />
+      <GlowLine points={[v(-2.6, 0, 0), v(2.6, 0, 0)]} color="#92A399" intensity={1} width={1.2} />
       {TRADES.map((r, i) => {
         const h = Math.abs(r);
         const up = r >= 0;
@@ -141,7 +141,7 @@ function RiskTimeline() {
       })}
       <GlowLine points={[v(-2.6, -1.35, 0), v(2.6, -1.35, 0)]} color={COLORS.gold} intensity={1.2} width={1.4} dashed dashSize={0.12} gapSize={0.08} />
       <group position={[0.85, 2.15, 0]} rotation={[Math.PI / 2 + 0.25, 0, 0]}>
-        <GlassPlate width={1.4} depth={0.6} thickness={0.03} radius={0.08} edge={0.6} tint="#0B0E10" opacity={0.85} />
+        <GlassPlate width={1.4} depth={0.6} thickness={0.03} radius={0.08} edge={0.6} tint="#06110C" opacity={0.85} />
         <GlowLine points={[v(-0.5, 0.03, -0.12), v(0.4, 0.03, -0.12)]} color={COLORS.gold} intensity={1.1} width={2} />
       </group>
       <group position={[0.64, 1.8, 0.1]} rotation={face(0.25, -0.4)}>
@@ -170,7 +170,7 @@ function CommunityRooms() {
       {[1, 3].map((k, i) => (
         <group key={k} position={[NODES[k].x, 1.0 + i * 0.25, NODES[k].z]} rotation={face(0.45, -0.3)}>
           <group rotation={[Math.PI / 2, 0, 0]}>
-            <GlassPlate width={1.1} depth={0.65} thickness={0.03} radius={0.08} edge={0.85} tint="#0B0E10" opacity={0.85} />
+            <GlassPlate width={1.1} depth={0.65} thickness={0.03} radius={0.08} edge={0.85} tint="#06110C" opacity={0.85} />
           </group>
           <GlowLine points={[v(-0.4, -0.15, 0.03), v(-0.2, -0.02, 0.03), v(0, -0.08, 0.03), v(0.2, 0.1, 0.03), v(0.4, 0.05, 0.03)]} color={COLORS.gold} intensity={1.2} width={1.6} />
         </group>

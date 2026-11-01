@@ -11,7 +11,7 @@ import "../resources.css";
 export function ResourcesFrame({ children }: { children: ReactNode }) {
   return (
     <SiteFrame>
-      <PfScope className="rs-theme overflow-x-clip bg-[#050607] pb-10 pt-[72px]">{children}</PfScope>
+      <PfScope className="rs-theme overflow-x-clip bg-transparent pb-10 pt-[72px]">{children}</PfScope>
     </SiteFrame>
   );
 }

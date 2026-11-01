@@ -25,7 +25,7 @@ export interface ChartLevel2 {
 
 const UP = "#00E676";
 const DOWN = "#FF4D4D";
-const TONE = { gold: "#E9B44C", ink: "#C9CFD1", up: "#00E676", down: "#FF6B6B" } as const;
+const TONE = { gold: "#A8DEC2", ink: "#C9CFD1", up: "#00E676", down: "#FF6B6B" } as const;
 
 export function CandleChart({
   candles,
@@ -89,7 +89,7 @@ export function CandleChart({
   const reveal = draw ?? one;
   if (candles.length < 2) {
     return (
-      <div className="grid h-full min-h-[120px] place-items-center font-mono text-[11px] uppercase tracking-[0.14em] text-[#6D7578]">
+      <div className="grid h-full min-h-[120px] place-items-center font-mono text-[11px] uppercase tracking-[0.14em] text-[#92A399]">
         Waiting for candles from the feed
       </div>
     );
@@ -121,14 +121,14 @@ export function CandleChart({
           <g key={k}>
             <line x1={0} x2={width - R} y1={Y(v)} y2={Y(v)} stroke="rgba(255,255,255,0.055)" />
             {priceAxis ? (
-              <text x={width - R + 6} y={Y(v) + 3} fill="#6D7578" fontFamily="var(--font-mono, monospace)" fontSize={9}>
+              <text x={width - R + 6} y={Y(v) + 3} fill="#92A399" fontFamily="var(--font-mono, monospace)" fontSize={9}>
                 {fmt(v)}
               </text>
             ) : null}
           </g>
         );
       })}
-      {band ? <rect x={X(band[0]) - step / 2} y={T} width={X(band[1]) - X(band[0]) + step} height={height - T - B} fill="rgba(233,180,76,0.09)" stroke="rgba(233,180,76,0.45)" strokeDasharray="3 3" /> : null}
+      {band ? <rect x={X(band[0]) - step / 2} y={T} width={X(band[1]) - X(band[0]) + step} height={height - T - B} fill="rgba(168,222,194,0.09)" stroke="rgba(168,222,194,0.45)" strokeDasharray="3 3" /> : null}
       {candles.map((k, i) => {
         const up = k.c >= k.o;
         const col = up ? UP : DOWN;
@@ -144,7 +144,7 @@ export function CandleChart({
       })}
       <motion.g style={{ opacity: reveal }}>
         {avg.map((a) => (
-          <polyline key={a.len} points={a.pts} fill="none" stroke="#E9B44C" strokeWidth={1.5} strokeDasharray={a.dash ? "4 3" : undefined} />
+          <polyline key={a.len} points={a.pts} fill="none" stroke="#A8DEC2" strokeWidth={1.5} strokeDasharray={a.dash ? "4 3" : undefined} />
         ))}
         {levels.map((l) => {
           const c = TONE[l.tone ?? "gold"];
@@ -162,7 +162,7 @@ export function CandleChart({
             </g>
           );
         })}
-        {trend ? <line x1={X(trend[0][0])} y1={Y(trend[0][1])} x2={X(trend[1][0])} y2={Y(trend[1][1])} stroke="#E9B44C" strokeWidth={1.8} /> : null}
+        {trend ? <line x1={X(trend[0][0])} y1={Y(trend[0][1])} x2={X(trend[1][0])} y2={Y(trend[1][1])} stroke="#A8DEC2" strokeWidth={1.8} /> : null}
       </motion.g>
       {marks.map((m) => {
         const k = candles[m.i];
@@ -171,9 +171,9 @@ export function CandleChart({
         const y = buy ? Y(k.l) + 12 : Y(k.h) - 12;
         return (
           <g key={`${m.i}-${m.side}`}>
-            <path d={`M${X(m.i) - 5} ${buy ? y + 6 : y - 6} L${X(m.i)} ${y} L${X(m.i) + 5} ${buy ? y + 6 : y - 6}`} fill="none" stroke="#F5F7F7" strokeWidth={1.8} />
+            <path d={`M${X(m.i) - 5} ${buy ? y + 6 : y - 6} L${X(m.i)} ${y} L${X(m.i) + 5} ${buy ? y + 6 : y - 6}`} fill="none" stroke="#F2F5F2" strokeWidth={1.8} />
             {m.label ? (
-              <text x={X(m.i) + 8} y={buy ? y + 10 : y - 4} fill="#F5F7F7" fontFamily="var(--font-mono, monospace)" fontSize={9}>
+              <text x={X(m.i) + 8} y={buy ? y + 10 : y - 4} fill="#F2F5F2" fontFamily="var(--font-mono, monospace)" fontSize={9}>
                 {m.label}
               </text>
             ) : null}
@@ -184,7 +184,7 @@ export function CandleChart({
         <g>
           <line x1={X(cross)} x2={X(cross)} y1={T} y2={height - B} stroke="rgba(255,255,255,0.35)" strokeDasharray="3 3" />
           <line x1={4} x2={width - R} y1={Y(candles[cross].c)} y2={Y(candles[cross].c)} stroke="rgba(255,255,255,0.35)" strokeDasharray="3 3" />
-          <rect x={10} y={T + 4} width={290} height={18} rx={3} fill="#0B0E10" stroke="rgba(255,255,255,0.14)" />
+          <rect x={10} y={T + 4} width={290} height={18} rx={3} fill="#06110C" stroke="rgba(255,255,255,0.14)" />
           <text x={16} y={T + 16} fill="#C9CFD1" fontFamily="var(--font-mono, monospace)" fontSize={9.5}>
             O {fmt(candles[cross].o)} H {fmt(candles[cross].h)} L {fmt(candles[cross].l)} C {fmt(candles[cross].c)}
           </text>
@@ -192,9 +192,9 @@ export function CandleChart({
       ) : null}
       {event && candles[event.i] ? (
         <g>
-          <line x1={X(event.i)} x2={X(event.i)} y1={T} y2={height - B} stroke="#E9B44C" strokeWidth={1.2} />
-          <rect x={X(event.i) - 30} y={T} width={60} height={15} rx={3} fill="#E9B44C" />
-          <text x={X(event.i)} y={T + 11} textAnchor="middle" fill="#1A1206" fontFamily="var(--font-mono, monospace)" fontSize={9}>
+          <line x1={X(event.i)} x2={X(event.i)} y1={T} y2={height - B} stroke="#A8DEC2" strokeWidth={1.2} />
+          <rect x={X(event.i) - 30} y={T} width={60} height={15} rx={3} fill="#A8DEC2" />
+          <text x={X(event.i)} y={T + 11} textAnchor="middle" fill="#06110C" fontFamily="var(--font-mono, monospace)" fontSize={9}>
             {event.label}
           </text>
         </g>
@@ -202,7 +202,7 @@ export function CandleChart({
       {priceAxis ? (
         <g>
           <rect x={width - R + 2} y={Y(tagV) - 8} width={R - 4} height={16} rx={2} fill={tagV >= lastC.o ? UP : DOWN} />
-          <text x={width - R + 6} y={Y(tagV) + 3} fill="#050607" fontFamily="var(--font-mono, monospace)" fontSize={9} fontWeight={700}>
+          <text x={width - R + 6} y={Y(tagV) + 3} fill="#040404" fontFamily="var(--font-mono, monospace)" fontSize={9} fontWeight={700}>
             {fmt(tagV)}
           </text>
         </g>
@@ -211,7 +211,7 @@ export function CandleChart({
         ? [0, 1, 2, 3].map((k) => {
             const i = Math.round(((n - 1) * (k + 0.5)) / 4);
             return (
-              <text key={k} x={X(i)} y={height - 4} textAnchor="middle" fill="#6D7578" fontFamily="var(--font-mono, monospace)" fontSize={9}>
+              <text key={k} x={X(i)} y={height - 4} textAnchor="middle" fill="#92A399" fontFamily="var(--font-mono, monospace)" fontSize={9}>
                 {hours(i)}
               </text>
             );

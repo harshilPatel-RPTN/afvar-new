@@ -32,7 +32,7 @@ export function AboutSections() {
         <Ask at={0.3} x={670} y={20} w={490} text="सोने में आज क्या बदला?" />
         <Win at={0.42} x={670} y={84} w={490} h={230} title="उत्तर · Answer" glyph="research" ai>
           <Para>डॉलर मज़बूत हुआ, इसलिए सोना दबाव में रहा। स्रोत नीचे दिए गए हैं।</Para>
-          <p className="mt-2 text-[12.5px] text-[#A3AAAC]">The dollar firmed, so Gold stayed under pressure. Sources below.</p>
+          <p className="mt-2 text-[12.5px] text-[#B7C5BC]">The dollar firmed, so Gold stayed under pressure. Sources below.</p>
           <div className="mt-3 flex gap-2">
             <Chip tone="sample">Sample answer</Chip>
             <Chip>English · हिन्दी</Chip>
@@ -119,8 +119,8 @@ export function PricingSections() {
       <OsSection n={2} label="Three tiers" title="Three tiers." soft="Prices indicative until launch." body="Start without paying, then move up when you need the AI analyst, testing and risk tools, or larger allowances." app="Settings">
         {PRICING_TIERS.map((t, i) => (
           <Win key={t.tag} at={0.06 + i * 0.16} x={40 + i * 380} y={20 + (t.highlighted ? 0 : 30)} w={360} h={t.highlighted ? 430 : 400} title={t.tag} glyph={i === 0 ? "chart" : i === 1 ? "research" : "risk"} ai={t.highlighted}>
-            <p className={`text-[30px] font-semibold ${t.highlighted ? "text-[#E9B44C]" : "text-[#F5F7F7]"}`}>{TIER_PRICE(t.monthly)}</p>
-            <p className="mb-3 text-[12.5px] text-[#A3AAAC]">{t.blurb}</p>
+            <p className={`text-[30px] font-semibold ${t.highlighted ? "text-[#A8DEC2]" : "text-[#F2F5F2]"}`}>{TIER_PRICE(t.monthly)}</p>
+            <p className="mb-3 text-[12.5px] text-[#B7C5BC]">{t.blurb}</p>
             {t.features.map((f) => (
               <Row key={f} k={f} />
             ))}
@@ -133,10 +133,10 @@ export function PricingSections() {
 
       <OsSection n={3} label="Side by side" title="What each tier adds." soft="On one table." body="The same desk at every tier. Higher tiers add the AI analyst, deeper tools and more room to use them." app="Settings">
         <Win at={0.06} x={40} y={20} w={760} h={490} title="Compare tiers" glyph="layouts">
-          <div className="grid grid-cols-[1fr_40px_40px_40px] sm:grid-cols-[1fr_80px_80px_80px] gap-y-0 font-mono text-[10.5px] tracking-[0.08em] text-[#6D7578]">
+          <div className="grid grid-cols-[1fr_40px_40px_40px] sm:grid-cols-[1fr_80px_80px_80px] gap-y-0 font-mono text-[10.5px] tracking-[0.08em] text-[#92A399]">
             <span>CAPABILITY</span>
             <span className="text-center">01</span>
-            <span className="text-center text-[#E9B44C]">02</span>
+            <span className="text-center text-[#A8DEC2]">02</span>
             <span className="text-center">03</span>
           </div>
           {(
@@ -153,9 +153,9 @@ export function PricingSections() {
             ] as const
           ).map(([k, a, b, c]) => (
             <div key={k} className="grid grid-cols-[1fr_40px_40px_40px] sm:grid-cols-[1fr_80px_80px_80px] items-center border-b border-[rgba(255,255,255,0.06)] py-[6px] text-[13px] last:border-b-0">
-              <span className="text-[#F5F7F7]">{k}</span>
+              <span className="text-[#F2F5F2]">{k}</span>
               {[a, b, c].map((x, j) => (
-                <span key={j} className={`text-center ${x ? (j === 1 ? "text-[#E9B44C]" : "text-[#C9CFD1]") : "text-[#3A4044]"}`}>
+                <span key={j} className={`text-center ${x ? (j === 1 ? "text-[#A8DEC2]" : "text-[#C9CFD1]") : "text-[#2A3F35]"}`}>
                   {x ? "✓" : "—"}
                 </span>
               ))}
@@ -219,8 +219,8 @@ export function PricingSections() {
         <Win at={0.06} x={40} y={20} w={1120} h={490} title="Billing questions" glyph="research">
           {PRICING_FAQS.map((f) => (
             <div key={f.q} className="border-b border-[rgba(255,255,255,0.06)] py-2.5 last:border-b-0">
-              <b className="text-[13.5px] text-[#F5F7F7]">{f.q}</b>
-              <p className="mt-0.5 text-[13px] leading-relaxed text-[#A3AAAC]">{f.a}</p>
+              <b className="text-[13.5px] text-[#F2F5F2]">{f.q}</b>
+              <p className="mt-0.5 text-[13px] leading-relaxed text-[#B7C5BC]">{f.a}</p>
             </div>
           ))}
         </Win>
@@ -320,7 +320,7 @@ export function ContactSections() {
       <OsSection n={7} label="Stay safe" title="How to spot a fake AFVAR." soft="Before you reply." body="Anyone can copy a name. These are the things the real team will never do." app="Mail">
         <Win at={0.06} x={40} y={20} w={720} h={360} title="The AFVAR team never" glyph="risk">
           {["Asks for money, crypto or payment before launch.", "Asks for passwords, codes or API keys.", "Writes to you first on WhatsApp, Telegram or social media.", "Offers tips, signals or guaranteed returns."].map((n) => (
-            <p key={n} className="flex gap-2.5 border-b border-[rgba(255,255,255,0.06)] py-2.5 text-[13.5px] text-[#F5F7F7] last:border-b-0">
+            <p key={n} className="flex gap-2.5 border-b border-[rgba(255,255,255,0.06)] py-2.5 text-[13.5px] text-[#F2F5F2] last:border-b-0">
               <span className="text-[#FF8A8A]">✕</span>
               {n}
             </p>

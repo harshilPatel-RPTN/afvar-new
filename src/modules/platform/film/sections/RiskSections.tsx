@@ -63,7 +63,7 @@ function Portfolio() {
         <ExposureBar label="Precious metals" pct={58} gold />
         <ExposureBar label="Short US dollar" pct={71} />
         <ExposureBar label="Japanese yen" pct={12} />
-        <p className="mt-3 text-[12.5px] leading-relaxed text-[#A3AAAC]">Gold and Silver both rise when the dollar falls — most of this account is one idea.</p>
+        <p className="mt-3 text-[12.5px] leading-relaxed text-[#B7C5BC]">Gold and Silver both rise when the dollar falls — most of this account is one idea.</p>
       </Win>
       <ChartWin k="XAGUSD" at={0.55} x={40} y={340} w={1120} h={170} head={false} title="Silver · 1H · the second metals position" last={60} />
     </OsSection>
@@ -74,11 +74,11 @@ function ExposureBar({ label, pct, gold = false }: { label: string; pct: number;
   return (
     <div className="mb-3">
       <div className="mb-1 flex justify-between text-[12.5px]">
-        <span className="text-[#F5F7F7]">{label}</span>
-        <span className="font-mono text-[#A3AAAC]">{pct}%</span>
+        <span className="text-[#F2F5F2]">{label}</span>
+        <span className="font-mono text-[#B7C5BC]">{pct}%</span>
       </div>
       <div className="h-1.5 rounded-full bg-[rgba(255,255,255,0.08)]">
-        <div className={`h-full rounded-full ${gold ? "bg-[#E9B44C]" : "bg-[#A3AAAC]"}`} style={{ width: `${pct}%` }} />
+        <div className={`h-full rounded-full ${gold ? "bg-[#A8DEC2]" : "bg-[#B7C5BC]"}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -108,11 +108,11 @@ function LimitRow({ k, used, v }: { k: string; used: number; v: string }) {
   return (
     <div className="mb-4">
       <div className="mb-1 flex justify-between text-[13px]">
-        <span className="text-[#F5F7F7]">{k}</span>
-        <span className="font-mono text-[11.5px] text-[#A3AAAC]">{v}</span>
+        <span className="text-[#F2F5F2]">{k}</span>
+        <span className="font-mono text-[11.5px] text-[#B7C5BC]">{v}</span>
       </div>
       <div className="h-1.5 rounded-full bg-[rgba(255,255,255,0.08)]">
-        <div className="h-full rounded-full bg-[#E9B44C]" style={{ width: `${used}%` }} />
+        <div className="h-full rounded-full bg-[#A8DEC2]" style={{ width: `${used}%` }} />
       </div>
     </div>
   );
@@ -183,7 +183,7 @@ function Journal() {
       <Win at={0.48} x={670} y={84} w={490} h={260} title="Patterns" glyph="research" ai>
         <Row k="Early exits" v="3 of the last 5 trades" gold />
         <Row k="Trades near big events" v="2 of the last 5" />
-        <p className="mt-3 text-[12.5px] text-[#A3AAAC]">Drawn only from what you wrote.</p>
+        <p className="mt-3 text-[12.5px] text-[#B7C5BC]">Drawn only from what you wrote.</p>
       </Win>
     </OsSection>
   );
@@ -192,10 +192,10 @@ function Journal() {
 function JournalEntry({ d, t, note }: { d: string; t: string; note: string }) {
   return (
     <div className="mb-3 rounded-lg border border-[rgba(255,255,255,0.1)] p-3">
-      <p className="font-mono text-[10.5px] tracking-[0.1em] text-[#6D7578]">
+      <p className="font-mono text-[10.5px] tracking-[0.1em] text-[#92A399]">
         {d.toUpperCase()} · {t.toUpperCase()}
       </p>
-      <p className="mt-1 text-[13px] leading-relaxed text-[#F5F7F7]">{note}</p>
+      <p className="mt-1 text-[13px] leading-relaxed text-[#F2F5F2]">{note}</p>
     </div>
   );
 }
@@ -204,16 +204,16 @@ function Performance() {
   return (
     <OsSection n={8} label="Performance" title="How you trade, over time." soft="Discipline, not just results." body="Plans kept, limits respected and how you handled losing streaks — measured from your own record, for you alone." app="Risk review" active="risk">
       <Win at={0.06} x={40} y={20} w={360} h={230} title="Plans kept" glyph="chart">
-        <p className="text-[34px] font-semibold text-[#F5F7F7]">7 of 12</p>
-        <p className="text-[12.5px] text-[#A3AAAC]">trades followed the written plan</p>
+        <p className="text-[34px] font-semibold text-[#F2F5F2]">7 of 12</p>
+        <p className="text-[12.5px] text-[#B7C5BC]">trades followed the written plan</p>
       </Win>
       <Win at={0.16} x={420} y={20} w={360} h={230} title="Limits respected" glyph="risk">
-        <p className="text-[34px] font-semibold text-[#F5F7F7]">19 of 20</p>
-        <p className="text-[12.5px] text-[#A3AAAC]">days within the daily loss limit</p>
+        <p className="text-[34px] font-semibold text-[#F2F5F2]">19 of 20</p>
+        <p className="text-[12.5px] text-[#B7C5BC]">days within the daily loss limit</p>
       </Win>
       <Win at={0.26} x={800} y={20} w={360} h={230} title="After a loss" glyph="journal">
-        <p className="text-[34px] font-semibold text-[#F5F7F7]">2 of 4</p>
-        <p className="text-[12.5px] text-[#A3AAAC]">next trades were larger than planned</p>
+        <p className="text-[34px] font-semibold text-[#F2F5F2]">2 of 4</p>
+        <p className="text-[12.5px] text-[#B7C5BC]">next trades were larger than planned</p>
       </Win>
       <Win at={0.44} x={40} y={280} w={740} h={230} title="Monthly review" glyph="research" ai>
         <Para>Your plans work best when you hold to them. The month’s weak spot was size after a loss — worth a limit of its own.</Para>

@@ -43,9 +43,9 @@ function ActEyebrow({ id, label }: { id: OverviewAct; label: string }) {
   return <p className={EYEBROW}>{n > 0 ? `${String(n).padStart(2, "0")} · ${label}` : label}</p>;
 }
 
-export const H2_COMPACT = "text-[clamp(1.55rem,6.4vw,2.2rem)] font-semibold leading-[1.08] tracking-[-0.025em] text-[#F5F7F7]";
+export const H2_COMPACT = "text-[clamp(1.55rem,6.4vw,2.2rem)] font-semibold leading-[1.08] tracking-[-0.025em] text-[#F2F5F2]";
 /** OS-act caption title (the home film's OS beats use the same size). */
-export const H_OS = "text-[clamp(1.4rem,2vw,1.9rem)] font-semibold leading-[1.12] tracking-[-0.02em] text-[#F5F7F7]";
+export const H_OS = "text-[clamp(1.4rem,2vw,1.9rem)] font-semibold leading-[1.12] tracking-[-0.02em] text-[#F2F5F2]";
 
 /* ------------------------------------------------------------------ hero */
 
@@ -53,10 +53,10 @@ export function HeroCopy({ compact = false }: { compact?: boolean }) {
   return (
     <div>
       <p className={EYEBROW}>AFVAR Platform · Pre-launch</p>
-      <h1 className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F5F7F7]" : `mt-5 ${H1}`}>
-        {OVERVIEW.title[0]} <span className="text-[#E9B44C]">{OVERVIEW.title[1]}</span>
+      <h1 className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]" : `mt-5 ${H1}`}>
+        {OVERVIEW.title[0]} <span className="text-[#A8DEC2]">{OVERVIEW.title[1]}</span>
       </h1>
-      <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#A3AAAC]" : `mt-6 max-w-[31rem] ${BODY}`}>{compact ? OVERVIEW.summary : OVERVIEW.workWith.summary}</p>
+      <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#B7C5BC]" : `mt-6 max-w-[31rem] ${BODY}`}>{compact ? OVERVIEW.summary : OVERVIEW.workWith.summary}</p>
       <div className={`${compact ? "mt-5" : "mt-8"} flex flex-wrap items-center gap-5`}>
         <Link href={REGISTER_URL} prefetch={false} className={GOLD_CTA}>
           Register Now
@@ -66,14 +66,14 @@ export function HeroCopy({ compact = false }: { compact?: boolean }) {
         </a>
       </div>
       <div className={`${compact ? "mt-5 pt-3" : "mt-10 pt-5"} flex flex-wrap items-center gap-x-6 gap-y-2 border-t ${HAIR}`}>
-        <span className={`${MONO} flex items-center gap-2 text-[#E9B44C]`}>
+        <span className={`${MONO} flex items-center gap-2 text-[#A8DEC2]`}>
           <AiOrb size={8} /> 5 capability areas
         </span>
-        <span className={`${MONO} text-[#6D7578]`}>Text + voice</span>
-        <span className={`${MONO} text-[#6D7578]`} lang="hi">
+        <span className={`${MONO} text-[#92A399]`}>Text + voice</span>
+        <span className={`${MONO} text-[#92A399]`} lang="hi">
           EN · हिन्दी
         </span>
-        {compact ? null : <span className={`${MONO} text-[#6D7578]`}>Read-only connections</span>}
+        {compact ? null : <span className={`${MONO} text-[#92A399]`}>Read-only connections</span>}
       </div>
     </div>
   );
@@ -91,7 +91,7 @@ export function OsCaption({ id, label, title, soft, body }: { id: OverviewAct; l
         <h2 className={`${H_OS} shrink-0`}>
           {title} <span className={SOFT}>{soft}</span>
         </h2>
-        <p className="mt-1.5 line-clamp-2 max-w-[44rem] text-[13.5px] leading-snug text-[#A3AAAC] xl:mt-0 xl:line-clamp-none xl:max-w-[34rem] xl:text-[14px]">{body}</p>
+        <p className="mt-1.5 line-clamp-2 max-w-[44rem] text-[13.5px] leading-snug text-[#B7C5BC] xl:mt-0 xl:line-clamp-none xl:max-w-[34rem] xl:text-[14px]">{body}</p>
       </div>
     </div>
   );
@@ -121,7 +121,7 @@ export function ChipStrip({ mv, chips }: { mv: MotionValue<number>; chips: reado
         return (
           <li
             key={c.label}
-            className={`${MONO} rounded-full border px-2.5 py-1 text-[9.5px] transition-colors ${on ? "border-[rgba(233,180,76,0.7)] text-[#E9B44C]" : done ? "border-[rgba(255,255,255,0.14)] text-[#A3AAAC]" : "border-[rgba(255,255,255,0.08)] text-[#5E6669]"}`}
+            className={`${MONO} rounded-full border px-2.5 py-1 text-[9.5px] transition-colors ${on ? "border-[rgba(168,222,194,0.7)] text-[#A8DEC2]" : done ? "border-[rgba(255,255,255,0.14)] text-[#B7C5BC]" : "border-[rgba(255,255,255,0.08)] text-[#7E8F85]"}`}
           >
             {c.label}
           </li>
@@ -159,15 +159,15 @@ export function WaysCard({ mv }: { mv: MotionValue<number> }) {
         <p className={`${MONO} text-[9.5px] text-[#8A9295]`}>Manual controls</p>
         <ul className="mt-1.5 flex flex-wrap gap-1.5">
           {MANUAL.map((m, i) => (
-            <li key={m} className={`rounded-full border px-2.5 py-0.5 text-[11.5px] transition-colors ${step === i ? "border-[rgba(233,180,76,0.7)] text-[#E9B44C]" : step > i ? "border-[rgba(255,255,255,0.14)] text-[#C9CFD1]" : "border-[rgba(255,255,255,0.08)] text-[#6D7578]"}`}>
+            <li key={m} className={`rounded-full border px-2.5 py-0.5 text-[11.5px] transition-colors ${step === i ? "border-[rgba(168,222,194,0.7)] text-[#A8DEC2]" : step > i ? "border-[rgba(255,255,255,0.14)] text-[#C9CFD1]" : "border-[rgba(255,255,255,0.08)] text-[#92A399]"}`}>
               {m}
             </li>
           ))}
         </ul>
       </div>
-      <div className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${step >= 5 ? "border-[rgba(233,180,76,0.55)]" : "border-[rgba(255,255,255,0.08)]"}`}>
+      <div className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${step >= 5 ? "border-[rgba(168,222,194,0.55)]" : "border-[rgba(255,255,255,0.08)]"}`}>
         <AiOrb size={10} pulse={step === 5} />
-        <span className="min-w-0 flex-1 truncate text-[13px] text-[#F5F7F7]">
+        <span className="min-w-0 flex-1 truncate text-[13px] text-[#F2F5F2]">
           <span ref={typed} />
           {step === 5 ? <span className="afv-caret" /> : null}
         </span>
@@ -198,7 +198,7 @@ export function StopCard({ mv, compact = false }: { mv: MotionValue<number>; com
         <p className="flex items-center gap-2 text-[13px] font-semibold">
           <AiOrb size={10} pulse={s.speaking} /> Opening your selected charts
         </p>
-        <span className={`${MONO} text-[9.5px] ${s.status === "Cancelled" ? "text-[#FF6B6B]" : s.status === "Complete" ? "text-[#00E676]" : "text-[#E9B44C]"}`}>{s.status}</span>
+        <span className={`${MONO} text-[9.5px] ${s.status === "Cancelled" ? "text-[#FF6B6B]" : s.status === "Complete" ? "text-[#00E676]" : "text-[#A8DEC2]"}`}>{s.status}</span>
       </div>
       <ol className="mt-2 space-y-1">
         {STOP_ITEMS.map((item, i) => {
@@ -206,15 +206,15 @@ export function StopCard({ mv, compact = false }: { mv: MotionValue<number>; com
           return (
             <li key={item} className="flex items-center justify-between rounded-lg border border-[rgba(255,255,255,0.06)] px-2.5 py-1 text-[12px]">
               <span className="text-[#E6E9EB]">{item}</span>
-              <span className={`font-mono text-[10px] ${r === "done" ? "text-[#00E676]" : r === "active" ? "text-[#E9B44C]" : r === "cancelled" ? "text-[#FF6B6B]" : "text-[#5E6669]"}`}>{STOP_STATE[r]}</span>
+              <span className={`font-mono text-[10px] ${r === "done" ? "text-[#00E676]" : r === "active" ? "text-[#A8DEC2]" : r === "cancelled" ? "text-[#FF6B6B]" : "text-[#7E8F85]"}`}>{STOP_STATE[r]}</span>
             </li>
           );
         })}
       </ol>
       <p className={`mt-2 min-h-[1.4em] text-[12px] ${s.caption ? "text-[#F3DFAF]" : "text-transparent"}`}>{s.caption ?? "·"}</p>
       <div className="mt-2 grid grid-cols-2 gap-2">
-        <span className={`rounded-full border px-3 py-1 text-center text-[11.5px] ${stopOn ? "border-[#E9B44C] bg-[rgba(233,180,76,0.16)] text-[#F5F7F7]" : "border-[rgba(255,255,255,0.12)] text-[#A3AAAC]"}`}>Stop speaking</span>
-        <span className={`rounded-full border px-3 py-1 text-center text-[11.5px] ${cancelOn ? "border-[#FF6B6B] bg-[rgba(255,77,77,0.14)] text-[#F5F7F7]" : "border-[rgba(255,255,255,0.12)] text-[#A3AAAC]"}`}>Cancel task</span>
+        <span className={`rounded-full border px-3 py-1 text-center text-[11.5px] ${stopOn ? "border-[#A8DEC2] bg-[rgba(168,222,194,0.16)] text-[#F2F5F2]" : "border-[rgba(255,255,255,0.12)] text-[#B7C5BC]"}`}>Stop speaking</span>
+        <span className={`rounded-full border px-3 py-1 text-center text-[11.5px] ${cancelOn ? "border-[#FF6B6B] bg-[rgba(255,77,77,0.14)] text-[#F2F5F2]" : "border-[rgba(255,255,255,0.12)] text-[#B7C5BC]"}`}>Cancel task</span>
       </div>
     </div>
   );
@@ -228,8 +228,8 @@ export function WorkspaceList({ mv, compact = false }: { mv: MotionValue<number>
   return (
     <ul className={compact ? "space-y-1.5" : "space-y-2"}>
       {OVERVIEW.workspace.items.map((it, i) => (
-        <li key={it.title} className={`rounded-xl border px-3 transition-colors ${compact ? "py-1.5" : "py-2.5"} ${step === i ? "border-[rgba(233,180,76,0.6)] bg-[rgba(233,180,76,0.07)]" : "border-[rgba(255,255,255,0.07)]"}`}>
-          <p className={`text-[13px] font-semibold ${step === i ? "text-[#F5F7F7]" : "text-[#A3AAAC]"}`}>{it.title}</p>
+        <li key={it.title} className={`rounded-xl border px-3 transition-colors ${compact ? "py-1.5" : "py-2.5"} ${step === i ? "border-[rgba(168,222,194,0.6)] bg-[rgba(168,222,194,0.07)]" : "border-[rgba(255,255,255,0.07)]"}`}>
+          <p className={`text-[13px] font-semibold ${step === i ? "text-[#F2F5F2]" : "text-[#B7C5BC]"}`}>{it.title}</p>
           <p className="text-[12px] leading-snug text-[#8A9295]">{it.description}</p>
         </li>
       ))}
@@ -265,21 +265,21 @@ export function StationCard({ mv, compact = false }: { mv: MotionValue<number>; 
   return (
     <div className={`${CARD_AI} ${compact ? "p-3" : "p-4"}`} aria-live="off">
       <div className="flex items-center justify-between">
-        <p className={`${MONO} text-[10px] text-[#E9B44C]`}>{back ? "Returned" : `Step ${Math.max(1, step + 1)} of ${STATIONS.length}`}</p>
+        <p className={`${MONO} text-[10px] text-[#A8DEC2]`}>{back ? "Returned" : `Step ${Math.max(1, step + 1)} of ${STATIONS.length}`}</p>
         <ol className="flex gap-1" aria-hidden="true">
           {STATIONS.map((s, i) => (
-            <li key={s.label} className={`h-1.5 w-4 rounded-full ${i <= step ? "bg-[#E9B44C]" : "bg-[#2A2F33]"}`} />
+            <li key={s.label} className={`h-1.5 w-4 rounded-full ${i <= step ? "bg-[#A8DEC2]" : "bg-[#2A2F33]"}`} />
           ))}
         </ol>
       </div>
-      <p className={`mt-2 font-semibold ${compact ? "text-[15px]" : "text-[17px]"} text-[#F5F7F7]`}>{back ? RETURN_LABEL : st.label}</p>
+      <p className={`mt-2 font-semibold ${compact ? "text-[15px]" : "text-[17px]"} text-[#F2F5F2]`}>{back ? RETURN_LABEL : st.label}</p>
       {back ? (
-        <p className="mt-1 text-[12.5px] text-[#A3AAAC]">Back to the trader, shown only after the check.</p>
+        <p className="mt-1 text-[12.5px] text-[#B7C5BC]">Back to the trader, shown only after the check.</p>
       ) : (
-        <ul className="mt-1.5 space-y-0.5 text-[12.5px] text-[#A3AAAC]">
+        <ul className="mt-1.5 space-y-0.5 text-[12.5px] text-[#B7C5BC]">
           {st.detail.map((d) => (
             <li key={d} className="flex gap-2">
-              <span className="text-[#E9B44C]">›</span>
+              <span className="text-[#A8DEC2]">›</span>
               {d}
             </li>
           ))}
@@ -310,8 +310,8 @@ export function TrustCopy({ compact = false }: { compact?: boolean }) {
         <ol className={`mt-6 border-t ${HAIR}`}>
           {PROMISES.map(([t, d], i) => (
             <li key={t} className={`flex items-baseline gap-4 border-b ${HAIR} py-2.5 [@media(max-height:800px)]:py-1.5`}>
-              <span className={`${MONO} w-6 shrink-0 text-[10px] text-[#6D7578]`}>{String(i + 1).padStart(2, "0")}</span>
-              <span className="w-[11.5rem] shrink-0 text-sm font-semibold text-[#F5F7F7]">{t}</span>
+              <span className={`${MONO} w-6 shrink-0 text-[10px] text-[#92A399]`}>{String(i + 1).padStart(2, "0")}</span>
+              <span className="w-[11.5rem] shrink-0 text-sm font-semibold text-[#F2F5F2]">{t}</span>
               <span className="text-[13px] leading-snug text-[#8A9295]">{d}</span>
             </li>
           ))}
@@ -321,7 +321,7 @@ export function TrustCopy({ compact = false }: { compact?: boolean }) {
   );
 }
 
-const DOT: Record<string, string> = { live: "bg-[#00E676]", delayed: "bg-[#F6B94A]", stale: "bg-[#F6B94A]", sample: "bg-[#6D7578]" };
+const DOT: Record<string, string> = { live: "bg-[#00E676]", delayed: "bg-[#F6B94A]", stale: "bg-[#F6B94A]", sample: "bg-[#92A399]" };
 
 /** One chart, four honest states: the label always says where the data stands. */
 export function FreshnessCard({ mv, closes, compact = false }: { mv: MotionValue<number>; closes?: readonly number[]; compact?: boolean }) {
@@ -334,7 +334,7 @@ export function FreshnessCard({ mv, closes, compact = false }: { mv: MotionValue
   return (
     <div className={`${CARD} ${compact ? "p-3" : "p-4"}`}>
       <div className="flex items-center justify-between">
-        <p className="text-[13px] font-semibold text-[#F5F7F7]">Freshness, always labelled.</p>
+        <p className="text-[13px] font-semibold text-[#F2F5F2]">Freshness, always labelled.</p>
         <span className="flex items-center gap-1.5 rounded-full border border-[rgba(255,255,255,0.12)] px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#C9CFD1]">
           <span className={`h-1.5 w-1.5 rounded-full ${DOT[fresh.id]}`} />
           {fresh.label}
@@ -351,12 +351,12 @@ export function FreshnessCard({ mv, closes, compact = false }: { mv: MotionValue
       </div>
       <ul className="mt-2.5 flex flex-wrap gap-1.5">
         {FRESHNESS.map((s, i) => (
-          <li key={s.id} className={`rounded-full border px-2 py-0.5 font-mono text-[9.5px] uppercase ${i === Math.max(0, step) ? "border-[rgba(233,180,76,0.6)] text-[#E9B44C]" : "border-[rgba(255,255,255,0.08)] text-[#5E6669]"}`}>
+          <li key={s.id} className={`rounded-full border px-2 py-0.5 font-mono text-[9.5px] uppercase ${i === Math.max(0, step) ? "border-[rgba(168,222,194,0.6)] text-[#A8DEC2]" : "border-[rgba(255,255,255,0.08)] text-[#7E8F85]"}`}>
             {s.label}
           </li>
         ))}
       </ul>
-      <p className="mt-2 font-mono text-[10.5px] text-[#A3AAAC]">{fresh.source}</p>
+      <p className="mt-2 font-mono text-[10.5px] text-[#B7C5BC]">{fresh.source}</p>
     </div>
   );
 }
@@ -390,20 +390,20 @@ export function AreaList({ mv, compact = false }: { mv: MotionValue<number>; com
           <li key={c.slug}>
             <Link
               href={capabilityPath(c.slug)}
-              className={`group flex items-center gap-3 rounded-xl border px-3 transition-colors ${compact ? "py-1.5" : "py-2 [@media(max-height:800px)]:py-1.5"} ${on ? "border-[rgba(233,180,76,0.6)] bg-[rgba(233,180,76,0.07)]" : "border-[rgba(255,255,255,0.07)] hover:border-[rgba(255,255,255,0.2)]"}`}
+              className={`group flex items-center gap-3 rounded-xl border px-3 transition-colors ${compact ? "py-1.5" : "py-2 [@media(max-height:800px)]:py-1.5"} ${on ? "border-[rgba(168,222,194,0.6)] bg-[rgba(168,222,194,0.07)]" : "border-[rgba(255,255,255,0.07)] hover:border-[rgba(255,255,255,0.2)]"}`}
             >
-              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${on ? "border-[rgba(233,180,76,0.6)] text-[#E9B44C]" : "border-[rgba(255,255,255,0.1)] text-[#A3AAAC]"}`}>
+              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${on ? "border-[rgba(168,222,194,0.6)] text-[#A8DEC2]" : "border-[rgba(255,255,255,0.1)] text-[#B7C5BC]"}`}>
                 <AppGlyph name={APPS[i].glyph} size={16} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-[13.5px] font-semibold text-[#F5F7F7]">{c.title}</span>
+                <span className="block text-[13.5px] font-semibold text-[#F2F5F2]">{c.title}</span>
                 {compact ? null : on ? (
-                  <span className={`${MONO} block truncate text-[9.5px] text-[#E9B44C]`}>Led by {APPS[i].lead.map((id) => AI_CORES.find((k) => k.id === id)!.label.replace(" core", "")).join(" · ")} cores</span>
+                  <span className={`${MONO} block truncate text-[9.5px] text-[#A8DEC2]`}>Led by {APPS[i].lead.map((id) => AI_CORES.find((k) => k.id === id)!.label.replace(" core", "")).join(" · ")} cores</span>
                 ) : (
                   <span className="block truncate text-[12px] text-[#8A9295]">{c.tagline}</span>
                 )}
               </span>
-              <span className={`${MONO} shrink-0 text-[9.5px] ${on ? "text-[#E9B44C]" : "text-[#6D7578] group-hover:text-[#C9CFD1]"}`}>Explore →</span>
+              <span className={`${MONO} shrink-0 text-[9.5px] ${on ? "text-[#A8DEC2]" : "text-[#92A399] group-hover:text-[#C9CFD1]"}`}>Explore →</span>
             </Link>
           </li>
         );

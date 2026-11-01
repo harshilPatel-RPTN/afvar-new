@@ -68,7 +68,7 @@ function Card({ w, h, edge = 0.5, gold = false, opacity = 0.7, children }: { w: 
   return (
     <group>
       <group rotation={[Math.PI / 2, 0, 0]}>
-        <GlassPlate width={w} depth={h} thickness={0.03} radius={0.07} edge={gold ? 0.95 : edge} edgeColor={gold ? COLORS.gold : "#6D7578"} tint={gold ? "#141109" : "#0B0E10"} opacity={opacity} />
+        <GlassPlate width={w} depth={h} thickness={0.03} radius={0.07} edge={gold ? 0.95 : edge} edgeColor={gold ? COLORS.gold : "#92A399"} tint={gold ? "#0E1F17" : "#06110C"} opacity={opacity} />
       </group>
       {children}
     </group>
@@ -79,7 +79,7 @@ function Lines({ w, ys, goldAt = -1 }: { w: number; ys: number[]; goldAt?: numbe
   return (
     <>
       {ys.map((y, i) => (
-        <GlowLine key={i} points={[v(-w / 2, y, 0.03), v(i === goldAt ? w / 2 : w / 2 - 0.2, y, 0.03)]} color={i === goldAt ? COLORS.gold : "#454C50"} intensity={i === goldAt ? 1.25 : 1} width={i === goldAt ? 1.8 : 1.1} />
+        <GlowLine key={i} points={[v(-w / 2, y, 0.03), v(i === goldAt ? w / 2 : w / 2 - 0.2, y, 0.03)]} color={i === goldAt ? COLORS.gold : "#2F4A3D"} intensity={i === goldAt ? 1.25 : 1} width={i === goldAt ? 1.8 : 1.1} />
       ))}
     </>
   );
@@ -107,7 +107,7 @@ function PrinciplesStack() {
     <group position={[0.4, -0.9, 0]} rotation={[0.3, -0.45, 0]}>
       {[0, 1, 2, 3, 4].map((i) => (
         <group key={i} position={[0, i * 0.45, 0]}>
-          <GlassPlate width={2.6 - i * 0.34} depth={1.6 - i * 0.18} thickness={0.05} radius={0.1} edge={i === 4 ? 0.95 : 0.4} tint={i === 4 ? "#141109" : "#0A0D0F"} opacity={0.55} />
+          <GlassPlate width={2.6 - i * 0.34} depth={1.6 - i * 0.18} thickness={0.05} radius={0.1} edge={i === 4 ? 0.95 : 0.4} tint={i === 4 ? "#0E1F17" : "#06110C"} opacity={0.55} />
         </group>
       ))}
       <GlowLine points={[v(0, -0.1, 0), v(0, 2.25, 0)]} color={COLORS.gold} intensity={1.3} width={2} />
@@ -134,7 +134,7 @@ function Tiers() {
             <boxGeometry args={[0.95, t.h, 0.95]} />
             <meshPhysicalMaterial color={i === 1 ? "#1A150B" : "#0E1214"} emissive={i === 1 ? COLORS.gold : "#2A3034"} emissiveIntensity={i === 1 ? 0.12 : 0.05} metalness={0.35} roughness={0.25} transparent opacity={0.8} />
           </mesh>
-          <GlowLine points={[v(-0.475, t.h / 2 + 0.01, -0.475), v(0.475, t.h / 2 + 0.01, -0.475), v(0.475, t.h / 2 + 0.01, 0.475), v(-0.475, t.h / 2 + 0.01, 0.475), v(-0.475, t.h / 2 + 0.01, -0.475)]} color={i === 1 ? COLORS.gold : "#6D7578"} intensity={i === 1 ? 1.4 : 1} width={i === 1 ? 2 : 1.1} />
+          <GlowLine points={[v(-0.475, t.h / 2 + 0.01, -0.475), v(0.475, t.h / 2 + 0.01, -0.475), v(0.475, t.h / 2 + 0.01, 0.475), v(-0.475, t.h / 2 + 0.01, 0.475), v(-0.475, t.h / 2 + 0.01, -0.475)]} color={i === 1 ? COLORS.gold : "#92A399"} intensity={i === 1 ? 1.4 : 1} width={i === 1 ? 2 : 1.1} />
         </group>
       ))}
       <group position={[0, 2.15, 0]} rotation={face(0.28, -0.4)}>
@@ -164,7 +164,7 @@ function Islands() {
         <group key={i} position={isle.p}>
           <mesh rotation={[0, 0, 0]}>
             <cylinderGeometry args={[0.75, 0.75, 0.05, 48]} />
-            <meshPhysicalMaterial color="#0B0E10" emissive="#2A3034" emissiveIntensity={0.05} metalness={0.3} roughness={0.2} transparent opacity={0.7} />
+            <meshPhysicalMaterial color="#06110C" emissive="#2A3034" emissiveIntensity={0.05} metalness={0.3} roughness={0.2} transparent opacity={0.7} />
           </mesh>
           {isle.k.map((c, j) => (
             <Candle key={j} x={-0.36 + j * 0.18} o={j ? isle.k[j - 1] * 0.6 : 0.15} c={c * 0.6} h={c * 0.6 + 0.08} l={0.06} s={0.1} />
@@ -303,7 +303,7 @@ function StepPath() {
     <group position={[-0.05, -0.45, 0]} rotation={[0.3, -0.35, 0]} scale={0.78}>
       {steps.map((p, i) => (
         <group key={i} position={p}>
-          <GlassPlate width={0.8} depth={0.8} thickness={0.06} radius={0.08} edge={i < 2 ? 0.95 : 0.4} tint={i < 2 ? "#141109" : "#0A0D0F"} opacity={0.6} />
+          <GlassPlate width={0.8} depth={0.8} thickness={0.06} radius={0.08} edge={i < 2 ? 0.95 : 0.4} tint={i < 2 ? "#0E1F17" : "#06110C"} opacity={0.6} />
         </group>
       ))}
       <GlowLine points={new THREE.CatmullRomCurve3(steps.map((p) => p.clone().setY(p.y + 0.08))).getPoints(40)} color={COLORS.gold} intensity={1.2} width={1.6} opacity={0.85} />
@@ -327,9 +327,9 @@ function OpenGuide() {
               <group key={k}>
                 <mesh position={[-0.65, 0.04, z]}>
                   <circleGeometry args={[0.06, 20]} />
-                  <meshBasicMaterial color={hdr(s < 0 || k < 1 ? COLORS.gold : "#6D7578", s < 0 || k < 1 ? 1.3 : 1)} toneMapped={false} side={THREE.DoubleSide} />
+                  <meshBasicMaterial color={hdr(s < 0 || k < 1 ? COLORS.gold : "#92A399", s < 0 || k < 1 ? 1.3 : 1)} toneMapped={false} side={THREE.DoubleSide} />
                 </mesh>
-                <GlowLine points={[v(-0.5, 0.04, z), v(0.65, 0.04, z)]} color="#454C50" intensity={1} width={1.1} />
+                <GlowLine points={[v(-0.5, 0.04, z), v(0.65, 0.04, z)]} color="#2F4A3D" intensity={1} width={1.1} />
               </group>
             ))}
           </group>
@@ -363,8 +363,8 @@ function HelpRing() {
       <Card w={1.25} h={1.5} opacity={0.85}>
         {[0.45, 0.15, -0.15, -0.45].map((y, i) => (
           <group key={i}>
-            <GlowLine points={i < 3 ? [v(-0.47, y, 0.035), v(-0.41, y - 0.06, 0.035), v(-0.3, y + 0.06, 0.035)] : [v(-0.47, y, 0.035), v(-0.31, y, 0.035)]} color={i < 3 ? COLORS.gold : "#6D7578"} intensity={1.3} width={1.8} />
-            <GlowLine points={[v(-0.2, y, 0.03), v(0.48, y, 0.03)]} color="#454C50" intensity={1} width={1.1} />
+            <GlowLine points={i < 3 ? [v(-0.47, y, 0.035), v(-0.41, y - 0.06, 0.035), v(-0.3, y + 0.06, 0.035)] : [v(-0.47, y, 0.035), v(-0.31, y, 0.035)]} color={i < 3 ? COLORS.gold : "#92A399"} intensity={1.3} width={1.8} />
+            <GlowLine points={[v(-0.2, y, 0.03), v(0.48, y, 0.03)]} color="#2F4A3D" intensity={1} width={1.1} />
           </group>
         ))}
       </Card>
@@ -387,8 +387,8 @@ function QaColumn() {
           <group key={i} position={[x, y, i * 0.12]}>
             <Card w={q ? 1.7 : 2.0} h={0.55} gold={!q} opacity={0.8}>
               <GlowLine points={[v(q ? -0.55 : -0.85, 0.06, 0.03), v(q ? 0.45 : 0.75, 0.06, 0.03)]} color={q ? COLORS.ink : COLORS.gold} intensity={1.15} width={1.4} />
-              {!q ? <GlowLine points={[v(-0.85, -0.1, 0.03), v(0.35, -0.1, 0.03)]} color="#6D7578" intensity={1} width={1.1} /> : null}
-              <GlowLine points={q ? [v(-0.85, -0.2, 0.02), v(-0.95, -0.4, 0.02), v(-0.65, -0.27, 0.02)] : [v(1.0, -0.2, 0.02), v(1.1, -0.4, 0.02), v(0.8, -0.27, 0.02)]} color={q ? "#6D7578" : COLORS.gold} intensity={1} width={1.2} />
+              {!q ? <GlowLine points={[v(-0.85, -0.1, 0.03), v(0.35, -0.1, 0.03)]} color="#92A399" intensity={1} width={1.1} /> : null}
+              <GlowLine points={q ? [v(-0.85, -0.2, 0.02), v(-0.95, -0.4, 0.02), v(-0.65, -0.27, 0.02)] : [v(1.0, -0.2, 0.02), v(1.1, -0.4, 0.02), v(0.8, -0.27, 0.02)]} color={q ? "#92A399" : COLORS.gold} intensity={1} width={1.2} />
             </Card>
           </group>
         );
@@ -409,7 +409,7 @@ function ProvenanceChain() {
         <group key={i} position={p}>
           <Card w={0.7} h={0.48} edge={0.7}>
             <GlowLine points={[v(-0.22, 0.06, 0.03), v(0.22, 0.06, 0.03)]} color={COLORS.ink} intensity={1.1} width={1.3} />
-            <GlowLine points={[v(-0.22, -0.08, 0.03), v(0.1, -0.08, 0.03)]} color="#6D7578" intensity={1} width={1} />
+            <GlowLine points={[v(-0.22, -0.08, 0.03), v(0.1, -0.08, 0.03)]} color="#92A399" intensity={1} width={1} />
           </Card>
         </group>
       ))}
@@ -453,7 +453,7 @@ function LetterRoutes() {
       {pts.map((p, i) => (
         <GlowLine key={i} points={p} color={COLORS.gold} intensity={1.05} width={1.1} opacity={0.55} />
       ))}
-      <GlowLine points={help} color="#6D7578" intensity={1} width={1} dashed dashSize={0.08} gapSize={0.06} />
+      <GlowLine points={help} color="#92A399" intensity={1} width={1} dashed dashSize={0.08} gapSize={0.06} />
       {curves.map((_c, i) => (
         <group key={i} ref={(g) => { letters.current[i] = g; }}>
           <Card w={0.5} h={0.34} edge={0.8} opacity={0.85}>

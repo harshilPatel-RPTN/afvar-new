@@ -10,7 +10,7 @@ import { ChartWin, Para, StatusChip, fmt, sourceLine, useQuote, useRange } from 
 function MoveRow({ slug, gold = false }: { slug: string; gold?: boolean }) {
   const i = INST[slug];
   const r = useRange(i.key ?? "", 44);
-  return <Row k={`${i.name} · ${i.sym}`} v={!i.key ? <span className="text-[#6D7578]">not in preview feed</span> : r ? <Pct v={r.chg} /> : <span className="text-[#6D7578]">—</span>} gold={gold} />;
+  return <Row k={`${i.name} · ${i.sym}`} v={!i.key ? <span className="text-[#92A399]">not in preview feed</span> : r ? <Pct v={r.chg} /> : <span className="text-[#92A399]">—</span>} gold={gold} />;
 }
 
 /** A chart of the instrument's real candles, or an honest note when the feed lacks it. */
@@ -36,7 +36,7 @@ export function MarketsSections() {
       <OsSection n={2} label="Three markets" title="Three markets, ten instruments." soft="Grouped the way you trade them." body="Metals and energy, the major currency pairs, and crypto. Each group opens to its own page." app="Market data" active="charts">
         {GROUP_IDS.map((g, n) => (
           <Win key={g} at={0.06 + n * 0.16} x={40 + n * 380} y={20 + n * 24} w={360} h={330} title={GROUP[g].name} glyph={n === 2 ? "phone" : "chart"}>
-            <p className="mb-2 font-mono text-[10.5px] tracking-[0.1em] text-[#6D7578]">{GROUP[g].short.toUpperCase()}</p>
+            <p className="mb-2 font-mono text-[10.5px] tracking-[0.1em] text-[#92A399]">{GROUP[g].short.toUpperCase()}</p>
             {GROUP[g].items.map((s) => (
               <MoveRow key={s} slug={s} />
             ))}
@@ -57,7 +57,7 @@ export function MarketsSections() {
           <Row k="Tokyo" v="05:30 – 14:30" />
           <Row k="London" v="13:30 – 22:30" gold />
           <Row k="New York" v="18:30 – 03:30" gold />
-          <p className="mt-3 text-[12px] text-[#A3AAAC]">London and New York overlap from 18:30 to 22:30 — usually the busiest hours.</p>
+          <p className="mt-3 text-[12px] text-[#B7C5BC]">London and New York overlap from 18:30 to 22:30 — usually the busiest hours.</p>
         </Win>
         <Win at={0.32} x={690} y={20} w={470} h={200} title="Crypto" glyph="phone">
           <Para>Open 24 hours, 7 days. Weekend moves can be large with fewer traders.</Para>
@@ -191,8 +191,8 @@ export function GroupSections({ group }: { group: GroupId }) {
         </Win>
         <Win at={0.34} x={670} y={20} w={490} h={330} title="Checked in this order" glyph="layouts">
           {c.drivers.map(([k], n) => (
-            <p key={k} className="border-b border-[rgba(255,255,255,0.06)] py-2 text-[13px] text-[#F5F7F7] last:border-b-0">
-              <span className="mr-2 font-mono text-[#E9B44C]">{n + 1}</span>
+            <p key={k} className="border-b border-[rgba(255,255,255,0.06)] py-2 text-[13px] text-[#F2F5F2] last:border-b-0">
+              <span className="mr-2 font-mono text-[#A8DEC2]">{n + 1}</span>
               {k}
             </p>
           ))}
@@ -232,7 +232,7 @@ export function GroupSections({ group }: { group: GroupId }) {
 
       <OsSection n={7} label="Compare" title="Side by side." soft="Highs, lows and where price sits." body="The range of each instrument over the last 44 hourly candles, and where the last price sits inside it." app="Market data" active="charts">
         <Win at={0.06} x={40} y={20} w={1120} h={360} title={`${g.name} · ranges`} glyph="chart">
-          <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr_1.4fr] font-mono text-[10.5px] tracking-[0.08em] text-[#6D7578]">
+          <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr_1.4fr] font-mono text-[10.5px] tracking-[0.08em] text-[#92A399]">
             <span>INSTRUMENT</span>
             <span>LOW</span>
             <span>HIGH</span>
@@ -253,11 +253,11 @@ function PriceCard({ i, at }: { i: InstInfo; at: number }) {
   const q = useQuote(i.key ?? "");
   return (
     <Win at={at} x={630} y={20} w={530} h={360} title={`${i.name} · last price`} glyph="chart">
-      <p className="font-mono text-[34px] font-semibold text-[#F5F7F7]">{q?.last != null ? fmt(q.last, q.decimals) : "—"}</p>
+      <p className="font-mono text-[34px] font-semibold text-[#F2F5F2]">{q?.last != null ? fmt(q.last, q.decimals) : "—"}</p>
       <div className="mt-2 flex items-center gap-2">
         <StatusChip q={q} />
       </div>
-      <p className="mt-3 font-mono text-[10.5px] text-[#6D7578]">{i.key ? sourceLine(q) : "No source yet"}</p>
+      <p className="mt-3 font-mono text-[10.5px] text-[#92A399]">{i.key ? sourceLine(q) : "No source yet"}</p>
     </Win>
   );
 }
@@ -278,12 +278,12 @@ function RangeLine({ i }: { i: InstInfo }) {
   const r = useRange(i.key ?? "");
   const pos = r && r.hi > r.lo ? ((r.last - r.lo) / (r.hi - r.lo)) * 100 : null;
   return (
-    <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr_1.4fr] items-center border-b border-[rgba(255,255,255,0.06)] py-2 font-mono text-[12px] text-[#A3AAAC] last:border-b-0">
-      <span className="font-sans text-[13px] text-[#F5F7F7]">{i.name}</span>
+    <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr_1.4fr] items-center border-b border-[rgba(255,255,255,0.06)] py-2 font-mono text-[12px] text-[#B7C5BC] last:border-b-0">
+      <span className="font-sans text-[13px] text-[#F2F5F2]">{i.name}</span>
       <span>{r ? fmt(r.lo, r.d) : "—"}</span>
       <span>{r ? fmt(r.hi, r.d) : "—"}</span>
-      <span className="text-[#F5F7F7]">{r ? fmt(r.last, r.d) : "—"}</span>
-      <span className="relative h-1.5 rounded-full bg-[rgba(255,255,255,0.08)]">{pos != null ? <span className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E9B44C]" style={{ left: `${pos}%` }} /> : null}</span>
+      <span className="text-[#F2F5F2]">{r ? fmt(r.last, r.d) : "—"}</span>
+      <span className="relative h-1.5 rounded-full bg-[rgba(255,255,255,0.08)]">{pos != null ? <span className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#A8DEC2]" style={{ left: `${pos}%` }} /> : null}</span>
     </div>
   );
 }
@@ -393,7 +393,7 @@ function AlertDraft({ i }: { i: InstInfo }) {
         <Row k="Condition" v={r ? `close above ${fmt(r.hi, r.d)}` : "close above the recent high"} gold />
         <Row k="When met" v="tell me once" />
         <div className="mt-4 flex items-center gap-2.5">
-          <span className="rounded-full bg-[#E9B44C] px-3.5 py-1 text-[12px] font-semibold text-[#0B0E10]">Confirm</span>
+          <span className="rounded-full bg-[#A8DEC2] px-3.5 py-1 text-[12px] font-semibold text-[#06110C]">Confirm</span>
           <span className="rounded-full border border-[rgba(255,255,255,0.18)] px-3 py-1 text-[12px]">Edit</span>
         </div>
       </Win>
@@ -433,13 +433,13 @@ export function BriefsSections() {
 
       <OsSection n={3} label="Inside an edition" title="What an edition holds." soft="Section by section." body="Overview, then each market in a line or two, then the day’s calendar — every line numbered to its source." app="Research" active="research">
         <Win at={0.06} x={40} y={20} w={720} h={490} title="Evening wrap · sample edition" glyph="journal">
-          <p className="font-mono text-[10.5px] text-[#E9B44C]">OVERVIEW</p>
+          <p className="font-mono text-[10.5px] text-[#A8DEC2]">OVERVIEW</p>
           <Para>A quiet London session turned busy after US data [1].</Para>
-          <p className="mt-3 font-mono text-[10.5px] text-[#E9B44C]">COMMODITIES</p>
+          <p className="mt-3 font-mono text-[10.5px] text-[#A8DEC2]">COMMODITIES</p>
           <Para>Gold gave back early gains as the dollar firmed [2]. Crude held its range [3].</Para>
-          <p className="mt-3 font-mono text-[10.5px] text-[#E9B44C]">FOREX</p>
+          <p className="mt-3 font-mono text-[10.5px] text-[#A8DEC2]">FOREX</p>
           <Para>The euro slipped against the dollar after weak surveys [4].</Para>
-          <p className="mt-3 font-mono text-[10.5px] text-[#E9B44C]">TOMORROW</p>
+          <p className="mt-3 font-mono text-[10.5px] text-[#A8DEC2]">TOMORROW</p>
           <Para>ECB decision at 18:15 IST [5].</Para>
           <div className="mt-3">
             <Chip tone="sample">Sample edition</Chip>
@@ -455,7 +455,7 @@ export function BriefsSections() {
       <OsSection n={4} label="Sources" title="Open any number." soft="See where it came from." body="Tap a numbered line to open its source with the time it was published or observed." app="Research" active="research">
         <Win at={0.06} x={40} y={20} w={560} h={260} title="Evening wrap" glyph="journal">
           <Para>
-            Gold gave back early gains <span className="border-b border-[#E9B44C] bg-[rgba(233,180,76,0.15)]">as the dollar firmed</span> <span className="text-[#E9B44C]">[2]</span>.
+            Gold gave back early gains <span className="border-b border-[#A8DEC2] bg-[rgba(168,222,194,0.15)]">as the dollar firmed</span> <span className="text-[#A8DEC2]">[2]</span>.
           </Para>
         </Win>
         <Win at={0.3} x={630} y={20} w={530} h={330} title="[2] Source" glyph="settings">

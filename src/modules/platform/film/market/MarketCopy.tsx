@@ -65,10 +65,10 @@ export function HeroCopy({ compact = false }: { compact?: boolean }) {
   return (
     <div>
       <p className={EYEBROW}>AFVAR Platform · Market data</p>
-      <h1 className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F5F7F7]" : `mt-5 ${H1}`}>
-        {CAP.title}. <span className="text-[#E9B44C]">Every number shows its source.</span>
+      <h1 className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]" : `mt-5 ${H1}`}>
+        {CAP.title}. <span className="text-[#A8DEC2]">Every number shows its source.</span>
       </h1>
-      <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#A3AAAC]" : `mt-6 max-w-[31rem] ${BODY}`}>
+      <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#B7C5BC]" : `mt-6 max-w-[31rem] ${BODY}`}>
         {compact ? "Quotes, charts and watchlists in one workspace." : "Quotes, charts, watchlists and heatmaps in one workspace. Ask in plain words and the chart or the watchlist changes to match."}
       </p>
       <div className={`${compact ? "mt-5" : "mt-8"} flex flex-wrap items-center gap-5`}>
@@ -80,11 +80,11 @@ export function HeroCopy({ compact = false }: { compact?: boolean }) {
         </a>
       </div>
       <div className={`${compact ? "mt-5 pt-3" : "mt-10 pt-5"} flex flex-wrap items-center gap-x-6 gap-y-2 border-t ${HAIR}`}>
-        <span className={`${MONO} flex items-center gap-2 text-[#E9B44C]`}>
+        <span className={`${MONO} flex items-center gap-2 text-[#A8DEC2]`}>
           <AiOrb size={8} /> Metals · energy · forex · crypto
         </span>
-        <span className={`${MONO} text-[#6D7578]`}>8 coverage lanes</span>
-        {compact ? null : <span className={`${MONO} text-[#6D7578]`}>Live and delayed, labelled</span>}
+        <span className={`${MONO} text-[#92A399]`}>8 coverage lanes</span>
+        {compact ? null : <span className={`${MONO} text-[#92A399]`}>Live and delayed, labelled</span>}
       </div>
     </div>
   );
@@ -92,7 +92,7 @@ export function HeroCopy({ compact = false }: { compact?: boolean }) {
 
 /* --------------------------------------------------------------- status */
 
-const DOT: Record<HomeQuote["status"], string> = { live: "bg-[#00E676]", delayed: "bg-[#F6B94A]", snapshot: "bg-[#6D7578]" };
+const DOT: Record<HomeQuote["status"], string> = { live: "bg-[#00E676]", delayed: "bg-[#F6B94A]", snapshot: "bg-[#92A399]" };
 
 export function StatusChip({ status, small = false }: { status: HomeQuote["status"]; small?: boolean }) {
   return (
@@ -125,8 +125,8 @@ export function LaneCard({ mv, quotes, compact = false }: { mv: MotionValue<numb
   return (
     <div className={`${CARD} ${compact ? "p-3" : "p-4"}`} aria-label="Coverage lanes now">
       <div className="flex items-center justify-between">
-        <p className="text-[13px] font-semibold text-[#F5F7F7]">Coverage lanes · now</p>
-        <span className={`${MONO} text-[9.5px] text-[#E9B44C]`}>Market core</span>
+        <p className="text-[13px] font-semibold text-[#F2F5F2]">Coverage lanes · now</p>
+        <span className={`${MONO} text-[9.5px] text-[#A8DEC2]`}>Market core</span>
       </div>
       <ul className={`mt-2 ${compact ? "grid grid-cols-2 gap-x-3" : ""}`}>
         {LANE_KEYS.map(([key, sym], i) => {
@@ -136,9 +136,9 @@ export function LaneCard({ mv, quotes, compact = false }: { mv: MotionValue<numb
           return (
             <li
               key={key}
-              className={`flex items-center gap-2 rounded-md px-1.5 font-mono transition-colors ${compact ? "py-[3px] text-[10.5px]" : "py-1 text-[11.5px] [@media(max-height:820px)]:py-0.5"} ${on ? "bg-[rgba(233,180,76,0.1)] text-[#F5F7F7]" : "text-[#C9CFD1]"}`}
+              className={`flex items-center gap-2 rounded-md px-1.5 font-mono transition-colors ${compact ? "py-[3px] text-[10.5px]" : "py-1 text-[11.5px] [@media(max-height:820px)]:py-0.5"} ${on ? "bg-[rgba(168,222,194,0.1)] text-[#F2F5F2]" : "text-[#C9CFD1]"}`}
             >
-              <span className={`${compact ? "w-[3.6rem]" : "w-[4.6rem]"} shrink-0 ${on ? "text-[#E9B44C]" : "text-[#8A9295]"}`}>{sym}</span>
+              <span className={`${compact ? "w-[3.6rem]" : "w-[4.6rem]"} shrink-0 ${on ? "text-[#A8DEC2]" : "text-[#8A9295]"}`}>{sym}</span>
               <span className="tabular-nums">{fmtPrice(q.last, q.decimals)}</span>
               {compact ? null : <span className={`tabular-nums ${q.changePct >= 0 ? "text-[#00E676]" : "text-[#FF6B6B]"}`}>{signedPct(q.changePct)}</span>}
               <span className="ml-auto">
@@ -202,23 +202,23 @@ export function AiChart({ mv, quote, className = "" }: { mv: MotionValue<number>
         ))}
         <polygon points={`0,100 ${line} 100,100`} fill="url(#afv-md-fill)" />
         <polyline points={line} fill="none" stroke={stroke} strokeWidth="1.6" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
-        {t0 ? <motion.line x1={t0.x} y1={t0.y} x2={x2} y2={y2} stroke="#E9B44C" strokeWidth="1.6" vectorEffect="non-scaling-stroke" strokeLinecap="round" /> : null}
+        {t0 ? <motion.line x1={t0.x} y1={t0.y} x2={x2} y2={y2} stroke="#A8DEC2" strokeWidth="1.6" vectorEffect="non-scaling-stroke" strokeLinecap="round" /> : null}
       </svg>
       {/* range high / low: drawn left → right */}
-      <motion.div aria-hidden="true" className="absolute inset-x-0 h-0 origin-left border-t border-dashed border-[#E9B44C]" style={{ top: `${y(r.high)}%`, scaleX: drawHigh }} />
-      <motion.div aria-hidden="true" className="absolute inset-x-0 h-0 origin-left border-t border-dashed border-[#E9B44C]" style={{ top: `${y(r.low)}%`, scaleX: drawLow }} />
-      <motion.span className="absolute left-2 -translate-y-full pb-0.5 font-mono text-[9.5px] tracking-[0.06em] text-[#E9B44C]" style={{ top: `${y(r.high)}%`, opacity: tagHigh }}>
+      <motion.div aria-hidden="true" className="absolute inset-x-0 h-0 origin-left border-t border-dashed border-[#A8DEC2]" style={{ top: `${y(r.high)}%`, scaleX: drawHigh }} />
+      <motion.div aria-hidden="true" className="absolute inset-x-0 h-0 origin-left border-t border-dashed border-[#A8DEC2]" style={{ top: `${y(r.low)}%`, scaleX: drawLow }} />
+      <motion.span className="absolute left-2 -translate-y-full pb-0.5 font-mono text-[9.5px] tracking-[0.06em] text-[#A8DEC2]" style={{ top: `${y(r.high)}%`, opacity: tagHigh }}>
         AI · range high {fmt(r.high)}
       </motion.span>
-      <motion.span className="absolute left-2 pt-0.5 font-mono text-[9.5px] tracking-[0.06em] text-[#E9B44C]" style={{ top: `${y(r.low)}%`, opacity: tagLow }}>
+      <motion.span className="absolute left-2 pt-0.5 font-mono text-[9.5px] tracking-[0.06em] text-[#A8DEC2]" style={{ top: `${y(r.low)}%`, opacity: tagLow }}>
         AI · range low {fmt(r.low)}
       </motion.span>
       {swing && tEnd ? (
-        <motion.span className="absolute right-14 -translate-y-[130%] font-mono text-[9.5px] tracking-[0.06em] text-[#E9B44C]" style={{ top: `${tEnd.y}%`, opacity: tagTrend }}>
+        <motion.span className="absolute right-14 -translate-y-[130%] font-mono text-[9.5px] tracking-[0.06em] text-[#A8DEC2]" style={{ top: `${tEnd.y}%`, opacity: tagTrend }}>
           AI · trend · {swing.kind}
         </motion.span>
       ) : null}
-      <span className="absolute right-1.5 rounded px-1 py-0.5 font-mono text-[10px] text-[#050607]" style={{ top: `calc(${y(closes[closes.length - 1])}% - 8px)`, background: stroke }}>
+      <span className="absolute right-1.5 rounded px-1 py-0.5 font-mono text-[10px] text-[#040404]" style={{ top: `calc(${y(closes[closes.length - 1])}% - 8px)`, background: stroke }}>
         {fmt(closes[closes.length - 1])}
       </span>
     </div>
@@ -253,17 +253,17 @@ export function ChartCard({ mv, quotes }: { mv: MotionValue<number>; quotes: Quo
     <div className={`${CARD_AI} p-3`} aria-label="Gold chart with the lines AFVAR drew">
       <div className="flex items-center gap-2 rounded-lg border border-[rgba(255,255,255,0.08)] px-2.5 py-1.5">
         <AiOrb size={9} pulse={false} />
-        <span className="min-w-0 flex-1 truncate text-[12.5px] text-[#F5F7F7]">
+        <span className="min-w-0 flex-1 truncate text-[12.5px] text-[#F2F5F2]">
           <span ref={asked} />
         </span>
       </div>
       <div className="mt-2 flex items-center justify-between font-mono text-[10.5px]">
-        <span className="text-[#F5F7F7]">XAU/USD · 1H</span>
+        <span className="text-[#F2F5F2]">XAU/USD · 1H</span>
         <StatusChip status={q.status} small />
       </div>
       <AiChart mv={mv} quote={q} className="mt-1 h-[7.5rem] [@media(max-height:700px)]:h-24" />
-      <p className={`mt-2 min-h-[2.6em] text-[12px] leading-snug ${speaking ? "text-[#F5F7F7]" : "text-[#A3AAAC]"}`}>
-        <span className={`${MONO} mr-1.5 text-[9px] text-[#E9B44C]`}>AFVAR</span>
+      <p className={`mt-2 min-h-[2.6em] text-[12px] leading-snug ${speaking ? "text-[#F2F5F2]" : "text-[#B7C5BC]"}`}>
+        <span className={`${MONO} mr-1.5 text-[9px] text-[#A8DEC2]`}>AFVAR</span>
         <span ref={said} />
       </p>
     </div>
@@ -290,12 +290,12 @@ export function HeatGrid({ quotes, mover, dense = false }: { quotes: Quotes; mov
         const bg = q.changePct >= 0 ? `rgba(0,230,118,${0.08 + 0.32 * k})` : `rgba(255,77,77,${0.08 + 0.32 * k})`;
         const ring = mover && big?.key === key;
         return (
-          <li key={key} className={`relative flex flex-col justify-between rounded-lg border ${dense ? "p-1.5" : "p-2.5"} transition-shadow ${ring ? "border-[#E9B44C] shadow-[0_0_0_2px_rgba(233,180,76,0.45)]" : "border-[rgba(255,255,255,0.06)]"}`} style={{ background: bg }}>
-            <span className={`flex items-center justify-between font-mono ${dense ? "text-[9px]" : "text-[10.5px]"} text-[#F5F7F7]`}>
+          <li key={key} className={`relative flex flex-col justify-between rounded-lg border ${dense ? "p-1.5" : "p-2.5"} transition-shadow ${ring ? "border-[#A8DEC2] shadow-[0_0_0_2px_rgba(168,222,194,0.45)]" : "border-[rgba(255,255,255,0.06)]"}`} style={{ background: bg }}>
+            <span className={`flex items-center justify-between font-mono ${dense ? "text-[9px]" : "text-[10.5px]"} text-[#F2F5F2]`}>
               {shortName(key)}
               <span className={`h-1.5 w-1.5 rounded-full ${DOT[q.status]}`} aria-label={STATUS_LABEL[q.status]} />
             </span>
-            <span className={`font-mono tabular-nums ${dense ? "text-[10px]" : "text-[13px]"} font-semibold text-[#F5F7F7]`}>{signedPct(q.changePct)}</span>
+            <span className={`font-mono tabular-nums ${dense ? "text-[10px]" : "text-[13px]"} font-semibold text-[#F2F5F2]`}>{signedPct(q.changePct)}</span>
           </li>
         );
       })}
@@ -314,7 +314,7 @@ export function HeatCard({ mv, quotes }: { mv: MotionValue<number>; quotes: Quot
   return (
     <div className={`${CARD} p-3`}>
       <div className="flex items-center justify-between">
-        <p className="text-[13px] font-semibold text-[#F5F7F7]">Heatmap · since the previous close</p>
+        <p className="text-[13px] font-semibold text-[#F2F5F2]">Heatmap · since the previous close</p>
         <span className={`${MONO} text-[9px] text-[#8A9295]`}>{mixText(quotes)}</span>
       </div>
       <div className={`mt-2 h-[6.6rem] transition-opacity duration-300 ${step >= 0 ? "opacity-100" : "opacity-40"}`}>
@@ -350,14 +350,14 @@ export function InsightCard({ mv, quotes, compact = false }: { mv: MotionValue<n
   return (
     <div className={`${CARD_AI} ${compact ? "p-3" : "p-4"}`} aria-label="Gold instrument insight">
       <div className="flex items-center justify-between">
-        <p className="flex items-center gap-2 text-[13.5px] font-semibold text-[#F5F7F7]">
+        <p className="flex items-center gap-2 text-[13.5px] font-semibold text-[#F2F5F2]">
           <AiOrb size={10} pulse={!checked} /> Gold · instrument insight
         </p>
         <StatusChip status={q.status} small />
       </div>
       <ol className={compact ? "mt-2 space-y-1.5" : "mt-3 space-y-2.5"}>
         {lines.map((l, i) => (
-          <li key={l.k} className={`rounded-lg border px-2.5 transition-[opacity,border-color] duration-300 ${compact ? "py-1.5" : "py-2"} ${step >= i ? "opacity-100" : "opacity-25"} ${step === i ? "border-[rgba(233,180,76,0.55)]" : "border-[rgba(255,255,255,0.07)]"}`}>
+          <li key={l.k} className={`rounded-lg border px-2.5 transition-[opacity,border-color] duration-300 ${compact ? "py-1.5" : "py-2"} ${step >= i ? "opacity-100" : "opacity-25"} ${step === i ? "border-[rgba(168,222,194,0.55)]" : "border-[rgba(255,255,255,0.07)]"}`}>
             <p className="flex items-baseline gap-2">
               <span className={`${MONO} w-[4.4rem] shrink-0 text-[9px] text-[#8A9295]`}>{l.k}</span>
               <span className={`text-[12.5px] leading-snug text-[#E6E9EB] ${compact ? "line-clamp-1" : ""}`}>{l.v}</span>
@@ -365,11 +365,11 @@ export function InsightCard({ mv, quotes, compact = false }: { mv: MotionValue<n
                 ✓
               </span>
             </p>
-            {compact ? null : <p className="mt-0.5 pl-[4.9rem] font-mono text-[9.5px] text-[#6D7578]">{l.src}</p>}
+            {compact ? null : <p className="mt-0.5 pl-[4.9rem] font-mono text-[9.5px] text-[#92A399]">{l.src}</p>}
           </li>
         ))}
       </ol>
-      <p className={`mt-2.5 font-mono text-[10px] ${checked ? "text-[#00E676]" : "text-[#E9B44C]"}`}>{checked ? "3 of 3 lines checked · Verify core" : "Checking each line against its source"}</p>
+      <p className={`mt-2.5 font-mono text-[10px] ${checked ? "text-[#00E676]" : "text-[#A8DEC2]"}`}>{checked ? "3 of 3 lines checked · Verify core" : "Checking each line against its source"}</p>
     </div>
   );
 }

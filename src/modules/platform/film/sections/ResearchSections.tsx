@@ -20,7 +20,7 @@ export function ResearchSections() {
         <Ask at={0.3} x={660} y={20} w={500} text="What matters for Gold this week?" />
         <Win at={0.45} x={660} y={80} w={500} h={260} title="Answer" glyph="research" ai>
           <Para>
-            Two events: <b className="text-[#E9B44C]">US CPI</b> on Tuesday and <b className="text-[#E9B44C]">US payrolls</b> on Friday. Both move the dollar, the currency Gold is priced in.
+            Two events: <b className="text-[#A8DEC2]">US CPI</b> on Tuesday and <b className="text-[#A8DEC2]">US payrolls</b> on Friday. Both move the dollar, the currency Gold is priced in.
           </Para>
           <div className="mt-3 flex flex-wrap gap-2">
             <Chip tone="gold">[1] Economic calendar</Chip>
@@ -33,15 +33,15 @@ export function ResearchSections() {
         <Win at={0.06} x={40} y={20} w={560} h={490} title="Event analysis · US CPI" glyph="research" ai>
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-lg border border-[rgba(255,255,255,0.12)] p-2.5">
-              <b className="text-[13px] text-[#F5F7F7]">Hotter than forecast</b>
-              <p className="mt-1 text-[12.5px] text-[#A3AAAC]">Dollar often firms; Gold often eases.</p>
+              <b className="text-[13px] text-[#F2F5F2]">Hotter than forecast</b>
+              <p className="mt-1 text-[12.5px] text-[#B7C5BC]">Dollar often firms; Gold often eases.</p>
             </div>
             <div className="rounded-lg border border-[rgba(255,255,255,0.12)] p-2.5">
-              <b className="text-[13px] text-[#F5F7F7]">Cooler than forecast</b>
-              <p className="mt-1 text-[12.5px] text-[#A3AAAC]">Dollar often softens; Gold often lifts.</p>
+              <b className="text-[13px] text-[#F2F5F2]">Cooler than forecast</b>
+              <p className="mt-1 text-[12.5px] text-[#B7C5BC]">Dollar often softens; Gold often lifts.</p>
             </div>
           </div>
-          <p className="mb-1 mt-4 font-mono text-[10.5px] tracking-[0.12em] text-[#6D7578]">PAST RELEASES · FIRST HOUR</p>
+          <p className="mb-1 mt-4 font-mono text-[10.5px] tracking-[0.12em] text-[#92A399]">PAST RELEASES · FIRST HOUR</p>
           <Row k="Each release, with Gold's first-hour move" v="from the candles" />
           <div className="mt-3 flex gap-2">
             <Chip tone="sample">Sample layout</Chip>
@@ -75,7 +75,7 @@ export function ResearchSections() {
         <ChartWin k="XAUUSD" at={0.1} x={40} y={62} w={640} h={450} band={[30, 34]} />
         <Win at={0.35} x={710} y={62} w={450} h={250} title="Answer" glyph="research" ai>
           <Para>
-            Two reasons, both sourced: US data beat forecasts <span className="text-[#E9B44C]">[1]</span>, and the dollar rose against most currencies <span className="text-[#E9B44C]">[2]</span>.
+            Two reasons, both sourced: US data beat forecasts <span className="text-[#A8DEC2]">[1]</span>, and the dollar rose against most currencies <span className="text-[#A8DEC2]">[2]</span>.
           </Para>
           <div className="mt-3">
             <Chip tone="sample">Sample answer · sources linked</Chip>
@@ -93,11 +93,11 @@ export function ResearchSections() {
           <Row k="Event preview" v="before big releases" />
         </Win>
         <Win at={0.3} x={430} y={20} w={730} h={490} title="Morning brief · sample edition" glyph="journal">
-          <p className="font-mono text-[10.5px] text-[#E9B44C]">GOLD</p>
+          <p className="font-mono text-[10.5px] text-[#A8DEC2]">GOLD</p>
           <Para>Lower as the dollar firmed after US data [1] [2]</Para>
-          <p className="mt-3 font-mono text-[10.5px] text-[#E9B44C]">DOLLAR</p>
+          <p className="mt-3 font-mono text-[10.5px] text-[#A8DEC2]">DOLLAR</p>
           <Para>Higher against most majors this morning [3]</Para>
-          <p className="mt-3 font-mono text-[10.5px] text-[#E9B44C]">TODAY</p>
+          <p className="mt-3 font-mono text-[10.5px] text-[#A8DEC2]">TODAY</p>
           <Para>US CPI at 18:00 IST [4]</Para>
           <div className="mt-3">
             <Chip tone="sample">Sample edition</Chip>
@@ -118,11 +118,11 @@ export function ResearchSections() {
           />
         </Win>
         <Win at={0.4} x={530} y={62} w={630} h={450} title="Report · draft" glyph="journal" ai>
-          <p className="font-mono text-[10.5px] text-[#E9B44C]">1 · THE DOLLAR LINK</p>
+          <p className="font-mono text-[10.5px] text-[#A8DEC2]">1 · THE DOLLAR LINK</p>
           <Para>Gold is priced in dollars, so a firmer dollar often weighs on it [1] [2]</Para>
-          <p className="mt-3 font-mono text-[10.5px] text-[#E9B44C]">2 · RATES</p>
+          <p className="mt-3 font-mono text-[10.5px] text-[#A8DEC2]">2 · RATES</p>
           <Para>Higher yields raise the cost of holding Gold [3]</Para>
-          <p className="mt-3 font-mono text-[10.5px] text-[#E9B44C]">3 · DEMAND</p>
+          <p className="mt-3 font-mono text-[10.5px] text-[#A8DEC2]">3 · DEMAND</p>
           <Para>Central bank buying can offset it [4]</Para>
         </Win>
       </OsSection>
@@ -130,7 +130,7 @@ export function ResearchSections() {
       <OsSection n={8} label="Supporting sources" title="Tap any claim." soft="See where it came from." body="Every explanation keeps its sources: what they are, where they are from and when." app="Research" active="research">
         <Win at={0.06} x={40} y={20} w={560} h={300} title="Morning brief" glyph="journal">
           <Para>
-            Gold fell <span className="border-b border-[#E9B44C] bg-[rgba(233,180,76,0.15)]">as the dollar firmed after US data</span> <span className="text-[#E9B44C]">[1]</span>. Central bank buying continues <span className="text-[#E9B44C]">[3]</span>.
+            Gold fell <span className="border-b border-[#A8DEC2] bg-[rgba(168,222,194,0.15)]">as the dollar firmed after US data</span> <span className="text-[#A8DEC2]">[1]</span>. Central bank buying continues <span className="text-[#A8DEC2]">[3]</span>.
           </Para>
         </Win>
         <Win at={0.3} x={630} y={20} w={530} h={490} title="Sources for the highlighted claim" glyph="settings">

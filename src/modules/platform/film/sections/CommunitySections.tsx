@@ -41,9 +41,9 @@ function Rooms() {
       <Win at={0.06} x={40} y={20} w={640} h={490} title="Community · rooms" glyph="community">
         <div className="grid grid-cols-2 gap-2">
           {ROOMS.map(([n, d], i) => (
-            <div key={n} className={`rounded-lg border p-3 ${i === 0 ? "border-[rgba(233,180,76,0.6)] bg-[rgba(233,180,76,0.06)]" : "border-[rgba(255,255,255,0.1)]"}`}>
-              <p className="text-[13.5px] font-semibold text-[#F5F7F7]"># {n}</p>
-              <p className="mt-0.5 text-[12px] text-[#A3AAAC]">{d}</p>
+            <div key={n} className={`rounded-lg border p-3 ${i === 0 ? "border-[rgba(168,222,194,0.6)] bg-[rgba(168,222,194,0.06)]" : "border-[rgba(255,255,255,0.1)]"}`}>
+              <p className="text-[13.5px] font-semibold text-[#F2F5F2]"># {n}</p>
+              <p className="mt-0.5 text-[12px] text-[#B7C5BC]">{d}</p>
             </div>
           ))}
         </div>
@@ -63,10 +63,10 @@ function Rooms() {
 
 function Post({ who, tag, children, gold = false }: { who: string; tag?: string; children: ReactNode; gold?: boolean }) {
   return (
-    <div className={`mb-2.5 rounded-lg border p-3 ${gold ? "border-[rgba(233,180,76,0.5)]" : "border-[rgba(255,255,255,0.1)]"}`}>
+    <div className={`mb-2.5 rounded-lg border p-3 ${gold ? "border-[rgba(168,222,194,0.5)]" : "border-[rgba(255,255,255,0.1)]"}`}>
       <p className="flex items-center gap-2 text-[12px]">
-        <span className="font-semibold text-[#F5F7F7]">{who}</span>
-        {tag ? <span className="font-mono text-[10px] text-[#6D7578]">{tag}</span> : null}
+        <span className="font-semibold text-[#F2F5F2]">{who}</span>
+        {tag ? <span className="font-mono text-[10px] text-[#92A399]">{tag}</span> : null}
       </p>
       <div className="mt-1 text-[13px] leading-relaxed text-[#D7DCDD]">{children}</div>
     </div>
@@ -87,7 +87,7 @@ function Discussions() {
         </div>
       </Win>
       <Win at={0.4} x={710} y={20} w={450} h={230} title="Reply" glyph="journal">
-        <p className="text-[13px] text-[#A3AAAC]">Write a reply…</p>
+        <p className="text-[13px] text-[#B7C5BC]">Write a reply…</p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Chip>Attach chart</Chip>
           <Chip>Quote</Chip>
@@ -123,8 +123,8 @@ function EventRoom() {
   return (
     <OsSection n={5} label="Live event room" title="Big releases, together." soft="Opened before, closed after." body="For major data such as US CPI, a live room opens with a countdown, the forecast and a moderator — then a recap when it ends." app="Community" active="community">
       <Win at={0.06} x={40} y={20} w={460} h={260} title="Live room · US CPI" glyph="calendar">
-        <p className="font-mono text-[11px] tracking-[0.12em] text-[#E9B44C]">STARTS IN</p>
-        <p className="text-[38px] font-semibold text-[#F5F7F7]">00:40:00</p>
+        <p className="font-mono text-[11px] tracking-[0.12em] text-[#A8DEC2]">STARTS IN</p>
+        <p className="text-[38px] font-semibold text-[#F2F5F2]">00:40:00</p>
         <Row k="Forecast" v="from the calendar" />
         <Row k="In the room" v="1,240 members" />
         <div className="mt-2">
@@ -147,10 +147,10 @@ function Profiles() {
     <OsSection n={6} label="Profiles" title="See who you learn from." soft="Their process, not their profit." body="A profile shows what a member trades, how long they have been here and what they have shared — never a profit leaderboard." app="Community" active="community">
       <Win at={0.06} x={40} y={20} w={520} h={490} title="Profile · Meera" glyph="community">
         <div className="mb-3 flex items-center gap-3">
-          <span className="grid h-12 w-12 place-items-center rounded-full bg-[rgba(233,180,76,0.15)] text-[18px] font-semibold text-[#E9B44C]">M</span>
+          <span className="grid h-12 w-12 place-items-center rounded-full bg-[rgba(168,222,194,0.15)] text-[18px] font-semibold text-[#A8DEC2]">M</span>
           <div>
-            <p className="text-[15px] font-semibold text-[#F5F7F7]">Meera</p>
-            <p className="text-[12px] text-[#A3AAAC]">Member for 2 years · Mumbai</p>
+            <p className="text-[15px] font-semibold text-[#F2F5F2]">Meera</p>
+            <p className="text-[12px] text-[#B7C5BC]">Member for 2 years · Mumbai</p>
           </div>
         </div>
         <Row k="Trades mostly" v="Gold · EUR/USD" />
@@ -190,7 +190,7 @@ function Verified() {
         <Row k="Verified record" v={<Chip tone="gold">Verified · Jan–Oct</Chip>} />
         <Row k="Self-reported" v={<Chip>Self-reported</Chip>} />
         <Row k="Identity checked" v={<Chip tone="plain">ID checked</Chip>} />
-        <p className="mt-3 text-[12.5px] leading-relaxed text-[#A3AAAC]">Each label is separate. One never implies another.</p>
+        <p className="mt-3 text-[12.5px] leading-relaxed text-[#B7C5BC]">Each label is separate. One never implies another.</p>
       </Win>
       <Note at={0.66} x={40} y={380} w={560} title="A verified record is not a recommendation" sub="It shows what happened, not what will" />
     </OsSection>
@@ -244,7 +244,7 @@ function Brokers() {
             ["Member notes", "12", "7", "4"],
           ].map((r, i) =>
             r.map((c, j) => (
-              <span key={`${i}-${j}`} className={i === 0 ? "font-semibold text-[#F5F7F7]" : j === 0 ? "text-[#A3AAAC]" : "text-[#F5F7F7]"}>
+              <span key={`${i}-${j}`} className={i === 0 ? "font-semibold text-[#F2F5F2]" : j === 0 ? "text-[#B7C5BC]" : "text-[#F2F5F2]"}>
                 {c}
               </span>
             )),
@@ -267,11 +267,11 @@ function Summaries() {
     <OsSection n={10} label="AI summaries" title="Catch up in a minute." soft="Every point linked to the post." body="Missed a long thread? Ask for a summary. AFVAR lists the main views, where people disagreed and the open questions — each linked to the post." app="Community" active="community">
       <Ask at={0.04} x={40} y={10} w={620} text="Summarise today’s # Gold & Silver" />
       <Win at={0.14} x={40} y={74} w={620} h={436} title="Summary · 214 posts" glyph="research" ai>
-        <p className="font-mono text-[10.5px] tracking-[0.1em] text-[#E9B44C]">MAIN VIEWS</p>
+        <p className="font-mono text-[10.5px] tracking-[0.1em] text-[#A8DEC2]">MAIN VIEWS</p>
         <Para>Most members are waiting for CPI before acting [12] [40]</Para>
-        <p className="mt-3 font-mono text-[10.5px] tracking-[0.1em] text-[#E9B44C]">DISAGREEMENT</p>
+        <p className="mt-3 font-mono text-[10.5px] tracking-[0.1em] text-[#A8DEC2]">DISAGREEMENT</p>
         <Para>Whether the dollar or yields matter more this month [3] [77]</Para>
-        <p className="mt-3 font-mono text-[10.5px] tracking-[0.1em] text-[#E9B44C]">OPEN QUESTION</p>
+        <p className="mt-3 font-mono text-[10.5px] tracking-[0.1em] text-[#A8DEC2]">OPEN QUESTION</p>
         <Para>How Silver reacts if industrial data is weak [151]</Para>
         <div className="mt-3">
           <Chip tone="sample">Sample summary</Chip>

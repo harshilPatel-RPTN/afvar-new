@@ -248,7 +248,7 @@ export function GuidesFilmPage() {
           <div className="grid gap-8 md:grid-cols-2">
             {GUIDE_GROUPS.map((g) => (
               <div key={g.id}>
-                <p className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.12em] text-[#E9B44C]">{g.title}</p>
+                <p className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.12em] text-[#A8DEC2]">{g.title}</p>
                 <div className="space-y-3">
                   {GUIDES.filter((x) => x.group === g.id).map((x) => (
                     <DirCard key={x.slug} href={`/resources/guides/${x.slug}`} title={x.title} />
@@ -345,7 +345,7 @@ export function ContactFilmPage() {
       after={
         <Directory id="enquiry" title="Write to us." soft="Topic, email, message.">
           <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
-            <PfScope className="rounded-[14px] border border-[rgba(255,255,255,0.1)] bg-[#0B0E10] p-5 sm:p-6">
+            <PfScope className="rounded-[14px] border border-[rgba(255,255,255,0.1)] bg-[#06110C] p-5 sm:p-6">
               <EnquiryForm />
             </PfScope>
             <div className="space-y-4">

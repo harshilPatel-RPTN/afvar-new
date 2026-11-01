@@ -27,7 +27,7 @@ export function HubSections() {
         {CATEGORIES.map((c, i) => (
           <Win key={c.id} at={0.05 + i * 0.1} x={40 + (i % 3) * 380} y={i < 3 ? 20 : 290} w={360} h={230} title={c.title} glyph={(["calendar", "journal", "settings", "research", "phone"] as const)[i]} ai={i === 2}>
             <Para>{c.summary}</Para>
-            <p className="mt-3 font-mono text-[10.5px] tracking-[0.1em] text-[#E9B44C]">{HUB_COUNT[c.id]}</p>
+            <p className="mt-3 font-mono text-[10.5px] tracking-[0.1em] text-[#A8DEC2]">{HUB_COUNT[c.id]}</p>
           </Win>
         ))}
       </OsSection>
@@ -69,8 +69,8 @@ export function HubSections() {
         <Win at={0.06} x={40} y={20} w={1120} h={490} title="Top questions" glyph="research">
           {[faq("status").items[0], faq("status").items[1], faq("markets").items[0], faq("devices").items[0], faq("priority").items[0]].map((f) => (
             <div key={f.q} className="border-b border-[rgba(255,255,255,0.06)] py-2.5 last:border-b-0">
-              <b className="text-[13.5px] text-[#F5F7F7]">{f.q}</b>
-              <p className="mt-0.5 text-[13px] leading-relaxed text-[#A3AAAC]">{f.a}</p>
+              <b className="text-[13.5px] text-[#F2F5F2]">{f.q}</b>
+              <p className="mt-0.5 text-[13px] leading-relaxed text-[#B7C5BC]">{f.a}</p>
             </div>
           ))}
         </Win>
@@ -83,7 +83,7 @@ export function HubSections() {
           ))}
         </Win>
         <Win at={0.34} x={630} y={20} w={530} h={360} title="Support request" glyph="phone">
-          <p className="mb-2 font-mono text-[10.5px] tracking-[0.1em] text-[#6D7578]">TOPIC</p>
+          <p className="mb-2 font-mono text-[10.5px] tracking-[0.1em] text-[#92A399]">TOPIC</p>
           <div className="flex flex-wrap gap-2">
             {HELP.topics.slice(0, 6).map((t, i) => (
               <Chip key={t} tone={i === 2 ? "gold" : "plain"}>
@@ -91,7 +91,7 @@ export function HubSections() {
               </Chip>
             ))}
           </div>
-          <div className="mt-4 h-[96px] rounded-lg border border-[rgba(255,255,255,0.12)] p-2.5 text-[13px] text-[#6D7578]">Describe what happened…</div>
+          <div className="mt-4 h-[96px] rounded-lg border border-[rgba(255,255,255,0.12)] p-2.5 text-[13px] text-[#92A399]">Describe what happened…</div>
         </Win>
       </OsSection>
     </>
@@ -229,11 +229,11 @@ export function GuidesSections() {
 
       <OsSection n={3} label="A guide’s shape" title="Every guide, the same shape." soft="Task, steps, result." body="What you will do, what you need first, a few numbered steps, and what you will have at the end." app="Market data" active="charts">
         <Win at={0.06} x={40} y={20} w={480} h={490} title={chart.title} glyph="journal">
-          <p className="text-[12.5px] text-[#A3AAAC]">{chart.task}</p>
+          <p className="text-[12.5px] text-[#B7C5BC]">{chart.task}</p>
           <div className="mt-3">
             <ScrollSteps items={chart.steps.map((s) => ({ label: s.title.split(" ").slice(0, 2).join(" "), detail: s.title }))} at={[0.16, 0.28, 0.4, 0.52]} />
           </div>
-          <p className="mt-3 font-mono text-[10.5px] tracking-[0.1em] text-[#E9B44C]">RESULT</p>
+          <p className="mt-3 font-mono text-[10.5px] tracking-[0.1em] text-[#A8DEC2]">RESULT</p>
           <Para>{chart.result}</Para>
         </Win>
         <ChartWin k="XAUUSD" at={0.36} x={550} y={20} w={610} h={490} />
@@ -329,7 +329,7 @@ export function HelpSections() {
       <OsSection n={5} label="Never asked" title="What AFVAR never asks for." soft="If it does, it is not us." body="These requests are always a scam, whoever claims to send them." app="Help">
         <Win at={0.06} x={40} y={20} w={680} h={360} title="AFVAR will never" glyph="risk">
           {HELP.never.map((n) => (
-            <p key={n} className="flex gap-2.5 border-b border-[rgba(255,255,255,0.06)] py-2.5 text-[13px] leading-relaxed text-[#F5F7F7] last:border-b-0">
+            <p key={n} className="flex gap-2.5 border-b border-[rgba(255,255,255,0.06)] py-2.5 text-[13px] leading-relaxed text-[#F2F5F2] last:border-b-0">
               <span className="text-[#FF8A8A]">✕</span>
               {n}
             </p>
@@ -340,7 +340,7 @@ export function HelpSections() {
 
       <OsSection n={6} label="Request" title="Send one request." soft="To one desk." body="Pick a topic, describe what happened and send. Product and account questions share the same support destination." app="Help">
         <Win at={0.06} x={40} y={20} w={720} h={420} title="Support request" glyph="phone">
-          <p className="mb-2 font-mono text-[10.5px] tracking-[0.1em] text-[#6D7578]">TOPIC</p>
+          <p className="mb-2 font-mono text-[10.5px] tracking-[0.1em] text-[#92A399]">TOPIC</p>
           <div className="flex flex-wrap gap-2">
             {HELP.topics.map((t, i) => (
               <Chip key={t} tone={i === 1 ? "gold" : "plain"}>
@@ -403,8 +403,8 @@ export function FaqSections() {
               <Win at={0.3} x={630} y={10} w={530} h={500} title={`${g.title} · all answers`} glyph="research">
                 {g.items.map((f) => (
                   <div key={f.q} className="border-b border-[rgba(255,255,255,0.06)] py-2 last:border-b-0">
-                    <b className="text-[13px] text-[#F5F7F7]">{f.q}</b>
-                    <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#A3AAAC]">{f.a}</p>
+                    <b className="text-[13px] text-[#F2F5F2]">{f.q}</b>
+                    <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#B7C5BC]">{f.a}</p>
                   </div>
                 ))}
               </Win>
@@ -427,10 +427,10 @@ export function EvidenceSections() {
           {EVIDENCE.badge.map((b) => (
             <div key={b.key} className="border-b border-[rgba(255,255,255,0.06)] py-2 last:border-b-0">
               <div className="flex justify-between">
-                <b className="text-[13px] text-[#F5F7F7]">{b.label}</b>
-                <span className="font-mono text-[11px] text-[#E9B44C]">{b.sample}</span>
+                <b className="text-[13px] text-[#F2F5F2]">{b.label}</b>
+                <span className="font-mono text-[11px] text-[#A8DEC2]">{b.sample}</span>
               </div>
-              <p className="mt-0.5 text-[12px] leading-relaxed text-[#A3AAAC]">{b.body.split(". ")[0]}.</p>
+              <p className="mt-0.5 text-[12px] leading-relaxed text-[#B7C5BC]">{b.body.split(". ")[0]}.</p>
             </div>
           ))}
         </Win>
@@ -461,7 +461,7 @@ export function EvidenceSections() {
           ))}
         </Win>
         <Win at={0.34} x={670} y={20} w={490} h={200} title="How a result reads" glyph="chart">
-          <p className="font-mono text-[14px] text-[#F5F7F7]">right 27 of 41 · expectancy +0.6R</p>
+          <p className="font-mono text-[14px] text-[#F2F5F2]">right 27 of 41 · expectancy +0.6R</p>
           <div className="mt-3">
             <Chip tone="sample">Format only · not a result</Chip>
           </div>
@@ -484,7 +484,7 @@ export function EvidenceSections() {
       <OsSection n={7} label="Limits" title="What a record cannot tell you." soft="Said plainly." body="A good record is about the past. Read the count beside every rate, and never treat it as a promise." app="Research" active="research">
         <Win at={0.06} x={40} y={20} w={760} h={330} title="Limits" glyph="risk">
           {EVIDENCE.records.limits.map((l) => (
-            <p key={l} className="border-b border-[rgba(255,255,255,0.06)] py-2.5 text-[13.5px] text-[#F5F7F7] last:border-b-0">
+            <p key={l} className="border-b border-[rgba(255,255,255,0.06)] py-2.5 text-[13.5px] text-[#F2F5F2] last:border-b-0">
               {l}
             </p>
           ))}

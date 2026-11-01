@@ -164,7 +164,7 @@ function AiLayer() {
   });
   return (
     <group name="AI">
-      <GlassPlate width={STACK.width} depth={STACK.depth} edge={0.75} tint="#141109" />
+      <GlassPlate width={STACK.width} depth={STACK.depth} edge={0.75} tint="#0E1F17" />
       {paths.map((p, k) => (
         <group key={k}>
           <GlowLine points={p} color={COLORS.gold} intensity={1.15} width={1.25} opacity={0.85} />
@@ -230,18 +230,18 @@ function YouLayer({ compact }: { compact: boolean }) {
     <group name="You">
       <group position={[0, 0.1, 0]} rotation={FACE}>
         <group rotation={[Math.PI / 2, 0, 0]}>
-          <GlassPlate width={compact ? 1.45 : 1.9} depth={0.32} radius={0.15} thickness={0.04} edge={0.85} tint="#0B0E10" opacity={0.92} />
+          <GlassPlate width={compact ? 1.45 : 1.9} depth={0.32} radius={0.15} thickness={0.04} edge={0.85} tint="#06110C" opacity={0.92} />
         </group>
         <Html center position={[0, 0, 0.05]} portal={labels as RefObject<HTMLElement>} zIndexRange={[19, 0]} style={{ pointerEvents: "none" }}>
-          <div className="flex items-center gap-[0.8em] whitespace-nowrap text-[#A3AAAC]" style={{ fontSize: compact ? "10px" : "clamp(9.5px, 1.3vh, 12.5px)" }}>
-            <span className="h-[0.55em] w-[0.55em] rounded-full bg-[#E9B44C] shadow-[0_0_8px_2px_rgba(233,180,76,0.6)]" />
+          <div className="flex items-center gap-[0.8em] whitespace-nowrap text-[#B7C5BC]" style={{ fontSize: compact ? "10px" : "clamp(9.5px, 1.3vh, 12.5px)" }}>
+            <span className="h-[0.55em] w-[0.55em] rounded-full bg-[#A8DEC2] shadow-[0_0_8px_2px_rgba(168,222,194,0.6)]" />
             <span>{compact ? "Ask AFVAR" : "Ask AFVAR or type a command"}</span>
             <span className="afv-voice flex h-[1em] items-center gap-[2px]" aria-hidden="true">
               {[0.55, 1, 0.7].map((h, i) => (
-                <span key={i} className="w-[2px] rounded-full bg-[#E9B44C]" style={{ height: `${h}em`, animationDelay: `${i * 0.15}s` }} />
+                <span key={i} className="w-[2px] rounded-full bg-[#A8DEC2]" style={{ height: `${h}em`, animationDelay: `${i * 0.15}s` }} />
               ))}
             </span>
-            {compact ? null : <span className="font-mono text-[0.78em] tracking-[0.14em] text-[#6D7578]">EN · हिन्दी</span>}
+            {compact ? null : <span className="font-mono text-[0.78em] tracking-[0.14em] text-[#92A399]">EN · हिन्दी</span>}
           </div>
         </Html>
       </group>
@@ -296,7 +296,7 @@ function LayerLabel({ position, show, compact, children }: { position: [number, 
       <div
         ref={ref}
         style={{ opacity: 0, visibility: "hidden" }}
-        className={`whitespace-nowrap border border-[rgba(255,255,255,0.18)] bg-[#0F1214] font-mono uppercase text-[#F5F7F7] ${compact ? "px-1.5 py-px text-[8.5px] tracking-[0.12em]" : "px-2.5 py-1 text-[11px] tracking-[0.16em] [@media(max-height:520px)]:px-1.5 [@media(max-height:520px)]:py-0.5 [@media(max-height:520px)]:text-[8.5px]"}`}
+        className={`whitespace-nowrap border border-[rgba(255,255,255,0.18)] bg-[#10231B] font-mono uppercase text-[#F2F5F2] ${compact ? "px-1.5 py-px text-[8.5px] tracking-[0.12em]" : "px-2.5 py-1 text-[11px] tracking-[0.16em] [@media(max-height:520px)]:px-1.5 [@media(max-height:520px)]:py-0.5 [@media(max-height:520px)]:text-[8.5px]"}`}
       >
         {children}
       </div>

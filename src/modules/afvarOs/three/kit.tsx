@@ -154,7 +154,7 @@ export function GlassPlate({
   radius = 0.14,
   edge = 0.55,
   edgeColor = COLORS.gold,
-  tint = "#0A0D0F",
+  tint = "#06110C",
   opacity = 0.55,
   dashed = false,
 }: {

@@ -9,21 +9,21 @@ const UPDATED = "1 November 2026";
 function Legal({ id, eyebrow, title, lede, children }: { id: string; eyebrow: string; title: string; lede: string; children: ReactNode }) {
   return (
     <SiteFrame>
-      <article aria-labelledby={`${id}-t`} className="bg-[#050607] px-5 pb-28 pt-[136px] sm:px-8 lg:px-16">
+      <article aria-labelledby={`${id}-t`} className="bg-transparent px-5 pb-28 pt-[136px] sm:px-8 lg:px-16">
         <div className="mx-auto max-w-3xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#E9B44C]">{eyebrow}</p>
-          <h1 id={`${id}-t`} className="mt-4 text-[clamp(2.1rem,5vw,3.4rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-[#F5F7F7]">
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#A8DEC2]">{eyebrow}</p>
+          <h1 id={`${id}-t`} className="mt-4 text-[clamp(2.1rem,5vw,3.4rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-[#F2F5F2]">
             {title}
           </h1>
-          <p className="mt-5 text-[17px] leading-relaxed text-[#A3AAAC]">{lede}</p>
+          <p className="mt-5 text-[17px] leading-relaxed text-[#B7C5BC]">{lede}</p>
           <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-[rgba(246,185,74,0.45)] px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.12em] text-[#F6B94A]">
             <span className="h-1.5 w-1.5 rounded-full bg-[#F6B94A]" />
             Full document published before launch · last checked {UPDATED}
           </p>
           <div className="mt-12 space-y-10">{children}</div>
-          <p className="mt-14 border-t border-[rgba(255,255,255,0.08)] pt-6 text-[14px] leading-relaxed text-[#A3AAAC]">
+          <p className="mt-14 border-t border-[rgba(255,255,255,0.08)] pt-6 text-[14px] leading-relaxed text-[#B7C5BC]">
             Questions about this page? Write to the team through{" "}
-            <a href="/contact" className="text-[#E9B44C] underline-offset-4 hover:underline">
+            <a href="/contact" className="text-[#A8DEC2] underline-offset-4 hover:underline">
               Contact
             </a>
             . AFVAR is operated by RedPhantom Tech Novelty Private Limited, Pandharpur, Maharashtra, India.
@@ -37,8 +37,8 @@ function Legal({ id, eyebrow, title, lede, children }: { id: string; eyebrow: st
 function Part({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
-      <h2 className="text-[20px] font-semibold tracking-[-0.01em] text-[#F5F7F7]">{title}</h2>
-      <div className="mt-3 space-y-3 text-[15px] leading-relaxed text-[#A3AAAC]">{children}</div>
+      <h2 className="text-[20px] font-semibold tracking-[-0.01em] text-[#F2F5F2]">{title}</h2>
+      <div className="mt-3 space-y-3 text-[15px] leading-relaxed text-[#B7C5BC]">{children}</div>
     </section>
   );
 }
@@ -47,7 +47,7 @@ function Table({ rows }: { rows: readonly (readonly [string, string, string])[] 
   return (
     <div className="overflow-x-auto rounded-[12px] border border-[rgba(255,255,255,0.1)]">
       <table className="w-full min-w-[520px] text-left text-[13.5px]">
-        <thead className="bg-[#0B0E10] font-mono text-[10.5px] uppercase tracking-[0.1em] text-[#6D7578]">
+        <thead className="bg-[#06110C] font-mono text-[10.5px] uppercase tracking-[0.1em] text-[#92A399]">
           <tr>
             <th className="px-4 py-2.5 font-normal">Name</th>
             <th className="px-4 py-2.5 font-normal">What it remembers</th>
@@ -57,9 +57,9 @@ function Table({ rows }: { rows: readonly (readonly [string, string, string])[] 
         <tbody>
           {rows.map(([n, w, k]) => (
             <tr key={n} className="border-t border-[rgba(255,255,255,0.06)]">
-              <td className="px-4 py-2.5 font-mono text-[12px] text-[#F5F7F7]">{n}</td>
+              <td className="px-4 py-2.5 font-mono text-[12px] text-[#F2F5F2]">{n}</td>
               <td className="px-4 py-2.5 text-[#C9CFD1]">{w}</td>
-              <td className="px-4 py-2.5 text-[#A3AAAC]">{k}</td>
+              <td className="px-4 py-2.5 text-[#B7C5BC]">{k}</td>
             </tr>
           ))}
         </tbody>

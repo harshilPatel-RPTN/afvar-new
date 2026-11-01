@@ -1,11 +1,9 @@
-import Link from "next/link";
-import { EarthHorizon, PageNote, Reveal, ScrollWords } from "@/modules/platform/kit";
-import { PRELAUNCH_NOTE } from "../content";
-import { ResLink } from "./ui";
+import { ClosingCopy, GlobeClosing } from "@/modules/homeDemo";
 
 /**
- * The /market closing band (stars + the live, draggable earth horizon) with
- * Resources copy. The site frame adds the footer after it.
+ * The closing of a single guide or help topic: the home's point globe with the
+ * page's own headline, Register Now and one next step. The site frame adds the
+ * footer after it.
  */
 export function ResourcesClosing({
   title,
@@ -18,31 +16,10 @@ export function ResourcesClosing({
   primary: { label: string; href: string };
   secondary?: { label: string; href: string };
 }) {
+  const next = primary.href.startsWith("http") ? secondary : primary;
   return (
-    <>
-    <EarthHorizon label="Next steps">
-      <div className="mx-auto max-w-3xl text-center">
-        <ScrollWords text={title} className="pf-title" />
-        <Reveal delay={0.1}>
-          <p className="pf-lede mx-auto mt-5 max-w-lg">{lede}</p>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-x-7 gap-y-4">
-            {primary.href.startsWith("http") ? (
-              <a href={primary.href} className="afvar-glass-button afvar-glass-primary rs-primary">
-                {primary.label}
-              </a>
-            ) : (
-              <Link href={primary.href} className="afvar-glass-button afvar-glass-primary rs-primary">
-                {primary.label}
-              </Link>
-            )}
-            {secondary && <ResLink href={secondary.href}>{secondary.label}</ResLink>}
-          </div>
-        </Reveal>
-      </div>
-      <div className="mt-16">
-        <PageNote>{PRELAUNCH_NOTE}</PageNote>
-      </div>
-    </EarthHorizon>
-    </>
+    <GlobeClosing>
+      <ClosingCopy title={title} lede={lede} second={next} />
+    </GlobeClosing>
   );
 }

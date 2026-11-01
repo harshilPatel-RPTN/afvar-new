@@ -28,7 +28,7 @@ function RuleInWords() {
         <Row k="When met" v="notify me once · app and phone" />
         <Row k="Runs until" v="you pause or delete it" />
         <div className="mt-4 flex items-center gap-2.5">
-          <span className="rounded-full bg-[#E9B44C] px-3.5 py-1 text-[12px] font-semibold text-[#0B0E10]">Confirm rule</span>
+          <span className="rounded-full bg-[#A8DEC2] px-3.5 py-1 text-[12px] font-semibold text-[#06110C]">Confirm rule</span>
           <span className="rounded-full border border-[rgba(255,255,255,0.18)] px-3 py-1 text-[12px]">Edit</span>
         </div>
       </Win>
@@ -51,7 +51,7 @@ function AlertTypes() {
         <Row k="Percent move" v="± 1% within an hour" />
         <Row k="Condition" v="close above the 20-hour average" />
         <Row k="Event reminder" v="15 minutes before US CPI" />
-        <p className="mt-4 text-[12px] leading-relaxed text-[#A3AAAC]">The first example uses the high of the last 44 hourly candles from the feed.</p>
+        <p className="mt-4 text-[12px] leading-relaxed text-[#B7C5BC]">The first example uses the high of the last 44 hourly candles from the feed.</p>
       </Win>
       <ChartWin k="XAUUSD" at={0.3} x={570} y={20} w={590} h={490} levels={g ? [{ v: g.hi, label: "Alert · range high", tone: "gold", solid: true }, { v: g.lo, label: "Range low", tone: "ink" }] : undefined} drawFrom={[0.4, 0.55]} />
     </OsSection>
@@ -91,8 +91,8 @@ function ScreenRow({ k }: { k: string }) {
       k={SYM[k] ?? k}
       v={
         <span className="flex items-center gap-3">
-          {r ? <Pct v={r.chg} /> : <span className="text-[#6D7578]">—</span>}
-          <span className={above == null ? "text-[#6D7578]" : above ? "text-[#E9B44C]" : "text-[#A3AAAC]"}>{above == null ? "no candles" : above ? "✓ matches" : "no match"}</span>
+          {r ? <Pct v={r.chg} /> : <span className="text-[#92A399]">—</span>}
+          <span className={above == null ? "text-[#92A399]" : above ? "text-[#A8DEC2]" : "text-[#B7C5BC]"}>{above == null ? "no candles" : above ? "✓ matches" : "no match"}</span>
         </span>
       }
     />
@@ -107,7 +107,7 @@ function Screeners() {
         {SCREEN.map((k) => (
           <ScreenRow key={k} k={k} />
         ))}
-        <p className="mt-3 text-[12px] text-[#A3AAAC]">Change is over the last 44 hourly candles.</p>
+        <p className="mt-3 text-[12px] text-[#B7C5BC]">Change is over the last 44 hourly candles.</p>
       </Win>
       <ChartWin k="XAGUSD" at={0.42} x={630} y={74} w={530} h={436} averages={[{ len: 20 }]} drawFrom={[0.5, 0.65]} />
     </OsSection>
@@ -204,7 +204,7 @@ function Results() {
       </Win>
       <Win at={0.32} x={630} y={20} w={530} h={330} title="Review" glyph="research" ai>
         <Para>24 trades is a small sample. The result leans on two long moves; without them the test is roughly flat.</Para>
-        <p className="mt-3 font-mono text-[10.5px] tracking-[0.1em] text-[#E9B44C]">WORTH CHECKING</p>
+        <p className="mt-3 font-mono text-[10.5px] tracking-[0.1em] text-[#A8DEC2]">WORTH CHECKING</p>
         <Para>Run it on another period, and with higher costs.</Para>
       </Win>
       <QuoteStrip at={0.6} />
@@ -218,7 +218,7 @@ function QuoteStrip({ at }: { at: number }) {
     <Win at={at} x={40} y={380} w={560} h={130} title="Data status" glyph="chart">
       <div className="flex items-center gap-3">
         <Chip tone="delayed">Stored candles</Chip>
-        <span className="text-[12.5px] text-[#A3AAAC]">Tests run on stored candles; live prices are labelled where they appear.</span>
+        <span className="text-[12.5px] text-[#B7C5BC]">Tests run on stored candles; live prices are labelled where they appear.</span>
       </div>
     </Win>
   );

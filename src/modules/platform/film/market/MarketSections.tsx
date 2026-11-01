@@ -70,7 +70,7 @@ function WatchRows({ added = [], hot }: { added?: string[]; hot?: string }) {
             }
             v={
               <span className="flex items-center gap-3">
-                <span className="text-[#F5F7F7]">{fmt(q)}</span>
+                <span className="text-[#F2F5F2]">{fmt(q)}</span>
                 {q ? <Pct v={q.changePct} /> : null}
               </span>
             }
@@ -200,7 +200,7 @@ function Heatmap() {
             const c = quotes[k]?.changePct ?? 0;
             const a = Math.min(1, Math.abs(c) / 5);
             return (
-              <div key={k} className="flex h-[100px] flex-col justify-between rounded-lg p-2.5 font-mono text-[11px] text-[#F5F7F7]" style={{ background: c >= 0 ? `rgba(0,230,118,${0.12 + 0.4 * a})` : `rgba(255,77,77,${0.12 + 0.4 * a})`, outline: k === big ? "1px solid #E9B44C" : undefined }}>
+              <div key={k} className="flex h-[100px] flex-col justify-between rounded-lg p-2.5 font-mono text-[11px] text-[#F2F5F2]" style={{ background: c >= 0 ? `rgba(0,230,118,${0.12 + 0.4 * a})` : `rgba(255,77,77,${0.12 + 0.4 * a})`, outline: k === big ? "1px solid #A8DEC2" : undefined }}>
                 <span>{SYM[k]}</span>
                 <span>{`${c >= 0 ? "+" : "−"}${Math.abs(c).toFixed(2)}%`}</span>
               </div>
@@ -229,7 +229,7 @@ function Insight() {
         <Row k={<span>Biggest hour · {r ? `${r.bigPct >= 0 ? "+" : "−"}${Math.abs(r.bigPct).toFixed(2)}%` : "—"}</span>} v="from the same candles" />
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Chip tone="gold">3 of 3 lines checked · Verify core</Chip>
-          <span className="font-mono text-[10.5px] text-[#A3AAAC]">information, not advice</span>
+          <span className="font-mono text-[10.5px] text-[#B7C5BC]">information, not advice</span>
         </div>
       </Win>
       <Win at={0.36} x={730} y={10} w={430} h={200} title="Sources" glyph="settings">

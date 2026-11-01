@@ -142,13 +142,13 @@ function PriceLabel({ q, at, compact }: { q: HomeQuote; at: THREE.Vector3; compa
   const { labels } = useStoryFrame();
   const up = q.changePct >= 0;
   const fresh = q.status === "snapshot" ? "Stored values · not live" : `${STATUS_LABEL[q.status]} · ${q.source ?? "provider"} · ${asOfText(q.asOf)}`;
-  const dot = q.status === "live" ? "bg-[#00E676]" : q.status === "delayed" ? "bg-[#F6B94A]" : "bg-[#6D7578]";
+  const dot = q.status === "live" ? "bg-[#00E676]" : q.status === "delayed" ? "bg-[#F6B94A]" : "bg-[#92A399]";
   return (
     <Html position={[at.x, at.y + (compact ? 0.42 : 0.5), at.z]} center portal={labels as RefObject<HTMLElement>} zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
       <div className={`whitespace-nowrap rounded-lg border border-[rgba(255,255,255,0.14)] bg-[rgba(15,18,20,0.88)] font-mono ${compact ? "-translate-x-[34%] px-2 py-1" : "px-3 py-2"}`}>
         <p className={`${compact ? "text-[8.5px]" : "text-[9.5px]"} uppercase tracking-[0.16em] text-[#8A9295]`}>XAU/USD · 1H closes</p>
         <p className="mt-0.5 flex items-baseline gap-2">
-          <span className={`font-sans font-semibold tabular-nums text-[#F5F7F7] ${compact ? "text-[13px]" : "text-[17px]"}`}>{fmtPrice(q.last, q.decimals)}</span>
+          <span className={`font-sans font-semibold tabular-nums text-[#F2F5F2] ${compact ? "text-[13px]" : "text-[17px]"}`}>{fmtPrice(q.last, q.decimals)}</span>
           <span className={`${compact ? "text-[9.5px]" : "text-[11px]"} ${up ? "text-[#00E676]" : "text-[#FF6B6B]"}`}>{signedPct(q.changePct)}</span>
         </p>
         <p className={`mt-0.5 flex items-center gap-1.5 ${compact ? "text-[8px]" : "text-[9px]"} uppercase tracking-[0.12em] text-[#8A9295]`}>

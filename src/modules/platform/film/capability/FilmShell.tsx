@@ -102,7 +102,7 @@ export function CapFilmShell<A extends string>({ def }: { def: CapFilmDef<A> }) 
           data-mode={mode}
           data-acts={mode === "boot" ? undefined : JSON.stringify(film.story.range)}
           aria-label={def.label}
-          className="relative bg-[#050607] text-[#F5F7F7]"
+          className="relative bg-transparent text-[#F2F5F2]"
         >
           {mode === "stacked" ? (
             <def.Stacked quotes={quotes} scene={scene(true, active)} revealRef={revealRef} />
@@ -164,10 +164,10 @@ function DesktopStage<A extends string>({ def, mv, trackRef, film, quotes, avata
   const label = useTransform(mv, (p) => ramp(p, film.at(first, 0.3), film.at(first, 0.7)) * (1 - film.osIn(p)));
   return (
     <div className="pointer-events-none absolute inset-0">
-      <motion.div aria-hidden="true" className="absolute inset-y-0 left-0 w-[50%] bg-gradient-to-r from-[#050607] from-25% via-[rgba(5,6,7,0.7)] via-60% to-transparent" style={{ opacity: scrim }} />
+      <motion.div aria-hidden="true" className="absolute inset-y-0 left-0 w-[50%] bg-gradient-to-r from-[rgba(4,4,4,0.6)] from-20% via-[rgba(4,4,4,0.35)] via-55% to-transparent" style={{ opacity: scrim }} />
       <def.Desktop mv={mv} film={film} quotes={quotes} avatarInOs={avatarInOs} portrait={false} />
       <StoryRail mv={mv} story={film.story} trackRef={trackRef} visible={(p) => ramp(p, 0.01, 0.03) * (1 - film.osIn(p))} />
-      <motion.p className={`${MONO} absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] text-[#5E6669]`} style={{ opacity: label }}>
+      <motion.p className={`${MONO} absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] text-[#7E8F85]`} style={{ opacity: label }}>
         Illustrative 3D · prices real where labelled
       </motion.p>
     </div>
@@ -184,8 +184,8 @@ function CompactStage<A extends string>({ def, mv, trackRef, film, quotes, portr
         aria-hidden="true"
         className={
           portrait
-            ? "absolute inset-x-0 bottom-0 h-[62%] bg-gradient-to-t from-[#050607] from-45% via-[rgba(5,6,7,0.82)] via-70% to-transparent"
-            : "absolute inset-y-0 left-0 w-[58%] bg-gradient-to-r from-[#050607] from-40% via-[rgba(5,6,7,0.75)] via-70% to-transparent"
+            ? "absolute inset-x-0 bottom-0 h-[62%] bg-gradient-to-t from-[rgba(4,4,4,0.85)] from-35% via-[rgba(4,4,4,0.55)] via-65% to-transparent"
+            : "absolute inset-y-0 left-0 w-[58%] bg-gradient-to-r from-[rgba(4,4,4,0.7)] from-30% via-[rgba(4,4,4,0.45)] via-65% to-transparent"
         }
       />
       <def.Compact mv={mv} film={film} quotes={quotes} avatarInOs={false} portrait={portrait} />
@@ -195,7 +195,7 @@ function CompactStage<A extends string>({ def, mv, trackRef, film, quotes, portr
       {/* Phones (portrait, tall enough): between the scene and the caption panel. */}
       <motion.div className="absolute left-1/2 top-[49%] flex -translate-x-1/2 flex-col items-center gap-2 [@media(max-height:700px)]:hidden [@media(orientation:landscape)]:hidden" style={{ opacity: hint }}>
         <p className={`${MONO} text-[#8A9295]`}>Scroll to see it work</p>
-        <div className="h-8 w-px bg-gradient-to-b from-[#E9B44C] to-transparent" />
+        <div className="h-8 w-px bg-gradient-to-b from-[#A8DEC2] to-transparent" />
       </motion.div>
     </div>
   );

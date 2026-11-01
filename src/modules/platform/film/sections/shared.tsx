@@ -105,7 +105,7 @@ export function ChartWin({
         {head ? (
           <div className="mb-1.5 flex items-center gap-2">
             <StatusChip q={q} />
-            <span className="truncate font-mono text-[10px] text-[#6D7578]">{sourceLine(q)}</span>
+            <span className="truncate font-mono text-[10px] text-[#92A399]">{sourceLine(q)}</span>
           </div>
         ) : null}
         <div ref={setBox} className="min-h-0 flex-1" style={stack ? { height: ch } : undefined}>
@@ -127,7 +127,7 @@ export function ScrollSteps({ items, at, refusedAt }: { items: readonly { label:
 
 /** A simple text block inside a window. */
 export function Para({ children, gold = false }: { children: ReactNode; gold?: boolean }) {
-  return <p className={`m-0 text-[13.5px] leading-relaxed ${gold ? "text-[#E9B44C]" : "text-[#F5F7F7]"}`}>{children}</p>;
+  return <p className={`m-0 text-[13.5px] leading-relaxed ${gold ? "text-[#A8DEC2]" : "text-[#F2F5F2]"}`}>{children}</p>;
 }
 
 export type { AppGlyphName };

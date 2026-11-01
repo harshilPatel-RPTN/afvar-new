@@ -31,7 +31,7 @@ const px = (f: Frame) => ({ left: `${f.l}%`, top: AREA.top + (f.t / 100) * 660 *
 
 export function TrySection() {
   return (
-    <section id="try-afvar" aria-labelledby="try-title" className="scroll-mt-28 border-t border-[rgba(255,255,255,0.06)] bg-[#050607] px-5 py-24 sm:px-8 lg:px-16">
+    <section id="try-afvar" aria-labelledby="try-title" className="scroll-mt-28 border-t border-[rgba(255,255,255,0.06)] bg-transparent px-5 py-24 sm:px-8 lg:px-16">
       <div className="mx-auto max-w-[1240px]">
         <p className={EYEBROW}>Hands on</p>
         <h2 id="try-title" className={`mt-4 ${H2}`}>
@@ -56,12 +56,12 @@ function PhoneTalk() {
       <p className="flex items-center gap-2 text-[15px] font-semibold">
         <AiOrb size={12} /> The OS is a desktop and laptop experience.
       </p>
-      <p className="mt-2 text-[14px] leading-relaxed text-[#A3AAAC]">On a phone, talk to AFVAR instead: ask in English or हिन्दी and hear the answer.</p>
+      <p className="mt-2 text-[14px] leading-relaxed text-[#B7C5BC]">On a phone, talk to AFVAR instead: ask in English or हिन्दी and hear the answer.</p>
       <button type="button" onClick={openLiveAvatar} className={`${GOLD_CTA} mt-5 inline-flex items-center gap-2`}>
-        <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#1A1206]" />
+        <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#06110C]" />
         Talk to AFVAR
       </button>
-      <p className="mt-3 text-[12px] text-[#6D7578]">Live voice beta · uses your microphone</p>
+      <p className="mt-3 text-[12px] text-[#92A399]">Live voice beta · uses your microphone</p>
     </div>
   );
 }
@@ -190,9 +190,9 @@ export function OsPlayground() {
                   onPointerCancel={onTitleUp}
                 >
                   <span className="flex gap-1.5">
-                    <button type="button" aria-label={`Close ${TITLE[lang][app]}`} onClick={() => dispatch({ type: "close", app })} className={`h-2.5 w-2.5 rounded-full ${active ? "bg-[#E9B44C]" : "bg-[#3A3F42]"} hover:bg-[#FF6B6B]`} />
-                    <button type="button" aria-label={`Minimize ${TITLE[lang][app]}`} onClick={() => dispatch({ type: "minimize", app })} className="h-2.5 w-2.5 rounded-full bg-[#3A3F42] hover:bg-[#A3AAAC]" />
-                    <button type="button" aria-label={`Zoom ${TITLE[lang][app]}`} onClick={() => dispatch({ type: "toggleMax", app })} className="h-2.5 w-2.5 rounded-full bg-[#3A3F42] hover:bg-[#A3AAAC]" />
+                    <button type="button" aria-label={`Close ${TITLE[lang][app]}`} onClick={() => dispatch({ type: "close", app })} className={`h-2.5 w-2.5 rounded-full ${active ? "bg-[#A8DEC2]" : "bg-[#3A3F42]"} hover:bg-[#FF6B6B]`} />
+                    <button type="button" aria-label={`Minimize ${TITLE[lang][app]}`} onClick={() => dispatch({ type: "minimize", app })} className="h-2.5 w-2.5 rounded-full bg-[#3A3F42] hover:bg-[#B7C5BC]" />
+                    <button type="button" aria-label={`Zoom ${TITLE[lang][app]}`} onClick={() => dispatch({ type: "toggleMax", app })} className="h-2.5 w-2.5 rounded-full bg-[#3A3F42] hover:bg-[#B7C5BC]" />
                   </span>
                   <span className="ml-1 text-[#8A9295]">
                     <AppGlyph name={GLYPH[app]} size={13} />
@@ -218,7 +218,7 @@ export function OsPlayground() {
                 lang={l.id}
                 aria-pressed={lang === l.id}
                 onClick={() => setLang(l.id)}
-                className={`px-2 py-0.5 ${lang === l.id ? "bg-[rgba(233,180,76,0.22)] text-[#F5F7F7]" : "text-[#8A9295] hover:text-[#F5F7F7]"}`}
+                className={`px-2 py-0.5 ${lang === l.id ? "bg-[rgba(168,222,194,0.22)] text-[#F2F5F2]" : "text-[#8A9295] hover:text-[#F2F5F2]"}`}
               >
                 {l.label}
               </button>
@@ -227,7 +227,7 @@ export function OsPlayground() {
 
           {/* the AI command bar */}
           <div className="absolute left-1/2 top-[44px] z-[70] w-[540px] -translate-x-1/2">
-            <div className={`rounded-2xl border bg-[rgba(16,19,21,0.98)] shadow-[0_30px_90px_-20px_rgba(0,0,0,0.9)] ${focused ? "border-[rgba(233,180,76,0.6)]" : "border-[rgba(255,255,255,0.14)]"}`}>
+            <div className={`rounded-2xl border bg-[rgba(16,19,21,0.98)] shadow-[0_30px_90px_-20px_rgba(0,0,0,0.9)] ${focused ? "border-[rgba(168,222,194,0.6)]" : "border-[rgba(255,255,255,0.14)]"}`}>
               <label className="flex items-center gap-3 px-4 py-3">
                 <AiOrb size={15} pulse={focused} />
                 <span className="sr-only">{s.ask}</span>
@@ -239,13 +239,13 @@ export function OsPlayground() {
                   onBlur={() => setTimeout(() => setFocused(false), 150)}
                   placeholder={s.ask}
                   lang={lang}
-                  className="min-w-0 flex-1 bg-transparent text-[16px] text-[#F5F7F7] outline-none placeholder:text-[#6D7578]"
+                  className="min-w-0 flex-1 bg-transparent text-[16px] text-[#F2F5F2] outline-none placeholder:text-[#92A399]"
                 />
-                <span className="font-mono text-[11px] text-[#6D7578]">↵</span>
+                <span className="font-mono text-[11px] text-[#92A399]">↵</span>
               </label>
               {focused || text ? (
                 <div className="border-t border-[rgba(255,255,255,0.08)] px-4 py-3">
-                  <p className={`${MONO} mb-1.5 text-[9.5px] text-[#E9B44C]`}>{heading}</p>
+                  <p className={`${MONO} mb-1.5 text-[9.5px] text-[#A8DEC2]`}>{heading}</p>
                   <ul className="space-y-1">
                     {rows.map((r) => (
                       <li key={r.id}>
@@ -253,9 +253,9 @@ export function OsPlayground() {
                           type="button"
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => run(r)}
-                          className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[13px] ${r.command === null ? "text-[#FF8A8A]" : "text-[#C9CFD1] hover:bg-[rgba(233,180,76,0.12)] hover:text-[#F5F7F7]"}`}
+                          className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[13px] ${r.command === null ? "text-[#FF8A8A]" : "text-[#C9CFD1] hover:bg-[rgba(168,222,194,0.12)] hover:text-[#F2F5F2]"}`}
                         >
-                          <span className="text-[#E9B44C]">›</span>
+                          <span className="text-[#A8DEC2]">›</span>
                           {r.label}
                         </button>
                       </li>
@@ -278,7 +278,7 @@ export function OsPlayground() {
           <DockButtons items={dockItems} onLaunch={(app) => dispatch({ type: "open", app: app as CapabilitySlug })} />
         </OsScreen>
       </div>
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-[12px] text-[#6D7578]">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-[12px] text-[#92A399]">
         <p>Sample desktop · commands resolve on this device · Gold prices real, as labelled.</p>
         <p className={MONO}>Try: “{s.examples[0]}” · “{s.examples[4]}” · “buy gold”</p>
       </div>
@@ -295,7 +295,7 @@ function DockButtons({ items, onLaunch }: { items: DockItem[]; onLaunch: (id: st
         <div className="absolute inset-0 flex items-end gap-[10px] px-3 py-2">
           <span className="h-11 w-11 shrink-0" aria-hidden="true" />
           {items.map((it) => (
-            <button key={it.id} type="button" aria-label={`Open ${it.label}`} title={it.label} onClick={() => onLaunch(it.id)} className="h-11 w-11 shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-[#E9B44C]" />
+            <button key={it.id} type="button" aria-label={`Open ${it.label}`} title={it.label} onClick={() => onLaunch(it.id)} className="h-11 w-11 shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-[#A8DEC2]" />
           ))}
         </div>
       </div>
@@ -316,20 +316,20 @@ function AppBody({ app, instrument, quotes, lang }: { app: CapabilitySlug; instr
     return q ? (
       <div className="flex h-full flex-col">
         <div className="flex items-center gap-3 px-3 pt-2 font-mono text-[11px]">
-          <span className="text-[#F5F7F7]">{instrument}</span>
-          <span className="tabular-nums text-[#F5F7F7]">{fmtPrice(q.last, q.decimals)}</span>
+          <span className="text-[#F2F5F2]">{instrument}</span>
+          <span className="tabular-nums text-[#F2F5F2]">{fmtPrice(q.last, q.decimals)}</span>
           <span className={q.changePct >= 0 ? "text-[#00E676]" : "text-[#FF6B6B]"}>
             {q.changePct >= 0 ? "▲" : "▼"}
             {Math.abs(q.changePct).toFixed(2)}%
           </span>
-          <span className="ml-auto text-[9.5px] uppercase tracking-wider text-[#6D7578]">{q.status}</span>
+          <span className="ml-auto text-[9.5px] uppercase tracking-wider text-[#92A399]">{q.status}</span>
         </div>
         <MiniChart closes={q.closes} className="mx-2 mb-2 mt-1 min-h-0 flex-1" />
       </div>
     ) : (
       <div className="flex h-full flex-col">
         <p className="px-3 pt-2 font-mono text-[11px] text-[#C9CFD1]">
-          {instrument} <span className="text-[#6D7578]">· sample</span>
+          {instrument} <span className="text-[#92A399]">· sample</span>
         </p>
         <MiniChart closes={sampleCloses(instrument.length)} className="mx-2 mb-2 mt-1 min-h-0 flex-1" />
       </div>
@@ -361,12 +361,12 @@ function AppBody({ app, instrument, quotes, lang }: { app: CapabilitySlug; instr
     <ul className="divide-y divide-[rgba(255,255,255,0.06)] px-3 text-[12px]" lang={lang === "hi" ? "en" : undefined}>
       {rows[app].map(([a, b]) => (
         <li key={b} className="flex items-center gap-3 py-2">
-          <span className="w-12 shrink-0 font-mono text-[10px] text-[#E9B44C]">{a}</span>
+          <span className="w-12 shrink-0 font-mono text-[10px] text-[#A8DEC2]">{a}</span>
           <span className="text-[#C9CFD1]">{b}</span>
         </li>
       ))}
       <li className="py-2">
-        <span className={`${MONO} text-[9px] text-[#5E6669]`}>{getCapability(app)?.title} · sample</span>
+        <span className={`${MONO} text-[9px] text-[#7E8F85]`}>{getCapability(app)?.title} · sample</span>
       </li>
     </ul>
   );

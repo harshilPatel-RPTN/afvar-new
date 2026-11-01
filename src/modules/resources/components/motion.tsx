@@ -262,8 +262,8 @@ function HoverCandles({ up }: { up: boolean }) {
         const top = 15 - h;
         return (
           <g key={i} style={{ transitionDelay: `${i * 0.035}s` }}>
-            <line x1={x + 1.5} x2={x + 1.5} y1={Math.max(0.5, top - 2)} y2={15.5} stroke={counter ? "#6D7578" : color} strokeWidth={0.8} />
-            <rect x={x} y={top} width={3} height={h} rx={0.5} fill={counter ? "#6D7578" : color} />
+            <line x1={x + 1.5} x2={x + 1.5} y1={Math.max(0.5, top - 2)} y2={15.5} stroke={counter ? "#92A399" : color} strokeWidth={0.8} />
+            <rect x={x} y={top} width={3} height={h} rx={0.5} fill={counter ? "#92A399" : color} />
           </g>
         );
       })}
