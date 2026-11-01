@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PricingPage } from "@/modules/home";
+import { PricingFilmPage } from "@/modules/platform";
 
 export const metadata: Metadata = {
   title: "Pricing — AFVAR",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <PricingPage />;
+  return <PricingFilmPage />;
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { MarketsOverview } from "@/modules/markets";
+import { MarketsFilmPage } from "@/modules/platform";
 import { translate } from "@/platform/i18n";
 import { getServerEdition } from "@/platform/i18n/server";
 
@@ -12,5 +12,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function MarketPage() {
-  return <MarketsOverview />;
+  return <MarketsFilmPage />;
 }

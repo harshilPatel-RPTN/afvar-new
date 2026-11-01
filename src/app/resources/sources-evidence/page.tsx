@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { EvidencePage } from "@/modules/resources";
+import { EvidenceFilmPage } from "@/modules/platform";
 
 export const metadata: Metadata = {
   title: "Sources & Evidence · Resources — AFVAR",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <EvidencePage />;
+  return <EvidenceFilmPage />;
 }

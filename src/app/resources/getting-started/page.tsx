@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GettingStartedPage } from "@/modules/resources";
+import { StartFilmPage } from "@/modules/platform";
 
 export const metadata: Metadata = {
   title: "Getting Started · Resources — AFVAR",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <GettingStartedPage />;
+  return <StartFilmPage />;
 }

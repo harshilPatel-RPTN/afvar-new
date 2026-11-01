@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { INSTRUMENTS, InstrumentDetail, findInstrument } from "@/modules/markets";
+import { INSTRUMENTS, findInstrument } from "@/modules/markets";
+import { InstrumentFilmPage } from "@/modules/platform";
 import { translate } from "@/platform/i18n";
 import { getServerEdition } from "@/platform/i18n/server";
 
@@ -27,5 +28,5 @@ export default async function InstrumentPage({ params }: Props) {
   const { category, instrument: slug } = await params;
   const instrument = findInstrument(category, slug);
   if (!instrument) notFound();
-  return <InstrumentDetail categoryId={instrument.category} slug={instrument.slug} />;
+  return <InstrumentFilmPage slug={instrument.slug} />;
 }

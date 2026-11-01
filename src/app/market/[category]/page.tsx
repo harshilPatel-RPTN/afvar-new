@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CATEGORIES, MarketCategory, findCategory } from "@/modules/markets";
+import { CATEGORIES, findCategory } from "@/modules/markets";
+import { MarketGroupFilmPage } from "@/modules/platform";
 import { translate } from "@/platform/i18n";
 import { getServerEdition } from "@/platform/i18n/server";
 
@@ -27,5 +28,5 @@ export default async function MarketCategoryPage({ params }: Props) {
   const { category: id } = await params;
   const category = findCategory(id);
   if (!category) notFound();
-  return <MarketCategory categoryId={category.id} />;
+  return <MarketGroupFilmPage group={category.id} />;
 }
