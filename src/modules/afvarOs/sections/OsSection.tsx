@@ -92,7 +92,7 @@ export function OsSection({
             </div>
           </div>
         ) : (
-          <div className="px-5 py-16 sm:px-8">
+          <div className="px-5 py-10 sm:px-8 sm:py-14">
             {caption}
             <div className="mt-6 flex flex-col gap-3">{children}</div>
           </div>
@@ -146,9 +146,10 @@ export function Win({
   const { opacity, y: rise } = useAppear(at, out);
   if (mode === "stack") {
     return (
-      <motion.div initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.4 }} className="relative" style={{ height: Math.min(h, 420) }}>
-        <OsWindow title={title} glyph={glyph} aiOwned={ai} style={{ inset: 0 }}>
-          <div className="h-full overflow-hidden p-3">{children}</div>
+      // Cards size to their content on phones and tablets: no empty bottoms, nothing cut off.
+      <motion.div initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.4 }} className="relative">
+        <OsWindow title={title} glyph={glyph} aiOwned={ai} style={{ position: "relative", inset: "auto" }}>
+          <div className="p-3">{children}</div>
         </OsWindow>
       </motion.div>
     );

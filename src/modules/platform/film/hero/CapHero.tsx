@@ -34,11 +34,11 @@ export function CapHeroCopy({ t, compact = false }: { t: CapHeroText; compact?: 
             <span key={c.label} className="flex gap-1.5">
               {i ? <span aria-hidden="true">/</span> : null}
               {c.href ? (
-                <Link href={c.href} prefetch={false} className="hover:text-[#F5F7F7]">
+                <Link href={c.href} prefetch={false} className="inline-flex min-h-6 items-center hover:text-[#F5F7F7]">
                   {c.label}
                 </Link>
               ) : (
-                <span className="text-[#A3AAAC]">{c.label}</span>
+                <span className="inline-flex min-h-6 items-center text-[#A3AAAC]">{c.label}</span>
               )}
             </span>
           ))}

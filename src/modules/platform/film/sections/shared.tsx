@@ -3,7 +3,7 @@
 // Shared pieces for the OS sections of every Platform page: real candles from
 // the live feed, a chart window, and process steps that tick with the scroll.
 import { useMotionValueEvent } from "framer-motion";
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CandleChart, Chip, Steps, Win, useSection, useSectionRamp, type AppGlyphName, type ChartLevel2 } from "@/modules/afvarOs";
 import { useLiveMarket, type HomeQuote } from "@/modules/home/kit";
 import { STATUS_LABEL, asOfText } from "../market/analysis";
@@ -92,6 +92,13 @@ export function ChartWin({
   const q = useQuote(k);
   const draw = useSectionRamp(drawFrom?.[0] ?? -1, drawFrom?.[1] ?? 0);
   const candles = (q?.candles ?? []).slice(-last);
+  // Cards (phones, tablets): draw the chart at the card's real width so labels keep their shape.
+  const { mode } = useSection();
+  const [box, setBox] = useState<HTMLDivElement | null>(null);
+  const cardW = useElementWidth(mode === "stack" ? box : null);
+  const stack = mode === "stack";
+  const cw = stack ? Math.max(240, cardW || 320) : Math.max(200, w - 28);
+  const ch = stack ? Math.round(Math.min(300, Math.max(190, cw * 0.62))) : Math.max(100, h - (head ? 74 : 50));
   return (
     <Win at={at} out={out} x={x} y={y} w={w} h={h} title={title ?? `Market data · ${SYM[k] ?? k} · 1H`} glyph="chart" ai={ai} z={z}>
       <div className="flex h-full flex-col">
@@ -101,8 +108,8 @@ export function ChartWin({
             <span className="truncate font-mono text-[10px] text-[#6D7578]">{sourceLine(q)}</span>
           </div>
         ) : null}
-        <div className="min-h-0 flex-1">
-          <CandleChart candles={candles} decimals={q?.decimals ?? 2} width={Math.max(200, w - 28)} height={Math.max(100, h - (head ? 74 : 50))} levels={levels} trend={trend} averages={averages} marks={marks} band={band} cross={cross} event={event} draw={drawFrom ? draw : undefined} last={q?.last} />
+        <div ref={setBox} className="min-h-0 flex-1" style={stack ? { height: ch } : undefined}>
+          <CandleChart candles={candles} decimals={q?.decimals ?? 2} width={cw} height={ch} levels={levels} trend={trend} averages={averages} marks={marks} band={band} cross={cross} event={event} draw={drawFrom ? draw : undefined} last={q?.last} />
         </div>
       </div>
     </Win>
@@ -124,3 +131,15 @@ export function Para({ children, gold = false }: { children: ReactNode; gold?: b
 }
 
 export type { AppGlyphName };
+
+/** Width of an element, kept current with a ResizeObserver (0 until measured). */
+function useElementWidth(el: HTMLElement | null): number {
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setW(Math.round(e.contentRect.width)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [el]);
+  return w;
+}

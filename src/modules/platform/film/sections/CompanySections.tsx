@@ -133,7 +133,7 @@ export function PricingSections() {
 
       <OsSection n={3} label="Side by side" title="What each tier adds." soft="On one table." body="The same desk at every tier. Higher tiers add the AI analyst, deeper tools and more room to use them." app="Settings">
         <Win at={0.06} x={40} y={20} w={760} h={490} title="Compare tiers" glyph="layouts">
-          <div className="grid grid-cols-[1fr_80px_80px_80px] gap-y-0 font-mono text-[10.5px] tracking-[0.08em] text-[#6D7578]">
+          <div className="grid grid-cols-[1fr_40px_40px_40px] sm:grid-cols-[1fr_80px_80px_80px] gap-y-0 font-mono text-[10.5px] tracking-[0.08em] text-[#6D7578]">
             <span>CAPABILITY</span>
             <span className="text-center">01</span>
             <span className="text-center text-[#E9B44C]">02</span>
@@ -152,7 +152,7 @@ export function PricingSections() {
               ["Higher usage allowances", 0, 0, 1],
             ] as const
           ).map(([k, a, b, c]) => (
-            <div key={k} className="grid grid-cols-[1fr_80px_80px_80px] items-center border-b border-[rgba(255,255,255,0.06)] py-[6px] text-[13px] last:border-b-0">
+            <div key={k} className="grid grid-cols-[1fr_40px_40px_40px] sm:grid-cols-[1fr_80px_80px_80px] items-center border-b border-[rgba(255,255,255,0.06)] py-[6px] text-[13px] last:border-b-0">
               <span className="text-[#F5F7F7]">{k}</span>
               {[a, b, c].map((x, j) => (
                 <span key={j} className={`text-center ${x ? (j === 1 ? "text-[#E9B44C]" : "text-[#C9CFD1]") : "text-[#3A4044]"}`}>
