@@ -192,6 +192,10 @@ export function LiveNebula({ dimmed = false }: { dimmed?: boolean }) {
     // Phones: fewer motes and a lighter overlay; the scene looks the same at that size.
     const small = matchMedia("(max-width: 767px)").matches;
     const moteCount = small ? Math.round(MOTE_COUNT * 0.55) : MOTE_COUNT;
+    // Phones and low-core machines draw the slow-drifting overlay at 30 fps instead of every frame.
+    const overlayEvery = small || (navigator.hardwareConcurrency ?? 8) <= 4 ? 1000 / 30 : 0;
+    let lastOverlay = 0;
+    let overlayDt = 0;
 
     const resize = () => {
       const bounds = host.getBoundingClientRect();
@@ -341,7 +345,12 @@ export function LiveNebula({ dimmed = false }: { dimmed?: boolean }) {
         drawNebula();
         lastNebulaDraw = now;
       }
-      drawOverlay(dt);
+      overlayDt += dt;
+      if (now - lastOverlay >= overlayEvery) {
+        drawOverlay(overlayDt);
+        overlayDt = 0;
+        lastOverlay = now;
+      }
       frame = requestAnimationFrame(tick);
     };
 
