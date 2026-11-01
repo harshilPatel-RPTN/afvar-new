@@ -143,3 +143,31 @@ Every AI OS page shares, in code (not by copying):
 | trust | 200 | 180 | promises list + one chart cycling Live / Delayed / Stale / Sample labels |
 | areas | 300 | 280 | the five apps return; the focused one grows, its lead cores burn (charts: Market + Verify; research: News + Macro + Verify; alerts: Market + Memory; risk review: Risk + Memory; community: Voice + Verify + Memory) |
 After the film: **Try it yourself** (interactive OS, desktop; phones get Talk to AFVAR), **At a glance** (ten topics), closing.
+
+### Capability pages (W2.2–W2.6) — one template, five pages
+Code: `platform/film/capability` (template) + one folder per page (`platform/film/market`, …).
+- **Film factory** `createCapFilm(kind, acts, beats, cues)`: acts marked `os: true` play inside the OS screen on
+  desktop; consecutive OS acts share one screen (`osIn`, `osCovers`, the 3D scene rests while covered). Compact cuts
+  have no OS acts. Film ≈ a third of the home (900–1100 vh).
+- **Stage** `CapFilmShell` (same rules as the overview): boot / desktop / compact / stacked, the poster core, the
+  scene after splash + idle, rail, "Illustrative 3D · prices real where labelled", the avatar warm-up and launcher
+  hand-off for the page's one avatar act. A page supplies `Scene`, `Hero`, `Desktop`, `Compact`, `Stacked`.
+- **Copy blocks** (`capability/ui`): numbered `ActEyebrow`, `ActHead` (3D acts), `OsCaption` (OS acts; keep titles
+  ≤ ~34 characters so title and body sit side by side at ≥1280px), `CompactHead`.
+- **Under the film** (`CapabilityTemplate`): features (every card has "Show me ↑", which scrolls the film to the
+  act that shows it) → outcome line → notes (page notes on sources and limits + the availability note) and related
+  links → the other four areas (with their lead cores) → Earth closing "Join before launch." + Register Now +
+  Platform overview → footer.
+- **The avatar speaks once per page**: desktop in the OS corner (1105, 606, h 150) with a speech bubble; phones in
+  3D (the core becomes its heart).
+- **Honesty**: every price is the home market feed (live / delayed / stored label, source, time); anything the AI
+  adds is gold, named, and computed only from data on screen (`market/analysis.ts`) — never a forecast.
+
+#### /platform/market-data (W2.2) — led by the Market + Verify cores
+| Act | Desktop vh | Compact vh | What it shows |
+|---|---|---|---|
+| hero | 110 | 110 | the seven cores, Market and Verify large and named |
+| feed | 240 | 220 | four public feeds (spot metals, futures, forex, crypto) stream real labelled quotes into the Market core; Verify passes them to the AI; the lane card lists all eight lanes |
+| chart | 270 (OS) | 240 | ask "Mark the range and trend on Gold": range high/low and the trend line drawn in gold on the real 1H chart, analysis rows, the avatar explains, "Drawn and checked" |
+| watch | 240 (OS) | 200 | the chart steps aside, the watchlist grows by asking, heatmap + market overview, the biggest move named (phones: the eight lanes ring the core as tiles) |
+| insight | 230 | 210 | Gold explained in three lines (price, range, sessions), each with source and time, then checked by the Verify core |

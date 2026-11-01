@@ -180,12 +180,12 @@ const CHIP_TONE: Record<HomeQuote["status"], string> = {
 
 /** Four feeds stream labelled real quotes into the Market core; the Verify core passes them to the AI. */
 function Feeds({ quotes }: { quotes: Quotes }) {
-  const { film, lite, portrait } = useFilm();
+  const { film, lite, compact } = useFilm();
   const { smoothed, still, labels } = useStoryFrame();
-  // Phones show one packet per feed: the lines stay readable on a narrow screen.
-  const CHIPS = portrait ? 1 : lite ? 2 : 3;
-  // (portrait: the feeds sit off-screen right, so packets fade before the core labels)
-  const fadeAt = portrait ? 0.42 : 0.6;
+  // Phones and tablets show one packet per feed, gone before the core labels, and no feed
+  // labels (the lane card under the scene carries every status): small screens stay readable.
+  const CHIPS = compact ? 1 : lite ? 2 : 3;
+  const fadeAt = compact ? 0.42 : 0.6;
   const group = useRef<THREE.Group>(null);
   const chips = useRef<(THREE.Group | null)[]>([]);
   const chipEls = useRef<(HTMLDivElement | null)[]>([]);
@@ -264,7 +264,7 @@ function Feeds({ quotes }: { quotes: Quotes }) {
     }
   });
 
-  const showSources = (p: number) => film.weight(p, "feed", 0.1) * ramp(p, film.at("feed", 0.12), film.at("feed", 0.22)) * (portrait ? 0 : 1);
+  const showSources = (p: number) => film.weight(p, "feed", 0.1) * ramp(p, film.at("feed", 0.12), film.at("feed", 0.22)) * (compact ? 0 : 1);
   return (
     <group ref={group} name="Feeds" visible={false}>
       {lines.map((g, j) => (
@@ -387,7 +387,8 @@ function SceneAvatar() {
       out.x = 0;
       out.y = -1.05;
       out.z = 0;
-      out.scale = 0.44 * Math.max(0.001, grow * (1 - ramp(p, S(0.92), S(0.97))));
+      // a touch smaller than the overview's: short phones keep its head clear of the ticker
+      out.scale = 0.4 * Math.max(0.001, grow * (1 - ramp(p, S(0.92), S(0.97))));
       out.explode = 1 - easeInOut(ramp(p, S(0.03), S(0.1)));
       out.turn = 0;
       out.lean = 0;

@@ -192,8 +192,8 @@ function CompactStage<A extends string>({ def, mv, trackRef, film, quotes, portr
       <div className="[&_nav]:right-1.5 [&_nav_span:first-child]:hidden">
         <StoryRail mv={mv} story={film.story} trackRef={trackRef} visible={(p) => ramp(p, 0.01, 0.03) * 0.8} />
       </div>
-      {/* Phones (portrait): between the scene and the caption panel. */}
-      <motion.div className="absolute left-1/2 top-[49%] flex -translate-x-1/2 flex-col items-center gap-2 [@media(orientation:landscape)]:hidden" style={{ opacity: hint }}>
+      {/* Phones (portrait, tall enough): between the scene and the caption panel. */}
+      <motion.div className="absolute left-1/2 top-[49%] flex -translate-x-1/2 flex-col items-center gap-2 [@media(max-height:700px)]:hidden [@media(orientation:landscape)]:hidden" style={{ opacity: hint }}>
         <p className={`${MONO} text-[#8A9295]`}>Scroll to see it work</p>
         <div className="h-8 w-px bg-gradient-to-b from-[#E9B44C] to-transparent" />
       </motion.div>

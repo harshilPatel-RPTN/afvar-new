@@ -66,10 +66,10 @@ export function HeroCopy({ compact = false }: { compact?: boolean }) {
     <div>
       <p className={EYEBROW}>AFVAR Platform · Market data</p>
       <h1 className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F5F7F7]" : `mt-5 ${H1}`}>
-        {CAP.title}. <span className="text-[#E9B44C]">Every number shows where it came from.</span>
+        {CAP.title}. <span className="text-[#E9B44C]">Every number shows its source.</span>
       </h1>
       <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#A3AAAC]" : `mt-6 max-w-[31rem] ${BODY}`}>
-        {compact ? CAP.summary : "Quotes, charts, watchlists and heatmaps in one workspace. The Market core reads every feed; the Verify core checks what the AI adds."}
+        {compact ? "Quotes, charts and watchlists in one workspace." : "Quotes, charts, watchlists and heatmaps in one workspace. The Market core reads every feed; the Verify core checks what the AI adds."}
       </p>
       <div className={`${compact ? "mt-5" : "mt-8"} flex flex-wrap items-center gap-5`}>
         <Link href={REGISTER_URL} prefetch={false} className={GOLD_CTA}>

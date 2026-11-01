@@ -92,9 +92,9 @@ export const INSIGHT_CHECKED = 0.56;
 // framing keeps the scene in the upper third, above the caption panel.
 const BEATS: CapBeat<MarketAct>[] = [
   { act: "hero", f: 0, pos: [0.2, 0.15, 8.2], look: [-1.45, 0.05, 0], pPos: [0, -0.4, 10.5], pLook: [0, -1.75, 0] },
-  { act: "feed", f: 0.3, pos: [0.45, 0.3, 11.0], look: [-0.62, 0.0, 0], pPos: [1.05, -0.5, 10.6], pLook: [1.05, -1.9, 0] },
-  { act: "feed", f: 0.85, pos: [0.4, 0.25, 10.8], look: [-0.62, 0.0, 0], pPos: [1.05, -0.5, 10.5], pLook: [1.05, -1.9, 0] },
-  { act: "chart", f: 0.5, pos: [0.3, 0.1, 9.4], look: [-1.95, 0.1, 0], pPos: [0, 0.3, 7.0], pLook: [0, -0.85, 0] },
+  { act: "feed", f: 0.3, pos: [0.45, 0.3, 11.0], look: [-0.62, 0.0, 0], pPos: [1.05, -0.4, 10.6], pLook: [1.05, -1.6, 0] },
+  { act: "feed", f: 0.85, pos: [0.4, 0.25, 10.8], look: [-0.62, 0.0, 0], pPos: [1.05, -0.4, 10.5], pLook: [1.05, -1.6, 0] },
+  { act: "chart", f: 0.5, pos: [0.3, 0.1, 9.4], look: [-1.95, 0.1, 0], pPos: [0, 0.35, 7.6], pLook: [0, -1.1, 0] },
   { act: "watch", f: 0.5, pos: [0.3, 0.1, 9.4], look: [-1.95, 0.1, 0], pPos: [0, -0.6, 15.0], pLook: [0, -2.6, 0] },
   { act: "insight", f: 0.4, pos: [0.3, 0.15, 8.9], look: [-1.6, 0.1, 0], pPos: [0, -0.5, 10.4], pLook: [0, -1.85, 0] },
 ];
