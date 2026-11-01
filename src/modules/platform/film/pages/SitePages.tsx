@@ -345,7 +345,7 @@ export function ContactFilmPage() {
       after={
         <Directory id="enquiry" title="Write to us." soft="Topic, email, message.">
           <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
-            <PfScope className="rounded-[14px] border border-[rgba(255,255,255,0.1)] bg-[#06110C] p-5 sm:p-6">
+            <PfScope surface="#06110C" className="rounded-[14px] border border-[rgba(255,255,255,0.1)] p-5 sm:p-6">
               <EnquiryForm />
             </PfScope>
             <div className="space-y-4">
