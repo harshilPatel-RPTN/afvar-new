@@ -7,7 +7,8 @@
 import { useFrame } from "@react-three/fiber";
 import { createContext, useContext, useMemo, useRef, type RefObject } from "react";
 import type * as THREE from "three";
-import { AvatarActor, CoreCanvas, GoldDust, NearRange, easeInOut, easeOut, ramp, useStoryFrame, window4, type AvatarFrame } from "@/modules/afvarOs";
+import { easeInOut, easeOut, ramp, window4 } from "@/modules/afvarOs";
+import { AvatarActor, CoreCanvas, GoldDust, NearRange, useStoryFrame, type AvatarFrame } from "@/modules/afvarOs/gl";
 import { playCue, type Quotes } from "@/modules/homeDemo/kit";
 import { STOP, stopRows, type OverviewAct, type OverviewFilm } from "./overviewFilm";
 import { PlatformStack } from "./stack/PlatformStack";

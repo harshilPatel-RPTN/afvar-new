@@ -6,7 +6,8 @@
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef, type ReactNode } from "react";
 import * as THREE from "three";
-import { AiSpark, COLORS, CoreCanvas, GlassPlate, GlowLine, GoldDust, hdr, useStoryFrame, type CameraKey } from "@/modules/afvarOs";
+import { COLORS, type CameraKey } from "@/modules/afvarOs";
+import { AiSpark, CoreCanvas, GlassPlate, GlowLine, GoldDust, hdr, useStoryFrame } from "@/modules/afvarOs/gl";
 import type { HeroSceneArgs } from "./HeroStage";
 
 export type PageHeroKind = "about" | "pricing" | "markets" | "group" | "instrument" | "briefs" | "resources" | "start" | "guides" | "help" | "faqs" | "evidence" | "contact";

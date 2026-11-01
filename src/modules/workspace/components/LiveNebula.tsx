@@ -176,18 +176,34 @@ export function LiveNebula({ dimmed = false }: { dimmed?: boolean }) {
     const ripples: Ripple[] = [];
     let nextRipple = 2;
     const projected: { x: number; y: number; depth: number }[] = [];
+    // Glow sprites (one per tint): a white-to-clear radial gradient in that tint, drawn once.
+    const sprite = (tint: string) => {
+      const c = document.createElement("canvas");
+      c.width = c.height = 64;
+      const g = c.getContext("2d")!;
+      const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grad.addColorStop(0, `rgba(${tint},1)`);
+      grad.addColorStop(1, `rgba(${tint},0)`);
+      g.fillStyle = grad;
+      g.fillRect(0, 0, 64, 64);
+      return c;
+    };
+    const sprites = { cool: sprite("150,210,255"), warm: sprite("255,190,150") };
+    // Phones: fewer motes and a lighter overlay; the scene looks the same at that size.
+    const small = matchMedia("(max-width: 767px)").matches;
+    const moteCount = small ? Math.round(MOTE_COUNT * 0.55) : MOTE_COUNT;
 
     const resize = () => {
       const bounds = host.getBoundingClientRect();
       width = bounds.width;
       height = bounds.height;
-      const ratio = Math.min(devicePixelRatio || 1, 2);
+      const ratio = Math.min(devicePixelRatio || 1, small ? 1.5 : 2);
       overlay.width = Math.round(width * ratio);
       overlay.height = Math.round(height * ratio);
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       nebula?.resize(width, height);
       if (motes.length === 0)
-        for (let i = 0; i < MOTE_COUNT; i++) motes.push(spawnMote(width, height, true));
+        for (let i = 0; i < moteCount; i++) motes.push(spawnMote(width, height, true));
     };
 
     const drawNebula = () => {
@@ -245,15 +261,12 @@ export function LiveNebula({ dimmed = false }: { dimmed?: boolean }) {
         const y = mote.y - pointer.y * 6 * mote.depth;
         projected[i] = { x, y, depth: mote.depth };
         const radius = 0.6 + mote.depth * 1.8;
-        const glow = ctx.createRadialGradient(x, y, 0, x, y, radius * 5);
-        const tint = mote.hue === "cool" ? "150,210,255" : "255,190,150";
-        glow.addColorStop(0, `rgba(${tint},${0.5 * flicker * mote.depth})`);
-        glow.addColorStop(1, `rgba(${tint},0)`);
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(x, y, radius * 5, 0, Math.PI * 2);
-        ctx.fill();
+        // Same glow as a per-frame radial gradient, stamped from a sprite drawn once.
+        const r5 = radius * 5;
+        ctx.globalAlpha = 0.5 * flicker * mote.depth;
+        ctx.drawImage(mote.hue === "cool" ? sprites.cool : sprites.warm, x - r5, y - r5, r5 * 2, r5 * 2);
       }
+      ctx.globalAlpha = 1;
 
       ctx.lineWidth = 0.6;
       for (let a = 0; a < projected.length; a++) {

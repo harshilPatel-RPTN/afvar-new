@@ -5,7 +5,8 @@
 // hand-off with the site's floating extras.
 import type { MotionValue } from "framer-motion";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { getAvatarRig, scheduleAvatarBuild } from "../avatar/rig";
+// The avatar rig (three.js) is imported lazily so pages without a film never download it.
+const loadRig = () => import("../avatar/rig");
 import { useStep } from "../story/components";
 import { useAfvarReducedMotion } from "../story/useStory";
 import { setFilmOnScreen } from "./presence";
@@ -74,15 +75,17 @@ export function useAvatarWarmup(enabled: boolean, mv: MotionValue<number>, guara
   useEffect(() => {
     if (!enabled) return;
     let cancel = () => {};
-    const id = window.setTimeout(() => (cancel = scheduleAvatarBuild(1500)), 2000);
+    let gone = false;
+    const id = window.setTimeout(() => void loadRig().then((m) => !gone && (cancel = m.scheduleAvatarBuild(1500))), 2000);
     return () => {
+      gone = true;
       window.clearTimeout(id);
       cancel();
     };
   }, [enabled]);
   const near = useStep(mv, [guaranteeAt]) >= 0;
   useEffect(() => {
-    if (enabled && near) getAvatarRig();
+    if (enabled && near) void loadRig().then((m) => m.getAvatarRig());
   }, [enabled, near]);
 }
 

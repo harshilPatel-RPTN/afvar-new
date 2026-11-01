@@ -3,10 +3,11 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
 // Team contract: a module is consumed only through its index.ts public API
-// (or kit.ts, its client-safe subset, when index.ts pulls in server-only code).
+// (or kit.ts, its client-safe subset, when index.ts pulls in server-only code;
+// or gl.ts, where a module keeps its three.js code so pages load it only when used).
 const MODULE_BOUNDARY = [
   {
-    group: ["@/modules/*/*", "!@/modules/*/index", "!@/modules/*/server", "!@/modules/*/kit"],
+    group: ["@/modules/*/*", "!@/modules/*/index", "!@/modules/*/server", "!@/modules/*/kit", "!@/modules/*/gl"],
     message:
       "Import a module only through its index.ts public API (@/modules/<name>), its kit.ts client-safe entry, or its server.ts entry for route handlers.",
   },
@@ -32,7 +33,7 @@ const eslintConfig = defineConfig([
           patterns: MODULE_BOUNDARY,
           paths: [
             {
-              name: "@/modules/afvarOs",
+              name: "@/modules/afvarOs/gl",
               importNames: ["AiCore", "CORE_SIZE"],
               message: "The gold AI core belongs to the home page only. Build this page's own centrepiece from the shared kit (AiSpark, GoldDust, GlassPlate, GlowLine).",
             },

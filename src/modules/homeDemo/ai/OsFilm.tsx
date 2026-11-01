@@ -18,34 +18,8 @@
 // progress), so scrolling back plays the film in reverse.
 import { motion, useTransform, type MotionValue } from "framer-motion";
 import { type ReactNode } from "react";
-import {
-  AiOrb,
-  AvatarOverlay,
-  easeInOut,
-  type AvatarFrame,
-  AppGlyph,
-  Dock,
-  EYEBROW,
-  H3,
-  MenuBar,
-  MiniChart,
-  MONO,
-  OsScreen,
-  OsWindow,
-  Pointer,
-  SnapGhost,
-  Spotlight,
-  Toast,
-  dockSlotX,
-  ramp,
-  sampleKeys,
-  useBoxKeys,
-  useStep,
-  useTypedText,
-  window4,
-  type BoxKeyframe,
-  type DockItem,
-} from "@/modules/afvarOs";
+import { AiOrb, easeInOut, AppGlyph, Dock, EYEBROW, H3, MenuBar, MiniChart, MONO, OsScreen, OsWindow, Pointer, SnapGhost, Spotlight, Toast, dockSlotX, ramp, sampleKeys, useBoxKeys, useStep, useTypedText, window4, type BoxKeyframe, type DockItem } from "@/modules/afvarOs";
+import { AvatarOverlay, type AvatarFrame } from "@/modules/afvarOs/gl";
 import { fmtPrice } from "@/modules/home/kit";
 import { DESKTOP_FILM } from "./aiConfig";
 import { useNowMinute, sessionsNow, type Quotes } from "./cards";

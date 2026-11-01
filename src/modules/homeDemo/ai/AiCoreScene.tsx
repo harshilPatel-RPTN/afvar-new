@@ -10,21 +10,8 @@ import { Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import * as THREE from "three";
-import {
-  AiCore,
-  AvatarActor,
-  COLORS,
-  CoreCanvas,
-  SceneLabel,
-  easeInOut,
-  easeOut,
-  ramp,
-  useStoryFrame,
-  window4,
-  type AvatarFrame,
-  type CoreDrive,
-  type Window4,
-} from "@/modules/afvarOs";
+import { COLORS, easeInOut, easeOut, ramp, window4, type Window4 } from "@/modules/afvarOs";
+import { AiCore, AvatarActor, CoreCanvas, SceneLabel, useStoryFrame, type AvatarFrame, type CoreDrive } from "@/modules/afvarOs/gl";
 import { playCue } from "../audio";
 import { MachinedArc } from "../MachinedArc";
 import { AVATAR, GATE, ORBIT, RING, SATELLITES, SOURCES, THINK, THINK_OUT, columnPos, type ActId, type Film, type Layout } from "./aiConfig";

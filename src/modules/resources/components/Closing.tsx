@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { SiteFooter } from "@/modules/markets";
 import { EarthHorizon, PageNote, Reveal, ScrollWords } from "@/modules/platform/kit";
 import { PRELAUNCH_NOTE } from "../content";
 import { ResLink } from "./ui";
 
 /**
  * The /market closing band (stars + the live, draggable earth horizon) with
- * Resources copy, then the solid site footer — the same ending as every page.
+ * Resources copy. The site frame adds the footer after it.
  */
 export function ResourcesClosing({
   title,
@@ -44,7 +43,6 @@ export function ResourcesClosing({
         <PageNote>{PRELAUNCH_NOTE}</PageNote>
       </div>
     </EarthHorizon>
-    <SiteFooter />
     </>
   );
 }

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { AppIcon, PIcon } from "@/modules/platform/kit";
 import { getGuide, type TroubleTopic } from "../content";
 import { ResourcesClosing } from "./Closing";
-import { ResourcesHero, ResourcesTabs } from "./Hero";
+import { ArticleHead } from "./ArticleHead";
+import { ResourcesTabs } from "./Hero";
 import { ResourcesFrame } from "./ResourcesFrame";
 import { TroubleshootChecks } from "./TroubleshootChecks";
 import { Window } from "./Window";
@@ -24,14 +25,13 @@ export function TroubleshootDetail({ topic }: { topic: TroubleTopic }) {
   const guide = topic.guide ? getGuide(topic.guide) : undefined;
   return (
     <ResourcesFrame>
-      <ResourcesHero
-        sub
+      <ArticleHead
         crumb={[
           { label: "Help & Support", href: "/resources/help" },
           { label: topic.title, href: `/resources/help/${topic.slug}` },
         ]}
         eyebrow="Troubleshooting"
-        title={[topic.title, ""]}
+        title={topic.title}
         lede={topic.symptom}
       />
       <ResourcesTabs />

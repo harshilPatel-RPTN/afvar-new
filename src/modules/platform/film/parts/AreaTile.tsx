@@ -5,7 +5,8 @@
 import { Html, RoundedBox } from "@react-three/drei";
 import type { Ref, RefObject } from "react";
 import type * as THREE from "three";
-import { AppGlyph, COLORS, useStoryFrame, type AppGlyphName } from "@/modules/afvarOs";
+import { AppGlyph, COLORS, type AppGlyphName } from "@/modules/afvarOs";
+import { useStoryFrame } from "@/modules/afvarOs/gl";
 
 export const TILE = { size: 0.56, depth: 0.1 } as const;
 
