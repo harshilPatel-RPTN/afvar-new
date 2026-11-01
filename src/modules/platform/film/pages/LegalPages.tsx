@@ -23,7 +23,7 @@ function Legal({ id, eyebrow, title, lede, children }: { id: string; eyebrow: st
           <div className="mt-12 space-y-10">{children}</div>
           <p className="mt-14 border-t border-[rgba(255,255,255,0.08)] pt-6 text-[14px] leading-relaxed text-[#B7C5BC]">
             Questions about this page? Write to the team through{" "}
-            <a href="/contact" className="text-[#A8DEC2] underline-offset-4 hover:underline">
+            <a href="/contact" className="inline-flex min-h-6 items-center text-[#A8DEC2] underline-offset-4 hover:underline">
               Contact
             </a>
             . AFVAR is operated by RedPhantom Tech Novelty Private Limited, Pandharpur, Maharashtra, India.
