@@ -44,8 +44,8 @@ const COLUMNS: FooterColumn[] = [
   },
 ];
 
-/** Standalone headings that are links themselves (no sub-links). */
-const STANDALONE: FooterLink[] = [
+/** The Company column's links (rendered under one heading like the other columns). */
+const COMPANY: FooterLink[] = [
   { href: "/about", label: "mk.nav.about" },
   { href: "/contact", label: "mk.nav.contact" },
 ];
@@ -61,7 +61,6 @@ const focusRing =
 /** 44px tall targets on touch layouts, compact rows from md up. */
 const linkBase = `group ${focusRing} inline-flex min-h-11 items-center transition-colors duration-300 ease-out motion-reduce:transition-none md:min-h-0 md:py-0.5`;
 const subLink = `${linkBase} text-[14px] text-(--mk-dim) hover:text-(--mk-primary) md:text-[13px]`;
-const headingLink = `${linkBase} text-[14px] font-semibold text-(--mk-text) hover:text-(--mk-primary)`;
 /** Gold hairline that slides in from the left on hover/focus (transform only). */
 const underline =
   "relative after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-(--mk-primary) after:content-[''] motion-safe:after:transition-transform motion-safe:after:duration-300 motion-safe:after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100";
@@ -93,8 +92,8 @@ export async function SiteFooter({ variant = "solid" }: { variant?: keyof typeof
       <div className="relative mx-auto w-full max-w-[1280px] px-4 pb-4 pt-5 sm:px-6 md:pt-6 lg:px-10">
         {/* The bear idles at the footer's right edge, facing the content. */}
         {/* Click it: it swipes with its claws (sound + red claw streaks). */}
-        <FooterBear className="absolute right-4 bottom-16 z-10 hidden w-24 lg:right-10 lg:block" />
-        <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))_auto_auto] lg:gap-x-10">
+        <FooterBear className="absolute right-4 bottom-28 z-10 hidden w-24 lg:right-10 lg:block" />
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,1fr))] lg:gap-x-10">
           {/* Brand */}
           <div className="col-span-2 sm:col-span-3 lg:col-span-1">
             {/* The bull stands guard beside the wordmark; click it and it charges the wordmark (sound). */}
@@ -142,9 +141,7 @@ export async function SiteFooter({ variant = "solid" }: { variant?: keyof typeof
             );
           })}
 
-          {/* Phones and tablets group these under one "Company" column like the
-              other columns; wide screens keep the two standalone heading links. */}
-          <div className="lg:hidden">
+          <div>
             <nav aria-labelledby="mk-footer-company">
               <h2
                 id="mk-footer-company"
@@ -153,7 +150,7 @@ export async function SiteFooter({ variant = "solid" }: { variant?: keyof typeof
                 {t("mk.footer.company")}
               </h2>
               <ul className="mt-1.5 flex flex-col md:mt-2">
-                {STANDALONE.map((link) => (
+                {COMPANY.map((link) => (
                   <li key={link.href}>
                     <Link href={link.href} className={subLink}>
                       <Label>{t(link.label)}</Label>
@@ -163,14 +160,6 @@ export async function SiteFooter({ variant = "solid" }: { variant?: keyof typeof
               </ul>
             </nav>
           </div>
-
-          {STANDALONE.map((link) => (
-            <div key={link.href} className="hidden lg:block">
-              <Link href={link.href} className={`${headingLink} md:-mt-1`}>
-                <Label>{t(link.label)}</Label>
-              </Link>
-            </div>
-          ))}
         </div>
 
         <div>
