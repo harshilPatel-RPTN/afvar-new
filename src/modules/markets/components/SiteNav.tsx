@@ -490,7 +490,16 @@ export function SiteNav({ menuOnly = false, children }: { menuOnly?: boolean; ch
   const homeMenuId = useId();
   const [lastPath, setLastPath] = useState(pathname);
   const [hovered, setHovered] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // The bar picks up its glass backing once the page has scrolled under it.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Close everything on navigation (adjust state during render, no effect).
   if (lastPath !== pathname) {
@@ -521,7 +530,12 @@ export function SiteNav({ menuOnly = false, children }: { menuOnly?: boolean; ch
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 h-[72px]" data-home-menu-open={menuOnly && menuOpen ? "" : undefined}>
+      <header
+        className="fixed inset-x-0 top-0 z-50 h-[72px]"
+        data-home-menu-open={menuOnly && menuOpen ? "" : undefined}
+        data-scrolled={scrolled ? "" : undefined}
+      >
+        <div aria-hidden="true" className="afvar-nav-glass" />
         {/* /home-demo's bull vs bear tug line along the nav's bottom edge (real breadth). */}
         {!menuOnly && <BreadthStrip />}
         <div className="relative flex h-full items-center gap-2 px-3 min-[360px]:px-4 sm:gap-4 sm:px-6 lg:px-10">
@@ -592,7 +606,7 @@ export function SiteNav({ menuOnly = false, children }: { menuOnly?: boolean; ch
               aria-haspopup={menuOnly ? undefined : "dialog"}
               aria-controls={menuOnly && menuOpen ? homeMenuId : undefined}
               aria-label={t("mk.nav.menu")}
-              className={`afvar-glass-button afvar-menu-trigger inline-flex h-11 items-center justify-center gap-2 rounded-full text-(--mk-text) transition-[color,background-color,border-color,opacity,transform] ${menuOnly ? "px-4" : "w-11 xl:hidden"} ${focusRing}`}
+              className={`afvar-glass-button afvar-menu-trigger inline-flex h-11 items-center justify-center gap-2 rounded-full text-(--mk-text) transition-[color,background-color,border-color,opacity,transform] ${menuOnly ? "px-4 max-[399px]:w-11 max-[399px]:px-0" : "w-11 xl:hidden"} ${focusRing}`}
             >
               <svg viewBox="0 0 20 20" className="h-5 w-5" aria-hidden="true">
                 <g fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round">
@@ -601,7 +615,8 @@ export function SiteNav({ menuOnly = false, children }: { menuOnly?: boolean; ch
                   <path className="afvar-menu-line-last" d="M3.5 14h13" />
                 </g>
               </svg>
-              {menuOnly && <span className="text-[13px] font-medium">{t("mk.nav.menu")}</span>}
+              {/* Icon-only on the narrowest phones, leaving the header room for the assistant launcher. */}
+              {menuOnly && <span className="text-[13px] font-medium max-[399px]:hidden">{t("mk.nav.menu")}</span>}
             </button>
             {menuOnly && <AnimatePresence>
               {menuOpen && <HomeNavMenu id={homeMenuId} items={NAV} pathname={pathname} trigger={menuButtonRef} onClose={closeMenu} onSearch={openSearch}>

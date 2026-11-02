@@ -3,7 +3,7 @@
 // Hero of a capability page: its own 3D centrepiece and its hero copy.
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { AiOrb, BODY, EYEBROW, GHOST_LINK, GOLD_CTA, H1, HAIR, MONO } from "@/modules/afvarOs";
+import { AiOrb, BODY, EYEBROW, GHOST_LINK, GOLD_CTA, H1, HAIR, HeroTitle, MONO } from "@/modules/afvarOs";
 import { REGISTER_URL } from "../../routes";
 import type { CapHeroKind } from "./CapHeroScenes";
 import type { PageHeroKind } from "./PageHeroScenes";
@@ -45,9 +45,9 @@ export function CapHeroCopy({ t, compact = false }: { t: CapHeroText; compact?: 
         </nav>
       ) : null}
       <p className={EYEBROW}>{t.eyebrow}</p>
-      <h1 className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]" : `mt-5 ${H1}`}>
+      <HeroTitle twin={compact} className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]" : `mt-5 ${H1}`}>
         {t.title} <span className="text-[#A8DEC2]">{t.gold}</span>
-      </h1>
+      </HeroTitle>
       <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#B7C5BC]" : `mt-6 max-w-[31rem] ${BODY}`}>{compact ? t.short : t.body}</p>
       <div className={`${compact ? "mt-5" : "mt-8"} flex flex-wrap items-center gap-5`}>
         <Link href={REGISTER_URL} prefetch={false} className={GOLD_CTA}>

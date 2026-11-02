@@ -6,8 +6,9 @@ import type { ReactNode } from "react";
 export function Row({ k, v, gold = false }: { k: ReactNode; v?: ReactNode; gold?: boolean }) {
   return (
     <div className={`flex items-center justify-between gap-3 border-b border-[rgba(255,255,255,0.06)] py-[7px] text-[13px] last:border-b-0 ${gold ? "rounded-md border border-[rgba(168,222,194,0.55)] px-2" : ""}`}>
-      <span className="min-w-0 truncate text-[#F2F5F2]">{k}</span>
-      {v !== undefined ? <span className="shrink-0 font-mono text-[11.5px] text-[#B7C5BC]">{v}</span> : null}
+      {/* Phones stack windows at content height, so long keys and values wrap instead of clipping. */}
+      <span className="min-w-0 truncate text-[#F2F5F2] max-sm:min-w-min max-sm:whitespace-normal">{k}</span>
+      {v !== undefined ? <span className="shrink-0 font-mono text-[11.5px] text-[#B7C5BC] max-sm:min-w-0 max-sm:shrink max-sm:text-right max-sm:[overflow-wrap:anywhere]">{v}</span> : null}
     </div>
   );
 }
@@ -41,8 +42,8 @@ export function Steps({ items }: { items: readonly { label: string; detail: stri
           >
             {s.state === "ok" ? "✓" : s.state === "no" ? "✕" : "·"}
           </span>
-          <b className={`w-[120px] shrink-0 text-[13px] font-semibold ${s.state === "no" ? "text-[#FF8A8A]" : "text-[#F2F5F2]"}`}>{s.label}</b>
-          <span className="truncate font-mono text-[11px] text-[#B7C5BC]">{s.detail}</span>
+          <b className={`w-[120px] shrink-0 text-[13px] font-semibold max-sm:w-[84px] ${s.state === "no" ? "text-[#FF8A8A]" : "text-[#F2F5F2]"}`}>{s.label}</b>
+          <span className="truncate font-mono text-[11px] text-[#B7C5BC] max-sm:whitespace-normal">{s.detail}</span>
         </div>
       ))}
     </div>

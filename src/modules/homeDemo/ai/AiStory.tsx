@@ -205,7 +205,7 @@ function BootStage() {
   return (
     <div className="home-hero-boot absolute inset-x-5 bottom-6 sm:inset-x-8 lg:inset-x-auto lg:bottom-auto lg:left-16 lg:top-1/2 lg:w-[min(36rem,44vw)] lg:-translate-y-[44%]">
       <div className="lg:hidden">
-        <HeroCopy compact />
+        <HeroCopy compact twin />
       </div>
       <div className="hidden lg:block">
         <HeroCopy />

@@ -45,7 +45,7 @@ export function OsWindow({
       }`}
       style={{ zIndex: z, ...style }}
     >
-      <div className="flex h-[30px] shrink-0 items-center gap-2 border-b border-[rgba(255,255,255,0.08)] bg-[#14181A] px-3">
+      <div className="flex h-[30px] shrink-0 items-center gap-2 border-b max-sm:h-auto max-sm:min-h-7.5 max-sm:py-1 border-[rgba(255,255,255,0.08)] bg-[#14181A] px-3">
         <span className="flex gap-1.5" aria-hidden="true">
           <span className={`h-2.5 w-2.5 rounded-full ${focused ? "bg-[#A8DEC2]" : "bg-[#3A3F42]"}`} />
           <span className="h-2.5 w-2.5 rounded-full bg-[#3A3F42]" />
@@ -54,7 +54,7 @@ export function OsWindow({
         <span className="ml-1 text-[#8A9295]">
           <AppGlyph name={glyph} size={13} />
         </span>
-        <span className="truncate text-[12px] font-medium text-[#C9CFD1]">{title}</span>
+        <span className="min-w-0 truncate text-[12px] font-medium text-[#C9CFD1] max-sm:whitespace-normal max-sm:leading-tight">{title}</span>
         {aiOwned ? (
           <span className="ml-1 flex items-center gap-1 rounded bg-[rgba(168,222,194,0.16)] px-1.5 py-0.5 font-mono text-[9.5px] tracking-[0.1em] text-[#A8DEC2]">
             <AiOrb size={7} /> AI

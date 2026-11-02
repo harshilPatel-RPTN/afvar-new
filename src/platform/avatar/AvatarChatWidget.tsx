@@ -95,7 +95,7 @@ export function AvatarChatWidget() {
         role="dialog"
         aria-label={t("avatar.title")}
         aria-hidden={!open}
-        className={`flex h-[min(30rem,calc(100dvh-7.5rem))] w-[min(21rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-2xl shadow-black/50 transition-all duration-200 motion-reduce:transition-none ${
+        className={`flex h-[min(30rem,calc(100dvh-15.5rem))] w-[min(21rem,calc(100vw-3.5rem))] flex-col overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-2xl shadow-black/50 transition-all duration-200 motion-reduce:transition-none ${
           open
             ? "pointer-events-auto visible translate-y-0 opacity-100"
             : "pointer-events-none invisible translate-y-3 opacity-0"

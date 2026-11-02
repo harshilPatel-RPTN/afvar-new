@@ -16,17 +16,20 @@ export interface HeroSceneArgs {
 }
 
 export function HeroStage({ id, label, scene, copy, posterLeft = "64%" }: { id: string; label: string; scene: (a: HeroSceneArgs) => ReactNode; copy: (compact: boolean) => ReactNode; posterLeft?: string }) {
-  const { portrait, lite, reduced } = useFilmMode();
+  const { mode, lite, reduced } = useFilmMode();
+  // Below lg the copy is a full-width block under the scene in either
+  // orientation, so landscape phones and tablets need the portrait framing too.
+  const portrait = mode === "compact";
   const { trackRef, active, mounted, webgl } = useStory({ settledP: 0, minWidth: 0 });
   const sceneReady = useSceneReady();
   const zero = useRef(0);
   return (
-    <section ref={trackRef} id={id} aria-label={label} className="relative h-svh min-h-[600px] overflow-hidden bg-transparent text-[#F2F5F2]">
+    <section ref={trackRef} id={id} aria-label={label} className="relative h-svh min-h-[600px] overflow-hidden [@media(max-height:500px)]:min-h-0 bg-transparent text-[#F2F5F2]">
       <div className="absolute inset-0">
         <Poster left={posterLeft} />
         {webgl !== false && mounted && sceneReady ? <div className="absolute inset-0">{scene({ progress: zero, active, still: reduced, portrait, lite })}</div> : null}
       </div>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t from-[rgba(4,4,4,0.85)] from-35% via-[rgba(4,4,4,0.55)] via-65% to-transparent lg:hidden" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t [@media(max-height:500px)]:h-full from-[rgba(4,4,4,0.85)] from-35% via-[rgba(4,4,4,0.55)] via-65% to-transparent lg:hidden" />
       <div className="absolute inset-x-5 bottom-8 sm:inset-x-8 lg:inset-x-auto lg:bottom-auto lg:left-16 lg:top-1/2 lg:w-[min(36rem,44vw)] lg:-translate-y-[44%]">
         <div className="lg:hidden">{copy(true)}</div>
         <div className="hidden lg:block">{copy(false)}</div>

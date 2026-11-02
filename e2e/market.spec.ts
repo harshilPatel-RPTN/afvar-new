@@ -17,7 +17,7 @@ const VIEWPORTS = [
 ] as const;
 const ROUTES = ["/market", "/market/commodities", "/market/forex", "/market/crypto", "/market/forex/eurusd", "/market/briefs"] as const;
 
-/** Where every "Join Waitlist" / "Register Now" hand-off must go (REGISTER_URL in src/modules/markets/data.ts). */
+/** Where every "Register Now" / "Join Waitlist" hand-off must go (REGISTER_URL in src/modules/markets/data.ts). */
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.afvar.com/";
 const APP_ORIGIN = new URL(APP_URL).origin;
 
@@ -149,7 +149,7 @@ for (const viewport of VIEWPORTS) {
 /* ------------------------------------------------------------------ */
 
 test.describe("unknown routes", () => {
-  for (const route of ["/market/nope", "/market/forex/nope"]) {
+  for (const route of ["/market/nope", "/market/forex/nope", "/market/briefs/nope"]) {
     test(`${route} shows the not-found page`, async ({ page }) => {
       await page.goto(route);
       await expect(page.getByText(/could not be found/i)).toBeVisible();
@@ -181,52 +181,46 @@ test.describe("overview", () => {
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
 
-  test("hero anchors reach the markets and how-it-works sections", async ({ page }) => {
-    await expect(page.locator("#markets")).toHaveCount(1);
-    await expect(page.locator("#how-it-works")).toHaveCount(1);
+  test("the hero link reaches the directory of groups, instruments and briefs", async ({ page }) => {
+    const groups = page.getByRole("link", { name: "See the groups", exact: true });
+    await expect(groups).toBeVisible();
+    expect(await groups.getAttribute("href")).toMatch(/#market-groups$/);
 
-    const explore = page.getByRole("link", { name: "Explore Markets", exact: true });
-    await expect(explore).toBeVisible();
-    expect(await explore.getAttribute("href")).toMatch(/#markets$/);
-
-    const how = page.getByRole("link", { name: "See How It Works", exact: true }).first();
-    expect(await how.getAttribute("href")).toMatch(/#how-it-works$/);
+    const directory = page.locator("#market-groups");
+    await expect(directory).toHaveCount(1);
+    const hrefs = await directory.locator("a").evaluateAll((as) => as.map((a) => a.getAttribute("href")));
+    for (const group of ["commodities", "forex", "crypto"]) expect(hrefs).toContain(`/market/${group}`);
+    expect(hrefs).toContain("/market/commodities/gold");
+    expect(hrefs).toContain("/market/briefs");
   });
 
-  test("every external link and form hands off to the app", async ({ page }) => {
+  test("every external link hands off to the app", async ({ page }) => {
     const targets = await page.evaluate((origin) => {
-      const out: { kind: string; label: string; target: string }[] = [];
+      const out: { label: string; target: string }[] = [];
       for (const a of Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]"))) {
         const href = a.getAttribute("href") ?? "";
         if (!/^https?:\/\//i.test(href)) continue;
         if (new URL(href).origin === origin) continue;
-        out.push({ kind: "link", label: (a.textContent ?? "").trim(), target: href });
-      }
-      for (const form of Array.from(document.querySelectorAll<HTMLFormElement>("form[action]"))) {
-        out.push({ kind: "form", label: form.getAttribute("aria-label") ?? "", target: form.getAttribute("action") ?? "" });
+        out.push({ label: (a.textContent ?? "").trim(), target: href });
       }
       return out;
     }, new URL(page.url()).origin);
 
     expect(targets.length, "there is at least one hand-off to the app").toBeGreaterThan(0);
     for (const item of targets) {
-      expect(item.target, `${item.kind} "${item.label}" points at the app`).toMatch(new RegExp(`^${APP_ORIGIN.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(/|$)`));
+      expect(item.target, `link "${item.label}" points at the app`).toMatch(new RegExp(`^${APP_ORIGIN.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(/|$)`));
     }
 
-    const waitlist = page.getByRole("link", { name: "Join Waitlist" }).first();
-    await expect(waitlist).toHaveAttribute("href", new RegExp(`^${APP_ORIGIN.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
-    const form = page.locator("form").filter({ has: page.getByLabel("Email address") });
-    await expect(form).toHaveAttribute("action", new RegExp(`^${APP_ORIGIN.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
-    await expect(form).toHaveAttribute("method", /get/i);
+    await expect(page.getByRole("link", { name: "Register Now" }).first()).toHaveAttribute("href", new RegExp(`^${APP_ORIGIN.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
   });
 
-  test("copy never says buy or sell and the market cards carry no price-like numbers", async ({ page }) => {
+  test("copy never says buy or sell and the directory cards carry no price-like numbers", async ({ page }) => {
     await scrollThrough(page);
     const mainText = await page.getByRole("main").innerText();
     expect(mainText).not.toMatch(TRADE_WORDS);
 
-    const cards = page.locator("#markets article");
-    await expect(cards).toHaveCount(3);
+    const cards = page.locator("#market-groups a");
+    await expect(cards).toHaveCount(14);
     for (const text of await cards.allInnerTexts()) {
       expect(text).not.toMatch(PRICE_LIKE);
     }
@@ -237,54 +231,45 @@ test.describe("overview", () => {
 /* Navigation                                                          */
 /* ------------------------------------------------------------------ */
 
-test.describe("navigation (desktop)", () => {
-  test.use({ viewport: { width: 1440, height: 900 } });
+for (const viewport of VIEWPORTS) {
+  test.describe(`navigation (${viewport.name})`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } });
 
-  test("Markets chevron opens its submenu and Escape closes it", async ({ page }) => {
-    await setEdition(page, "en");
-    await page.goto("/market");
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    test("Menu opens the site menu, Markets lists its pages, Escape closes it", async ({ page }) => {
+      await setEdition(page, "en");
+      await page.goto("/market");
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
-    const nav = page.getByRole("navigation", { name: "Main" });
-    const chevron = nav.getByRole("button", { name: "Markets submenu" });
-    await expect(chevron).toHaveAttribute("aria-expanded", "false");
+      const menu = page.getByRole("button", { name: "Menu", exact: true });
+      await expect(menu).toHaveAttribute("aria-expanded", "false");
+      // The click waits out the intro splash, which covers the page just after load.
+      await menu.click();
+      await expect(menu).toHaveAttribute("aria-expanded", "true");
 
-    // Keyboard, so the hover-opens behaviour does not race the click.
-    await chevron.focus();
-    await page.keyboard.press("Enter");
-    await expect(chevron).toHaveAttribute("aria-expanded", "true");
-    await expect(nav.getByRole("link", { name: "Commodities", exact: true })).toBeVisible();
-    await expect(nav.getByRole("link", { name: "Market Briefs", exact: true })).toBeVisible();
+      const panelId = await menu.getAttribute("aria-controls");
+      const panel = page.locator(`[id="${panelId}"]`);
+      const markets = panel.getByRole("button", { name: "Markets", exact: true });
+      await expect(markets).toHaveAttribute("aria-expanded", "false");
+      await markets.click();
+      // Wide screens show the submenu beside the list; phones slide it over the list.
+      const submenu = page.locator(`[id="${panelId}-children"]`);
+      for (const name of ["Markets Overview", "Commodities", "Forex", "Crypto", "Market Briefs"]) {
+        await expect(submenu.getByRole("link", { name, exact: true })).toBeVisible();
+      }
+      await expect(submenu.getByRole("link", { name: "Commodities", exact: true })).toHaveAttribute("href", "/market/commodities");
 
-    await page.keyboard.press("Escape");
-    await expect(chevron).toHaveAttribute("aria-expanded", "false");
-    await expect(nav.getByRole("link", { name: "Commodities", exact: true })).toHaveCount(0);
-    await expect(chevron).toBeFocused();
+      // Escape steps back one layer at a time: the submenu first, then the menu.
+      await page.keyboard.press("Escape");
+      await expect(submenu).toHaveCount(0);
+      await expect(markets).toHaveAttribute("aria-expanded", "false");
+      await expect(markets).toBeFocused();
+      await expect(menu).toHaveAttribute("aria-expanded", "true");
+      await page.keyboard.press("Escape");
+      await expect(menu).toHaveAttribute("aria-expanded", "false");
+      await expect(menu).toBeFocused();
+    });
   });
-});
-
-test.describe("navigation (phone)", () => {
-  test.use({ viewport: { width: 390, height: 844 } });
-
-  test("Menu opens the site menu dialog and Escape closes it", async ({ page }) => {
-    await setEdition(page, "en");
-    await page.goto("/market");
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-
-    const menu = page.getByRole("button", { name: "Menu", exact: true });
-    await expect(menu).toBeVisible();
-    await menu.click();
-
-    const dialog = page.getByRole("dialog", { name: "Site menu" });
-    await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole("button", { name: "Close" })).toBeFocused();
-    await expect(dialog.getByRole("link", { name: "Markets", exact: true })).toBeVisible();
-
-    await page.keyboard.press("Escape");
-    await expect(dialog).toHaveCount(0);
-    await expect(menu).toHaveAttribute("aria-expanded", "false");
-  });
-});
+}
 
 /* ------------------------------------------------------------------ */
 /* Site search                                                         */
@@ -297,12 +282,13 @@ test.describe("search", () => {
     await setEdition(page, "en");
     await page.goto("/market");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    // The shortcut is registered on hydration; the trigger button carries the same state.
-    await expect(page.getByRole("button", { name: "Search the site" })).toHaveAttribute("aria-expanded", "false");
 
-    await page.keyboard.press("Control+k");
+    // The shortcut is registered on hydration, so retry until the dialog answers.
     const dialog = page.getByRole("dialog", { name: "Search AFVAR" });
-    await expect(dialog).toBeVisible();
+    await expect(async () => {
+      await page.keyboard.press("Control+k");
+      await expect(dialog).toBeVisible({ timeout: 1_000 });
+    }).toPass({ timeout: 15_000 });
 
     const input = dialog.getByRole("combobox", { name: "Search AFVAR" });
     await expect(input).toBeFocused();
@@ -314,50 +300,32 @@ test.describe("search", () => {
 
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/market\/commodities\/gold$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Gold");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/^Gold\./);
   });
 });
 
 /* ------------------------------------------------------------------ */
-/* Category page filters                                               */
+/* Group and instrument pages                                          */
 /* ------------------------------------------------------------------ */
 
-test.describe("category", () => {
+test.describe("group", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test("instrument filters narrow the cards and prices stay unavailable", async ({ page }) => {
+  test("the group page links every instrument in it and its cards carry no prices", async ({ page }) => {
     await setEdition(page, "en");
     await page.goto("/market/forex");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Forex");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/^Forex\./);
 
-    const cards = page.locator('article[aria-labelledby^="inst-"]');
-    await expect(cards).toHaveCount(5);
-    await expect(page.getByText("Showing 5 of 5 instruments")).toBeVisible();
-    await expect(page.getByText("Price unavailable", { exact: true }).first()).toBeVisible();
-    await expect(page.getByText("Price unavailable", { exact: true })).toHaveCount(5);
-
-    const filters = page.getByRole("search", { name: "Filter instruments" });
-    const search = filters.getByRole("searchbox", { name: "Find instrument" });
-    await search.fill("jpy");
-    await expect(cards).toHaveCount(1);
-    await expect(cards.first()).toContainText("USD/JPY");
-    await expect(page.getByText("Showing 1 of 5 instruments")).toBeVisible();
-
-    await search.fill("");
-    await expect(cards).toHaveCount(5);
-
-    const coverage = filters.getByRole("combobox", { name: "Coverage" });
-    await coverage.selectOption({ label: "Planned" });
-    await expect(cards).toHaveCount(5);
-    await expect(page.getByText("Showing 5 of 5 instruments")).toBeVisible();
-
-    await coverage.selectOption({ label: "Available" });
-    await expect(cards).toHaveCount(0);
-    await expect(page.getByText("No instruments match these filters.")).toBeVisible();
-
-    for (const text of await page.locator('article[aria-labelledby^="inst-"]').allInnerTexts()) {
+    const directory = page.locator("#group-instruments");
+    const hrefs = await directory.locator("a").evaluateAll((as) => as.map((a) => a.getAttribute("href")));
+    expect(hrefs).toEqual(["/market/forex/eurusd", "/market/forex/usdjpy", "/market/forex/gbpusd", "/market/forex/audusd", "/market/forex/nzdusd", "/market"]);
+    for (const text of await directory.locator("a").allInnerTexts()) {
       expect(text).not.toMatch(PRICE_LIKE);
     }
+
+    await directory.getByRole("link", { name: /Dollar \/ Yen/ }).click();
+    await expect(page).toHaveURL(/\/market\/forex\/usdjpy$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/^Dollar \/ Yen\./);
   });
 });
 
@@ -368,26 +336,18 @@ test.describe("category", () => {
 test.describe("briefs", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test("market filter is mirrored to the URL and the empty state stays honest", async ({ page }) => {
+  test("the briefs page explains editions and links none while none is published", async ({ page }) => {
     await setEdition(page, "en");
     await page.goto("/market/briefs");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Market Briefs");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/^Market briefs\./);
 
-    await expect(page.getByText(/No brief has been published yet/)).toBeVisible();
-    await expect(page.getByText("Published briefs shown: 0")).toBeVisible();
+    const inside = page.getByRole("link", { name: "How an edition reads", exact: true });
+    expect(await inside.getAttribute("href")).toMatch(/#s03-inside-an-edition$/);
+    await expect(page.locator("#s03-inside-an-edition")).toHaveCount(1);
 
-    const filters = page.getByRole("search", { name: "Filter briefs" });
-    const market = filters.getByRole("combobox", { name: "Market", exact: true });
-    await market.selectOption({ label: "Crypto" });
-    await expect(page).toHaveURL(/[?&]market=crypto(&|$)/);
-    await expect(page.getByText(/No brief has been published yet/)).toBeVisible();
-
-    await market.selectOption({ label: "All markets" });
-    await expect(page).not.toHaveURL(/market=/);
-
-    // A shared URL restores the selection on load.
-    await page.goto("/market/briefs?market=forex");
-    await expect(filters.getByRole("combobox", { name: "Market", exact: true })).toHaveValue("forex");
+    // No edition is published yet, so nothing may link to one.
+    const editionLinks = await page.locator('a[href^="/market/briefs/"]').count();
+    expect(editionLinks).toBe(0);
   });
 });
 

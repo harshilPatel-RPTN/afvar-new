@@ -7,7 +7,7 @@
 import { type MotionValue } from "framer-motion";
 import Link from "next/link";
 import { createContext, useContext } from "react";
-import { AI_CORES, AiOrb, AppGlyph, BODY, CARD, CARD_AI, EYEBROW, GHOST_LINK, GOLD_CTA, H1, H2, HAIR, MONO, MiniChart, SOFT, useStep, useTypedText } from "@/modules/afvarOs";
+import { AI_CORES, AiOrb, AppGlyph, BODY, CARD, CARD_AI, EYEBROW, GHOST_LINK, GOLD_CTA, H1, H2, HAIR, HeroTitle, MONO, MiniChart, SOFT, useStep, useTypedText } from "@/modules/afvarOs";
 import { CAPABILITIES, OVERVIEW } from "../content";
 import { REGISTER_URL, capabilityPath } from "../routes";
 import {
@@ -53,9 +53,9 @@ export function HeroCopy({ compact = false }: { compact?: boolean }) {
   return (
     <div>
       <p className={EYEBROW}>AFVAR Platform · Pre-launch</p>
-      <h1 className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]" : `mt-5 ${H1}`}>
+      <HeroTitle twin={compact} className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]" : `mt-5 ${H1}`}>
         {OVERVIEW.title[0]} <span className="text-[#A8DEC2]">{OVERVIEW.title[1]}</span>
-      </h1>
+      </HeroTitle>
       <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#B7C5BC]" : `mt-6 max-w-[31rem] ${BODY}`}>{compact ? OVERVIEW.summary : OVERVIEW.workWith.summary}</p>
       <div className={`${compact ? "mt-5" : "mt-8"} flex flex-wrap items-center gap-5`}>
         <Link href={REGISTER_URL} prefetch={false} className={GOLD_CTA}>

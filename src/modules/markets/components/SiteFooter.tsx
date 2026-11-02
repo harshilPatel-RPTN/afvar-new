@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BearArt, BeastStyles, BullArt } from "@/modules/home/kit";
+import { BeastStyles } from "@/modules/home/kit";
 import { FooterBear, FooterBull } from "./FooterBeasts";
 import { translate, type MessageKey, type MessageVars } from "@/platform/i18n";
 import { getServerEdition } from "@/platform/i18n/server";

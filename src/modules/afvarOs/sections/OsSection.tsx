@@ -174,7 +174,7 @@ export function Ask({ at = 0, x = 40, y = 16, w = 560, text, voice = false }: { 
   const inner = (
     <>
       <AiOrb size={10} />
-      <span ref={span} className="truncate">
+      <span ref={span} className="min-w-0 truncate max-sm:whitespace-normal">
         {mode === "stack" ? text : ""}
       </span>
       <span className="afv-caret" aria-hidden="true" />

@@ -145,3 +145,26 @@ html[data-reduce-motion="true"] :where(button:not([data-glass-hit-area]):not([cl
     outline:1px solid Highlight; outline-offset:-3px;
   }
 }
+/* Site navbar: transparent at the top of the page, a pane of glass once the
+   page scrolls under it. Spans the viewport even inside the 1440 px frame.
+   Only opacity animates; the blur stays on its own layer. */
+.afvar-nav-glass {
+  position:absolute; inset-block:0; left:calc(50% - 50vw); width:100vw; z-index:-1;
+  pointer-events:none; opacity:0; transition:opacity 220ms ease;
+  background-color:rgb(6 17 12 / .35);
+  border-bottom:1px solid rgb(195 233 211 / .12);
+  -webkit-backdrop-filter:blur(6px);
+  backdrop-filter:blur(6px);
+}
+header[data-scrolled] > .afvar-nav-glass { opacity:1; }
+@media (prefers-reduced-motion:reduce) { .afvar-nav-glass { transition:none; } }
+html[data-reduce-motion="true"] .afvar-nav-glass { transition:none; }
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  .afvar-nav-glass { background-color:var(--afvar-forest); }
+}
+@media (prefers-reduced-transparency:reduce) {
+  .afvar-nav-glass { background-color:var(--afvar-forest); -webkit-backdrop-filter:none; backdrop-filter:none; }
+}
+@media (forced-colors:active) {
+  .afvar-nav-glass { background:Canvas; border-bottom-color:CanvasText; box-shadow:none; }
+}

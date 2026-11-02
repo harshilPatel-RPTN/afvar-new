@@ -91,7 +91,7 @@ export function EnquiryForm() {
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
           <RegisterLink size="md" />
-          <button type="button" onClick={() => setStatus("idle")} className="text-[13.5px] font-medium text-(--text-link) hover:underline">
+          <button type="button" onClick={() => setStatus("idle")} className="inline-flex min-h-11 items-center px-2 text-[13.5px] font-medium text-(--text-link) hover:underline">
             Edit the enquiry
           </button>
         </div>

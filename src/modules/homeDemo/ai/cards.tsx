@@ -7,7 +7,7 @@ import { type MotionValue } from "framer-motion";
 import Link from "next/link";
 import { createContext, useContext, useEffect, useRef, useSyncExternalStore } from "react";
 import { fmtPrice, type HomeQuote } from "@/modules/home/kit";
-import { AiOrb, BODY, CARD, CARD_AI, EYEBROW, GHOST_LINK, AI_CTA, H1, H2, HAIR, MONO, SOFT, useStep, useTypedText } from "@/modules/afvarOs";
+import { AiOrb, BODY, CARD, CARD_AI, EYEBROW, GHOST_LINK, AI_CTA, H1, H2, HAIR, HeroTitle, MONO, SOFT, useStep, useTypedText } from "@/modules/afvarOs";
 import { REGISTER_HREF } from "../ui";
 import { AVATAR, SATELLITES, SOURCES, THINK, THINK_OUT, type ActId, type Film } from "./aiConfig";
 
@@ -57,13 +57,13 @@ export function quoteLine(q: HomeQuote | undefined, sym: string): string {
 
 /* ------------------------------------------------------------------ hero */
 
-export function HeroCopy({ compact = false }: { compact?: boolean }) {
+export function HeroCopy({ compact = false, twin = false }: { compact?: boolean; twin?: boolean }) {
   return (
     <div className="home-chapter-prose">
       <p className={EYEBROW}>Pre-launch · AFVAR AI</p>
-      <h1 className={compact ? `mt-3 text-[clamp(2.1rem,9vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]` : `mt-5 ${H1}`}>
+      <HeroTitle twin={twin} className={compact ? `mt-3 text-[clamp(2.1rem,9vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]` : `mt-5 ${H1}`}>
         The trading OS <span className="text-[#A8DEC2]">that never stops thinking.</span>
-      </h1>
+      </HeroTitle>
       <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#B7C5BC]" : `mt-6 max-w-[30rem] ${BODY}`}>
         {compact
           ? "One AI that reads commodities, forex and crypto every millisecond, around the clock. It explains. It never trades."

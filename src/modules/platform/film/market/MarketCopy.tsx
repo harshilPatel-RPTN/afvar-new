@@ -7,7 +7,7 @@
 import { motion, useTransform, type MotionValue } from "framer-motion";
 import Link from "next/link";
 import { createContext, useContext } from "react";
-import { AiOrb, BODY, CARD, CARD_AI, EYEBROW, GHOST_LINK, GOLD_CTA, H1, HAIR, MONO, ramp, useStep, useTypedText } from "@/modules/afvarOs";
+import { AiOrb, BODY, CARD, CARD_AI, EYEBROW, GHOST_LINK, GOLD_CTA, H1, HAIR, HeroTitle, MONO, ramp, useStep, useTypedText } from "@/modules/afvarOs";
 import { fmtPrice, type HomeQuote } from "@/modules/home/kit";
 import { LANE_KEYS, sessionsNow, useNowMinute, type Quotes } from "@/modules/homeDemo/kit";
 import { getCapability } from "../../content";
@@ -65,9 +65,9 @@ export function HeroCopy({ compact = false }: { compact?: boolean }) {
   return (
     <div>
       <p className={EYEBROW}>AFVAR Platform · Market data</p>
-      <h1 className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]" : `mt-5 ${H1}`}>
+      <HeroTitle twin={compact} className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]" : `mt-5 ${H1}`}>
         {CAP.title}. <span className="text-[#A8DEC2]">Every number shows its source.</span>
-      </h1>
+      </HeroTitle>
       <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#B7C5BC]" : `mt-6 max-w-[31rem] ${BODY}`}>
         {compact ? "Quotes, charts and watchlists in one workspace." : "Quotes, charts, watchlists and heatmaps in one workspace. Ask in plain words and the chart or the watchlist changes to match."}
       </p>

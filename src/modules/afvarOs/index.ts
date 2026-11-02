@@ -11,6 +11,7 @@
 // See README.md for how a new page uses it.
 export * from "./theme";
 export { AfvarStyles } from "./AfvarStyles";
+export { HeroTitle } from "./HeroTitle";
 export * from "./story/timeline";
 export { useStory, useAfvarReducedMotion, prefersReducedMotion, type StoryStage } from "./story/useStory";
 export { StoryAct, StoryRail, ProgressBar, useStep, useTypedText, useInertWhileHidden, useBoxKeys, type BoxKeyframe } from "./story/components";

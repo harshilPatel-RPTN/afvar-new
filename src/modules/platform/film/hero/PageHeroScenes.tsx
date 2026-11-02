@@ -9,6 +9,7 @@ import * as THREE from "three";
 import { COLORS, type CameraKey } from "@/modules/afvarOs";
 import { AiSpark, CoreCanvas, GlassPlate, GlowLine, GoldDust, hdr, useStoryFrame } from "@/modules/afvarOs/gl";
 import type { HeroSceneArgs } from "./HeroStage";
+import { TIERS_X, tiersFit } from "./tiersFit";
 
 export type PageHeroKind = "about" | "pricing" | "markets" | "group" | "instrument" | "briefs" | "resources" | "start" | "guides" | "help" | "faqs" | "evidence" | "contact";
 
@@ -145,9 +146,18 @@ const TIER = [
   { x: 0, h: 1.75 },
   { x: 1.15, h: 1.3 },
 ];
-function Tiers() {
+function Tiers({ portrait }: { portrait: boolean }) {
+  // Near-square desktops would crop the right tier: refit against the live camera (tiersFit).
+  const g = useRef<THREE.Group>(null);
+  useFrame(({ camera, size }) => {
+    if (!g.current) return;
+    const cam = camera as THREE.PerspectiveCamera;
+    const { fit, x } = portrait ? { fit: 1, x: TIERS_X } : tiersFit({ fov: cam.fov, zoom: cam.zoom, width: size.width, height: size.height, offsetX: cam.view?.enabled ? cam.view.offsetX : 0 });
+    g.current.scale.setScalar(fit);
+    g.current.position.x = x;
+  });
   return (
-    <group position={[0.45, -1.0, 0]} rotation={[0.28, -0.4, 0]}>
+    <group ref={g} position={[TIERS_X, -1.0, 0]} rotation={[0.28, -0.4, 0]}>
       <GlassPlate width={4.2} depth={1.8} thickness={0.03} radius={0.12} edge={0.3} />
       {TIER.map((t, i) => (
         <group key={i} position={[t.x, t.h / 2, 0]}>
