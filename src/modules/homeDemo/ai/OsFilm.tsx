@@ -342,7 +342,10 @@ export function OsDesktop({ mv, quotes, className = "" }: { mv: MotionValue<numb
       </motion.div>
       <motion.div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[52] bg-(--afvar-charcoal)" style={{ opacity: dim }} />
       {STEP_FORWARD.map((sf, i) => (
-        <SpeechBubble key={i} mv={mv} at={sf.at} line={sf.line} />
+        <SpeechBubble key={i} mv={mv} at={[sf.at[1], sf.at[2]]} place="forward" line={sf.line} />
+      ))}
+      {CORNER_LINES.map((c, i) => (
+        <SpeechBubble key={`c${i}`} mv={mv} at={c.at} place={c.place} line={c.line} />
       ))}
     </OsScreen>
   );
@@ -411,15 +414,28 @@ function BeatCaption({ mv, at, index, title, body }: { mv: MotionValue<number>; 
   );
 }
 
-function SpeechBubble({ mv, at, line }: { mv: MotionValue<number>; at: readonly [number, number, number, number]; line: string }) {
-  const o = useTransform(mv, (p) => window4(p, [U(at[1]), U(at[1] + 0.006), U(at[2] - 0.004), U(at[2] + 0.002)]));
-  const typed = useTypedText(mv, line, [U(at[1] + 0.004), U(at[2] - 0.012)]);
+/** Where a bubble sits, by where the avatar is: stepped forward, in its corner (above its head, or
+ *  beside it when the AI panel fills the space above), or beside its head at Risk Guardian, clear of the
+ *  panel's own risk message. Corner bubbles grow upward. */
+const BUBBLE = {
+  forward: ["left-[800px] top-[140px] w-[330px] rounded-bl-sm", "text-[15px]"],
+  corner: ["right-[14px] bottom-[244px] w-[270px] rounded-br-sm", "text-[13.5px]"],
+  side: ["right-[162px] bottom-[118px] w-[250px] rounded-br-sm", "text-[13.5px]"],
+  risk: ["left-[714px] bottom-[150px] w-[176px] rounded-bl-sm", "text-[13.5px]"],
+} as const;
+type BubblePlace = keyof typeof BUBBLE;
+
+/** `at`: os-local [open, close]. */
+function SpeechBubble({ mv, at, place, line }: { mv: MotionValue<number>; at: readonly [number, number]; place: BubblePlace; line: string }) {
+  const o = useTransform(mv, (p) => window4(p, [U(at[0]), U(at[0] + 0.006), U(at[1] - 0.004), U(at[1] + 0.002)]));
+  const typed = useTypedText(mv, line, [U(at[0] + 0.004), U(at[1] - 0.012)]);
+  const [box, text] = BUBBLE[place];
   return (
-    <motion.div className="absolute left-[800px] top-[140px] z-[56] w-[330px] rounded-2xl rounded-bl-sm border border-[rgba(168,222,194,0.5)] bg-[rgba(16,19,21,0.97)] px-4 py-3" style={{ opacity: o }}>
-      <p className={`${MONO} mb-1 flex items-center gap-1.5 text-[9.5px] text-[#A8DEC2]`}>
+    <motion.div className={`pointer-events-none absolute ${box} z-[56] rounded-2xl border border-[rgba(168,222,194,0.5)] bg-[rgba(16,19,21,0.97)] px-4 py-3`} style={{ opacity: o }}>
+      <p className={`${MONO} mb-1 flex items-center gap-1.5 whitespace-nowrap text-[9.5px] text-[#A8DEC2]`}>
         <AiOrb size={7} pulse={false} /> AFVAR · speaking
       </p>
-      <p className="min-h-[2.8em] text-[15px] leading-snug text-[#F2F5F2]">
+      <p className={`min-h-[2.8em] ${text} leading-snug text-[#F2F5F2]`}>
         <span ref={typed} />
       </p>
     </motion.div>
@@ -587,7 +603,10 @@ function Msg({ show, children, tone = "ai" }: { show: boolean; children: ReactNo
 }
 
 function AiPanel({ mv }: { mv: MotionValue<number> }) {
-  const step = useStep(mv, [...AI_STEPS.map((s) => U(s.u)), U(0.566), U(0.71), U(0.775)]);
+  // The steps tick in one by one with the scroll; the follow-ups wait for the last one.
+  const shown = useStep(mv, AI_STEPS.map((s) => U(s.u))) + 1;
+  const after = useStep(mv, [U(0.566), U(0.71), U(0.775)]);
+  const later = shown >= AI_STEPS.length ? after + 1 : 0;
   return (
     <div className="flex h-full flex-col justify-end gap-2 p-3">
       <div className="ml-auto rounded-lg bg-[#1E2326] px-2.5 py-1.5 text-[12px] text-[#F2F5F2]">Set up my London open</div>
@@ -595,16 +614,16 @@ function AiPanel({ mv }: { mv: MotionValue<number> }) {
         <p className={`${MONO} mb-1.5 text-[9px] text-[#A8DEC2]`}>Done · step by step</p>
         <ul className="space-y-1">
           {AI_STEPS.map((s, i) => (
-            <li key={s.text} className={`flex gap-2 text-[11.5px] leading-snug transition-opacity duration-200 ${step >= i ? "opacity-100" : "opacity-0"}`}>
+            <li key={s.text} className={`flex gap-2 text-[11.5px] leading-snug transition-opacity duration-200 ${shown > i ? "opacity-100" : "opacity-0"}`}>
               <span className="text-[#00E676]">✓</span>
               <span className="text-[#C9CFD1]">{s.text}</span>
             </li>
           ))}
         </ul>
       </div>
-      <Msg show={step >= AI_STEPS.length}>Saved as layout “London open”. Window sizes and tabs remembered.</Msg>
-      <Msg show={step >= AI_STEPS.length + 1}>Restored “London open” exactly as you left it.</Msg>
-      <Msg show={step >= AI_STEPS.length + 2} tone="risk">
+      <Msg show={later >= 1}>Saved as layout “London open”. Window sizes and tabs remembered.</Msg>
+      <Msg show={later >= 2}>Restored “London open” exactly as you left it.</Msg>
+      <Msg show={later >= 3} tone="risk">
         You&apos;re at 80% of today&apos;s loss limit. Turn on Focus so only risk alerts reach you?
       </Msg>
       <div className="flex items-center gap-2 rounded-lg border border-[rgba(255,255,255,0.1)] bg-[#10231B] px-2.5 py-1.5 text-[11px] text-[#92A399]">
@@ -684,6 +703,17 @@ export const STEP_FORWARD = [
   { at: [0.112, 0.126, 0.182, 0.198] as const, line: "Good morning. London is open, and I've pulled up your charts." },
   { at: [0.884, 0.898, 0.93, 0.944] as const, line: "Focus is on. I'll only interrupt you for risk." },
 ];
+/** Lines spoken from the corner (or beside Risk Guardian): os-local [open, close] of each bubble. */
+export const CORNER_LINES: { at: readonly [number, number]; place: BubblePlace; line: string }[] = [
+  // as the chart is dragged to the edge (0.288) and snaps (0.322)
+  { at: [0.286, 0.33], place: "corner", line: "Drag a window to the edge, and it snaps into place." },
+  // the plan is up; the AI panel slides in above the avatar, so this one sits beside it
+  { at: [0.445, 0.476], place: "side", line: "On it. I'll arrange your charts, check the calendar and watch your risk." },
+  // London open just restored (picked at 0.671, back in view by 0.705)
+  { at: [0.705, 0.748], place: "side", line: "Your London open layout is back, exactly as you left it." },
+  // arrived beside Risk Guardian (0.79), before running back (0.85)
+  { at: [0.79, 0.836], place: "risk", line: "Heads up. You've used 80% of today's loss limit." },
+];
 
 /** The avatar's part in the OS film (os-local fractions). */
 const OS_GESTURES: [u: number, gesture: AvatarFrame["gesture"], emotion: string, aura: string, talk: number][] = [
@@ -692,14 +722,17 @@ const OS_GESTURES: [u: number, gesture: AvatarFrame["gesture"], emotion: string,
   [0.13, "talk", "happy", "speaking", 1],
   [0.182, "pointLeft", "focused", "idle", 0],
   [0.205, "look", "curious", "idle", 0],
+  [0.286, "talk", "confident", "speaking", 1],
+  [0.33, "look", "curious", "idle", 0],
   [0.36, "think", "thinking", "thinking", 0],
-  [0.445, "explain", "confident", "speaking", 0.6],
+  [0.445, "explain", "confident", "speaking", 1],
   [0.555, "celebrate", "happy", "idle", 0],
   [0.6, "look", "curious", "idle", 0],
-  [0.705, "acknowledge", "happy", "idle", 0],
+  [0.705, "explain", "happy", "speaking", 1],
+  [0.748, "acknowledge", "happy", "idle", 0],
   [0.765, "idle", "concerned", "serious", 0],
   [0.79, "pointLeft", "concerned", "speaking", 1],
-  [0.83, "acknowledge", "focused", "idle", 0],
+  [0.836, "acknowledge", "focused", "idle", 0],
   [0.85, "idle", "happy", "idle", 0],
   [0.886, "explain", "confident", "speaking", 1],
   [0.93, "idle", "happy", "idle", 0],

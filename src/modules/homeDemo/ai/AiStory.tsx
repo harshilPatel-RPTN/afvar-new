@@ -274,7 +274,7 @@ function DesktopStage({ mv, trackRef, quotes, film, avatarInOs, centeredHome }: 
         </div>
       </StoryAct>
       <StoryAct mv={mv} at={avatarCopyWin(film)} name="avatar" className={`${LEFT} w-[min(33rem,40vw)]`}>
-        <AvatarCopy />
+        <AvatarCopy mv={mv} />
       </StoryAct>
       <StoryAct mv={mv} at={dialogueWin(film)} name="avatar" className={`${LEFT} w-[min(31rem,38vw)]`}>
         <Dialogue mv={mv} />
@@ -371,7 +371,7 @@ function CompactStage({ mv, trackRef, quotes, film, portrait }: { mv: MotionValu
         </div>
       </StoryAct>
       <StoryAct mv={mv} at={avatarCopyWin(film)} name="avatar" className={`home-story-caption ${slot}`} rise={18}>
-        <AvatarCopy compact />
+        <AvatarCopy compact mv={mv} />
       </StoryAct>
       <StoryAct mv={mv} at={dialogueWin(film)} name="avatar" className={`home-story-caption ${slot}`} rise={18}>
         <Dialogue mv={mv} compact />

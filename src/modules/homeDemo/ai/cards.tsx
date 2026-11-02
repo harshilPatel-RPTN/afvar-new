@@ -10,6 +10,7 @@ import { fmtPrice, type HomeQuote } from "@/modules/home/kit";
 import { AiOrb, BODY, CARD, CARD_AI, EYEBROW, GHOST_LINK, AI_CTA, H1, H2, HAIR, HeroTitle, MONO, SOFT, useStep, useTypedText } from "@/modules/afvarOs";
 import { REGISTER_HREF } from "../ui";
 import { AVATAR, SATELLITES, SOURCES, THINK, THINK_OUT, type ActId, type Film } from "./aiConfig";
+import { useVoicedText, VOICE } from "./voice";
 import "./mobile-cards.css";
 
 export type Quotes = Record<string, HomeQuote>;
@@ -366,6 +367,8 @@ export function ThinkCopy() {
 }
 
 /** The reasoning, core by core, synced with the 3D cores lighting up. */
+const THINK_ANSWER = "Not before payrolls. A 1H close above 4,040 turns the view bullish; below 3,985 it turns bearish.";
+
 export function ThinkCard({ mv, compact = false }: { mv: MotionValue<number>; compact?: boolean }) {
   const film = useFilmUi();
   const thresholds = [...THINK.map((r) => film.at("think", r.at)), film.at("think", THINK_OUT)];
@@ -421,7 +424,7 @@ export function ThinkCard({ mv, compact = false }: { mv: MotionValue<number>; co
           <span className={`${MONO} text-[10px] text-[#A8DEC2]`}>The answer</span>
           <span className="mc-verdict rounded-full border border-[rgba(168,222,194,0.6)] bg-[rgba(168,222,194,0.14)] px-3 py-0.5 font-mono text-[12px] tracking-[0.16em] text-[#A8DEC2]">WAIT</span>
         </div>
-        <p className={`mt-2 ${compact ? "text-[13px]" : "text-[14px]"} leading-relaxed text-[#F2F5F2]`}>Not before payrolls. A 1H close above 4,040 turns the view bullish; below 3,985 it turns bearish.</p>
+        <p className={`mt-2 ${compact ? "text-[13px]" : "text-[14px]"} leading-relaxed text-[#F2F5F2]`}>{THINK_ANSWER}</p>
         {compact ? null : <p className="mt-2 text-[11px] text-[#92A399] [@media(max-height:780px)]:hidden">Graded in public after 4 hours · not investment advice</p>}
       </div>
     </div>
@@ -533,7 +536,23 @@ export function SessionCard({ compact = false }: { compact?: boolean }) {
 
 /* ---------------------------------------------------------------- avatar */
 
-export function AvatarCopy({ compact = false }: { compact?: boolean }) {
+/** The avatar's hello as it waves, typed with its voice; only in the scroll film (`mv`). */
+function Hello({ mv }: { mv: MotionValue<number> }) {
+  const film = useFilmUi();
+  const A = (f: number) => film.at("avatar", f);
+  const step = useStep(mv, [A(AVATAR.wave[0]), A(AVATAR.listen[0])]);
+  const typed = useVoicedText(mv, VOICE.hello, HELLO, step === 0, [A(AVATAR.wave[0]), A(AVATAR.wave[0] + 0.04)]);
+  return (
+    <p className={`mt-4 flex items-center gap-2 text-[14px] text-[#E6E9EB] transition-opacity duration-300 ${step === 0 ? "opacity-100" : "opacity-0"}`}>
+      <AiOrb size={10} pulse={step === 0} />
+      <span ref={typed} aria-hidden="true" />
+      <span className="sr-only">{HELLO}</span>
+    </p>
+  );
+}
+const HELLO = "Hi, I am AFVAR.";
+
+export function AvatarCopy({ compact = false, mv }: { compact?: boolean; mv?: MotionValue<number> }) {
   const film = useFilmUi();
   return (
     <div className="home-chapter-prose">
@@ -555,6 +574,7 @@ export function AvatarCopy({ compact = false }: { compact?: boolean }) {
         </button>
         <span className="text-[12px] text-[#92A399]">Live voice beta · uses your microphone</span>
       </div>
+      {mv ? <Hello mv={mv} /> : null}
     </div>
   );
 }

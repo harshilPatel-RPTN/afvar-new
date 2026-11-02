@@ -198,8 +198,6 @@ export function createFilm(kind: FilmKind, acts = ACTS[kind], allBeats = BEATS, 
     { at: S("avatar", 0.3), cue: "latch" },
     { at: S("avatar", AVATAR.answer[0]), cue: "ping" },
     ...(has("os") ? [{ at: S("os", 0.02), cue: "whoosh" as Cue }] : []),
-    { at: S("trust", 0.45), cue: "alert" },
-    { at: S("finale", 0.45), cue: "logo" },
   ];
 
   const weight = (p: number, id: ActId, soft = 0.12) => {

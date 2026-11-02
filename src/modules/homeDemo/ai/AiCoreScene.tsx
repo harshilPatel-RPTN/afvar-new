@@ -32,6 +32,7 @@ import {
 } from "@/modules/afvarOs";
 import { playCue } from "../audio";
 import { MachinedArc } from "../MachinedArc";
+import { voiceMouth } from "./voice";
 import { AVATAR, COLUMN, GATE, ORBIT, PANEL_CAMERA, RING, SATELLITES, SOURCES, THINK, THINK_OUT, columnPos, coreOpeningScale, filmCamera, type ActId, type Film, type Layout } from "./aiConfig";
 
 export interface AiCoreSceneProps {
@@ -377,6 +378,7 @@ function makeAvatarTrack(film: Film, portrait: boolean) {
     out.visible = inAct || inFinale;
     if (!out.visible) return out;
     out.talk = 0;
+    out.voice = voiceMouth();
     out.turn = portrait ? 0 : 0.18;
     out.lean = 0;
     out.z = 0;

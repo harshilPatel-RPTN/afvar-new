@@ -6,7 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { COMPACT_FILM, DESKTOP_FILM, HOME_MOBILE_FILM, type Film } from "../ai/aiConfig";
 import { AlwaysCopy, AvatarCopy, CoresCopy, Dialogue, FilmUi, FinaleCopy, HeroCopy, PermissionsCard, SessionCard, StreamCopy, ThinkCard, ThinkCopy, TrustCopy } from "../ai/cards";
-import { OS_BEATS, OS_G, OS_KEYS, POINTER, STEP_FORWARD } from "../ai/OsFilm";
+import { CORNER_LINES, OS_BEATS, OS_G, OS_KEYS, POINTER, STEP_FORWARD } from "../ai/OsFilm";
 
 const increasing = (xs: number[]) => xs.every((x, i) => i === 0 || x >= xs[i - 1]);
 
@@ -78,6 +78,13 @@ describe("OS choreography", () => {
   });
   it("step-forward windows are well formed", () => {
     for (const s of STEP_FORWARD) expect(increasing([...s.at])).toBe(true);
+  });
+  it("corner lines never overlap each other or a step forward", () => {
+    const spans = [...CORNER_LINES.map((c) => c.at), ...STEP_FORWARD.map((s) => [s.at[0], s.at[3]] as const)].sort((a, b) => a[0] - b[0]);
+    for (let i = 0; i < spans.length; i++) {
+      expect(spans[i][1] - spans[i][0]).toBeGreaterThanOrEqual(0.03);
+      if (i) expect(spans[i][0]).toBeGreaterThanOrEqual(spans[i - 1][1]);
+    }
   });
 });
 

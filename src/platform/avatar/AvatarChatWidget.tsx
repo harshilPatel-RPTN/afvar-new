@@ -14,6 +14,18 @@ const VIEWER_URL = "https://afvar-avatar-final.vercel.app/avatar/AFVAR/index.htm
 type Phase = "idle" | "loading" | "ready" | "failed";
 
 /**
+ * The greeting in the viewer's own voice (Gemini "Puck"), generated once from its TTS endpoint
+ * and served from here: that endpoint refuses other origins and has a tight daily voice quota.
+ */
+const GREETING_AUDIO = "/avatar/greeting-hi.wav";
+/** Every edition is greeted in Hindi, written and spoken. */
+const GREETING_TEXT = "नमस्कार! मैं AFVAR हूँ, मैं आपकी कैसे सहायता कर सकता हूँ?";
+/** Greeting starts while the entrance wave is still playing, after the hologram has resolved. */
+const GREET_DELAY = 900;
+/** Viewer phases that mean a voice turn has begun, so the Talk prompt is no longer needed. */
+const VOICE_PHASE = /listen|think|speak|talk/i;
+
+/**
  * Floating AFVAR avatar chatbot: launcher bottom-right on every page; below lg the open chat is a centred modal.
  * The viewer mounts on first open and is only hidden (render-paused) on
  * close, so the conversation survives reopening within the same page.
@@ -30,6 +42,10 @@ export function AvatarChatWidget() {
   const avatarRef = useRef<AvatarController | null>(null);
   // Latest viewer state, read by the entrance before it hands the robot back to idle.
   const avatarStateRef = useRef<AvatarState | null>(null);
+  // Set once a voice turn starts; until then the open chat glows its Talk button.
+  const [talked, setTalked] = useState(false);
+  // True while our greeting holds the talk gesture, whose "speaking" phase is not a voice turn.
+  const greeting = useRef(false);
 
   useEffect(
     () => () => {
@@ -52,6 +68,7 @@ export function AvatarChatWidget() {
         },
         onState: (state) => {
           avatarStateRef.current = state;
+          if (VOICE_PHASE.test(state.phase) && !greeting.current) setTalked(true);
         },
         onError: () => setPhase((current) => (current === "ready" ? current : "failed")),
       });
@@ -63,9 +80,41 @@ export function AvatarChatWidget() {
   };
 
 
+  // Every open says hello and points the visitor at Talk. Closing cuts the greeting short.
+  const greetReady = open && phase === "ready";
+  const talkGlow = greetReady && !talked;
+  useEffect(() => {
+    if (!greetReady) return;
+    const audio = new Audio(GREETING_AUDIO);
+    // The viewer can't hear audio played here, so its talk gesture moves the mouth for as long as
+    // the greeting sounds, then hands back to idle unless a voice turn or Controls took over.
+    const talk = () => {
+      greeting.current = true;
+      avatarRef.current?.setState({ gesture: "talk", emotion: "happy" }).catch(() => {});
+    };
+    const quiet = () => {
+      if (!greeting.current) return;
+      greeting.current = false;
+      if (avatarStateRef.current?.gesture === "talk") avatarRef.current?.setState({ gesture: "idle" }).catch(() => {});
+    };
+    audio.addEventListener("playing", talk);
+    audio.addEventListener("ended", quiet);
+    const timer = window.setTimeout(() => {
+      audio.play().catch(() => {});
+    }, GREET_DELAY);
+    return () => {
+      window.clearTimeout(timer);
+      audio.pause();
+      audio.removeEventListener("playing", talk);
+      audio.removeEventListener("ended", quiet);
+      quiet();
+    };
+  }, [greetReady]);
+
   // Hiding pauses rendering and stops voice; showing resumes rendering only.
   const setOpenAndVisibility = (next: boolean) => {
     setOpen(next);
+    if (next) setTalked(false);
     if (next) ensureMounted();
     avatarRef.current?.setVisible(next).catch(() => {});
   };
@@ -73,6 +122,7 @@ export function AvatarChatWidget() {
   // Uses only refs and state setters, so the first render's closure stays valid.
   const openFromPage = () => {
     setOpen(true);
+    setTalked(false);
     ensureMounted();
     avatarRef.current?.setVisible(true).catch(() => {});
   };
@@ -203,6 +253,25 @@ export function AvatarChatWidget() {
           <div ref={hostRef} className="absolute inset-0" />
           {/* Replays on every open: the robot materialises out of the hologram ring and waves. */}
           <AvatarEntrance active={open && phase === "ready"} avatarRef={avatarRef} stateRef={avatarStateRef} />
+          {/* Halo over the viewer's Talk button (cross-origin, so it can't be styled directly): the viewer
+              centres a 112×46 Talk + Stop pair 22px above the stage bottom, Talk on the left. */}
+          {/* Written greeting, shown alongside the spoken one until the visitor starts talking. */}
+          {talkGlow && (
+            <p
+              role="status"
+              lang="hi"
+              // Left-aligned and kept short of the viewer's own button in the top-right corner.
+              className="pointer-events-none absolute left-3 top-3 max-w-[calc(100%-4.5rem)] rounded-2xl rounded-tl-sm border border-border-subtle bg-surface-raised/90 px-3.5 py-2 text-left text-sm text-foreground shadow-lg shadow-black/30 backdrop-blur-sm"
+            >
+              {GREETING_TEXT}
+            </p>
+          )}
+          {talkGlow && (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute bottom-[22px] left-[calc(50%-117px)] h-[46px] w-[112px] rounded-[24px] animate-talk-glow motion-reduce:animate-none motion-reduce:shadow-[0_0_0_3px_rgba(64,253,255,.8),0_0_18px_4px_rgba(64,253,255,.45)]"
+            />
+          )}
           {phase !== "ready" && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background px-6 text-center text-sm text-muted">
               {phase === "failed" ? (

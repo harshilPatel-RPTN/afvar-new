@@ -23,6 +23,9 @@ export interface AvatarFrame {
   emotion: string;
   /** 0..1 — scripted speech energy (drives the LED mouth like audio would). */
   talk: number;
+  /** 0..1 — measured loudness of the voice actually playing; when set it drives the mouth
+   *  instead of `talk`, so the mouth moves only while the voice is heard. */
+  voice?: number;
   /** 0 assembled … 1 fully exploded into parts. */
   explode: number;
   /** Hologram energy phase: idle, listening, thinking, speaking, serious… */
@@ -108,8 +111,8 @@ function build(): AvatarRig {
     robot.setExpression(f.emotion);
     const face = motionFace(gesture, gt);
     // Scripted speech energy: syllable-like pulses, never a fixed sine.
-    const talk = f.talk > 0 ? f.talk * (0.3 + 0.7 * Math.abs(Math.sin(elapsed * 9.3) * Math.sin(elapsed * 3.1 + 1.3))) : 0;
-    robot.updateFace(elapsed, { ...face, talk, speaking: f.talk > 0.02 });
+    const talk = f.voice ?? (f.talk > 0 ? f.talk * (0.3 + 0.7 * Math.abs(Math.sin(elapsed * 9.3) * Math.sin(elapsed * 3.1 + 1.3))) : 0);
+    robot.updateFace(elapsed, { ...face, talk, speaking: (f.voice ?? f.talk) > 0.02 });
 
     if (Math.abs(f.explode - lastExplode) > 1e-4) {
       lastExplode = f.explode;
