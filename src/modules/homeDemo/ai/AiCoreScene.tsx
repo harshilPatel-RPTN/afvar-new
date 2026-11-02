@@ -239,7 +239,7 @@ const satPos = SATELLITES.map(() => new THREE.Vector3());
 const scratchA = new THREE.Vector3();
 const scratchB = new THREE.Vector3();
 
-function place(layout: Layout, i: number, t: number, out: THREE.Vector3) {
+function place(layout: Layout, i: number, t: number, out: THREE.Vector3, columnSqueeze = 1, columnLift = 0) {
   const n = SATELLITES.length;
   switch (layout) {
     case "inside":
@@ -251,7 +251,7 @@ function place(layout: Layout, i: number, t: number, out: THREE.Vector3) {
       return out.set(Math.cos(a) * r, Math.sin(a) * r * ORBIT.tilt, Math.sin(a) * r * 0.9);
     }
     case "column": {
-      const c = columnPos(i);
+      const c = columnPos(i, columnSqueeze, columnLift);
       return out.set(c[0], c[1], c[2]);
     }
     case "ring": {
@@ -282,10 +282,16 @@ function Satellites() {
     const k = easeInOut(ramp(p, seg.a, seg.b));
     const speaking = speakingCore(film, p);
     const quiet = 1 - 0.35 * film.weight(p, "trust") - 0.2 * film.weight(p, "avatar");
+    const squeeze = portrait ? film.portraitColumnSqueeze : 1;
+    const lift = portrait ? film.portraitColumnLift : 0;
+    // The think act shares the art band with its tall reasoning card, so the
+    // phone cut pulls the column rows a little further toward the band centre.
+    const thinkFit = lift ? 1 - 0.22 * film.weight(p, "think") : 1;
     nodes.current.forEach((g, i) => {
-      place(seg.from, i, t, scratchA);
-      place(seg.to, i, t, scratchB);
+      place(seg.from, i, t, scratchA, squeeze, lift);
+      place(seg.to, i, t, scratchB, squeeze, lift);
       satPos[i].copy(scratchA.lerp(scratchB, seg.from === seg.to ? 0 : k));
+      if (thinkFit !== 1) satPos[i].y = lift + (satPos[i].y - lift) * thinkFit;
       if (!g) return;
       g.position.copy(satPos[i]);
       const born = easeOut(ramp(p, film.at("cores", 0.1) + i * 0.002, film.at("cores", 0.3) + i * 0.002));
@@ -346,7 +352,7 @@ function Satellites() {
 
 /** Five sources; labelled packets travel along each line into the core that reads them. */
 function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
-  const { film, lite } = useFilm();
+  const { film, lite, portrait } = useFilm();
   const { labels } = useStoryFrame();
   const CHIPS = lite ? 2 : 3;
   const { smoothed, still } = useStoryFrame();
@@ -404,7 +410,15 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
         const u = phase % 1;
         g.position.copy(origins[j]).lerp(target, easeInOut(u));
         const edge = ramp(u, 0, 0.12) * (1 - ramp(u, 0.82, 0.97));
-        el.style.opacity = String(edge * w);
+        // On a phone the sources sit past the right edge of the frame: fade a
+        // chip out before its box reaches the edge instead of hard-clipping it.
+        let side = 1;
+        if (portrait) {
+          const cx = (scratchA.copy(g.position).project(s.camera).x + 1) * 0.5 * s.size.width;
+          const half = ((el.textContent?.length ?? 0) * 6.4 + 18) * 0.5; // mono 10.5px ≈ 6.4px/char + padding
+          side = ramp(s.size.width - cx - half, 6, 48);
+        }
+        el.style.opacity = String(edge * w * side);
         const lap = Math.floor(phase) + k;
         const ti = texts.length ? ((lap % texts.length) + texts.length) % texts.length : -1;
         if (ti !== lastText.current[idx]) {
@@ -427,9 +441,13 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
             <sphereGeometry args={[0.07, 16, 16]} />
             <meshBasicMaterial color={COLORS.mintHot} toneMapped={false} />
           </mesh>
-          <SceneLabel position={[src.pos[0] + 0.55, src.pos[1] + 0.3, src.pos[2]]} show={showSources} tone="neutral">
-            {src.label}
-          </SceneLabel>
+          {/* The source names sit past a phone's right edge: there they would only
+              ever peek in half-clipped during camera moves, so portrait skips them. */}
+          {!portrait && (
+            <SceneLabel position={[src.pos[0] + 0.55, src.pos[1] + 0.3, src.pos[2]]} show={showSources} tone="neutral">
+              {src.label}
+            </SceneLabel>
+          )}
           {Array.from({ length: CHIPS }, (_, k) => {
             const idx = j * CHIPS + k;
             return (

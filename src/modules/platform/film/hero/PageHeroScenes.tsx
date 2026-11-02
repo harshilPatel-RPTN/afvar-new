@@ -21,6 +21,20 @@ const CAM_P: CameraKey[] = [
   { at: 1, pos: [0, -0.4, 11.6], look: [0, -2.1, 0] },
 ];
 
+/**
+ * Portrait phones: the Resources-family centrepieces are built for the desktop
+ * frame (copy left, object right), so on a narrow screen they run large and
+ * off the right edge. Each gets a smaller scale and a re-centring shift.
+ */
+const PORTRAIT_FIT: Partial<Record<PageHeroKind, { s: number; x?: number; y?: number }>> = {
+  resources: { s: 0.78, x: -0.18 },
+  start: { s: 0.78, x: 0 },
+  guides: { s: 0.68, x: -0.45 },
+  help: { s: 0.72, x: -0.45 },
+  faqs: { s: 0.72, x: -0.45 },
+  evidence: { s: 0.76, x: -0.1 },
+};
+
 const SCENES: Record<PageHeroKind, () => ReactNode> = {
   about: PrinciplesStack,
   pricing: Tiers,
@@ -39,10 +53,17 @@ const SCENES: Record<PageHeroKind, () => ReactNode> = {
 
 export default function PageHeroScene({ kind, a }: { kind: PageHeroKind; a: HeroSceneArgs }) {
   const Scene = SCENES[kind];
+  const fit = a.portrait ? PORTRAIT_FIT[kind] : undefined;
   return (
     <CoreCanvas progress={a.progress} active={a.active} still={a.still} settledP={0} camera={a.portrait ? CAM_P : CAM} fov={a.portrait ? 50 : 38} parallax={a.portrait ? 0.04 : 0.12} bloom={a.lite ? 0.55 : 0.75} dpr={a.lite ? [1, 1.4] : [1, 1.75]}>
       <Sway>
-        <Scene />
+        {fit ? (
+          <group position={[fit.x ?? 0, fit.y ?? 0, 0]} scale={fit.s}>
+            <Scene />
+          </group>
+        ) : (
+          <Scene />
+        )}
       </Sway>
       <GoldDust count={a.lite ? 140 : 200} box={[10, 6.5, 6]} center={[0, 0, -0.6]} drift={[0.02, 0.03, 0]} opacity={0.38} />
     </CoreCanvas>

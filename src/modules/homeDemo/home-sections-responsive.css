@@ -26,6 +26,12 @@
 }
 
 @media (max-width: 1024px), (max-width: 1366px) and (pointer: coarse) {
+  /* Phones: clearer vertical separation between the film's ending, the
+     overview reel and the launch queue. */
+  .afvar-responsive-home :is(.demo-home-overview, #launch-queue, section[aria-labelledby="demo-closing-title"]) {
+    --section-space: clamp(44px, 6.5svh, 72px);
+  }
+
   .afvar-responsive-home .demo-overview-body {
     padding-inline: clamp(1rem, 4vw, 2.5rem);
   }

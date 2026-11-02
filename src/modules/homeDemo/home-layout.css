@@ -13,6 +13,23 @@
   max-width: var(--home-max-width);
   margin-inline: auto;
 }
+/* Mobile: the film and the sections scroll beneath the fixed bar. A soft
+   scrim keeps the wordmark on its own layer instead of colliding with the
+   art and copy passing under it. */
+@media (max-width: 1099px), (max-height: 649px) {
+  .afvar-responsive-home > header::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 -26px;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgb(6 11 9 / 0.92), rgb(6 11 9 / 0.55) 58%, transparent);
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px);
+    mask-image: linear-gradient(to bottom, #000 52%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, #000 52%, transparent);
+  }
+}
 .afvar-responsive-home [aria-label="Launch queue reminder"] { inset-inline-end: calc(var(--home-edge) + 24px); }
 @media (min-width:1441px) {
   body:has(.afvar-responsive-home) .fixed:has(> section[role="dialog"] + button[aria-expanded]) {

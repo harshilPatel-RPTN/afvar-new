@@ -338,25 +338,28 @@ export function HelpSections() {
         <AvatarLine at={0.44} x={780} y={60} text="If someone asks for your trading password in my name, it is not me. Report it." />
       </OsSection>
 
-      <OsSection n={6} label="Request" title="Send one request." soft="To one desk." body="Pick a topic, describe what happened and send. Product and account questions share the same support destination." app="Help">
-        <Win at={0.06} x={40} y={20} w={720} h={420} title="Support request" glyph="phone">
-          <p className="mb-2 font-mono text-[10.5px] tracking-[0.1em] text-[#92A399]">TOPIC</p>
-          <div className="flex flex-wrap gap-2">
-            {HELP.topics.map((t, i) => (
-              <Chip key={t} tone={i === 1 ? "gold" : "plain"}>
-                {t}
-              </Chip>
-            ))}
-          </div>
-          <div className="mt-4 h-[120px] rounded-lg border border-[rgba(255,255,255,0.12)] p-2.5 text-[13px] text-[#C9CFD1]">I registered yesterday but cannot see my queue status…</div>
-          <div className="mt-3 flex items-center gap-2">
-            <Chip tone="sample">Sample request</Chip>
-          </div>
-        </Win>
-        <Win at={0.4} x={790} y={20} w={370} h={260} title="Try first" glyph="settings">
-          <Row k={topic("queue-status").title} />
-        </Win>
-      </OsSection>
+      {/* `#support` is the anchor the troubleshooting pages link back to. */}
+      <div id="support" className="scroll-mt-20">
+        <OsSection n={6} label="Request" title="Send one request." soft="To one desk." body="Pick a topic, describe what happened and send. Product and account questions share the same support destination." app="Help">
+          <Win at={0.06} x={40} y={20} w={720} h={420} title="Support request" glyph="phone">
+            <p className="mb-2 font-mono text-[10.5px] tracking-[0.1em] text-[#92A399]">TOPIC</p>
+            <div className="flex flex-wrap gap-2">
+              {HELP.topics.map((t, i) => (
+                <Chip key={t} tone={i === 1 ? "gold" : "plain"}>
+                  {t}
+                </Chip>
+              ))}
+            </div>
+            <div className="mt-4 h-[120px] rounded-lg border border-[rgba(255,255,255,0.12)] p-2.5 text-[13px] text-[#C9CFD1]">I registered yesterday but cannot see my queue status…</div>
+            <div className="mt-3 flex items-center gap-2">
+              <Chip tone="sample">Sample request</Chip>
+            </div>
+          </Win>
+          <Win at={0.4} x={790} y={20} w={370} h={260} title="Try first" glyph="settings">
+            <Row k={topic("queue-status").title} />
+          </Win>
+        </OsSection>
+      </div>
 
       <OsSection n={7} label="Account help" title="Account and preview help." soft="Quick links." body="Short answers on registration, the queue, identity checks and what the preview shows." app="Help">
         <Win at={0.06} x={40} y={20} w={540} h={330} title="Account" glyph="settings">

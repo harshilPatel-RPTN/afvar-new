@@ -90,7 +90,7 @@ export function TroubleshootDetail({ topic }: { topic: TroubleTopic }) {
       <ResourcesClosing
         title="Fixed? Pick up where you left off."
         lede="Guides, answers and evidence are all one search away."
-        primary={{ label: "Browse all resources", href: "/resources#browse" }}
+        primary={{ label: "Browse all resources", href: "/resources#resource-directory" }}
         secondary={{ label: "Help & Support", href: "/resources/help" }}
       />
     </ResourcesFrame>

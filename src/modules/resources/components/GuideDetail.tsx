@@ -102,7 +102,7 @@ export function GuideDetail({ guide }: { guide: Guide }) {
       <ResourcesClosing
         title="Learn it once. Find it again in seconds."
         lede="Every guide, answer and troubleshooting topic lives in one searchable place."
-        primary={{ label: "Browse all resources", href: "/resources#browse" }}
+        primary={{ label: "Browse all resources", href: "/resources#resource-directory" }}
         secondary={{ label: "Product Guides", href: "/resources/guides" }}
       />
     </ResourcesFrame>

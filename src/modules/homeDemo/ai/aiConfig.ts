@@ -47,8 +47,8 @@ export type Layout = "inside" | "orbit" | "tight" | "ring" | "column";
 
 /** The pipeline layout (stream + think): data cores in a column between the sources and the AI. */
 export const COLUMN = { x: 1.9, gap: 1.0, sourceX: 4.6 };
-export const columnPos = (i: number): readonly [number, number, number] =>
-  i < 5 ? [COLUMN.x, (2 - i) * COLUMN.gap, 0] : i === 6 ? [0.1, 1.55, 0.5] : [0.1, -1.55, 0.5];
+export const columnPos = (i: number, squeeze = 1, lift = 0): readonly [number, number, number] =>
+  i < 5 ? [COLUMN.x, (2 - i) * COLUMN.gap * squeeze + lift, 0] : i === 6 ? [0.1, 1.55 * squeeze + lift, 0.5] : [0.1, -1.55 * squeeze + lift, 0.5];
 
 /* ---------------------------------------------------------- data sources */
 
@@ -155,9 +155,13 @@ export interface Film {
   weight: (p: number, id: ActId, soft?: number) => number;
   /** Composed frame for reduced motion. */
   settledP: number;
+  /** Vertical scale of the pipeline column in portrait (phones fit it into a short art band). */
+  portraitColumnSqueeze: number;
+  /** Vertical offset of the pipeline column in portrait: centres it in the visible art band. */
+  portraitColumnLift: number;
 }
 
-export function createFilm(kind: FilmKind, acts = ACTS[kind]): Film {
+export function createFilm(kind: FilmKind, acts = ACTS[kind], allBeats = BEATS, portraitColumnSqueeze = 1, portraitColumnLift = 0): Film {
   const story = defineStory(acts);
   const has = (id: ActId) => story.order.includes(id);
   const at = (id: ActId, f: number) => story.at(id, f);
@@ -179,7 +183,7 @@ export function createFilm(kind: FilmKind, acts = ACTS[kind]): Film {
     { a: S("finale", 0.6), b: 1.01, from: "inside", to: "inside" },
   ];
 
-  const beats = BEATS.filter((b) => has(b.act));
+  const beats = allBeats.filter((b) => has(b.act));
   const camera: CameraKey[] = beats.map((b) => ({ at: S(b.act, b.f), pos: b.pos, look: b.look }));
   const cameraPortrait: CameraKey[] = beats.map((b) => ({ at: S(b.act, b.f), pos: b.pPos, look: b.pLook }));
   const last = beats[beats.length - 1];
@@ -204,7 +208,7 @@ export function createFilm(kind: FilmKind, acts = ACTS[kind]): Film {
     return easeInOut(ramp(p, a - s * 0.5, a + s) * (1 - ramp(p, b - s, b + s * 0.5)));
   };
 
-  return { kind, story, has, at, plan, camera, cameraPortrait, sound, weight, settledP: 0.012 };
+  return { kind, story, has, at, plan, camera, cameraPortrait, sound, weight, settledP: 0.012, portraitColumnSqueeze, portraitColumnLift };
 }
 
 export const DESKTOP_FILM = createFilm("desktop");
@@ -217,4 +221,21 @@ const mobileLengths: Record<ActId, number> = {
   hero: 90, cores: 110, stream: 135, think: 135, always: 95, avatar: 220,
   os: 340, trust: 110, finale: 90,
 };
-export const HOME_MOBILE_FILM = createFilm("compact", ACTS.desktop.map(act => ({ ...act, vh: mobileLengths[act.id] })));
+
+// Several compositions (the label orbit, the pipeline column, the policy gate)
+// are wider than a 360–430 px portrait screen: at the shared beats the camera
+// crops the orbit labels, the column and the gate at the viewport edges. The
+// phone cut pulls the portrait camera straight back on those acts — the look
+// target is unchanged, so each arrangement simply renders smaller and whole.
+const PHONE_PORTRAIT_PULLBACK: Partial<Record<ActId, number>> = {
+  cores: 1.2,
+  stream: 1.3,
+  think: 1.3,
+  trust: 1.45,
+};
+const PHONE_BEATS: Beat[] = BEATS.map((beat) => {
+  const back = PHONE_PORTRAIT_PULLBACK[beat.act];
+  return back ? { ...beat, pPos: [beat.pPos[0], beat.pPos[1], beat.pPos[2] * back] } : beat;
+});
+
+export const HOME_MOBILE_FILM = createFilm("compact", ACTS.desktop.map(act => ({ ...act, vh: mobileLengths[act.id] })), PHONE_BEATS, 0.8, 0.42);

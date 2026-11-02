@@ -142,8 +142,30 @@ export async function SiteFooter({ variant = "solid" }: { variant?: keyof typeof
             );
           })}
 
+          {/* Phones and tablets group these under one "Company" column like the
+              other columns; wide screens keep the two standalone heading links. */}
+          <div className="lg:hidden">
+            <nav aria-labelledby="mk-footer-company">
+              <h2
+                id="mk-footer-company"
+                className="text-[14px] font-semibold text-(--mk-text)"
+              >
+                {t("mk.footer.company")}
+              </h2>
+              <ul className="mt-1.5 flex flex-col md:mt-2">
+                {STANDALONE.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className={subLink}>
+                      <Label>{t(link.label)}</Label>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+
           {STANDALONE.map((link) => (
-            <div key={link.href} className="-mt-3 md:mt-0">
+            <div key={link.href} className="hidden lg:block">
               <Link href={link.href} className={`${headingLink} md:-mt-1`}>
                 <Label>{t(link.label)}</Label>
               </Link>
