@@ -47,7 +47,7 @@ export function RegisterLink({ size = "lg" }: { size?: "md" | "lg" }) {
     <a
       href={REGISTER_URL}
       className={`afvar-glass-button afvar-glass-primary inline-flex items-center justify-center rounded-full font-medium active:scale-[.98] ${
-        size === "lg" ? "h-12 px-7 text-[17px]" : "h-10 px-5 text-[15px]"
+        size === "lg" ? "h-12 whitespace-nowrap px-4 text-[13px] sm:px-7 sm:text-[17px]" : "h-10 whitespace-nowrap px-4 text-[13px] sm:px-5 sm:text-[15px]"
       }`}
     >
       Register Now
@@ -56,9 +56,23 @@ export function RegisterLink({ size = "lg" }: { size?: "md" | "lg" }) {
 }
 
 /** Apple-style text link with a chevron (e.g. "Learn more ›"). */
-export function ChevronLink({ href, children, className = "" }: { href: string; children: ReactNode; className?: string }) {
+export function ChevronLink({
+  href,
+  children,
+  className = "",
+  compact = false,
+}: {
+  href: string;
+  children: ReactNode;
+  className?: string;
+  /** In a CTA pair: shrinks to 13px and never wraps below `sm`, so the pair stays on one line. */
+  compact?: boolean;
+}) {
   return (
-    <Link href={href} className={`group inline-flex items-center gap-0.5 text-[17px] text-(--accent) hover:underline ${className}`}>
+    <Link
+      href={href}
+      className={`group inline-flex items-center gap-0.5 text-(--accent) hover:underline ${compact ? "whitespace-nowrap text-[13px] sm:text-[17px]" : "text-[17px]"} ${className}`}
+    >
       {children}
       <PIcon name="chevron" size={14} weight="bold" className="transition-transform duration-200 group-hover:translate-x-0.5" />
     </Link>

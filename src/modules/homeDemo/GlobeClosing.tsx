@@ -2,12 +2,19 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
-import { useAfvarReducedMotion } from "@/modules/afvarOs";
+import { useAfvarReducedMotion, useMedia } from "@/modules/afvarOs";
 import { CURRENCY_ROUTES } from "./currencyRoutes";
 import type { mountGlobe } from "./pointGlobe";
 import "./globe-closing.css";
 
 type Globe = Awaited<ReturnType<typeof mountGlobe>>;
+
+// Phones, tablets and touch-first screens never fetch three.js: the per-currency
+// stills crossfade under a CSS atmosphere instead. Shared with the AI story.
+const LITE_DEVICE = "(max-width:1099px), (max-height:649px), (pointer:coarse)";
+const LEG_SECONDS = 5;
+const legCount = CURRENCY_ROUTES.length;
+const stillSrc = (index: number) => `/home-globe/routes/${CURRENCY_ROUTES[index].from.code.toLowerCase()}.webp`;
 
 export function GlobeClosing({ children }: { children: ReactNode }) {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -19,9 +26,14 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
   const route = CURRENCY_ROUTES[activeLeg];
   const reduced = useAfvarReducedMotion();
   const playing = manualPlayback ?? !reduced;
+  // null until the client answers; the SSR poster covers both outcomes.
+  const lite = useMedia(LITE_DEVICE);
+  const section = useRef<HTMLElement>(null);
+  const [seen, setSeen] = useState<ReadonlySet<number>>(() => new Set([0]));
+  const [onscreen, setOnscreen] = useState(false);
   useEffect(() => {
     const node = canvas.current;
-    if (!node) return;
+    if (!node || lite !== false || matchMedia(LITE_DEVICE).matches) return;
     let disposed = false, surface: Globe | undefined;
     const nearby = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
@@ -46,14 +58,39 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
       }).catch(() => { /* The geographic poster is already visible. */ });
     }, { rootMargin: "250px" });
     nearby.observe(node);
-    return () => { disposed = true; nearby.disconnect(); surface?.dispose(); };
-  }, []);
+    return () => { disposed = true; nearby.disconnect(); surface?.dispose(); setGlobe(null); };
+  }, [lite]);
   useEffect(() => { globe?.setPlaying(playing); }, [globe, playing]);
+  // Lite: CSS motion and the leg tour run only while the section is in view.
+  useEffect(() => {
+    const node = section.current;
+    if (!lite || !node) return;
+    const view = new IntersectionObserver(([entry]) => setOnscreen(entry.isIntersecting));
+    view.observe(node);
+    return () => view.disconnect();
+  }, [lite]);
+  useEffect(() => {
+    if (!lite || !playing || !onscreen) return;
+    const tick = window.setTimeout(() => {
+      if (document.hidden) return;
+      const next = (requestedLeg.current + 1) % legCount;
+      requestedLeg.current = next;
+      setActiveLeg(next);
+      setSeen(previous => previous.has(next) ? previous : new Set(previous).add(next));
+    }, LEG_SECONDS * 1000);
+    return () => window.clearTimeout(tick);
+  }, [lite, playing, onscreen, activeLeg]);
   function selectLeg(index: number) {
     requestedLeg.current = index;
     setActiveLeg(index);
+    setSeen(previous => previous.has(index) ? previous : new Set(previous).add(index));
     globe?.selectLeg(index);
   }
+  // Lite keeps every visited still mounted (and warms the next) so swaps are a
+  // pure opacity crossfade; the WebGL path keeps its single poster.
+  const stills = lite
+    ? CURRENCY_ROUTES.map((_, i) => i).filter(i => seen.has(i) || i === activeLeg || i === (activeLeg + 1) % legCount)
+    : [globe ? 0 : activeLeg];
   function start(event: PointerEvent<HTMLCanvasElement>) {
     if (!globe || !event.isPrimary || event.button !== 0) return;
     drag.current = { id: event.pointerId, x: event.clientX };
@@ -72,7 +109,8 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
     globe?.hold(false);
   }
   return (
-    <section id="afvar-globe" data-home-globe="" className="home-globe-closing" aria-labelledby="demo-closing-title">
+    <section ref={section} id="afvar-globe" data-home-globe="" data-globe-lite={lite || undefined}
+      data-offscreen={(lite && !onscreen) || undefined} className="home-globe-closing" aria-labelledby="demo-closing-title">
       <div className="home-globe-copy">
         {children}
         <div className="home-fx-route" data-fx-route={activeLeg}>
@@ -102,12 +140,26 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
       </div>
       <div className="home-globe-figure">
         <div className="home-globe-disc" role="img" aria-label={`Globe showing the ${route.from.code} route from ${route.from.city} to ${route.to.city}. The next leg carries ${route.to.code}.`}>
-          <Image className="home-globe-still" src={`/home-globe/routes/${CURRENCY_ROUTES[globe ? 0 : activeLeg].from.code.toLowerCase()}.webp`}
-            fill sizes="(max-width: 700px) 94vw, 58vw" unoptimized alt="" />
+          {stills.map(i => (
+            <Image key={i} className="home-globe-still" src={stillSrc(i)} data-active={!lite || i === activeLeg || undefined}
+              fill sizes="(max-width: 700px) 94vw, 58vw" unoptimized alt="" />
+          ))}
+          {lite && <span className="home-globe-atmosphere" aria-hidden="true" />}
           <canvas ref={canvas} data-globe-canvas="" aria-hidden="true"
             onPointerDown={start} onPointerMove={move} onPointerUp={end} onPointerCancel={end} onLostPointerCapture={end} />
         </div>
-        {globe && (
+        {lite && (
+          <div className="home-globe-controls" role="group" aria-label="Route tour controls">
+            <button type="button" aria-label="Previous currency route" onClick={() => selectLeg((activeLeg + legCount - 1) % legCount)}>←</button>
+            <button type="button" aria-label={playing ? "Pause route tour" : "Resume route tour"} onClick={() => setManualPlayback(!playing)}>
+              <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true">
+                {playing ? <path d="M4 3h2.5v10H4zM9.5 3H12v10H9.5z" /> : <path d="M4 2.5 13 8l-9 5.5z" />}
+              </svg>
+            </button>
+            <button type="button" aria-label="Next currency route" onClick={() => selectLeg((activeLeg + 1) % legCount)}>→</button>
+          </div>
+        )}
+        {globe && !lite && (
           <div className="home-globe-controls" role="group" aria-label="Globe controls">
             <button type="button" aria-label="Rotate globe left" onClick={() => globe.rotate(-Math.PI / 8)}>←</button>
             <button type="button" aria-label={playing ? "Pause globe rotation" : "Resume globe rotation"} onClick={() => setManualPlayback(!playing)}>

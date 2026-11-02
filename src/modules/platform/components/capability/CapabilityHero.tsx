@@ -50,9 +50,9 @@ export function CapabilityHero({ capability: c }: { capability: Capability }) {
         <motion.p {...fade(0.2)} className="pf-lede mx-auto mt-6 max-w-2xl">
           {c.summary}
         </motion.p>
-        <motion.div {...fade(0.3)} className="mt-9 flex flex-wrap items-center justify-center gap-x-7 gap-y-4">
+        <motion.div {...fade(0.3)} className="mt-9 flex flex-nowrap items-center justify-center gap-x-2.5 sm:gap-x-7">
           <RegisterLink />
-          <ChevronLink href={pathOf("platform")}>Explore the platform</ChevronLink>
+          <ChevronLink compact href={pathOf("platform")}>Explore the platform</ChevronLink>
         </motion.div>
         <motion.div {...fade(0.4)} className="mt-6 flex justify-center">
           <AvailabilityBadge value="in-development" />

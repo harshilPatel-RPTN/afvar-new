@@ -2,9 +2,9 @@
 
 // Shared pieces for the OS sections of every Platform page: real candles from
 // the live feed, a chart window, and process steps that tick with the scroll.
-import { useMotionValueEvent } from "framer-motion";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { CandleChart, Chip, Steps, Win, useSection, useSectionRamp, type AppGlyphName, type ChartLevel2 } from "@/modules/afvarOs";
+import { animate, backOut, useInView, useMotionValueEvent } from "framer-motion";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { CandleChart, Chip, Steps, Win, useAfvarReducedMotion, useSection, useSectionRamp, type AppGlyphName, type ChartLevel2 } from "@/modules/afvarOs";
 import { useLiveMarket, type HomeQuote } from "@/modules/home/kit";
 import { STATUS_LABEL, asOfText } from "../market/analysis";
 
@@ -123,6 +123,77 @@ export function ScrollSteps({ items, at, refusedAt }: { items: readonly { label:
   useMotionValueEvent(p, "change", setV);
   const now = mode === "stack" ? 1 : v;
   return <Steps items={items.map((s, i) => ({ ...s, state: refusedAt !== undefined && i === refusedAt && now >= at[i] ? "no" : now >= at[i] ? "ok" : "idle" }))} />;
+}
+
+const k01 = (v: number) => Math.min(1, Math.max(0, v));
+const out3 = (k: number) => 1 - (1 - k) ** 3;
+
+/**
+ * The lines of a window arriving one by one. On the desk they follow the section's
+ * scroll (line i from `at + i * step`); on cards they play in order once the card is
+ * in view. `pop` springs each line up in place instead of sliding it in from the left.
+ * Styles go on the children directly, so `last:` borders inside keep working.
+ */
+export function Seq({ at, step = 0.03, pop = false, className, children }: { at: number; step?: number; pop?: boolean; className?: string; children: ReactNode }) {
+  const { p, mode } = useSection();
+  const reduced = useAfvarReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const seen = useInView(ref, { once: true, margin: "0px 0px -10% 0px" });
+  const desk = mode === "desk";
+  const paint = useCallback(
+    (k: (i: number) => number) => {
+      Array.from(ref.current?.children ?? []).forEach((c, i) => {
+        const v = k(i);
+        const st = (c as HTMLElement).style;
+        st.opacity = String(v);
+        st.transform = v >= 1 ? "" : pop ? `scale(${0.4 + 0.6 * backOut(v)})` : `translateX(${-14 * (1 - out3(v))}px)`;
+      });
+    },
+    [pop],
+  );
+  const onDesk = useCallback((v: number) => paint((i) => k01((v - at - i * step) / 0.05)), [paint, at, step]);
+  useMotionValueEvent(p, "change", (v) => desk && onDesk(v));
+  useEffect(() => {
+    if (desk) return onDesk(p.get());
+    if (reduced) return paint(() => 1);
+    if (!seen) return paint(() => 0);
+    const n = ref.current?.children.length ?? 0;
+    const end = n * 0.06 + 0.35;
+    const c = animate(0, end, { duration: end, ease: "linear", onUpdate: (t) => paint((i) => k01((t - i * 0.06) / 0.35)) });
+    return () => c.stop();
+  }, [desk, reduced, seen, onDesk, paint, p]);
+  return (
+    <div ref={ref} className={className}>
+      {children}
+    </div>
+  );
+}
+
+/** A price that counts up from 0 to `to` as it arrives (with the scroll on the desk, once in view on cards). */
+export function Count({ at, to, format }: { at: number; to: number; format: (v: number) => string }) {
+  const { p, mode } = useSection();
+  const reduced = useAfvarReducedMotion();
+  const ref = useRef<HTMLSpanElement>(null);
+  const seen = useInView(ref, { once: true });
+  const desk = mode === "desk";
+  const write = useCallback(
+    (k: number) => {
+      if (ref.current) ref.current.textContent = format(k >= 1 ? to : Math.round(to * out3(k)));
+    },
+    [format, to],
+  );
+  useMotionValueEvent(p, "change", (v) => desk && write(k01((v - at) / 0.12)));
+  useEffect(() => {
+    if (desk) return write(k01((p.get() - at) / 0.12));
+    if (reduced || !seen) return write(reduced ? 1 : 0);
+    const c = animate(0, 1, { duration: 0.9, ease: "linear", onUpdate: write });
+    return () => c.stop();
+  }, [desk, reduced, seen, write, at, p]);
+  return (
+    <span ref={ref} className="tabular-nums">
+      {format(to)}
+    </span>
+  );
 }
 
 /** A simple text block inside a window. */

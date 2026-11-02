@@ -27,7 +27,7 @@ import {
 } from "@/modules/afvarOs";
 import { playCue } from "../audio";
 import { MachinedArc } from "../MachinedArc";
-import { AVATAR, GATE, ORBIT, PANEL_CAMERA, RING, SATELLITES, SOURCES, THINK, THINK_OUT, columnPos, coreOpeningScale, type ActId, type Film, type Layout } from "./aiConfig";
+import { AVATAR, COLUMN, GATE, ORBIT, PANEL_CAMERA, RING, SATELLITES, SOURCES, THINK, THINK_OUT, columnPos, coreOpeningScale, type ActId, type Film, type Layout } from "./aiConfig";
 
 export interface AiCoreSceneProps {
   film: Film;
@@ -61,6 +61,14 @@ const win = (film: Film, id: ActId, w: Window4): Window4 => [film.at(id, w[0]), 
 export default function AiCoreScene({ film, progress, active, still, portrait, lite, openingScale, compactPanel = false, compactBloom = false, belowHeader = false, avatarHere, priceTexts }: AiCoreSceneProps) {
   const ctx = useMemo(() => ({ film, lite, portrait }), [film, lite, portrait]);
   const drive = useMemo(() => makeCoreDrive(film, openingScale), [film, openingScale]);
+  // The orbit and the pipeline are composed for a 16:10 stage. The capped
+  // 1440 px stage is squarer on taller screens (1920×1080 → 4:3), so pull
+  // back through those acts until they span the same width as on 16:10.
+  const zoomFit = useMemo(() => {
+    if (portrait || compactPanel) return undefined;
+    const inK = (p: number) => easeInOut(ramp(p, film.at("hero", 0.5), film.at("cores", 0.25)) * (1 - ramp(p, film.at("always", 0.85), film.at("avatar", 0.1))));
+    return (p: number, w: number, h: number) => 1 - (1 - Math.min(1, w / h / 1.6)) * inK(p);
+  }, [film, portrait, compactPanel]);
   return (
     <CoreCanvas
       belowHeader={belowHeader}
@@ -74,6 +82,7 @@ export default function AiCoreScene({ film, progress, active, still, portrait, l
       parallax={portrait ? 0.04 : 0.12}
       bloom={lite ? 0.55 : 0.75}
       dpr={lite ? [1, 1.4] : [1, 1.75]}
+      zoomFit={zoomFit}
       cues={film.sound}
       onCue={playCue}
     >
@@ -350,6 +359,8 @@ function Satellites() {
 
 /* ---------------------------------------------- data sources → their cores */
 
+const SOURCE_LABEL = [0.55, 0.3] as const;
+
 /** Five sources; labelled packets travel along each line into the core that reads them. */
 function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
   const { film, lite, portrait } = useFilm();
@@ -365,6 +376,9 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
     priceRef.current = priceTexts;
   }, [priceTexts]);
   const origins = useMemo(() => SOURCES.map((src) => new THREE.Vector3(...src.pos)), []);
+  const sourceNodes = useRef<(THREE.Group | null)[]>([]);
+  const labelNodes = useRef<(THREE.Group | null)[]>([]);
+  const slides = useMemo(() => SOURCES.map(() => 0), []);
   const lines = useMemo(
     () =>
       SOURCES.map(() => {
@@ -389,6 +403,32 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
     }
     const t = still ? 1.3 : s.clock.elapsedTime;
 
+    // Keep the source labels inside the stage and clear of the chapter rail
+    // (its active label shows from 1440 px): first slide each label left, up
+    // to ending at its source, then slide the source column left.
+    let pull = 0;
+    if (!portrait) {
+      const W = s.size.width;
+      const safe = W - (window.innerWidth >= 1440 ? 200 : 72);
+      SOURCES.forEach((src, j) => {
+        const half = (src.label.length * 8.5 + 24) * 0.5;
+        const at = (x: number) => (scratchA.set(x + SOURCE_LABEL[0], src.pos[1] + SOURCE_LABEL[1], src.pos[2]).project(s.camera).x + 1) * 0.5 * W;
+        const x0 = at(COLUMN.sourceX);
+        const perUnit = x0 - at(COLUMN.sourceX - 1);
+        const need = perUnit > 0 ? Math.max(0, (x0 + half - safe) / perUnit) : 0;
+        slides[j] = Math.min(need, SOURCE_LABEL[0] + half / Math.max(perUnit, 1));
+        pull = Math.max(pull, need - slides[j]);
+      });
+      pull = Math.min(pull, COLUMN.sourceX - COLUMN.x - 1.2);
+    } else slides.fill(0);
+    SOURCES.forEach((src, j) => {
+      origins[j].x = src.pos[0] - pull;
+      const node = sourceNodes.current[j];
+      if (node) node.position.x = -pull;
+      const label = labelNodes.current[j];
+      if (label) label.position.x = -slides[j];
+    });
+
     SOURCES.forEach((src, j) => {
       const target = satPos[src.core];
       const attr = lines[j].getAttribute("position") as THREE.BufferAttribute;
@@ -400,15 +440,24 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
       if (lm) lm.opacity = 0.42 * w;
 
       const texts = src.id === "price" ? priceRef.current : src.samples;
+      // As many chips per line as fit end to end on screen, evenly spaced.
+      scratchA.copy(origins[j]).project(s.camera);
+      scratchB.copy(target).project(s.camera);
+      const run = Math.hypot((scratchA.x - scratchB.x) * s.size.width, (scratchA.y - scratchB.y) * s.size.height) * 0.5;
+      const fit = Math.max(1, Math.min(CHIPS, Math.floor(run / 220)));
       for (let k = 0; k < CHIPS; k++) {
         const idx = j * CHIPS + k;
         const g = chips.current[idx];
         const el = chipEls.current[idx];
         if (!g || !el) continue;
+        if (k >= fit) {
+          if (el.style.opacity !== "0") el.style.opacity = "0";
+          continue;
+        }
         const speed = 0.16 + j * 0.012;
-        const phase = t * speed + k / CHIPS + j * 0.13;
+        const phase = t * speed + k / fit + j * 0.13;
         const u = phase % 1;
-        g.position.copy(origins[j]).lerp(target, easeInOut(u));
+        g.position.copy(origins[j]).lerp(target, u);
         const edge = ramp(u, 0, 0.12) * (1 - ramp(u, 0.82, 0.97));
         // On a phone the sources sit past the right edge of the frame: fade a
         // chip out before its box reaches the edge instead of hard-clipping it.
@@ -419,7 +468,7 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
           side = ramp(s.size.width - cx - half, 6, 48);
         }
         el.style.opacity = String(edge * w * side);
-        const lap = Math.floor(phase) + k;
+        const lap = Math.floor(phase) * fit + k;
         const ti = texts.length ? ((lap % texts.length) + texts.length) % texts.length : -1;
         if (ti !== lastText.current[idx]) {
           lastText.current[idx] = ti;
@@ -437,17 +486,21 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
           <lineSegments geometry={lines[j]}>
             <lineBasicMaterial ref={(el) => void (lineMats.current[j] = el)} color={src.id === "price" ? COLORS.up : COLORS.mint} transparent opacity={0} toneMapped={false} />
           </lineSegments>
-          <mesh position={[...src.pos]}>
-            <sphereGeometry args={[0.07, 16, 16]} />
-            <meshBasicMaterial color={COLORS.mintHot} toneMapped={false} />
-          </mesh>
-          {/* The source names sit past a phone's right edge: there they would only
-              ever peek in half-clipped during camera moves, so portrait skips them. */}
-          {!portrait && (
-            <SceneLabel position={[src.pos[0] + 0.55, src.pos[1] + 0.3, src.pos[2]]} show={showSources} tone="neutral">
-              {src.label}
-            </SceneLabel>
-          )}
+          <group ref={(el) => void (sourceNodes.current[j] = el)}>
+            <mesh position={[...src.pos]}>
+              <sphereGeometry args={[0.07, 16, 16]} />
+              <meshBasicMaterial color={COLORS.mintHot} toneMapped={false} />
+            </mesh>
+            {/* The source names sit past a phone's right edge: there they would only
+                ever peek in half-clipped during camera moves, so portrait skips them. */}
+            {!portrait && (
+              <group ref={(el) => void (labelNodes.current[j] = el)}>
+                <SceneLabel position={[src.pos[0] + SOURCE_LABEL[0], src.pos[1] + SOURCE_LABEL[1], src.pos[2]]} show={showSources} tone="neutral">
+                  {src.label}
+                </SceneLabel>
+              </group>
+            )}
+          </group>
           {Array.from({ length: CHIPS }, (_, k) => {
             const idx = j * CHIPS + k;
             return (

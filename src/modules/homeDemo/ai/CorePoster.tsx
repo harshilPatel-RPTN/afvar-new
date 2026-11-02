@@ -6,8 +6,10 @@ import { PerspectiveCamera, Vector3 } from "three";
 import { CORE_SIZE, cameraViewport, createCameraTrack, sampleCameraTrack, type CameraKey } from "@/modules/afvarOs";
 
 /** A transparent capture of the live shader at phase zero. It uses the live
- * camera projection so lazy loading never changes the orb's size or center. */
-export function CorePoster({ ready, keys, progress, scale, fov, belowHeader, compact }: {
+ * camera projection so lazy loading never changes the orb's size or center.
+ * `lite` (phones, tablets, touch): no WebGL follows, so the still breathes with
+ * CSS-only halo/orbit layers and the 2D avatar stands in for "Meet AFVAR". */
+export function CorePoster({ ready, keys, progress, scale, fov, belowHeader, compact, lite = false, act }: {
   ready: boolean;
   keys: readonly CameraKey[];
   progress: number;
@@ -15,6 +17,9 @@ export function CorePoster({ ready, keys, progress, scale, fov, belowHeader, com
   fov: number;
   belowHeader: boolean;
   compact: boolean;
+  lite?: boolean;
+  /** Current act, for the lite stand-in's tint and avatar beat. */
+  act?: string;
 }) {
   const host = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
@@ -62,11 +67,24 @@ export function CorePoster({ ready, keys, progress, scale, fov, belowHeader, com
     };
   }, [ready, keys, progress, scale, fov, belowHeader]);
 
+  const still = <Image src={compact ? "/home-core/hero-poster-compact.webp" : "/home-core/hero-poster.webp"}
+    alt="" fill unoptimized loading="eager" sizes="100vw" />;
   return (
-    <div ref={host} aria-hidden="true" className="home-core-poster absolute inset-0">
+    <div ref={host} aria-hidden="true" className="home-core-poster absolute inset-0"
+      data-lite={lite || undefined} data-core-act={lite ? act : undefined}>
       <div className="home-story-orb">
-        <Image src={compact ? "/home-core/hero-poster-compact.webp" : "/home-core/hero-poster.webp"}
-          alt="" fill unoptimized loading="eager" sizes="100vw" />
+        {lite ? <>
+          <i className="home-core-glow" />
+          <i className="home-core-halo" />
+        </> : null}
+        {lite ? <div className="home-core-art">{still}</div> : still}
+        {lite ? <>
+          <i className="home-core-orbit"><b /><b /><b /></i>
+          <div className="home-core-avatar">
+            <i /><i />
+            <Image src="/avatar/launcher.png" alt="" width={214} height={256} unoptimized />
+          </div>
+        </> : null}
       </div>
     </div>
   );

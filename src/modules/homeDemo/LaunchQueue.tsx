@@ -120,7 +120,7 @@ export function LaunchQueue({ showRain = true }: { showRain?: boolean }) {
           <p className="max-w-md text-[13.5px] leading-relaxed text-(--mk-dim)">
             Registration is free and reserves your place. It doesn&apos;t grant access to the OS yet — access comes later by invitation.
           </p>
-          <div className="demo-queue-actions flex flex-wrap items-center gap-3">
+          <div className="demo-queue-actions flex flex-nowrap items-center gap-2.5 sm:gap-3">
             <Link href={REGISTER_HREF} prefetch={false} className={BTN_PRIMARY}>
               Register Now
               <Icon name="arrow" className="h-4 w-4" strokeWidth={2} />

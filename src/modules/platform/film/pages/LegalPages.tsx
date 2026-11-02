@@ -46,20 +46,20 @@ function Part({ title, children }: { title: string; children: ReactNode }) {
 function Table({ rows }: { rows: readonly (readonly [string, string, string])[] }) {
   return (
     <div className="overflow-x-auto rounded-[12px] border border-[rgba(255,255,255,0.1)]">
-      <table className="w-full min-w-[520px] text-left text-[13.5px]">
+      <table className="w-full text-left text-[13.5px] sm:min-w-130">
         <thead className="bg-[#06110C] font-mono text-[10.5px] uppercase tracking-[0.1em] text-[#92A399]">
           <tr>
-            <th className="px-4 py-2.5 font-normal">Name</th>
-            <th className="px-4 py-2.5 font-normal">What it remembers</th>
-            <th className="px-4 py-2.5 font-normal">Kept</th>
+            <th className="px-3 py-2.5 sm:px-4 font-normal">Name</th>
+            <th className="px-3 py-2.5 sm:px-4 font-normal">What it remembers</th>
+            <th className="px-3 py-2.5 sm:px-4 font-normal">Kept</th>
           </tr>
         </thead>
         <tbody>
           {rows.map(([n, w, k]) => (
             <tr key={n} className="border-t border-[rgba(255,255,255,0.06)]">
-              <td className="px-4 py-2.5 font-mono text-[12px] text-[#F2F5F2]">{n}</td>
-              <td className="px-4 py-2.5 text-[#C9CFD1]">{w}</td>
-              <td className="px-4 py-2.5 text-[#B7C5BC]">{k}</td>
+              <td className="px-3 py-2.5 sm:px-4 font-mono text-[12px] text-[#F2F5F2] [overflow-wrap:anywhere]">{n}</td>
+              <td className="px-3 py-2.5 sm:px-4 text-[#C9CFD1]">{w}</td>
+              <td className="px-3 py-2.5 sm:px-4 text-[#B7C5BC]">{k}</td>
             </tr>
           ))}
         </tbody>
@@ -80,10 +80,20 @@ export function PrivacyPage() {
         <p>Supported broker accounts connect read-only. AFVAR never asks for a trading or master password.</p>
       </Part>
       <Part title="What stays in your browser">
-        <p>A few small settings are remembered on your own device so the site behaves the way you left it — your language, sound and motion choices. The Cookies page lists each one.</p>
+        <p>A few small settings are remembered on your own device so the site behaves the way you left it — your language, sound and motion choices. The{" "}
+          <a href="/cookies" className="inline-flex min-h-6 items-center text-[#A8DEC2] underline-offset-4 hover:underline">
+            Cookies page
+          </a>{" "}
+          lists each one.
+        </p>
       </Part>
       <Part title="Your choices">
-        <p>You can clear these settings at any time from your browser. To ask about information held with your account, write to the team through Contact.</p>
+        <p>You can clear these settings at any time from your browser. To ask about information held with your account, write to the team through{" "}
+          <a href="/contact" className="inline-flex min-h-6 items-center text-[#A8DEC2] underline-offset-4 hover:underline">
+            Contact
+          </a>
+          .
+        </p>
       </Part>
     </Legal>
   );
@@ -114,9 +124,10 @@ export function CookiesPage() {
       <Part title="Cookies">
         <Table
           rows={[
-            ["afwar_edition", "Your language edition (English or हिन्दी)", "30 days"],
+            ["afwar_edition", "Your language edition (English or हिन्दी)", "1 year"],
             ["afwar_session", "Whether you are signed in, so pages can route you", "30 days"],
             ["afwar_onboarded", "Whether you have finished first-time setup", "30 days"],
+            ["afvar_intro_seen", "That you have seen the opening animation", "1 year"],
           ]}
         />
       </Part>
@@ -126,8 +137,9 @@ export function CookiesPage() {
             ["afvar-home-sound", "Sound on or off", "until cleared"],
             ["afvar-demo-reduce-motion", "Your reduced-motion choice", "until cleared"],
             ["afvar.contact.enquiry", "An unsent contact-form draft", "until sent or cleared"],
-            ["afvar.mk.prelaunchDismissed", "That you closed the pre-launch banner", "until cleared"],
+            ["afvar.mk.prelaunchDismissed", "That you closed the pre-launch banner", "until the tab is closed"],
             ["afvar-waitlist-email", "The email you entered for launch news", "until cleared"],
+            ["afvar_intro_seen", "That you have seen the opening animation", "until cleared"],
           ]}
         />
         <p>Signing in to the app also stores your session on this device, so you are not asked to sign in on every page.</p>

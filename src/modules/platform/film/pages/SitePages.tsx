@@ -238,6 +238,22 @@ const GUIDES_T: CapHeroText = {
   second: { label: "All guides", href: "#all-guides" },
   crumb: [RES_CRUMB, { label: "Product guides" }],
 };
+/**
+ * The guide groups in two columns of near-equal height, in their own order: a group
+ * of five beside groups of one or two would otherwise leave half the grid empty.
+ * Each group weighs its cards plus one for its heading; the split point is the one
+ * that leaves the two columns closest.
+ */
+const GUIDE_COLUMNS = (() => {
+  const weight = GUIDE_GROUPS.map((g) => GUIDES.filter((x) => x.group === g.id).length + 1);
+  const total = weight.reduce((a, b) => a + b, 0);
+  let best = 1;
+  let gap = Infinity;
+  for (let i = 1, left = weight[0]; i < weight.length; left += weight[i], i++) {
+    if (Math.abs(total - 2 * left) < gap) [best, gap] = [i, Math.abs(total - 2 * left)];
+  }
+  return [GUIDE_GROUPS.slice(0, best), GUIDE_GROUPS.slice(best)];
+})();
 export function GuidesFilmPage() {
   return (
     <SitePage
@@ -246,14 +262,18 @@ export function GuidesFilmPage() {
       after={
         <Directory id="all-guides" title="All guides.">
           <div className="grid gap-8 md:grid-cols-2">
-            {GUIDE_GROUPS.map((g) => (
-              <div key={g.id}>
-                <p className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.12em] text-[#A8DEC2]">{g.title}</p>
-                <div className="space-y-3">
-                  {GUIDES.filter((x) => x.group === g.id).map((x) => (
-                    <DirCard key={x.slug} href={`/resources/guides/${x.slug}`} title={x.title} />
-                  ))}
-                </div>
+            {GUIDE_COLUMNS.map((col, c) => (
+              <div key={c} className="space-y-8">
+                {col.map((g) => (
+                  <div key={g.id}>
+                    <p className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.12em] text-[#A8DEC2]">{g.title}</p>
+                    <div className="space-y-3">
+                      {GUIDES.filter((x) => x.group === g.id).map((x) => (
+                        <DirCard key={x.slug} href={`/resources/guides/${x.slug}`} title={x.title} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             ))}
           </div>

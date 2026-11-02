@@ -50,6 +50,15 @@
   .afvar-responsive-home :is(.home-story-content,.home-hero-boot) .home-chapter-prose::after { order:1; }
   .afvar-responsive-home :is(.home-story-content,.home-hero-boot) .home-chapter-prose > :first-child { order:-2; }
   .afvar-responsive-home :is(.home-story-content,.home-hero-boot) .home-chapter-prose > :is(ul,ol,.home-hero-stats) { order:2; }
+  /* No supporting data (e.g. the finale): nothing anchors the bottom zone, so
+     center the whole group instead of leaving the lower half empty. */
+  .afvar-responsive-home .home-story-content .home-chapter-prose:not(:has(> :is(ul,ol,.home-hero-stats))) {
+    justify-content:center;
+  }
+  .afvar-responsive-home .home-story-content .home-chapter-prose:not(:has(> :is(ul,ol,.home-hero-stats)))::before,
+  .afvar-responsive-home .home-story-content .home-chapter-prose:not(:has(> :is(ul,ol,.home-hero-stats)))::after {
+    content:none;
+  }
   .afvar-responsive-home .home-chapter-prose > :is(h1,h2) {
     margin-top:14px; text-wrap:balance; line-height:1.06;
   }
@@ -229,6 +238,13 @@
   .afvar-responsive-home .home-story-actions { gap:8px 12px; }
   .afvar-responsive-home .home-story-actions a { min-height:44px; display:inline-flex; align-items:center; }
 }
+@media (max-width:639px) {
+  /* Phones: the CTA pair stays on one line (row is flex-nowrap). */
+  .afvar-responsive-home .home-story-actions { gap:8px 10px; }
+}
+@media (max-width:359px) {
+  .afvar-responsive-home .home-story-actions a { padding-inline:12px; }
+}
 .afvar-responsive-home .home-os-tools span[data-on="true"] { border-color:#59826b; color:var(--afvar-mint); }
 .afvar-responsive-home .home-os-handset { display:grid; align-content:center; gap:5px; padding:8px; border:1px solid var(--afvar-crimson); border-radius:12px; background:var(--afvar-panel); }
 .afvar-responsive-home .home-os-handset small { font:600 8px/1.2 ui-monospace,monospace; color:var(--afvar-muted); }
@@ -280,3 +296,73 @@
 }
 html[data-reduce-motion="true"] .home-core-live,
 html[data-reduce-motion="true"] .home-core-poster { transition: none; }
+
+/* Lite devices (phones, tablets, touch): no WebGL film. The poster breathes
+   with transform/opacity-only layers; the act sets a tint and the avatar beat. */
+.home-core-poster[data-lite] { --core-tint: 255 164 120; }
+.home-core-poster[data-core-act="stream"],
+.home-core-poster[data-core-act="always"],
+.home-core-poster[data-core-act="avatar"] { --core-tint: 168 222 194; }
+.home-core-poster[data-core-act="think"] { --core-tint: 247 197 120; }
+.home-core-poster[data-core-act="trust"] { --core-tint: 255 120 112; }
+.home-core-poster[data-lite] :is(.home-core-glow, .home-core-halo, .home-core-orbit, .home-core-art, .home-core-avatar) {
+  position: absolute; display: block; pointer-events: none;
+}
+.home-core-poster[data-lite] .home-core-art {
+  inset: 0; animation: home-core-breathe 6s ease-in-out infinite; transition: opacity .5s ease-out, transform .5s ease-out;
+}
+.home-core-poster[data-lite] .home-core-glow {
+  inset: 14%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(var(--core-tint) / .34), rgb(var(--core-tint) / .1) 60%, transparent);
+  animation: home-core-glow 6s ease-in-out infinite; transition: background .6s ease-out;
+}
+.home-core-poster[data-lite] .home-core-halo {
+  inset: 16%; border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent, rgb(var(--core-tint) / .55) 18%, transparent 36%, transparent 52%, rgb(var(--core-tint) / .35) 70%, transparent 88%);
+  -webkit-mask: radial-gradient(closest-side, transparent 93%, #000 95%, #000 99%, transparent);
+  mask: radial-gradient(closest-side, transparent 93%, #000 95%, #000 99%, transparent);
+  animation: home-core-spin 22s linear infinite;
+}
+.home-core-poster[data-lite] .home-core-orbit {
+  inset: 9%; border-radius: 50%; animation: home-core-spin 34s linear infinite reverse;
+}
+.home-core-poster[data-lite] .home-core-orbit b {
+  position: absolute; width: 1.6%; aspect-ratio: 1; min-width: 4px; border-radius: 50%;
+  background: rgb(var(--core-tint)); box-shadow: 0 0 8px 2px rgb(var(--core-tint) / .6);
+  animation: home-core-twinkle 3.2s ease-in-out infinite;
+}
+.home-core-poster[data-lite] .home-core-orbit b:nth-child(1) { left: 50%; top: 0; }
+.home-core-poster[data-lite] .home-core-orbit b:nth-child(2) { left: 7%; top: 72%; animation-delay: -1.1s; }
+.home-core-poster[data-lite] .home-core-orbit b:nth-child(3) { right: 6%; top: 68%; animation-delay: -2.2s; }
+/* "Meet AFVAR": the 2D avatar steps in front of the dimmed core and speaks. */
+.home-core-poster[data-lite] .home-core-avatar {
+  left: 50%; top: 50%; width: 36%; translate: -50% -46%;
+  opacity: 0; transform: scale(.9); transition: opacity .45s ease-out, transform .45s ease-out;
+}
+.home-core-poster[data-lite] .home-core-avatar img {
+  position: relative; display: block; width: 100%; height: auto;
+  filter: drop-shadow(0 12px 24px rgb(0 0 0 / .5));
+}
+.home-core-poster[data-lite] .home-core-avatar i {
+  position: absolute; left: 50%; top: 58%; width: 120%; aspect-ratio: 1; translate: -50% -50%;
+  border-radius: 50%; border: 1px solid rgb(var(--core-tint) / .5); opacity: 0;
+}
+.home-core-poster[data-core-act="avatar"] .home-core-avatar { opacity: 1; transform: none; }
+.home-core-poster[data-core-act="avatar"] .home-core-avatar img { animation: home-core-bob 3.6s ease-in-out infinite; }
+.home-core-poster[data-core-act="avatar"] .home-core-avatar i { animation: home-core-speak 2.4s ease-out infinite; }
+.home-core-poster[data-core-act="avatar"] .home-core-avatar i + i { animation-delay: -1.2s; }
+.home-core-poster[data-core-act="avatar"] .home-core-art { opacity: .4; transform: scale(.92); animation: none; }
+@keyframes home-core-breathe { 50% { transform: scale(1.035); } }
+@keyframes home-core-glow { 0%, 100% { opacity: .55; transform: scale(.94); } 50% { opacity: 1; transform: scale(1.06); } }
+@keyframes home-core-spin { to { transform: rotate(1turn); } }
+@keyframes home-core-twinkle { 50% { opacity: .35; } }
+@keyframes home-core-bob { 50% { transform: translateY(-3%); } }
+@keyframes home-core-speak { from { opacity: .8; transform: scale(.55); } to { opacity: 0; transform: scale(1.15); } }
+@media (prefers-reduced-motion: reduce) {
+  .home-core-poster[data-lite] :is(.home-core-glow, .home-core-halo, .home-core-orbit, .home-core-orbit b, .home-core-art, .home-core-avatar, .home-core-avatar img, .home-core-avatar i) {
+    animation: none; transition: none;
+  }
+}
+html[data-reduce-motion="true"] .home-core-poster[data-lite] :is(.home-core-glow, .home-core-halo, .home-core-orbit, .home-core-orbit b, .home-core-art, .home-core-avatar, .home-core-avatar img, .home-core-avatar i) {
+  animation: none; transition: none;
+}

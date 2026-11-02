@@ -377,7 +377,7 @@ function LevelsChart({ i }: { i: InstInfo }) {
       y={20}
       w={760}
       h={490}
-      levels={r ? [{ v: r.hi, label: "Recent high", tone: "gold", solid: true }, { v: r.lo, label: "Recent low", tone: "ink" }, ...(r.sma20 ? [{ v: r.sma20, label: "20-hour average", tone: "gold" as const }] : [])] : undefined}
+      levels={r ? [{ v: r.hi, label: "High", tone: "gold", solid: true }, { v: r.lo, label: "Low", tone: "ink" }, ...(r.sma20 ? [{ v: r.sma20, label: "20h avg", tone: "gold" as const }] : [])] : undefined}
       drawFrom={[0.2, 0.4]}
     />
   );

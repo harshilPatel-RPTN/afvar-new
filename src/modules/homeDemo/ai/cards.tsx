@@ -69,7 +69,7 @@ export function HeroCopy({ compact = false, twin = false }: { compact?: boolean;
           ? "One AI that reads commodities, forex and crypto every millisecond, around the clock. It explains. It never trades."
           : "AFVAR is an operating system for traders, built around one AI. A multicore mind that reads commodities, forex and crypto every millisecond, around the clock, and explains what it sees in plain words. It never places a trade."}
       </p>
-      <div className={`home-story-actions ${compact ? "mt-5" : "mt-8"} flex flex-wrap items-center gap-5`}>
+      <div className={`home-story-actions ${compact ? "mt-5" : "mt-8"} flex flex-nowrap items-center gap-2.5 sm:gap-5`}>
         <Link href={REGISTER_HREF} prefetch={false} className={AI_CTA}>
           Register Now
         </Link>
@@ -554,7 +554,7 @@ export function FinaleCopy({ compact = false }: { compact?: boolean }) {
         One mind. Always on. <span className="text-[#A8DEC2]">On your side.</span>
       </h2>
       <p className={compact ? "mt-3 text-[14px] leading-relaxed text-[#B7C5BC]" : `mt-6 max-w-[30rem] ${BODY}`}>Register now to be first in line when AFVAR opens, with your place in the launch queue.</p>
-      <div className={`home-story-actions ${compact ? "mt-5" : "mt-8"} flex flex-wrap items-center gap-5`}>
+      <div className={`home-story-actions ${compact ? "mt-5" : "mt-8"} flex flex-nowrap items-center gap-2.5 sm:gap-5`}>
         <Link href={REGISTER_HREF} prefetch={false} className={AI_CTA}>
           Register Now
         </Link>

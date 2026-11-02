@@ -32,11 +32,11 @@ export const ABOUT = {
   ],
   // W6.1.4 — product principles.
   principles: [
-    { title: "Evidence over opinion", body: "Every quote, verdict and headline carries its provenance. The AI never invents a number — code computes, it explains." },
-    { title: "Analysis, never orders", body: "Nothing on AFVAR is investment advice and nothing places trades. Decisions and their responsibility remain with the user." },
-    { title: "Honest by default", body: "Previews are labelled previews, simulated data is labelled simulated, and unconfirmed values are shown as unconfirmed." },
-    { title: "Your control, explicitly", body: "Consequential actions require review and confirmation. Verification changes offer eligibility, never queue position or access." },
-    { title: "Public track record", body: "Every analysis is graded openly — including every WAIT. Claims we cannot verify do not ship." },
+    { title: "Evidence over opinion", short: "Evidence", body: "Every quote, verdict and headline carries its provenance. The AI never invents a number — code computes, it explains." },
+    { title: "Analysis, never orders", short: "No orders", body: "Nothing on AFVAR is investment advice and nothing places trades. Decisions and their responsibility remain with the user." },
+    { title: "Honest by default", short: "Honest", body: "Previews are labelled previews, simulated data is labelled simulated, and unconfirmed values are shown as unconfirmed." },
+    { title: "Your control, explicitly", short: "Control", body: "Consequential actions require review and confirmation. Verification changes offer eligibility, never queue position or access." },
+    { title: "Public track record", short: "Graded", body: "Every analysis is graded openly — including every WAIT. Claims we cannot verify do not ship." },
   ],
   // W6.1.5 — people, verified facts only.
   people: {

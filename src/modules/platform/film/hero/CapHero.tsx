@@ -49,7 +49,7 @@ export function CapHeroCopy({ t, compact = false }: { t: CapHeroText; compact?: 
         {t.title} <span className="text-[#A8DEC2]">{t.gold}</span>
       </HeroTitle>
       <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#B7C5BC]" : `mt-6 max-w-[31rem] ${BODY}`}>{compact ? t.short : t.body}</p>
-      <div className={`${compact ? "mt-5" : "mt-8"} flex flex-wrap items-center gap-5`}>
+      <div className={`${compact ? "mt-5" : "mt-8"} flex flex-nowrap items-center gap-2.5 sm:gap-5`}>
         <Link href={REGISTER_URL} prefetch={false} className={GOLD_CTA}>
           Register Now
         </Link>

@@ -59,7 +59,7 @@ export function VideoSpotlight({ children, playing = false, badge = "PREVIEW" }:
   return (
     <div ref={wrapRef} className="relative" data-on={on && !reduce ? "" : undefined}>
     <style href="afvar-overview-spotlight" precedence="default">{SPOT_CSS}</style>
-    <motion.div className="relative z-10" style={{ scale, y }}>
+    <motion.div className="ov-stage relative z-10" style={{ scale, y }}>
     {/* Lifted state: green underglow + viewfinder corners (they close in as it rises). */}
     <motion.div
       aria-hidden="true"
@@ -146,7 +146,7 @@ export function OverviewVideoFrame({ onExpand }: { onExpand: () => void }) {
 function Corner({ pos, dir, gap, opacity }: { pos: string; dir: readonly [number, number]; gap: MotionValue<number>; opacity: MotionValue<number> }) {
   const x = useTransform(gap, (g) => dir[0] * (g + 8));
   const y = useTransform(gap, (g) => dir[1] * (g + 8));
-  return <motion.span aria-hidden="true" className={`pointer-events-none absolute h-5 w-5 rounded-[3px] border-[#00E676] ${pos}`} style={{ x, y, opacity }} />;
+  return <motion.span aria-hidden="true" className={`ov-corner pointer-events-none absolute h-5 w-5 rounded-[3px] border-[#00E676] ${pos}`} style={{ x, y, opacity }} />;
 }
 
 /** Full player shown inside the section's modal: controls, starts from the top. */

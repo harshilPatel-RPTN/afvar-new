@@ -90,9 +90,10 @@ export async function SiteFooter({ variant = "solid" }: { variant?: keyof typeof
     >
       <BeastStyles />
       <div className="relative mx-auto w-full max-w-[1280px] px-4 pb-4 pt-5 sm:px-6 md:pt-6 lg:px-10">
-        {/* The bear idles at the footer's right edge, facing the content. */}
+        {/* The bear idles at the footer's right edge, facing the content: beside
+            the brand row on phones/tablets, near the bottom on wide screens. */}
         {/* Click it: it swipes with its claws (sound + red claw streaks). */}
-        <FooterBear className="absolute right-4 bottom-28 z-10 hidden w-24 lg:right-10 lg:block" />
+        <FooterBear className="absolute right-4 top-5 z-10 w-16 sm:right-6 md:top-6 lg:top-auto lg:right-10 lg:bottom-20 lg:w-24" />
         <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,1fr))] lg:gap-x-10">
           {/* Brand */}
           <div className="col-span-2 sm:col-span-3 lg:col-span-1">

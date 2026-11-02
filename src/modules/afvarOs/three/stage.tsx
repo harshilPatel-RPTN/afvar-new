@@ -59,6 +59,8 @@ export interface CoreCanvasProps<C extends string> {
   background?: string;
   /** Device-pixel-ratio range (lower on phones). */
   dpr?: [number, number];
+  /** Extra zoom factor per frame (progress, canvas width, height), e.g. to keep a wide composition inside a narrow stage. */
+  zoomFit?: (p: number, width: number, height: number) => number;
   children: ReactNode;
 }
 
@@ -78,6 +80,7 @@ export function CoreCanvas<C extends string>({
   bloomLevels,
   background,
   dpr = [1, 1.75],
+  zoomFit,
   children,
 }: CoreCanvasProps<C>) {
   const smoothed = useRef(still ? settledP : 0);
@@ -103,7 +106,7 @@ export function CoreCanvas<C extends string>({
         <ProgressDamper progress={progress} smoothed={smoothed} still={still} settledP={settledP} lambda={damp} />
         <AdaptiveQuality />
         {cues && onCue ? <CueRunner smoothed={smoothed} cues={cues} onCue={onCue} /> : null}
-        <CameraRig smoothed={smoothed} still={still} keys={camera} fov={fov} parallax={parallax} belowHeader={belowHeader} />
+        <CameraRig smoothed={smoothed} still={still} keys={camera} fov={fov} parallax={parallax} belowHeader={belowHeader} zoomFit={zoomFit} />
 
         <ambientLight intensity={0.16} />
         <spotLight position={[5, 7, 6]} angle={0.5} penumbra={1} intensity={40} color="#E5F1E8" />
@@ -197,6 +200,7 @@ function CameraRig({
   fov,
   parallax,
   belowHeader,
+  zoomFit,
 }: {
   smoothed: RefObject<number>;
   still: boolean;
@@ -204,6 +208,7 @@ function CameraRig({
   fov: number;
   parallax: number;
   belowHeader: boolean;
+  zoomFit?: (p: number, width: number, height: number) => number;
 }) {
   const track = useMemo(() => createCameraTrack(keys), [keys]);
   const drift = useRef({ x: 0, y: 0 });
@@ -225,7 +230,9 @@ function CameraRig({
     // so the 3D keeps clear of the copy, as it does on a 1920 screen.
     const { width: w, height: h } = s.size;
     // 1920 → none · 1280 → 0.87× and 56 px right · 1024 (4:3) → 0.72× and 46 px right.
-    const { zoom, shift, drop } = cameraViewport(w, h, belowHeader);
+    const view = cameraViewport(w, h, belowHeader);
+    const { shift, drop } = view;
+    const zoom = zoomFit ? Math.round(view.zoom * zoomFit(p, w, h) * 1000) / 1000 : view.zoom;
     const vo = cam.view;
     if (cam.fov !== fov || cam.zoom !== zoom || (vo ? -vo.offsetX : 0) !== shift || (vo ? -vo.offsetY : 0) !== drop || (vo && (vo.fullWidth !== w || vo.fullHeight !== h))) {
       cam.fov = fov;

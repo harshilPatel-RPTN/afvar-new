@@ -39,7 +39,7 @@ export function PrimaryLink({ href = REGISTER_URL, children }: { href?: string; 
     <Magnetic>
     <a
       href={href}
-      className="afvar-glass-button afvar-glass-primary inline-flex h-12 items-center justify-center rounded-full px-7 text-[17px] font-medium active:scale-[.98]"
+      className="afvar-glass-button afvar-glass-primary inline-flex h-12 items-center justify-center whitespace-nowrap rounded-full px-4 text-[13px] font-medium active:scale-[.98] sm:px-7 sm:text-[17px]"
     >
       {children}
     </a>
@@ -50,7 +50,7 @@ export function PrimaryLink({ href = REGISTER_URL, children }: { href?: string; 
 /** Apple "Learn more ›" link. */
 export function Chevron({ href, children, className = "" }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link href={href} className={`group inline-flex min-h-11 items-center gap-0.5 text-[17px] text-(--accent) hover:underline ${className}`}>
+    <Link href={href} className={`group inline-flex min-h-11 items-center gap-0.5 whitespace-nowrap text-[13px] text-(--accent) sm:text-[17px] hover:underline ${className}`}>
       {children}
       <PIcon name="chevron" size={14} weight="bold" className="transition-transform duration-200 group-hover:translate-x-0.5" />
     </Link>
@@ -114,7 +114,7 @@ export function ClosingBand({ id, title, lede, children }: { id: string; title: 
     // evens out the sections so the earth rises equally high on both pages.
     <EarthHorizon labelledBy={id} className="mt-28">
       <Heading id={id} title={title} lede={lede} charge />
-      <Reveal delay={0.1} className="mt-9 flex flex-wrap items-center justify-center gap-x-7 gap-y-4">
+      <Reveal delay={0.1} className="mt-9 flex flex-nowrap items-center justify-center gap-x-2.5 sm:gap-x-7">
         {children}
       </Reveal>
     </EarthHorizon>

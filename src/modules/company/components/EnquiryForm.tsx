@@ -3,7 +3,7 @@
 // W7.3 enquiry form states: validate topic/email/message, block duplicate
 // submission, acknowledge honestly (pre-launch: the message is retained on
 // this device, never claimed as delivered), keep the draft on failure.
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { haptic, playSfx } from "@/modules/home/kit";
 import { PIcon, RegisterLink } from "@/modules/platform/kit";
 import { CONTACT } from "../content";
@@ -21,12 +21,13 @@ interface Draft {
 const EMPTY: Draft = { topic: CONTACT.topics[0], email: "", message: "" };
 
 const FIELD =
-  "w-full rounded-[9px] bg-(--surface-inset) px-3.5 text-[14px] text-(--text-primary) shadow-[inset_0_0_0_0.5px_var(--mac-hairline)] outline-none transition-shadow placeholder:text-(--text-disabled) focus:shadow-[inset_0_0_0_1px_var(--accent-border)]";
+  "w-full rounded-[9px] bg-(--surface-inset) px-3.5 text-[16px] text-(--text-primary) sm:text-[14px] shadow-[inset_0_0_0_0.5px_var(--mac-hairline)] outline-none transition-shadow placeholder:text-(--text-disabled) focus:shadow-[inset_0_0_0_1px_var(--accent-border)]";
 
 export function EnquiryForm() {
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<keyof Draft, string>>>({});
   const [status, setStatus] = useState<Status>("idle");
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     // Deferred restore keeps the state update out of the effect body (lint rule).
@@ -62,7 +63,11 @@ export function EnquiryForm() {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(draft.email.trim())) nextErrors.email = "Enter a valid email address.";
     if (draft.message.trim().length < 10) nextErrors.message = "Tell us a little more (at least 10 characters).";
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
+    const firstInvalid = (["topic", "email", "message"] as const).find((field) => nextErrors[field]);
+    if (firstInvalid) {
+      formRef.current?.querySelector<HTMLElement>(`#enquiry-${firstInvalid}`)?.focus();
+      return;
+    }
 
     setStatus("submitting");
     try {
@@ -89,9 +94,9 @@ export function EnquiryForm() {
         <p className="mt-2 max-w-[40ch] text-[13.5px] leading-relaxed text-(--text-secondary)">
           Your {draft.topic.toLowerCase()} is validated and stored on this device. Enquiry delivery opens at launch — it has not been sent anywhere yet.
         </p>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+        <div className="mt-6 flex flex-nowrap items-center justify-center gap-2.5 sm:gap-4">
           <RegisterLink size="md" />
-          <button type="button" onClick={() => setStatus("idle")} className="inline-flex min-h-11 items-center px-2 text-[13.5px] font-medium text-(--text-link) hover:underline">
+          <button type="button" onClick={() => setStatus("idle")} className="inline-flex min-h-11 items-center whitespace-nowrap px-2 text-[13.5px] font-medium text-(--text-link) hover:underline">
             Edit the enquiry
           </button>
         </div>
@@ -100,19 +105,22 @@ export function EnquiryForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="space-y-4 p-1">
+    <form ref={formRef} onSubmit={onSubmit} noValidate className="space-y-4 p-1">
       <div>
         <label htmlFor="enquiry-topic" className="mb-1.5 block text-[12px] font-medium text-(--text-secondary)">
           Topic
         </label>
-        <select id="enquiry-topic" value={draft.topic} onChange={(event) => set("topic")(event.target.value)} className={`${FIELD} h-10 appearance-none`}>
-          {CONTACT.topics.map((topic) => (
-            <option key={topic} value={topic}>
-              {topic}
-            </option>
-          ))}
-        </select>
-        {errors.topic && <p className="mt-1 text-[12px] text-(--negative)">{errors.topic}</p>}
+        <div className="relative">
+          <select id="enquiry-topic" value={draft.topic} onChange={(event) => set("topic")(event.target.value)} aria-invalid={Boolean(errors.topic)} aria-describedby={errors.topic ? "enquiry-topic-error" : undefined} className={`${FIELD} h-11 appearance-none pr-9 sm:h-10`}>
+            {CONTACT.topics.map((topic) => (
+              <option key={topic} value={topic}>
+                {topic}
+              </option>
+            ))}
+          </select>
+          <PIcon name="chevron" size={13} weight="bold" className="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 rotate-90 text-(--text-muted)" />
+        </div>
+        {errors.topic && <p id="enquiry-topic-error" className="mt-1 text-[12px] text-(--negative)">{errors.topic}</p>}
       </div>
 
       <div>
@@ -125,10 +133,13 @@ export function EnquiryForm() {
           value={draft.email}
           onChange={(event) => set("email")(event.target.value)}
           placeholder="you@example.com"
+          autoComplete="email"
+          required
           aria-invalid={Boolean(errors.email)}
-          className={`${FIELD} h-10 ${errors.email ? "shadow-[inset_0_0_0_1px_var(--negative)]" : ""}`}
+          aria-describedby={errors.email ? "enquiry-email-error" : undefined}
+          className={`${FIELD} h-11 sm:h-10 ${errors.email ? "shadow-[inset_0_0_0_1px_var(--negative)]" : ""}`}
         />
-        {errors.email && <p className="mt-1 text-[12px] text-(--negative)">{errors.email}</p>}
+        {errors.email && <p id="enquiry-email-error" className="mt-1 text-[12px] text-(--negative)">{errors.email}</p>}
       </div>
 
       <div>
@@ -141,10 +152,12 @@ export function EnquiryForm() {
           onChange={(event) => set("message")(event.target.value)}
           rows={5}
           placeholder="What would you like to talk about?"
+          required
           aria-invalid={Boolean(errors.message)}
+          aria-describedby={errors.message ? "enquiry-message-error" : undefined}
           className={`${FIELD} resize-y py-2.5 ${errors.message ? "shadow-[inset_0_0_0_1px_var(--negative)]" : ""}`}
         />
-        {errors.message && <p className="mt-1 text-[12px] text-(--negative)">{errors.message}</p>}
+        {errors.message && <p id="enquiry-message-error" className="mt-1 text-[12px] text-(--negative)">{errors.message}</p>}
       </div>
 
       {status === "failed" && (
@@ -159,7 +172,7 @@ export function EnquiryForm() {
         <button
           type="submit"
           disabled={status === "submitting"}
-          className="afvar-glass-button afvar-glass-primary inline-flex h-10 items-center justify-center rounded-full px-5 text-[14px] font-medium active:scale-[.98] disabled:pointer-events-none disabled:opacity-60"
+          className="afvar-glass-button afvar-glass-primary inline-flex h-11 items-center justify-center rounded-full px-5 text-[14px] font-medium active:scale-[.98] disabled:pointer-events-none disabled:opacity-60"
         >
           {status === "submitting" ? "Validating…" : status === "failed" ? "Try again" : "Keep my enquiry"}
         </button>

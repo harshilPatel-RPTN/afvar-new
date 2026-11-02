@@ -4,7 +4,7 @@
 import { Ask, AvatarLine, Chip, Note, OsSection, Row, Win } from "@/modules/afvarOs";
 import { ABOUT, COMPANY_FACTS, CONTACT } from "@/modules/company/kit";
 import { PRICING_FAQS, PRICING_TIERS, PRICING_USAGE } from "@/modules/home/kit";
-import { ChartWin, Para, ScrollSteps } from "./shared";
+import { ChartWin, Count, Para, ScrollSteps, Seq } from "./shared";
 
 /* ------------------------------------------------------------------ About */
 
@@ -13,16 +13,21 @@ export function AboutSections() {
     <>
       <OsSection n={2} label="Purpose" title="Why AFVAR exists." soft="Fewer tabs, more proof." body={ABOUT.purpose} app="Workspace">
         <Win at={0.06} x={40} y={20} w={520} h={300} title="A trader’s morning, without AFVAR" glyph="layouts">
-          <Row k="Eleven browser tabs" v="three price sources" />
-          <Row k="A tip in a chat group" v="no source" />
-          <Row k="A screenshot of someone’s profit" v="not checkable" />
-          <Row k="A headline from last night" v="time unknown" />
+          {/* The mess piles up line by line; then the AFVAR morning answers it line by line. */}
+          <Seq at={0.1} step={0.04}>
+            <Row k="Eleven browser tabs" v="three price sources" />
+            <Row k="A tip in a chat group" v="no source" />
+            <Row k="A screenshot of someone’s profit" v="not checkable" />
+            <Row k="A headline from last night" v="time unknown" />
+          </Seq>
         </Win>
         <Win at={0.32} x={600} y={20} w={560} h={300} title="The same morning, on AFVAR" glyph="research" ai>
-          <Row k="One price per market" v="source and time on it" gold />
-          <Row k="Analysis with its calculations linked" v="graded afterwards" />
-          <Row k="Headlines tagged to your markets" v="with their time" />
-          <Row k="The decision" v="stays with you" />
+          <Seq at={0.36} step={0.04}>
+            <Row k="One price per market" v="source and time on it" gold />
+            <Row k="Analysis with its calculations linked" v="graded afterwards" />
+            <Row k="Headlines tagged to your markets" v="with their time" />
+            <Row k="The decision" v="stays with you" />
+          </Seq>
         </Win>
         <Note at={0.62} x={600} y={350} w={560} title="Built in-house in India" sub="RedPhantom Tech Novelty Private Limited" />
       </OsSection>
@@ -33,27 +38,44 @@ export function AboutSections() {
         <Win at={0.42} x={670} y={84} w={490} h={230} title="उत्तर · Answer" glyph="research" ai>
           <Para>डॉलर मज़बूत हुआ, इसलिए सोना दबाव में रहा। स्रोत नीचे दिए गए हैं।</Para>
           <p className="mt-2 text-[12.5px] text-[#B7C5BC]">The dollar firmed, so Gold stayed under pressure. Sources below.</p>
-          <div className="mt-3 flex gap-2">
-            <Chip tone="sample">Sample answer</Chip>
-            <Chip>English · हिन्दी</Chip>
-          </div>
+          <Seq at={0.52} step={0.03} pop className="mt-3 flex gap-2">
+            <span className="inline-block">
+              <Chip tone="sample">Sample answer</Chip>
+            </span>
+            <span className="inline-block">
+              <Chip>English · हिन्दी</Chip>
+            </span>
+          </Seq>
         </Win>
         <AvatarLine at={0.6} x={720} y={360} text="I explain what the code worked out — in English or Hindi, your choice." />
         <Win at={0.72} x={40} y={380} w={600} h={130} title="Apps on this desk" glyph="layouts">
-          <div className="flex flex-wrap gap-2">
-            <Chip tone="gold">Market data</Chip>
-            <Chip>Research</Chip>
-            <Chip>Alerts</Chip>
-            <Chip>Risk review</Chip>
-            <Chip>Community</Chip>
-          </div>
+          {/* The five apps take their places on the desk one by one. */}
+          <Seq at={0.76} step={0.025} pop className="flex flex-wrap gap-2">
+            <span className="inline-block">
+              <Chip tone="gold">Market data</Chip>
+            </span>
+            <span className="inline-block">
+              <Chip>Research</Chip>
+            </span>
+            <span className="inline-block">
+              <Chip>Alerts</Chip>
+            </span>
+            <span className="inline-block">
+              <Chip>Risk review</Chip>
+            </span>
+            <span className="inline-block">
+              <Chip>Community</Chip>
+            </span>
+          </Seq>
         </Win>
       </OsSection>
 
       <OsSection n={4} label="Who it serves" title="Three kinds of trader." soft="One workspace." body="Active traders, careful beginners and people who research before they act each find a different door into the same desk." app="Workspace">
         {ABOUT.serves.map((s, i) => (
           <Win key={s.title} at={0.06 + i * 0.18} x={40 + i * 380} y={20 + i * 30} w={360} h={300} title={s.title} glyph={i === 0 ? "chart" : i === 1 ? "alerts" : "research"} ai={i === 1}>
-            <Para>{s.body}</Para>
+            <Seq at={0.1 + i * 0.18}>
+              <Para>{s.body}</Para>
+            </Seq>
           </Win>
         ))}
         <Note at={0.7} x={40} y={420} w={480} title="No buy or sell calls, for anyone" sub="Analysis and explanation only" />
@@ -61,27 +83,38 @@ export function AboutSections() {
 
       <OsSection n={5} label="Principles" title="Five rules the product enforces." soft="Checked in code, not on a poster." body="Each principle maps to something the software refuses to do or always shows." app="Workspace">
         <Win at={0.06} x={40} y={20} w={560} h={490} title="Product principles" glyph="settings">
-          <ScrollSteps items={ABOUT.principles.map((p) => ({ label: p.title.split(" ")[0], detail: p.title }))} at={[0.14, 0.26, 0.38, 0.5, 0.62]} />
+          <ScrollSteps items={ABOUT.principles.map((p) => ({ label: p.short, detail: p.title }))} at={[0.14, 0.26, 0.38, 0.5, 0.62]} />
         </Win>
         {ABOUT.principles.slice(0, 3).map((p, i) => (
           <Win key={p.title} at={0.2 + i * 0.16} x={630} y={20 + i * 168} w={530} h={150} title={p.title} glyph={i === 1 ? "risk" : "research"}>
-            <Para>{p.body}</Para>
+            <Seq at={0.24 + i * 0.16}>
+              <Para>{p.body}</Para>
+            </Seq>
           </Win>
         ))}
       </OsSection>
 
       <OsSection n={6} label="Company" title="Who is behind it." soft="Registered facts only." body={ABOUT.people.body} app="Workspace">
         <Win at={0.06} x={40} y={20} w={600} h={300} title="Company record" glyph="settings">
-          {COMPANY_FACTS.map(([k, val]) => (
-            <Row key={k} k={k} v={val} />
-          ))}
+          {/* The registry prints its facts one line at a time, like a record being read out. */}
+          <Seq at={0.1} step={0.03}>
+            {COMPANY_FACTS.map(([k, val]) => (
+              <Row key={k} k={k} v={val} />
+            ))}
+          </Seq>
         </Win>
         <Win at={0.34} x={670} y={20} w={490} h={300} title="Team profiles" glyph="community">
-          <Para>Profiles are added here once each person’s details are confirmed.</Para>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Chip tone="delayed">Awaiting confirmation</Chip>
-            <Chip>No stock photos</Chip>
-          </div>
+          <Seq at={0.38}>
+            <Para>Profiles are added here once each person’s details are confirmed.</Para>
+          </Seq>
+          <Seq at={0.42} step={0.03} pop className="mt-4 flex flex-wrap gap-2">
+            <span className="inline-block">
+              <Chip tone="delayed">Awaiting confirmation</Chip>
+            </span>
+            <span className="inline-block">
+              <Chip>No stock photos</Chip>
+            </span>
+          </Seq>
         </Win>
         <Note at={0.62} x={40} y={350} w={600} title="Contact the team" sub="General, partnership and press enquiries · /contact" />
       </OsSection>
@@ -99,10 +132,12 @@ export function AboutSections() {
           />
         </Win>
         <Win at={0.36} x={670} y={20} w={490} h={330} title="What registering does" glyph="alerts" ai>
-          <Row k="Joins the launch queue" v="yes" gold />
-          <Row k="Unlocks the full OS" v="not yet" />
-          <Row k="Takes payment" v="no" />
-          <Row k="Invitations" v="in queue order" />
+          <Seq at={0.4} step={0.035}>
+            <Row k="Joins the launch queue" v="yes" gold />
+            <Row k="Unlocks the full OS" v="not yet" />
+            <Row k="Takes payment" v="no" />
+            <Row k="Invitations" v="in queue order" />
+          </Seq>
         </Win>
       </OsSection>
     </>
@@ -112,23 +147,34 @@ export function AboutSections() {
 /* ---------------------------------------------------------------- Pricing */
 
 const TIER_PRICE = (m: number) => (m === 0 ? "Free" : `$${m} / month`);
+const PER_MONTH = (m: number) => `$${m} / month`;
+/** When each tick column of the compare table fills: tier 01, then 02, then 03. */
+const COL_AT = [0.14, 0.24, 0.34];
 
 export function PricingSections() {
   return (
     <>
       <OsSection n={2} label="Three tiers" title="Three tiers." soft="Prices indicative until launch." body="Start without paying, then move up when you need the AI analyst, testing and risk tools, or larger allowances." app="Settings">
-        {PRICING_TIERS.map((t, i) => (
-          <Win key={t.tag} at={0.06 + i * 0.16} x={40 + i * 380} y={20 + (t.highlighted ? 0 : 30)} w={360} h={t.highlighted ? 430 : 400} title={t.tag} glyph={i === 0 ? "chart" : i === 1 ? "research" : "risk"} ai={t.highlighted}>
-            <p className={`text-[30px] font-semibold ${t.highlighted ? "text-[#A8DEC2]" : "text-[#F2F5F2]"}`}>{TIER_PRICE(t.monthly)}</p>
-            <p className="mb-3 text-[12.5px] text-[#B7C5BC]">{t.blurb}</p>
-            {t.features.map((f) => (
-              <Row key={f} k={f} />
-            ))}
-            <div className="mt-3">
-              <Chip tone="delayed">Indicative · name TBC</Chip>
-            </div>
-          </Win>
-        ))}
+        {PRICING_TIERS.map((t, i) => {
+          // Each tier: its price counts up, its features follow one by one, then the label pops on.
+          const at = 0.06 + i * 0.16;
+          return (
+            <Win key={t.tag} at={at} x={40 + i * 380} y={20 + (t.highlighted ? 0 : 30)} w={360} h={t.highlighted ? 430 : 400} title={t.tag} glyph={i === 0 ? "chart" : i === 1 ? "research" : "risk"} ai={t.highlighted}>
+              <p className={`text-[30px] font-semibold ${t.highlighted ? "text-[#A8DEC2]" : "text-[#F2F5F2]"}`}>{t.monthly ? <Count at={at + 0.03} to={t.monthly} format={PER_MONTH} /> : TIER_PRICE(0)}</p>
+              <p className="mb-3 text-[12.5px] text-[#B7C5BC]">{t.blurb}</p>
+              <Seq at={at + 0.05} step={0.025}>
+                {t.features.map((f) => (
+                  <Row key={f} k={f} />
+                ))}
+              </Seq>
+              <Seq at={at + 0.07 + t.features.length * 0.025} pop className="mt-3">
+                <span className="inline-block">
+                  <Chip tone="delayed">Indicative · name TBC</Chip>
+                </span>
+              </Seq>
+            </Win>
+          );
+        })}
       </OsSection>
 
       <OsSection n={3} label="Side by side" title="What each tier adds." soft="On one table." body="The same desk at every tier. Higher tiers add the AI analyst, deeper tools and more room to use them." app="Settings">
@@ -139,53 +185,62 @@ export function PricingSections() {
             <span className="text-center text-[#A8DEC2]">02</span>
             <span className="text-center">03</span>
           </div>
-          {(
-            [
-              ["Charts, watchlists, calendar", 1, 1, 1],
-              ["Price and condition alerts", 1, 1, 1],
-              ["Community · read", 1, 1, 1],
-              ["AI analyst · English and हिन्दी", 0, 1, 1],
-              ["Screeners and strategy tests", 0, 1, 1],
-              ["Risk Guardian, limits, journal", 0, 1, 1],
-              ["Community · full participation", 0, 1, 1],
-              ["Deep research and event analysis", 0, 0, 1],
-              ["Higher usage allowances", 0, 0, 1],
-            ] as const
-          ).map(([k, a, b, c]) => (
-            <div key={k} className="grid grid-cols-[1fr_40px_40px_40px] sm:grid-cols-[1fr_80px_80px_80px] items-center border-b border-[rgba(255,255,255,0.06)] py-[6px] text-[13px] last:border-b-0">
-              <span className="text-[#F2F5F2]">{k}</span>
-              {[a, b, c].map((x, j) => (
-                <span key={j} className={`text-center ${x ? (j === 1 ? "text-[#A8DEC2]" : "text-[#C9CFD1]") : "text-[#2A3F35]"}`}>
-                  {x ? "✓" : "—"}
-                </span>
-              ))}
-            </div>
-          ))}
+          {/* Rows slide in, then the ticks fill column by column: what tier 01 has, what 02 adds, what 03 adds. */}
+          <Seq at={0.08} step={0.012}>
+            {(
+              [
+                ["Charts, watchlists, calendar", 1, 1, 1],
+                ["Price and condition alerts", 1, 1, 1],
+                ["Community · read", 1, 1, 1],
+                ["AI analyst · English and हिन्दी", 0, 1, 1],
+                ["Screeners and strategy tests", 0, 1, 1],
+                ["Risk Guardian, limits, journal", 0, 1, 1],
+                ["Community · full participation", 0, 1, 1],
+                ["Deep research and event analysis", 0, 0, 1],
+                ["Higher usage allowances", 0, 0, 1],
+              ] as const
+            ).map(([k, a, b, c], r) => (
+              <div key={k} className="grid grid-cols-[1fr_40px_40px_40px] sm:grid-cols-[1fr_80px_80px_80px] items-center border-b border-[rgba(255,255,255,0.06)] py-[6px] text-[13px] last:border-b-0">
+                <span className="text-[#F2F5F2]">{k}</span>
+                {[a, b, c].map((x, j) =>
+                  x ? (
+                    <Seq key={j} at={COL_AT[j] + r * 0.012} pop className={`text-center ${j === 1 ? "text-[#A8DEC2]" : "text-[#C9CFD1]"}`}>
+                      <span className="inline-block">✓</span>
+                    </Seq>
+                  ) : (
+                    <span key={j} className="text-center text-[#2A3F35]">—</span>
+                  ),
+                )}
+              </div>
+            ))}
+          </Seq>
         </Win>
         <Note at={0.42} x={830} y={20} w={330} title="Placement may change" sub="Final split across tiers is confirmed before launch" />
         <Win at={0.6} x={830} y={130} w={330} h={260} title="Every tier" glyph="chart">
           <Para>Analysis only. No tier places, changes or closes an order.</Para>
-          <div className="mt-3">
+          <Seq at={0.64} className="mt-3">
             <Row k="Labels on every price" v="yes" />
             <Row k="Broker accounts" v="read-only" />
             <Row k="English · हिन्दी" v="yes" />
-          </div>
+          </Seq>
         </Win>
       </OsSection>
 
       <OsSection n={4} label="Allowances" title="Usage and limits." soft="Stated before you pay." body="How much analysis, how many alerts and scans, and what happens at the limit are published with the final prices." app="Settings">
         <Win at={0.06} x={40} y={20} w={620} h={330} title="Usage and limits" glyph="settings">
-          {PRICING_USAGE.map(([k, val]) => (
-            <Row key={k} k={k} v={val} />
-          ))}
+          <Seq at={0.1} step={0.03}>
+            {PRICING_USAGE.map(([k, val]) => (
+              <Row key={k} k={k} v={val} />
+            ))}
+          </Seq>
         </Win>
         <Ask at={0.3} x={690} y={20} w={470} text="How many AI questions does Tier 02 include?" />
         <Win at={0.44} x={690} y={84} w={470} h={230} title="Answer" glyph="research" ai>
           <Para>That number is not set yet. It will be on this page, next to the price, before anyone is asked to pay.</Para>
-          <div className="mt-3">
+          <Seq at={0.5} step={0.04} className="mt-3">
             <Row k="Status" v="not confirmed" />
             <Row k="Published" v="before launch" gold />
-          </div>
+          </Seq>
         </Win>
         <AvatarLine at={0.62} x={720} y={350} text="I will not guess an allowance. When it is confirmed, you will see it here." />
       </OsSection>
@@ -193,36 +248,44 @@ export function PricingSections() {
       <OsSection n={5} label="Market data" title="Data at every tier." soft="Labelled the same way." body="Every plan sees the same coverage and the same honesty: each number shows its source, time and whether it is delayed." app="Market data" active="charts">
         <ChartWin k="BTC-USD" at={0.06} x={40} y={20} w={640} h={490} />
         <Win at={0.32} x={710} y={20} w={450} h={300} title="Coverage" glyph="chart">
-          <Row k="Gold · Silver · Crude oil" v="metals and energy" />
-          <Row k="EUR/USD · USD/JPY · GBP/USD · NZD/USD" v="majors" />
-          <Row k="Bitcoin and listed coins" v="24 / 7" gold />
-          <Row k="Futures quotes" v="delayed, labelled" />
+          <Seq at={0.36}>
+            <Row k="Gold · Silver · Crude oil" v="metals and energy" />
+            <Row k="EUR/USD · USD/JPY · GBP/USD · NZD/USD" v="majors" />
+            <Row k="Bitcoin and listed coins" v="24 / 7" gold />
+            <Row k="Futures quotes" v="delayed, labelled" />
+          </Seq>
         </Win>
         <Note at={0.6} x={710} y={350} w={450} title="Same labels on every plan" sub="Live · delayed · stored · sample" />
       </OsSection>
 
       <OsSection n={6} label="Launch offers" title="Two launch offers." soft="One account, one queue." body="Everyone who registers is in the Launch Queue. Those who choose identity checks can also qualify for the Verified Launch Queue offer." app="Settings">
         <Win at={0.06} x={40} y={20} w={540} h={300} title="Launch Queue" glyph="calendar">
-          <Row k="Needs" v="mobile and email verified" />
-          <Row k="Queue position" v="set when you register" />
-          <Row k="Offer terms" v="confirmed before launch" />
+          <Seq at={0.1}>
+            <Row k="Needs" v="mobile and email verified" />
+            <Row k="Queue position" v="set when you register" />
+            <Row k="Offer terms" v="confirmed before launch" />
+          </Seq>
         </Win>
         <Win at={0.26} x={620} y={20} w={540} h={300} title="Verified Launch Queue" glyph="risk" ai>
-          <Row k="Needs" v="optional identity check" gold />
-          <Row k="Queue position" v="unchanged by the check" />
-          <Row k="Offer terms" v="confirmed before launch" />
+          <Seq at={0.3}>
+            <Row k="Needs" v="optional identity check" gold />
+            <Row k="Queue position" v="unchanged by the check" />
+            <Row k="Offer terms" v="confirmed before launch" />
+          </Seq>
         </Win>
         <Note at={0.56} x={40} y={360} w={1120} title="Verification changes which offer applies — never your place, invitation order or access" sub="Offer amounts, capacity and duration are set under approved terms" />
       </OsSection>
 
       <OsSection n={7} label="Billing questions" title="Before you choose." soft="Short answers." body="The questions people ask most about paying, offers and the queue." app="Settings">
         <Win at={0.06} x={40} y={20} w={1120} h={490} title="Billing questions" glyph="research">
-          {PRICING_FAQS.map((f) => (
-            <div key={f.q} className="border-b border-[rgba(255,255,255,0.06)] py-2.5 last:border-b-0">
-              <b className="text-[13.5px] text-[#F2F5F2]">{f.q}</b>
-              <p className="mt-0.5 text-[13px] leading-relaxed text-[#B7C5BC]">{f.a}</p>
-            </div>
-          ))}
+          <Seq at={0.1} step={0.06}>
+            {PRICING_FAQS.map((f) => (
+              <div key={f.q} className="border-b border-[rgba(255,255,255,0.06)] py-2.5 last:border-b-0">
+                <b className="text-[13.5px] text-[#F2F5F2]">{f.q}</b>
+                <p className="mt-0.5 text-[13px] leading-relaxed text-[#B7C5BC]">{f.a}</p>
+              </div>
+            ))}
+          </Seq>
         </Win>
       </OsSection>
     </>

@@ -81,9 +81,11 @@ export function OsSection({
     <Ctx.Provider value={{ p: scrollYProgress, mode }}>
       <section ref={ref} id={id} aria-labelledby={`${id}-t`} className="relative bg-transparent" style={mode === "desk" ? { height: `${vh}vh` } : undefined}>
         {mode === "desk" ? (
-          <div className="sticky top-0 h-svh overflow-hidden">
-            <div className="absolute left-[4vw] right-[4vw] top-[96px]">{caption}</div>
-            <div className="absolute inset-x-[4vw] bottom-[2.5vh] top-[288px]">
+          // The screen takes whatever height the caption leaves (OsScreen scales to fit), so a
+          // two-line title or a long body pushes it down instead of running underneath it.
+          <div className="sticky top-0 flex h-svh flex-col overflow-hidden px-[4vw] pb-[2.5vh] pt-[96px]">
+            <div className="shrink-0">{caption}</div>
+            <div className="relative mt-6 min-h-0 flex-1">
               <OsScreen className="h-full w-full" label={`AFVAR OS — ${label}, illustration`}>
                 <MenuBar menus={[app, "File", "View", "Window"]} space="Space 1" />
                 <div className="absolute inset-x-0 bottom-[72px] top-[30px]">{children}</div>

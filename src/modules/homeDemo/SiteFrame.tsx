@@ -53,12 +53,12 @@ export function ClosingCopy({ title, soft, lede, second }: { title: string; soft
         {title} {soft ? <span className="text-(--afvar-muted)">{soft}</span> : null}
       </h2>
       {lede ? <p className="mt-5 max-w-lg text-[16px] leading-relaxed text-(--afvar-muted)">{lede}</p> : null}
-      <div className="mt-9 flex flex-wrap items-center gap-4 max-[700px]:justify-center">
-        <a href={REGISTER_HREF} className={BTN_PRIMARY}>
+      <div className="mt-9 flex flex-wrap items-center gap-2.5 sm:gap-4 max-[700px]:justify-center">
+        <a href={REGISTER_HREF} className={`${BTN_PRIMARY} whitespace-nowrap max-sm:px-4 max-sm:text-[13px]`}>
           Register Now
         </a>
         {second ? (
-          <a href={second.href} className="afvar-glass-button inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-[14.5px] font-medium">
+          <a href={second.href} className="afvar-glass-button inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 text-[13px] font-medium sm:px-6 sm:text-[14.5px]">
             {second.label}
           </a>
         ) : null}

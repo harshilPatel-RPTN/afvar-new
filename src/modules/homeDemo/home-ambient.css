@@ -44,3 +44,10 @@ html[data-reduce-motion="true"] .home-ambient * { animation: none !important; }
 @media (forced-colors: active) {
   .home-ambient { display: none; }
 }
+/* Lite devices: twinkling SVG groups repaint the whole full-screen sky every
+   frame, so the stars hold still and only half the (composited) drifters run. */
+@media (max-width:1099px), (max-height:649px), (pointer:coarse) {
+  .home-ambient-stars [data-twinkle] { animation: none; }
+  .home-ambient-stars [data-bright] { filter: none; }
+  .home-ambient [data-ambient-sign][data-wide] { display: none; }
+}

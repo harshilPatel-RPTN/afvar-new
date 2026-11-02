@@ -20,7 +20,7 @@
 .home-fx-arrow { color:var(--afvar-muted); }
 .home-fx-picker { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:2px; padding:3px; border-radius:18px; }
 .home-fx-picker button { min-width:0; min-height:36px; font-size:.72rem; border-radius:14px; }
-.home-globe-figure { position:relative; width:100%; max-width:680px; margin-inline:auto; padding-bottom:48px; }
+.home-globe-figure { position:relative; width:100%; max-width:680px; margin-inline:auto; padding-bottom:48px; overflow-x:clip; }
 .home-globe-disc { position:relative; width:100%; aspect-ratio:1; }
 .home-globe-disc canvas { position:absolute; inset:0; width:100%; height:100%; opacity:0; }
 .home-globe-disc canvas[data-ready] { opacity:1; cursor:grab; touch-action:pan-y pinch-zoom; }
@@ -35,3 +35,51 @@
   .home-fx-route { margin-top:1.15rem; max-width:26rem; }
   .home-fx-picker button { min-height:44px; }
 }
+
+/* Lite globe (phones, tablets, touch): stills crossfade under a CSS-only
+   atmosphere. Transform/opacity only; paused offscreen and for reduced motion. */
+[data-globe-lite] .home-globe-disc { animation: home-globe-breathe 9s ease-in-out infinite alternate; }
+[data-globe-lite] .home-globe-still { opacity: 0; transition: opacity .7s ease; }
+[data-globe-lite] .home-globe-still[data-active] { opacity: 1; }
+.home-globe-atmosphere { position: absolute; inset: 5.5%; border-radius: 50%; pointer-events: none; }
+.home-globe-atmosphere::before, .home-globe-atmosphere::after { content: ""; position: absolute; border-radius: 50%; }
+/* Rim glow: a static halo whose strength breathes through opacity. */
+.home-globe-atmosphere::before {
+  inset: -1px;
+  box-shadow: 0 0 0 1px rgb(182 208 194 / .16), 0 0 34px 4px rgb(116 185 142 / .2), inset 0 0 38px rgb(116 185 142 / .16);
+  animation: home-globe-rim 6s ease-in-out infinite alternate;
+}
+/* Light sheen drifting across the day side of the disc. */
+.home-globe-atmosphere::after {
+  inset: 0;
+  background: radial-gradient(circle at 32% 28%, rgb(220 240 228 / .14), transparent 46%);
+  mix-blend-mode: screen;
+  animation: home-globe-sheen 14s ease-in-out infinite alternate;
+}
+/* Orbit: a dashed ring with one marker, rotated as a single layer. */
+[data-globe-lite] .home-globe-disc::after {
+  content: ""; position: absolute; inset: 1.5%; border-radius: 50%; pointer-events: none;
+  border: 1px dashed rgb(182 208 194 / .18);
+  background: radial-gradient(circle, var(--afvar-mint) 0 2.5px, transparent 3.5px) 50% 0 / 9px 9px no-repeat;
+  animation: home-globe-orbit 48s linear infinite;
+}
+[data-globe-lite] .home-globe-controls { bottom: 0; }
+@keyframes home-globe-breathe { from { transform: scale(.992); } to { transform: scale(1.008); } }
+@keyframes home-globe-rim { from { opacity: .55; } to { opacity: 1; } }
+@keyframes home-globe-sheen { from { transform: translate(-4%, -3%); opacity: .7; } to { transform: translate(6%, 5%); opacity: 1; } }
+@keyframes home-globe-orbit { to { transform: rotate(1turn); } }
+[data-globe-lite][data-offscreen] .home-globe-disc,
+[data-globe-lite][data-offscreen] .home-globe-disc *,
+[data-globe-lite][data-offscreen] .home-globe-disc::after,
+[data-globe-lite][data-offscreen] .home-globe-atmosphere::before,
+[data-globe-lite][data-offscreen] .home-globe-atmosphere::after { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  [data-globe-lite] .home-globe-disc, [data-globe-lite] .home-globe-disc::after,
+  .home-globe-atmosphere::before, .home-globe-atmosphere::after { animation: none; }
+  [data-globe-lite] .home-globe-still { transition: none; }
+}
+html[data-reduce-motion="true"] [data-globe-lite] .home-globe-disc,
+html[data-reduce-motion="true"] [data-globe-lite] .home-globe-disc::after,
+html[data-reduce-motion="true"] .home-globe-atmosphere::before,
+html[data-reduce-motion="true"] .home-globe-atmosphere::after { animation: none; }
+html[data-reduce-motion="true"] [data-globe-lite] .home-globe-still { transition: none; }

@@ -82,8 +82,10 @@
   }
 
   .afvar-responsive-home .demo-queue-actions {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    /* Both CTAs stay on one line at their natural width. */
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
     gap: 0.75rem;
   }
 
@@ -145,4 +147,37 @@
     max-width: min(100%, calc((100svh - 9rem) * 16 / 9));
     margin-inline: auto;
   }
+}
+
+/* Phones: shrink the two launch-queue CTAs so the pair stays on one line
+   (sm and up keep BTN_PRIMARY / BTN_OUTLINE as they are). */
+@media (max-width: 639px) {
+  .demo-queue-actions { gap: 0.5rem; }
+  .demo-queue-actions > a {
+    gap: 0.375rem;
+    padding-inline: 0.75rem;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 374px) {
+  .demo-queue-actions > a { font-size: 12.5px; }
+}
+/* Below 360px the pair cannot fit beside the card padding; let it wrap
+   rather than overflow (buttons stay content-sized). */
+@media (max-width: 359px) {
+  .demo-queue-actions,
+  .afvar-responsive-home .demo-queue-actions { flex-wrap: wrap; }
+}
+
+/* Phones: the reel keeps the page's 16 px gutter. The lift (scale 1.06) and the
+   viewfinder corners, which sit outside the frame, would reach the screen edge. */
+@media (max-width: 899px) {
+  .afvar-responsive-home :is(.demo-home-overview, #launch-queue) {
+    --section-space: clamp(32px, 5svh, 48px);
+  }
+  .afvar-responsive-home .demo-home-overview .ov-stage { transform: none !important; }
+  .afvar-responsive-home .demo-home-overview .ov-corner { display: none; }
+  .afvar-responsive-home .demo-home-overview figure { margin-top: 1rem; }
+  .afvar-responsive-home #overview-video-note { margin-top: .75rem; font-size: .75rem; color: var(--mk-faint); }
 }

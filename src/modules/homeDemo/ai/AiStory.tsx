@@ -99,6 +99,9 @@ function win(film: Film, id: ActId, w: Window4): Window4 {
 /* ===================================================================== story */
 
 const homeDesktop = "(min-width:1100px) and (min-height:650px)";
+// Phones, tablets and any touch-first screen never fetch or run the WebGL film:
+// the poster plays a CSS-only stand-in. Shared with the closing globe.
+const liteDevice = "(max-width:1099px), (max-height:649px), (pointer:coarse)";
 const crampedScreen = "(max-height:600px), (max-width:540px) and (max-height:720px), (max-width:360px) and (max-height:800px)";
 const HOME_TRACK_CSS = `.afvar-responsive-home #afvar-ai{height:${HOME_MOBILE_FILM.story.totalVh}svh}
 @media ${homeDesktop}{.afvar-responsive-home #afvar-ai{height:${DESKTOP_FILM.story.totalVh}vh}}
@@ -111,6 +114,7 @@ export function AiStory({ responsiveHome = false }: { responsiveHome?: boolean }
   const cramped = useMedia(crampedScreen);
   const portraitMq = useMedia("(orientation: portrait)");
   const coarse = useMedia("(pointer: coarse)");
+  const liteMq = useMedia(liteDevice);
   const film = wide === false ? (responsiveHome ? HOME_MOBILE_FILM : COMPACT_FILM) : DESKTOP_FILM;
   const { trackRef, progressRef, progress, active, mounted, webgl, revealRef } = useStory({ settledP: film.settledP, minWidth: 0 });
   const { quotes } = useLiveMarket();
@@ -119,13 +123,18 @@ export function AiStory({ responsiveHome = false }: { responsiveHome?: boolean }
   const mode: "boot" | "desktop" | "compact" | "stacked" = wide === null ? "boot" : reduced || (responsiveHome && cramped) ? "stacked" : wide ? "desktop" : "compact";
   const portrait = mode === "compact" && portraitMq === true;
   const lite = mode === "compact" || coarse === true;
+  // Undecided (boot) counts as lite: nothing heavy starts before the device is known.
+  const noGl = responsiveHome && liteMq !== false;
+  const actStarts = useMemo(() => noGl ? film.story.order.map(id => film.at(id, 0)) : [], [noGl, film]);
+  const actStep = useStep(progress, actStarts);
+  const coreAct = noGl ? film.story.order[Math.max(0, actStep)] : undefined;
 
   // The 3D stage starts after first paint and the site's intro splash, in idle time —
   // the headline and poster paint first, the WebGL work never competes with them.
   const sceneReady = useSceneReady();
   // The 292k-triangle avatar (≈0.1 s on a fast laptop, ≈0.5 s on a mid phone) is built once,
   // in idle time shortly after the 3D stage starts — while the hero is still on screen.
-  const canAvatar = webgl === true && (responsiveHome ? mode !== "stacked" && mode !== "boot" : !reduced) && sceneReady;
+  const canAvatar = webgl === true && !noGl && (responsiveHome ? mode !== "stacked" && mode !== "boot" : !reduced) && sceneReady;
   useEffect(() => {
     if (!canAvatar) return;
     let cancel = () => {};
@@ -148,7 +157,7 @@ export function AiStory({ responsiveHome = false }: { responsiveHome?: boolean }
   const osStep = useStep(progress, hasOs ? [film.at("os", 0.07), film.at("os", 0.95)] : [2, 3]);
   const overlayStep = useStep(progress, hasOs ? [film.at("os", 0.07), film.at("os", 0.975)] : [2, 3]);
   const osCovered = (mode === "desktop" || (responsiveHome && mode === "compact")) && osStep === 0;
-  const avatarInOs = mode === "desktop" && overlayStep === 0 && webgl === true;
+  const avatarInOs = mode === "desktop" && overlayStep === 0 && webgl === true && !noGl;
 
   // The site's floating avatar launcher steps aside while the film's avatar is on screen.
   const avatarActStep = useStep(progress, [film.at("avatar", 0), hasOs ? film.at("os", 1) : film.at("avatar", 1)]);
@@ -169,10 +178,11 @@ export function AiStory({ responsiveHome = false }: { responsiveHome?: boolean }
     const p = still ? film.settledP : 0;
     return <CorePoster ready={mode !== "boot"} keys={compactPanel ? PANEL_CAMERA : portrait ? film.cameraPortrait : film.camera}
       progress={p} scale={coreOpeningScale(film, p, openingScale)} fov={portrait ? 50 : 38}
-      belowHeader={responsiveHome && mode === "desktop"} compact={portrait || compactPanel} />;
+      belowHeader={responsiveHome && mode === "desktop"} compact={portrait || compactPanel}
+      lite={noGl && mode !== "boot"} act={still ? undefined : coreAct} />;
   };
   const scene = (still: boolean, run: boolean) =>
-    webgl !== false && mounted && sceneReady ? (
+    webgl !== false && !noGl && mounted && sceneReady ? (
       <CoreSceneBoundary><AiCoreScene openingScale={openingScale} belowHeader={responsiveHome && mode === "desktop"} compactBloom={responsiveHome} film={film} progress={progressRef} active={run} still={still} portrait={portrait} lite={lite || (responsiveHome && !wide)} compactPanel={responsiveHome && still && !wide} avatarHere={!avatarInOs && !(responsiveHome && still && !wide)} priceTexts={priceTexts} /></CoreSceneBoundary>
     ) : null;
 

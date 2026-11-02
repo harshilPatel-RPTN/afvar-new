@@ -30,9 +30,9 @@ export function ClosingCta({ secondary }: { secondary?: { href: string; label: s
             <p className="pf-lede mx-auto mt-5 max-w-lg">{OVERVIEW.closing.summary}</p>
           </Reveal>
           <Reveal delay={0.3}>
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-x-7 gap-y-4">
+            <div className="mt-9 flex flex-nowrap items-center justify-center gap-x-2.5 sm:gap-x-7">
               <RegisterLink />
-              {secondary && <ChevronLink href={secondary.href}>{secondary.label}</ChevronLink>}
+              {secondary && <ChevronLink compact href={secondary.href}>{secondary.label}</ChevronLink>}
             </div>
           </Reveal>
         </div>
