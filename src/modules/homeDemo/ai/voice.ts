@@ -25,8 +25,9 @@ export interface VoiceLine {
 }
 
 export const VOICE = {
-  // Recorded straight from Gemini (gemini-3.8-flash-tts, voice "Puck"); the name is sent as "Aff... Vaar" with a style note asking for a clear V (picked by ear).
-  hello: { src: "/home-demo/voice/hello-en.m4a", env: "00000004489985531000000499867678778755550000089971111139853321000000000", rate: 1 },
+  // Recorded straight from Gemini (gemini-3.8-flash-tts, voice "Puck", US English accent);
+  // the name is sent as "Aff... Vaar" so it keeps its V (picked by ear).
+  hello: { src: "/home-demo/voice/hello-en.m4a", env: "00000000059997996410000000467899768762037611111228987644210000000000", rate: 1 },
   avatarAnswer: {
     src: "/home-demo/voice/avatar-answer.m4a",
     env: "00000046786466999542321137698686227954558666731239587633257775354233234430001111111100001996332000999982257941947344597784253283018763340466899301454101775201750223665556565722342575456654135423343210000000000000000000479961110035776579787455561158897899897977654642455635454566587762336676686224765448765431000113455567434565432310000000000",

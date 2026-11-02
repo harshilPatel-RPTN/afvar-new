@@ -5,7 +5,7 @@
 // (desktop) and a compact (phone / tablet bottom panel) form.
 import { type MotionValue } from "framer-motion";
 import Link from "next/link";
-import { createContext, useContext, useEffect, useRef, useSyncExternalStore, type CSSProperties, type RefObject } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type RefObject } from "react";
 import { fmtPrice, type HomeQuote } from "@/modules/home/kit";
 import { AiOrb, BODY, CARD, CARD_AI, EYEBROW, GHOST_LINK, AI_CTA, H1, H2, HAIR, HeroTitle, MONO, SOFT, useStep, useTypedText } from "@/modules/afvarOs";
 import { REGISTER_HREF } from "../ui";
@@ -541,9 +541,19 @@ function Hello({ mv }: { mv: MotionValue<number> }) {
   const film = useFilmUi();
   const A = (f: number) => film.at("avatar", f);
   const step = useStep(mv, [A(AVATAR.wave[0]), A(AVATAR.listen[0])]);
-  const typed = useVoicedText(mv, VOICE.hello, HELLO, step === 0, [A(AVATAR.wave[0]), A(AVATAR.wave[0] + 0.04)]);
+  // Spoken only while this line is actually on screen, not just while the film is at the wave.
+  const line = useRef<HTMLParagraphElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = line.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.9 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  const typed = useVoicedText(mv, VOICE.hello, HELLO, step === 0 && inView, [A(AVATAR.wave[0]), A(AVATAR.wave[0] + 0.04)]);
   return (
-    <p className={`mt-4 flex items-center gap-2 text-[14px] text-[#E6E9EB] transition-opacity duration-300 ${step === 0 ? "opacity-100" : "opacity-0"}`}>
+    <p ref={line} className={`mt-4 flex items-center gap-2 text-[14px] text-[#E6E9EB] transition-opacity duration-300 ${step === 0 ? "opacity-100" : "opacity-0"}`}>
       <AiOrb size={10} pulse={step === 0} />
       <span ref={typed} aria-hidden="true" />
       <span className="sr-only">{HELLO}</span>
