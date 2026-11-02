@@ -63,7 +63,18 @@ export interface StoryStage {
   revealRef: RefObject<HTMLDivElement | null>;
 }
 
-export function useStory({ settledP, revealSpan = 0.3, minWidth = 1024 }: { settledP: number; revealSpan?: number; minWidth?: number }): StoryStage {
+export function useStory({
+  settledP,
+  revealSpan = 0.3,
+  minWidth = 1024,
+  persist = false,
+}: {
+  settledP: number;
+  revealSpan?: number;
+  minWidth?: number;
+  /** Once the scene has mounted, keep it mounted (paused by `active`) instead of tearing the WebGL root down out of view. */
+  persist?: boolean;
+}): StoryStage {
   const trackRef = useRef<HTMLElement | null>(null);
   const progressRef = useRef(0);
   const reduced = useAfvarReducedMotion();
@@ -98,7 +109,12 @@ export function useStory({ settledP, revealSpan = 0.3, minWidth = 1024 }: { sett
   }, [cinematic, scrollYProgress, settledP, reduced, revealed, revealSpan]);
 
   const active = useInView(trackRef, { margin: "300px" });
-  const mounted = useInView(trackRef, { margin: "120% 0px 120% 0px" });
+  const near = useInView(trackRef, { margin: "120% 0px 120% 0px" });
+  // A persistent stage latches: scrolling back must never rebuild the renderer
+  // (new root, shader compile, buffer upload). Off screen it only pauses.
+  const [kept, setKept] = useState(false);
+  if (persist && near && !kept) setKept(true);
+  const mounted = near || kept;
 
   return { trackRef, progressRef, progress: scrollYProgress, cinematic, active, mounted, webgl, reduced, revealRef };
 }

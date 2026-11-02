@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useT } from "@/platform/i18n";
 import { AvatarEntrance } from "./AvatarEntrance";
 import { mountAvatar, type AvatarController, type AvatarState } from "./embed";
@@ -12,6 +12,13 @@ import { mountAvatar, type AvatarController, type AvatarState } from "./embed";
 const VIEWER_URL = "https://afvar-avatar-final.vercel.app/avatar/AFVAR/index.html";
 
 type Phase = "idle" | "loading" | "ready" | "failed";
+
+function subscribeLauncherFlag(cb: () => void) {
+  const mo = new MutationObserver(cb);
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-afvar-launcher"] });
+  return () => mo.disconnect();
+}
+const readLauncherFlag = () => document.documentElement.dataset.afvarLauncher === "hide";
 
 /**
  * The greeting in the viewer's own voice (Gemini "Puck"), generated once from its TTS endpoint
@@ -38,6 +45,9 @@ export function AvatarChatWidget() {
   // while they show the avatar themselves: window "afvar:avatar" events with
   // detail { open?: boolean; launcher?: "hide" | "show" }.
   const [launcherHidden, setLauncherHidden] = useState(false);
+  // The same request mirrored on <html data-afvar-launcher="hide">, so a launcher
+  // that mounts after the page's event still steps aside.
+  const pageHidesLauncher = useSyncExternalStore(subscribeLauncherFlag, readLauncherFlag, () => false);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const avatarRef = useRef<AvatarController | null>(null);
   // Latest viewer state, read by the entrance before it hands the robot back to idle.
@@ -201,7 +211,7 @@ export function AvatarChatWidget() {
     <div
       data-avatar-dock=""
       className={`pointer-events-none fixed bottom-[max(16px,env(safe-area-inset-bottom))] right-[max(16px,env(safe-area-inset-right))] z-120 flex flex-col items-end gap-3 transition-[opacity,translate] duration-300 lg:bottom-22 lg:right-11 motion-reduce:transition-none ${
-        launcherHidden && !open ? "invisible opacity-0" : "opacity-100"
+        (launcherHidden || pageHidesLauncher) && !open ? "invisible opacity-0" : "opacity-100"
       }`}
     >
       {/* Below lg: a full-viewport layer that is both the dim backdrop (tap closes) and the

@@ -1,6 +1,6 @@
 "use client";
 
-import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
+import { animate, motion, useInView, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { BearArt, BullArt, haptic, playSfx } from "@/modules/home/kit";
 
@@ -16,6 +16,20 @@ function useTimers() {
   };
 }
 
+/** Runs `play` every time the element scrolls into view (not with reduced motion). */
+function usePlayOnEnter(play: () => void, delay = 0) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const inView = useInView(ref, { amount: 0.6 });
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    if (!inView || reduce) return;
+    const id = window.setTimeout(play, delay);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- replay only on each entry
+  }, [inView, reduce]);
+  return ref;
+}
+
 const focusRing =
   "rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-(--mk-primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--mk-page)";
 
@@ -23,7 +37,8 @@ const focusRing =
  * The footer bull beside the wordmark. Click (or Enter/Space): it snorts,
  * lowers its head and paws the ground, then DASHES at the wordmark — steam,
  * eye flare, impact sound — knocking it, and springs back. The home page's
- * BullCharge moment, on demand. Reduced motion: eye flare and sound only.
+ * BullCharge moment, on demand. It also charges each time the footer scrolls
+ * into view (with sound when the site sound is on; no vibration). Reduced motion: eye flare and sound only.
  */
 export function FooterBull({ children }: { children: ReactNode }) {
   const reduce = useReducedMotion();
@@ -40,7 +55,7 @@ export function FooterBull({ children }: { children: ReactNode }) {
   const [burst, setBurst] = useState(0);
   const lean = useTransform(x, [-8, 0, 60], [2, 0, -4]);
 
-  function charge() {
+  function charge(auto = false) {
     if (busy.current) return;
     busy.current = true;
     playSfx("snort");
@@ -64,7 +79,7 @@ export function FooterBull({ children }: { children: ReactNode }) {
     // impact: steam + eye flare + the wordmark gets knocked
     later(() => {
       playSfx("impact");
-      haptic([18, 30, 24]);
+      if (!auto) haptic([18, 30, 24]);
       setBurst((b) => b + 1);
       const k = { duration: 0.75, ease: "easeOut" as const };
       animate(kx, [0, 16, -6, 2.5, -1, 0], k);
@@ -77,12 +92,14 @@ export function FooterBull({ children }: { children: ReactNode }) {
       busy.current = false;
     }, 1500);
   }
+  const bullRef = usePlayOnEnter(() => charge(true));
 
   return (
     <div className="flex items-center gap-4">
       <motion.button
+        ref={bullRef}
         type="button"
-        onClick={charge}
+        onClick={() => charge()}
         data-glass-hit-area=""
         aria-label="Make the bull charge"
         title="Click the bull"
@@ -103,7 +120,8 @@ const CLAWS = [0, 1, 2];
 /**
  * The footer bear. Click (or Enter/Space): it growls, winds its paw back and
  * SWIPES — three red claw streaks rip across, eye flare, swipe sound — then
- * settles. The home page's BearSwipe moment, on demand.
+ * settles. The home page's BearSwipe moment, on demand. It also swipes each
+ * time the footer scrolls into view (sound when the site sound is on).
  */
 /** Pass positioning in `className` (it must include `absolute` or `relative` — the claw streaks anchor to it). */
 export function FooterBear({ className = "" }: { className?: string }) {
@@ -117,7 +135,7 @@ export function FooterBear({ className = "" }: { className?: string }) {
   const paw = useTransform(swipe, (s) => s * 92);
   const head = useTransform(swipe, (s) => s * 9);
 
-  function scratch() {
+  function scratch(auto = false) {
     if (busy.current) return;
     busy.current = true;
     playSfx("growl");
@@ -131,7 +149,7 @@ export function FooterBear({ className = "" }: { className?: string }) {
     animate(swipe, [0, -0.28, 1], { duration: 0.34, times: [0, 0.5, 1], ease: ["easeOut", [0.5, 0, 0.9, 0.5]] });
     later(() => {
       playSfx("swipe");
-      haptic(20);
+      if (!auto) haptic(20);
       setBurst((b) => b + 1);
       animate(shake, [0, -4, 3, -1.5, 0], { duration: 0.45, ease: "easeOut" });
     }, 230);
@@ -140,11 +158,13 @@ export function FooterBear({ className = "" }: { className?: string }) {
       busy.current = false;
     }, 1500);
   }
+  const bearRef = usePlayOnEnter(() => scratch(true), 450);
 
   return (
     <motion.button
+      ref={bearRef}
       type="button"
-      onClick={scratch}
+      onClick={() => scratch()}
       data-glass-hit-area=""
       aria-label="Make the bear swipe"
       title="Click the bear"

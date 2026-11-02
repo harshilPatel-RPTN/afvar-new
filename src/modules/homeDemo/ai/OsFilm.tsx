@@ -352,9 +352,9 @@ export function OsDesktop({ mv, quotes, className = "" }: { mv: MotionValue<numb
 }
 
 /** The cinematic wrapper: beat captions, beat strip, phone handoff. */
-export function OsFilm({ mv, quotes, avatarHere }: { mv: MotionValue<number>; quotes: Quotes; avatarHere: boolean }) {
-  const layer = useTransform(mv, (p) => ramp(p, U(0.03), U(0.065)) * (1 - ramp(p, U(0.955), U(0.99))));
-  const screenScale = useTransform(mv, (p) => 0.94 + 0.06 * ramp(p, U(0.03), U(0.08)) - 0.04 * ramp(p, U(0.955), U(0.99)));
+export function OsFilm({ mv, quotes, avatarHere, avatarHost = avatarHere }: { mv: MotionValue<number>; quotes: Quotes; avatarHere: boolean; /** Keep the avatar canvas alive (paused, hidden) even while the rig is in the story scene. */ avatarHost?: boolean }) {
+  const layer = useTransform(mv, (p) => ramp(p, U(0), U(0.035)) * (1 - ramp(p, U(0.955), U(0.99))));
+  const screenScale = useTransform(mv, (p) => 0.94 + 0.06 * ramp(p, U(0), U(0.05)) - 0.04 * ramp(p, U(0.955), U(0.99)));
   const beat = useStep(
     mv,
     OS_BEATS.map((b) => b.at[0]),
@@ -380,7 +380,7 @@ export function OsFilm({ mv, quotes, avatarHere }: { mv: MotionValue<number>; qu
       </div>
       <motion.div className="home-os-screen absolute inset-x-[4vw] bottom-[3vh] top-[218px]" style={{ scale: screenScale }}>
         <OsDesktop mv={mv} quotes={quotes} className="h-full w-full" />
-        {avatarHere ? <AvatarOverlay mv={mv} track={osAvatarTrack} className="absolute inset-0" /> : null}
+        {avatarHost || avatarHere ? <AvatarOverlay mv={mv} track={osAvatarTrack} here={avatarHere} className="absolute inset-0" /> : null}
       </motion.div>
       <motion.div className="home-os-phone absolute bottom-[5vh] left-[7vw] z-30 w-[176px] rounded-[26px] border border-[rgba(255,255,255,0.18)] bg-[#06110C] p-2.5 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.9)]" style={{ opacity: phone, y: phoneY }}>
         <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-[#2A2F33]" />

@@ -9,7 +9,7 @@
 //
 // The server renders the right track height for both cuts via CSS, so the page
 // never jumps when the client decides which cut to play.
-import { MotionConfig, motion, useMotionValue, useTransform, type MotionValue } from "framer-motion";
+import { MotionConfig, motion, useMotionValue, useMotionValueEvent, useTransform, type MotionValue } from "framer-motion";
 import dynamic from "next/dynamic";
 import { Component, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject } from "react";
 import { useLiveMarket } from "@/modules/home/kit";
@@ -88,11 +88,30 @@ function useMedia(query: string): boolean | null {
   );
 }
 
+/**
+ * True once p enters [enter[0], enter[1]]; it stays true until p leaves the
+ * wider [exit[0], exit[1]] — so hovering on a boundary never toggles a host.
+ */
+function useBand(mv: MotionValue<number>, enter: readonly [number, number], exit: readonly [number, number]): boolean {
+  const calc = (p: number, was: boolean) => (was ? p >= exit[0] && p <= exit[1] : p >= enter[0] && p <= enter[1]);
+  const [inside, setInside] = useState(() => calc(mv.get(), false));
+  useMotionValueEvent(mv, "change", (p) => setInside((was) => calc(p, was)));
+  return inside;
+}
+
+/** False until `on` has been true once, then true for good. */
+function useLatch(on: boolean): boolean {
+  const [kept, setKept] = useState(on);
+  if (on && !kept) setKept(true);
+  return kept || on;
+}
+
 const TRACK_CSS = `#afvar-ai{height:${COMPACT_FILM.story.totalVh}vh}@media (min-width:1024px){#afvar-ai{height:${DESKTOP_FILM.story.totalVh}vh}}#afvar-ai[data-mode="stacked"]{height:auto}`;
 
 /** Split the avatar act: words first, then the conversation. */
-const avatarCopyWin = (film: Film): Window4 => win(film, "avatar", [0.03, 0.1, 0.4, 0.46]);
-const dialogueWin = (film: Film): Window4 => win(film, "avatar", [0.46, 0.5, 0.95, 0.99]);
+// Both meet the neighbouring acts exactly at the boundary (no empty-copy frame).
+const avatarCopyWin = (film: Film): Window4 => win(film, "avatar", [0, 0.05, 0.4, 0.46]);
+const dialogueWin = (film: Film): Window4 => win(film, "avatar", [0.46, 0.5, 0.95, 1]);
 function win(film: Film, id: ActId, w: Window4): Window4 {
   return [film.at(id, w[0]), film.at(id, w[1]), film.at(id, w[2]), film.at(id, w[3])];
 }
@@ -121,7 +140,7 @@ export function AiStory({ responsiveHome = false }: { responsiveHome?: boolean }
   // Root homepage on phones (< 640 px): a dedicated canvas-free layout.
   const phoneMq = useMedia("(max-width:639px)");
   const film = wide === false ? (responsiveHome ? HOME_MOBILE_FILM : COMPACT_FILM) : DESKTOP_FILM;
-  const { trackRef, progressRef, progress, active, mounted, webgl, revealRef } = useStory({ settledP: film.settledP, minWidth: 0 });
+  const { trackRef, progressRef, progress, active, mounted, webgl, revealRef } = useStory({ settledP: film.settledP, minWidth: 0, persist: true });
   const { quotes } = useLiveMarket();
   const priceTexts = useMemo(() => LANE_KEYS.map(([k, sym]) => quoteLine(quotes[k], sym)), [quotes]);
 
@@ -157,21 +176,35 @@ export function AiStory({ responsiveHome = false }: { responsiveHome?: boolean }
 
   // The OS owns the avatar (its own overlay) while it is on screen; the 3D stage rests behind it.
   const hasOs = film.has("os");
-  const workspaceWindow = hasOs ? win(film, "os", mode === "compact" ? [0, .055, .95, 1] : [.03, .065, .955, .99]) : null;
+  const workspaceWindow = hasOs ? win(film, "os", mode === "compact" ? [0, .055, .95, 1] : [0, .035, .955, .99]) : null;
   const coreOpacity = useTransform(progress, p => workspaceWindow ? 1 - window4(p, workspaceWindow) : 1);
   const osStep = useStep(progress, hasOs ? [film.at("os", 0.07), film.at("os", 0.95)] : [2, 3]);
-  const overlayStep = useStep(progress, hasOs ? [film.at("os", 0.07), film.at("os", 0.975)] : [2, 3]);
+  // The rig hands over between the story scene and the OS canvas: in at os .07,
+  // out only once the OS layer is fully transparent (os .99). Hysteresis keeps a
+  // boundary hover from bouncing it between the two scenes.
+  const overlayBand = useBand(progress, hasOs ? [film.at("os", 0.07), film.at("os", 0.985)] : [2, 3], hasOs ? [film.at("os", 0.062), film.at("os", 0.993)] : [2, 3]);
   const osCovered = (mode === "desktop" || (responsiveHome && mode === "compact")) && osStep === 0;
-  const avatarInOs = mode === "desktop" && overlayStep === 0 && webgl === true && !noGl;
+  const avatarInOs = mode === "desktop" && overlayBand && webgl === true && !noGl;
+  // The OS avatar canvas is built once, from the "always" act on (well before the
+  // OS), and only paused + hidden while the rig is in the story scene: scrolling
+  // back and forth over the OS never creates a new renderer.
+  const avatarHost = useLatch(mode === "desktop" && hasOs && canAvatar && nearAvatar);
 
   // The site's floating avatar launcher steps aside while the film's avatar is on screen.
-  const avatarActStep = useStep(progress, [film.at("avatar", 0), hasOs ? film.at("os", 1) : film.at("avatar", 1)]);
+  // The film's robot stays on screen from "Meet AFVAR" to the finale wave, so the
+  // launcher waits until the track has scrolled away.
+  const avatarActStep = useStep(progress, [film.at("avatar", 0)]);
   useEffect(() => {
     // On phones the launcher would sit on the captions: it waits until the film is over.
-    const hide = mode === "compact" ? active : mode === "desktop" && avatarActStep === 0;
+    const hide = mode === "compact" ? active : mode === "desktop" && active && avatarActStep >= 0;
+    // Also mirrored on <html>, so a launcher that mounts later can read it.
+    document.documentElement.dataset.afvarLauncher = hide ? "hide" : "show";
     window.dispatchEvent(new CustomEvent("afvar:avatar", { detail: { launcher: hide ? "hide" : "show" } }));
   }, [avatarActStep, mode, active]);
-  useEffect(() => () => void window.dispatchEvent(new CustomEvent("afvar:avatar", { detail: { launcher: "show" } })), []);
+  useEffect(() => () => {
+    delete document.documentElement.dataset.afvarLauncher;
+    window.dispatchEvent(new CustomEvent("afvar:avatar", { detail: { launcher: "show" } }));
+  }, []);
   useEffect(() => {
     setFilmOnScreen(active && mode !== "stacked" && mode !== "boot" && mode !== "mobile");
     return () => setFilmOnScreen(false);
@@ -210,7 +243,7 @@ export function AiStory({ responsiveHome = false }: { responsiveHome?: boolean }
                 {poster(false)}
                 {mode !== "boot" ? <div className="home-core-live absolute inset-0" style={stageHost}>{scene(false, active && !osCovered)}</div> : null}
               </motion.div>
-              {mode === "boot" ? <BootStage /> : mode === "desktop" ? <DesktopStage centeredHome={responsiveHome} mv={progress} trackRef={trackRef} quotes={quotes} film={film} avatarInOs={avatarInOs} /> : <CompactStage mv={progress} trackRef={trackRef} quotes={quotes} film={film} portrait={portrait} />}
+              {mode === "boot" ? <BootStage /> : mode === "desktop" ? <DesktopStage centeredHome={responsiveHome} mv={progress} trackRef={trackRef} quotes={quotes} film={film} avatarInOs={avatarInOs} avatarHost={avatarHost} /> : <CompactStage mv={progress} trackRef={trackRef} quotes={quotes} film={film} portrait={portrait} />}
             </div>
           )}
         </section>
@@ -240,7 +273,7 @@ function BootStage() {
 const LEFT = "absolute left-10 top-[calc(50%+44px)] -translate-y-1/2 xl:left-16";
 const BOTTOM_RIGHT = "absolute bottom-10 right-[7.5rem]";
 
-function DesktopStage({ mv, trackRef, quotes, film, avatarInOs, centeredHome }: { centeredHome: boolean; mv: MotionValue<number>; trackRef: RefObject<HTMLElement | null>; quotes: Quotes; film: Film; avatarInOs: boolean }) {
+function DesktopStage({ mv, trackRef, quotes, film, avatarInOs, avatarHost, centeredHome }: { centeredHome: boolean; mv: MotionValue<number>; trackRef: RefObject<HTMLElement | null>; quotes: Quotes; film: Film; avatarInOs: boolean; avatarHost: boolean }) {
   const C = film.story.copy;
   const streamAt = useMemo(() => [film.at("stream", 0), film.at("stream", 1)] as const, [film]);
   const osIn = (p: number) => ramp(p, film.at("os", 0.0), film.at("os", 0.05)) * (1 - ramp(p, film.at("os", 0.95), film.at("os", 1)));
@@ -280,7 +313,7 @@ function DesktopStage({ mv, trackRef, quotes, film, avatarInOs, centeredHome }: 
         <Dialogue mv={mv} />
       </StoryAct>
 
-      <OsFilm mv={mv} quotes={quotes} avatarHere={avatarInOs} />
+      <OsFilm mv={mv} quotes={quotes} avatarHere={avatarInOs} avatarHost={avatarHost} />
 
       <StoryAct mv={mv} at={C.trust} name="trust" className={`${LEFT} w-[min(32rem,38vw)]`}>
         <TrustCopy />
@@ -292,7 +325,7 @@ function DesktopStage({ mv, trackRef, quotes, film, avatarInOs, centeredHome }: 
         <FinaleCopy />
       </StoryAct>
 
-      <StoryRail mv={mv} story={film.story} trackRef={trackRef} visible={(p) => ramp(p, 0.01, 0.03) * (1 - osIn(p))} />
+      <StoryRail mv={mv} story={film.story} trackRef={trackRef} visible={(p) => ramp(p, film.at("hero", 0.4), film.at("hero", 1)) * (1 - osIn(p))} />
       <Illustrative mv={mv} film={film} hide={osIn} />
       {!centeredHome && <ScrollHint mv={mv} />}
     </div>
@@ -393,7 +426,7 @@ function CompactStage({ mv, trackRef, quotes, film, portrait }: { mv: MotionValu
       </StoryAct>
 
       <div className="home-story-rail [&_nav]:right-1.5 [&_nav_span:first-child]:hidden">
-        <StoryRail mv={mv} story={film.story} trackRef={trackRef} segmented={film.has("os")} visible={(p) => film.has("os") ? 1 : ramp(p, 0.01, 0.03) * 0.8} />
+        <StoryRail mv={mv} story={film.story} trackRef={trackRef} segmented={film.has("os")} visible={(p) => film.has("os") ? 1 : ramp(p, film.at("hero", 0.4), film.at("hero", 1)) * 0.8} />
       </div>
       <ScrollHint mv={mv} compact />
     </div>

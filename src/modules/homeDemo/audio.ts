@@ -276,16 +276,27 @@ export function playCue(name: Cue) {
   const synth = SYNTH[name];
   const spec = SPEC[name];
   if (!synth || !spec) return;
-  const c = ctx;
-  if (!c || c.state !== "running" || !duck) return;
+  // The context may not exist yet if the visitor clicked before this engine was wired:
+  // any earlier click/tap on the page is enough to create and start it now.
+  const c = ctx ?? (navigator.userActivation?.hasBeenActive ? ensureCtx() : null);
+  if (!c || !duck) return;
   const now = performance.now();
   if ((lastAt[name] ?? -1e9) > now - spec.gap) return;
   if (voices >= MAX_VOICES) return;
   lastAt[name] = now;
-  voices++;
-  window.setTimeout(() => (voices = Math.max(0, voices - 1)), spec.dur * 1000);
-  synth(c, duck, c.currentTime + 0.01);
+  const out = duck;
+  const play = () => {
+    voices++;
+    window.setTimeout(() => (voices = Math.max(0, voices - 1)), spec.dur * 1000);
+    synth(c, out, c.currentTime + 0.01);
+  };
+  // Suspended (idle tab, power saving, or never started): resume, then play — never drop the cue.
+  if (c.state === "running") play();
+  else void c.resume().then(() => c.state === "running" && play()).catch(() => {});
 }
+
+// Listen for the first click/tap from page load, so the context can start on it.
+if (isBrowser()) wire();
 
 /* ------------------------------------------------------------- ambience */
 

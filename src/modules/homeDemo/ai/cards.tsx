@@ -3,10 +3,10 @@
 // Copy and product cards for each act of the home film. Every act says
 // something new — no sentence appears in two acts. Each block has a full
 // (desktop) and a compact (phone / tablet bottom panel) form.
-import { type MotionValue } from "framer-motion";
+import { cancelFrame, frame, type MotionValue } from "framer-motion";
 import Link from "next/link";
 import { createContext, useContext, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type RefObject } from "react";
-import { fmtPrice, type HomeQuote } from "@/modules/home/kit";
+import { fmtPrice, useLiveMarket, type HomeQuote } from "@/modules/home/kit";
 import { AiOrb, BODY, CARD, CARD_AI, EYEBROW, GHOST_LINK, AI_CTA, H1, H2, HAIR, HeroTitle, MONO, SOFT, useStep, useTypedText } from "@/modules/afvarOs";
 import { REGISTER_HREF } from "../ui";
 import { AVATAR, SATELLITES, SOURCES, THINK, THINK_OUT, type ActId, type Film } from "./aiConfig";
@@ -74,11 +74,126 @@ function useFilmUi(): Film {
   return f;
 }
 
-/** "02 · Every tick" — numbered by the act's place in the current cut. */
+const two = (n: number) => String(n).padStart(2, "0");
+
+/**
+ * "02 · Every tick" — numbered by the act's place in the current cut. On the
+ * film (≥ 640 px) the number rolls from the previous chapter's as the act
+ * arrives and on to the next one as it leaves (responsive-story.css); the
+ * neighbours are CSS-generated, so the text itself stays "02 · Every tick".
+ */
 function ActEyebrow({ id, label }: { id: ActId; label: string }) {
   const film = useContext(FilmUi);
   const n = film ? film.story.order.indexOf(id) : -1;
-  return <p className={EYEBROW}>{n > 0 ? `${String(n).padStart(2, "0")} · ${label}` : label}</p>;
+  if (n <= 0) return <p className={`home-act-eyebrow ${EYEBROW}`}>{label}</p>;
+  return (
+    <p className={`home-act-eyebrow ${EYEBROW}`}>
+      <span className="home-act-n">
+        <span className="home-act-roll" data-prev={two(n - 1)} data-next={two(n + 1)}>
+          {two(n)}
+        </span>
+      </span>{" "}
+      · {label}
+    </p>
+  );
+}
+
+/* --------------------------------------------- film act hand-off (≥ 640 px) */
+
+/** Acts whose boundary cue is gold (the AI at work); every other act is green. */
+const AI_ACTS: readonly ActId[] = ["cores", "think"];
+const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+
+/**
+ * Desktop / tablet film only (≥ 640 px, `.afvar-responsive-home`, desktop or
+ * compact stage, motion allowed). Mounted once, from the hero copy, it keeps
+ * every act's copy moving with the scroll:
+ *
+ *   --in / --out  how far each act wrapper has arrived / left, read from the
+ *                 wrapper's own live StoryAct opacity and the sign of its y, so
+ *                 it follows whatever copy windows the film defines;
+ *   --k           the act's own progress (film.story.range) for the eyebrow
+ *                 hairline and the copy-vs-eyebrow parallax;
+ *   .home-act-sweep  one light line that crosses the stage at each act boundary.
+ *
+ * responsive-story.css turns these into transform / opacity / clip-path only.
+ * Everything is a pure function of the scroll position, so it plays the same
+ * backwards. Phones (MobileStory), stacked and reduced motion never run it.
+ */
+function useStoryHandoff<T extends HTMLElement>(): RefObject<T | null> {
+  const ref = useRef<T>(null);
+  const film = useContext(FilmUi);
+  useEffect(() => {
+    const el = ref.current;
+    const track = el?.closest<HTMLElement>(".afvar-responsive-home #afvar-ai");
+    const host = el?.closest<HTMLElement>(".home-story-content, .home-compact-chapters");
+    if (!el || !film || !track || !host || typeof window.matchMedia !== "function") return;
+    if (window.matchMedia(PHONE_MQ).matches || calmMotion()) return;
+
+    const { order, range } = film.story;
+    const bounds = order.slice(1).map((id, i) => {
+      const prev = order[i];
+      const len = Math.min(range[prev][1] - range[prev][0], range[id][1] - range[id][0]);
+      return { at: range[id][0], half: len * 0.06, gold: AI_ACTS.includes(id) };
+    });
+
+    const sweep = document.createElement("div");
+    sweep.className = "home-act-sweep";
+    sweep.setAttribute("aria-hidden", "true");
+    sweep.append(document.createElement("i"));
+    host.append(sweep);
+
+    const put = (node: HTMLElement, name: string, v: number) => {
+      const s = v.toFixed(4);
+      if (node.style.getPropertyValue(name) !== s) node.style.setProperty(name, s);
+    };
+    const yOf = (node: HTMLElement) => {
+      const m = /translateY\((-?[\d.]+(?:e-?\d+)?)px\)/.exec(node.style.transform);
+      return m ? Number(m[1]) : 0;
+    };
+
+    const update = () => {
+      const r = track.getBoundingClientRect();
+      const span = r.height - window.innerHeight;
+      const p = span > 0 ? clamp01(-r.top / span) : 0;
+      for (const w of host.querySelectorAll<HTMLElement>(":scope > [data-act]")) {
+        const id = w.dataset.act as ActId;
+        if (!(id in range) || id === "os") continue;
+        const o = w.style.opacity === "" ? 1 : clamp01(Number(w.style.opacity));
+        const y = yOf(w);
+        // StoryAct rises in from below (y > 0) and leaves upwards (y < 0).
+        put(w, "--in", y > 0.01 ? o : 1);
+        put(w, "--out", y < -0.01 ? 1 - o : 0);
+        put(w, "--k", clamp01((p - range[id][0]) / (range[id][1] - range[id][0])));
+      }
+      let t = -1;
+      let gold = false;
+      for (const b of bounds) {
+        if (Math.abs(p - b.at) < b.half) {
+          t = (p - (b.at - b.half)) / (2 * b.half);
+          gold = b.gold;
+          break;
+        }
+      }
+      const on = t >= 0;
+      sweep.style.opacity = on ? (Math.sin(Math.PI * t) * 0.9).toFixed(3) : "0";
+      sweep.style.transform = `translate3d(0,${on ? (-t * 100).toFixed(2) : 0}%,0)`;
+      if (on) sweep.dataset.tone = gold ? "gold" : "green";
+    };
+    // After framer-motion has written this frame's StoryAct opacity / y.
+    const schedule = () => frame.postRender(update);
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      cancelFrame(update);
+      sweep.remove();
+      for (const w of host.querySelectorAll<HTMLElement>(":scope > [data-act]")) for (const v of ["--in", "--out", "--k"]) w.style.removeProperty(v);
+    };
+  }, [film]);
+  return ref;
 }
 
 const H2_COMPACT = "text-[clamp(1.55rem,6.4vw,2.2rem)] font-semibold leading-[1.08] tracking-[-0.025em] text-[#F2F5F2]";
@@ -110,9 +225,11 @@ export function quoteLine(q: HomeQuote | undefined, sym: string): string {
 /* ------------------------------------------------------------------ hero */
 
 export function HeroCopy({ compact = false, twin = false }: { compact?: boolean; twin?: boolean }) {
+  // The film's act hand-off lives with the first act's copy (no-op off the film).
+  const root = useStoryHandoff<HTMLDivElement>();
   return (
-    <div className="home-chapter-prose">
-      <p className={EYEBROW}>Pre-launch · AFVAR AI</p>
+    <div ref={root} className="home-chapter-prose">
+      <p className={`home-act-eyebrow ${EYEBROW}`}>Pre-launch · AFVAR AI</p>
       <HeroTitle twin={twin} className={compact ? `mt-3 text-[clamp(2.1rem,9vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]` : `mt-5 ${H1}`}>
         The trading OS <span className="text-[#A8DEC2]">that never stops thinking.</span>
       </HeroTitle>
@@ -129,6 +246,7 @@ export function HeroCopy({ compact = false, twin = false }: { compact?: boolean;
           Explore the platform
         </Link>
       </div>
+      {compact ? null : <HeroMarkets />}
       <div className={`home-hero-stats ${compact ? "mt-5 pt-3" : "mt-10 pt-5"} flex flex-wrap items-center gap-x-6 gap-y-2 border-t ${HAIR}`}>
         <LiveClock />
         <span className={`${MONO} text-[#92A399]`}>24 / 7 / 365</span>
@@ -139,32 +257,81 @@ export function HeroCopy({ compact = false, twin = false }: { compact?: boolean;
   );
 }
 
-/** UTC wall clock to the millisecond, written straight to the DOM. */
-export function LiveClock({ ms = true }: { ms?: boolean }) {
+// Same words the platform's Market Data film uses for a lane's freshness.
+const STATUS_LABEL: Record<HomeQuote["status"], string> = { live: "Live", delayed: "Delayed", snapshot: "Stored" };
+const asOfText = (asOf: number | null) => {
+  if (!asOf) return "stored";
+  const d = new Date(asOf);
+  return `${two(d.getUTCHours())}:${two(d.getUTCMinutes())} UTC`;
+};
+const signedPct = (pct: number) => `${pct >= 0 ? "+" : "−"}${Math.abs(pct).toFixed(2)}%`;
+const STATUS_DOT: Record<HomeQuote["status"], string> = { live: "bg-[#00E676]", delayed: "bg-[#F6B94A]", snapshot: "bg-[#92A399]" };
+
+/**
+ * Desktop hero: the eight markets the AI reads, straight from the shared home
+ * feed (useLiveMarket). Every number is the feed's own, with the instrument's
+ * decimals and the site's Live / Delayed / Stored labels; "—" until the first
+ * response. A price that changes flashes once (green up, red down).
+ */
+function HeroMarkets() {
+  const { quotes, updatedAt } = useLiveMarket();
+  const ready = updatedAt !== null;
+  const shown = LANE_KEYS.map(([k]) => quotes[k]).filter((q): q is HomeQuote => !!q && q.status !== "snapshot");
+  const sources = [...new Set(shown.map((q) => q.source).filter(Boolean))].join(" · ");
+  const latest = shown.reduce<number | null>((m, q) => (q.asOf && (!m || q.asOf > m) ? q.asOf : m), null);
+  return (
+    <div className="home-hero-markets mt-8">
+      <ul className="grid grid-cols-4 gap-x-2 gap-y-2" aria-label="Markets the AI reads">
+        {LANE_KEYS.map(([k, sym], i) => {
+          const q = quotes[k];
+          const up = q ? q.changePct >= 0 : true;
+          return (
+            <li key={k} style={{ "--i": i } as CSSProperties} className="home-hero-market min-w-0 rounded-lg border border-[rgba(168,222,194,0.12)] bg-[rgba(6,17,12,0.55)] px-2.5 py-1.5">
+              <span className="flex items-center justify-between gap-1.5 font-mono text-[10px] tracking-[0.08em] text-[#B7C5BC]">
+                <span className="truncate">{sym}</span>
+                {ready && q ? (
+                  <span className="flex shrink-0 items-center gap-1 text-[9px] uppercase text-[#92A399]">
+                    <i aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[q.status]}`} />
+                    {STATUS_LABEL[q.status]}
+                  </span>
+                ) : null}
+              </span>
+              <span className="mt-0.5 flex items-baseline justify-between gap-1.5 font-mono tabular-nums">
+                {ready && q ? (
+                  <>
+                    <span key={q.last} data-dir={q.dir} className="home-hero-price truncate text-[12.5px] text-[#F2F5F2]">
+                      {fmtPrice(q.last, q.decimals)}
+                    </span>
+                    <span className={`shrink-0 text-[10.5px] ${up ? "text-[#00E676]" : "text-[#FF6B6B]"}`}>{signedPct(q.changePct)}</span>
+                  </>
+                ) : (
+                  <span className="text-[12.5px] text-[#92A399]">—</span>
+                )}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+      <p className={`${MONO} mt-2 truncate text-[9.5px] tracking-[0.06em] text-[#92A399]`}>
+        {!ready ? "—" : shown.length ? `${sources || "provider"} · ${asOfText(latest)}` : "Stored values · not live"}
+      </p>
+    </div>
+  );
+}
+
+/** UTC wall clock (hours and minutes), written straight to the DOM. */
+export function LiveClock() {
   const ref = useRef<HTMLSpanElement>(null);
   useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.dataset.reduceMotion === "true";
-    let raf = 0;
-    let iv: ReturnType<typeof setInterval> | undefined;
-    const pad = (n: number, l = 2) => String(n).padStart(l, "0");
+    const pad = (n: number) => String(n).padStart(2, "0");
     const write = () => {
       const d = new Date();
-      const tail = ms && !reduce ? `.${pad(d.getUTCMilliseconds(), 3)}` : "";
-      if (ref.current) ref.current.textContent = `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}${tail} UTC`;
+      if (ref.current) ref.current.textContent = `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`;
     };
-    const loop = () => {
-      write();
-      raf = requestAnimationFrame(loop);
-    };
-    if (reduce || !ms) {
-      write();
-      iv = setInterval(write, 1000);
-    } else loop();
-    return () => {
-      cancelAnimationFrame(raf);
-      if (iv) clearInterval(iv);
-    };
-  }, [ms]);
+    write();
+    const iv = setInterval(write, 1000);
+    return () => clearInterval(iv);
+  }, []);
   return (
     <span className="flex items-center gap-2 font-mono text-[11px] tracking-[0.12em] text-[#A8DEC2]">
       <span className="relative flex h-2 w-2">
@@ -172,7 +339,7 @@ export function LiveClock({ ms = true }: { ms?: boolean }) {
         <span className="relative inline-flex h-2 w-2 rounded-full bg-[#A8DEC2]" />
       </span>
       <span ref={ref} className="tabular-nums">
-        --:--:-- UTC
+        --:-- UTC
       </span>
     </span>
   );
@@ -727,7 +894,7 @@ export function PermissionsCard({ compact = false }: { compact?: boolean }) {
 export function FinaleCopy({ compact = false }: { compact?: boolean }) {
   return (
     <div className="home-chapter-prose">
-      <p className={EYEBROW}>Launching soon</p>
+      <p className={`home-act-eyebrow ${EYEBROW}`}>Launching soon</p>
       <h2 className={compact ? "mt-3 text-[clamp(2rem,8.5vw,2.8rem)] font-semibold leading-[1.04] tracking-[-0.03em] text-[#F2F5F2]" : "mt-4 text-[clamp(2.4rem,4.2vw,4rem)] font-semibold leading-[1.03] tracking-[-0.035em] text-[#F2F5F2]"}>
         One mind. Always on. <span className="text-[#A8DEC2]">On your side.</span>
       </h2>

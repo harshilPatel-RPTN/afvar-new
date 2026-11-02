@@ -21,6 +21,7 @@ import {
   createCameraTrack,
   easeInOut,
   easeOut,
+  avatarFrame,
   ramp,
   sampleCameraTrack,
   useStoryFrame,
@@ -79,10 +80,21 @@ export default function AiCoreScene({ film, progress, active, still, portrait, l
     // Then contain-fit: whatever the screen's aspect and height, pull back
     // just enough that the act's composition stays whole inside the canvas.
     const contain = makeContainFit(film, camera, fov, belowHeader, openingScale, portrait);
+    // The fit is a pure function of (progress, size, visible band), but a band
+    // or size change, or an act's weight crossing in, can still move it in one
+    // step. Ease towards it (≈0.12 s) so the stage never jumps; snap after a
+    // pause (first frame, resumed loop) so nothing chases a stale value.
+    let zoom = 1;
+    let last = -1;
     return {
       zoom: (p: number, w: number, h: number) => {
         const a = aspect(p, w, h);
-        return a * contain.fit(p, w, h, a);
+        const target = Math.min(1, Math.max(0.4, a * contain.fit(p, w, h, a)));
+        const now = performance.now();
+        const dt = (now - last) / 1000;
+        zoom = last < 0 || dt > 0.25 ? target : THREE.MathUtils.damp(zoom, target, 8, dt);
+        last = now;
+        return zoom;
       },
       // The part of the canvas actually seen, kept up to date by <VisibleBand/>.
       setBand: contain.setBand,
@@ -108,12 +120,14 @@ export default function AiCoreScene({ film, progress, active, still, portrait, l
       <FilmCtx.Provider value={ctx}>
         <FirstCoreFrame />
         {fit ? <VisibleBand onBand={fit.setBand} /> : null}
-        <AiCore drive={drive} />
-        <Satellites />
+        <FinaleShift>
+          <AiCore drive={drive} />
+          <Satellites />
+          <Reasoning />
+        </FinaleShift>
         <Near acts={["stream"]}>
           <Streams priceTexts={priceTexts} />
         </Near>
-        <Reasoning />
         <Near acts={["always"]}>
           <ClockRing />
         </Near>
@@ -124,6 +138,24 @@ export default function AiCoreScene({ film, progress, active, still, portrait, l
       </FilmCtx.Provider>
     </CoreCanvas>
   );
+}
+
+/**
+ * In the finale the robot stands at the core's right: slide the core (with the
+ * cores folded into it) left so there is clear air between its glow and the
+ * robot's arm, instead of moving the robot towards the chapter rail.
+ */
+const finaleShift = (film: Film, portrait: boolean, p: number) =>
+  film.has("finale") ? -(portrait ? 0.5 : 0.95) * easeInOut(ramp(p, film.at("finale", 0.08), film.at("finale", 0.45))) : 0;
+
+function FinaleShift({ children }: { children: ReactNode }) {
+  const { film, portrait } = useFilm();
+  const { smoothed } = useStoryFrame();
+  const group = useRef<THREE.Group>(null);
+  useFrame(() => {
+    if (group.current) group.current.position.x = finaleShift(film, portrait, smoothed.current ?? 0);
+  }, -5);
+  return <group ref={group}>{children}</group>;
 }
 
 function FirstCoreFrame() {
@@ -223,7 +255,13 @@ function makeContainFit(film: Film, keys: readonly CameraKey[], fov: number, bel
   // Orbit (and the tight trust orbit): the ellipse the cores ride, plus their labels above.
   const orbit = (r: number, labels: boolean) =>
     around(16, (a) => pt(Math.cos(a) * r, Math.sin(a) * r * ORBIT.tilt, Math.sin(a) * r * 0.9, 18, 18)).concat(
-      labels ? around(16, (a) => pt(Math.cos(a) * r, Math.sin(a) * r * ORBIT.tilt + ORBIT.size + 0.3, Math.sin(a) * r * 0.9, satLabel, 13)) : [],
+      labels
+        ? around(16, (a) => {
+            // Labels sit radially outside their core, shifted out by their own half width (see <Satellites/>).
+            const x = Math.cos(a) * r, y = Math.sin(a) * r * ORBIT.tilt, len = Math.hypot(x, y) || 1, reach = ORBIT.size * 1.7 + 0.12;
+            return pt(x + (x / len) * reach, y + (y / len) * (reach + 0.12), Math.sin(a) * r * 0.9, 2 * satLabel * Math.abs(x / len) + 6, 13);
+          })
+        : [],
     );
   const column = (squeeze: number, lift: number) =>
     SATELLITES.flatMap((s, i) => {
@@ -246,8 +284,25 @@ function makeContainFit(film: Film, keys: readonly CameraKey[], fov: number, bel
 
   // The core's live size (it opens large, hides inside the avatar, returns for trust).
   const coreDrive = makeCoreDrive(film, openingScale);
+  // The avatar (feet at its placement; body ≈ 0.87…5.56 robot units tall; its
+  // hologram disc and a waving arm reach ≈ ±1.8). The right-hand points keep
+  // ~120 px for the chapter rail's active label ("09 JOIN").
+  const robot = (x: number, y: number, s: number) => [
+    pt(x - 1.8 * s, y + 0.5 * s, 0),
+    pt(x - 1.8 * s, y + 5.6 * s, 0),
+    pt(x + 1.8 * s, y + 0.5 * s, 0, 120, 0),
+    pt(x + 1.8 * s, y + 5.6 * s, 0, 120, 0),
+  ];
+  const avatar = makeAvatarTrack(film, portrait);
+  const frame = avatarFrame();
+  const avatarFinale = (p: number) => film.has("finale") ? easeOut(ramp(p, film.at("finale", 0.12), film.at("finale", 0.45))) : 0;
   const groups: { points: FitPoint[]; weight: (p: number) => number; scale: (p: number) => number }[] = [
-    { points: core, weight: () => 1, scale: (p) => coreDrive(p).scale },
+    { points: core, weight: (p) => (finaleShift(film, portrait, p) === 0 ? 1 : 0), scale: (p) => coreDrive(p).scale },
+    // The finale core, slid left of the robot.
+    { points: core.map((c) => pt(c.at.x + (portrait ? -0.5 : -0.95), c.at.y, c.at.z)), weight: (p) => (finaleShift(film, portrait, p) === 0 ? 0 : 1), scale: (p) => coreDrive(p).scale },
+    // The robot on stage in its act (not the finale wave, handled below).
+    { points: robot(AVATAR.place.x, AVATAR.place.y, AVATAR.place.scale), weight: (p) => (avatarFinale(p) > 0 ? 0 : Math.min(1, avatar(p, 0, frame).visible ? frame.scale / AVATAR.place.scale : 0)), scale: () => 1 },
+    { points: robot(portrait ? 1.05 : 1.45, -1.05, 0.42), weight: avatarFinale, scale: () => 1 },
     { points: orbit(ORBIT.radius, true), weight: (p) => film.weight(p, "cores"), scale: () => 1 },
     {
       points: column(portrait ? film.portraitColumnSqueeze : 1, portrait ? film.portraitColumnLift : 0),
@@ -313,13 +368,25 @@ function makeContainFit(film: Film, keys: readonly CameraKey[], fov: number, bel
 function makeCoreDrive(film: Film, openingScale: number) {
   const out: CoreDrive = { glow: 1, scale: 1, think: 0, sparks: 1 };
   const A = (f: number) => film.at("avatar", f);
+  // A short light swell on the core at every act boundary, tied to scroll, so
+  // even a slow scroll reads the hand-off from one chapter to the next. Each
+  // swell spans ±12 % of the shorter neighbouring act (follows the act windows).
+  const order = film.story.order.filter((id) => film.has(id));
+  const swells = order.slice(1).map((id, i) => {
+    const prev = film.story.range[order[i]];
+    const cur = film.story.range[id];
+    const half = 0.12 * Math.min(prev[1] - prev[0], cur[1] - cur[0]);
+    return [cur[0] - half, cur[0] - half * 0.25, cur[0] + half * 0.25, cur[0] + half] as Window4;
+  });
   return (p: number): CoreDrive => {
     const stream = film.weight(p, "stream");
     const think = film.weight(p, "think");
     const verdict = window4(p, [film.at("think", THINK_OUT - 0.04), film.at("think", THINK_OUT), film.at("think", 0.92), film.at("think", 1)]);
     // The core becomes the avatar's heart: it shrinks inside the assembling body and returns for trust.
     const inside = easeInOut(ramp(p, A(0.18), A(0.32))) * (1 - easeOut(ramp(p, film.at("trust", 0.0), film.at("trust", 0.15))));
-    out.glow = 0.95 + 0.35 * stream + 0.3 * think + 0.6 * verdict + 0.35 * ramp(p, film.at("finale", 0.3), film.at("finale", 0.9));
+    let swell = 0;
+    for (const w of swells) swell = Math.max(swell, window4(p, w));
+    out.glow = 0.95 + 0.35 * stream + 0.3 * think + 0.6 * verdict + 0.35 * ramp(p, film.at("finale", 0.3), film.at("finale", 0.9)) + 0.45 * easeInOut(swell);
     out.think = Math.max(think, window4(p, [A(0.56), A(0.6), A(0.64), A(0.68)]));
     // The solo core can use more of its column; return to its orbit size
     // as the satellite cores appear around it.
@@ -370,6 +437,9 @@ function SceneAvatar() {
 function makeAvatarTrack(film: Film, portrait: boolean) {
   const A = (f: number) => film.at("avatar", f);
   const actEnd = film.has("os") ? film.at("os", 0.06) : film.at("trust", 0.04);
+  // The stage fades to the OS over os 0 → .035: the robot shrinks away with it.
+  const leaveAt = film.has("os") ? film.at("os", 0.0) : film.at("trust", 0.0);
+  const leaveEnd = film.has("os") ? film.at("os", 0.035) : actEnd;
   const fin = (f: number) => film.at("finale", f);
   const P = AVATAR.place;
   return (p: number, _t: number, out: AvatarFrame): AvatarFrame => {
@@ -395,9 +465,12 @@ function makeAvatarTrack(film: Film, portrait: boolean) {
       return out;
     }
     const grow = easeOut(ramp(p, A(0.08), A(0.16)));
+    // Shrink away before the act ends (the stage fades to the OS meanwhile), so
+    // the hand-off never pops a full-size robot in or out at the threshold.
+    const leave = 1 - easeInOut(ramp(p, leaveAt, leaveEnd));
     out.x = P.x;
     out.y = P.y;
-    out.scale = P.scale * Math.max(0.001, grow);
+    out.scale = P.scale * Math.max(0.001, grow * leave);
     out.explode = 1 - easeInOut(ramp(p, A(0.1), A(AVATAR.assemble[1])));
     if (p < A(AVATAR.wave[0])) {
       out.gesture = "idle";
@@ -433,6 +506,8 @@ function makeAvatarTrack(film: Film, portrait: boolean) {
 
 /** Live satellite positions, written by <Satellites/> before anyone reads them. */
 const satPos = SATELLITES.map(() => new THREE.Vector3());
+/** Per-core label visibility from depth (orbit back side fades), written by <Satellites/>. */
+const satLabelFade = SATELLITES.map(() => 1);
 const scratchA = new THREE.Vector3();
 const scratchB = new THREE.Vector3();
 
@@ -471,6 +546,7 @@ function Satellites() {
   const { smoothed, still } = useStoryFrame();
   const nodes = useRef<(THREE.Group | null)[]>([]);
   const mats = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
+  const labelNodes = useRef<(THREE.Group | null)[]>([]);
 
   useFrame((s) => {
     const p = smoothed.current ?? 0;
@@ -484,6 +560,12 @@ function Satellites() {
     // The think act shares the art band with its tall reasoning card, so the
     // phone cut pulls the column rows a little further toward the band centre.
     const thinkFit = lift ? 1 - 0.22 * film.weight(p, "think") : 1;
+    // On the orbit the cores pass in front of and behind each other: push each
+    // label radially outward from the centre (a small gap past its sphere) and
+    // fade the labels of cores on the far side, so no label sits on a sphere or
+    // on another label. In the column the labels sit above their cores.
+    const orbitness = film.weight(p, "cores");
+    const backZ = ORBIT.radius * 0.9;
     nodes.current.forEach((g, i) => {
       place(seg.from, i, t, scratchA, squeeze, lift);
       place(seg.to, i, t, scratchB, squeeze, lift);
@@ -491,6 +573,25 @@ function Satellites() {
       if (thinkFit !== 1) satPos[i].y = lift + (satPos[i].y - lift) * thinkFit;
       if (!g) return;
       g.position.copy(satPos[i]);
+      const lab = labelNodes.current[i];
+      if (lab) {
+        const sp = satPos[i];
+        const len = Math.hypot(sp.x, sp.y) || 1;
+        const dx = sp.x / len;
+        const dy = sp.y / len;
+        // Clear the ring around the sphere, then the label's own half width
+        // (screen px → world units at this core's depth) along x.
+        let extra = 0;
+        if (orbitness > 0.001 && s.size.width) {
+          scratchA.copy(sp).project(s.camera);
+          scratchB.copy(sp).setX(sp.x + 1).project(s.camera);
+          const pxPerUnit = Math.abs(scratchB.x - scratchA.x) * 0.5 * s.size.width;
+          if (pxPerUnit > 1) extra = (labelHalf(SATELLITES[i].label) + 6) / pxPerUnit;
+        }
+        const reach = ORBIT.size * 1.7 + 0.12;
+        lab.position.set(dx * (reach + extra * Math.abs(dx)) * orbitness, (ORBIT.size + 0.3) * (1 - orbitness) + dy * (reach + 0.12) * orbitness, 0);
+      }
+      satLabelFade[i] = 1 - orbitness * (1 - ramp(satPos[i].z, -0.3 * backZ, 0.05 * backZ));
       const born = easeOut(ramp(p, film.at("cores", 0.1) + i * 0.002, film.at("cores", 0.3) + i * 0.002));
       const merged = 1 - easeOut(ramp(p, film.at("avatar", 0.0), film.at("avatar", 0.1))) * (1 - ramp(p, film.at("trust", 0.0), film.at("trust", 0.15)));
       const back = 1 - easeOut(ramp(p, film.at("finale", 0.15), film.at("finale", 0.6)));
@@ -535,9 +636,11 @@ function Satellites() {
             <meshBasicMaterial color={COLORS.mint} transparent opacity={0.5} toneMapped={false} />
           </mesh>
           {labelsNear ? (
-            <SceneLabel position={[0, ORBIT.size + 0.3, 0]} show={labelShow} tone="ai">
-              {sat.label}
-            </SceneLabel>
+            <group ref={(el) => void (labelNodes.current[i] = el)} position={[0, ORBIT.size + 0.3, 0]}>
+              <SceneLabel position={[0, 0, 0]} show={(p) => labelShow(p) * satLabelFade[i]} tone="ai">
+                {sat.label}
+              </SceneLabel>
+            </group>
           ) : null}
         </group>
       ))}

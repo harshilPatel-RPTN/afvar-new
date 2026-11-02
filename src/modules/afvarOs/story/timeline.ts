@@ -44,8 +44,18 @@ export interface Story<Id extends string> {
   actAt: (p: number) => Id;
 }
 
+export interface StoryOptions {
+  /**
+   * Hand-off copy windows: each act's copy leaves over the last 12 % of the act
+   * and the next act's copy arrives over its first 12 %, meeting at the
+   * boundary, so slow scrolling always shows one chapter giving way to the
+   * next (no empty frame between them). Off by default (platform films).
+   */
+  handoff?: boolean;
+}
+
 /** Turn an ordered list of acts into the numbers every scene and overlay reads. */
-export function defineStory<Id extends string>(acts: readonly StoryActDef<Id>[]): Story<Id> {
+export function defineStory<Id extends string>(acts: readonly StoryActDef<Id>[], { handoff = false }: StoryOptions = {}): Story<Id> {
   if (acts.length === 0) throw new Error("defineStory: no acts");
   const totalVh = acts.reduce((s, a) => s + a.vh, 0);
   const range = {} as Record<Id, readonly [number, number]>;
@@ -59,7 +69,11 @@ export function defineStory<Id extends string>(acts: readonly StoryActDef<Id>[])
     const len = e - s;
     range[a.id] = [s, e];
     labels[a.id] = a.label;
-    if (i === 0) copy[a.id] = [-1, -0.5, e - len * 0.32, e - len * 0.04];
+    if (handoff) {
+      if (i === 0) copy[a.id] = [-1, -0.5, e - len * 0.2, e];
+      else if (i === acts.length - 1) copy[a.id] = [s, s + len * 0.12, 2, 3];
+      else copy[a.id] = [s, s + len * 0.12, e - len * 0.12, e];
+    } else if (i === 0) copy[a.id] = [-1, -0.5, e - len * 0.32, e - len * 0.04];
     else if (i === acts.length - 1) copy[a.id] = [s + len * 0.04, s + len * 0.22, 2, 3];
     else copy[a.id] = [s + len * 0.05, s + len * 0.2, e - len * 0.2, e - len * 0.04];
   });

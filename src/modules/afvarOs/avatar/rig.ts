@@ -51,11 +51,22 @@ export interface AvatarRig {
   /** Add this to a scene. Its transform is owned by update(). */
   root: THREE.Group;
   update(dt: number, elapsed: number, f: AvatarFrame, opts?: { reduced?: boolean; quality?: "balanced" | "performance" }): void;
+  /**
+   * Hang the robot in `parent` (a host's holder group), hidden until that host's
+   * first update() places it — never drawn with the previous host's transform.
+   */
+  mount(parent: THREE.Object3D): void;
+  /** Take the robot out of `parent` if it still hangs there. */
+  release(parent: THREE.Object3D): void;
 }
 
 /* ------------------------------------------------------------- the build */
 
-let rig: AvatarRig | null = null;
+// Kept on globalThis: a hot reload of this module must not build a second
+// 292k-triangle robot while the first still hangs in a live scene.
+const slot = globalThis as typeof globalThis & { __afvarAvatarRig?: AvatarRig | null };
+// (Only reuse a rig with the current API — one built by older code is rebuilt.)
+let rig: AvatarRig | null = typeof slot.__afvarAvatarRig?.mount === "function" ? slot.__afvarAvatarRig : null;
 const listeners = new Set<() => void>();
 
 function build(): AvatarRig {
@@ -83,36 +94,54 @@ function build(): AvatarRig {
   let gestureStart = 0;
   let blendStart = -10;
   let lastExplode = -1;
+  // The rig keeps its OWN clock. It is shared by several R3F roots (a film's
+  // stage, an OS overlay), each with its own clock that starts at 0 on mount;
+  // timing a gesture on one root's clock and reading it on another's made the
+  // crossfade factor hugely negative and blew the bones up (hundreds of rad).
+  let clock = 0;
+  let host: THREE.Object3D | null = null;
 
   const update: AvatarRig["update"] = (dt, elapsed, f, opts = {}) => {
+    clock += Math.min(Math.max(dt, 0), 0.1);
     root.visible = f.visible;
     if (!f.visible) return;
     root.position.set(f.x, f.y, f.z);
     root.scale.setScalar(Math.max(0.0001, f.scale));
     body.rotation.set(f.lean, f.turn, 0);
 
-    // Gesture change: remember the current pose, then crossfade into the new one.
-    if (f.gesture !== gesture) {
-      joints.forEach((j, i) => (snapshot[i] = j.bone.rotation[j.axis]));
+    // Gesture change, or a new host scene: remember the current pose, then crossfade into the new one.
+    const moved = root.parent !== host;
+    if (f.gesture !== gesture || moved) {
+      joints.forEach((j, i) => {
+        const r = j.bone.rotation[j.axis];
+        snapshot[i] = Number.isFinite(r) ? Math.min(Math.max(r, Math.min(j.min, j.max)), Math.max(j.min, j.max)) : j.rest;
+      });
+      if (f.gesture !== gesture) gestureStart = clock;
       gesture = f.gesture;
-      gestureStart = elapsed;
-      blendStart = elapsed;
+      blendStart = clock;
+      host = root.parent;
+      if (moved) lastExplode = -1;
     }
-    const gt = elapsed - gestureStart;
+    const gt = clock - gestureStart;
     poseRobot(robot, gesture, gt, 1, { reducedMotion: opts.reduced });
-    const k = Math.min(1, (elapsed - blendStart) / BLEND_SECONDS);
+    const k = Math.min(1, Math.max(0, (clock - blendStart) / BLEND_SECONDS));
     if (k < 1) {
       const e = k * k * (3 - 2 * k);
       joints.forEach((j, i) => {
-        j.bone.rotation[j.axis] = snapshot[i] + (j.bone.rotation[j.axis] - snapshot[i]) * e;
+        // Both ends are legal poses; clamp anyway so a bad snapshot can never bend a joint past its limit.
+        const r = snapshot[i] + (j.bone.rotation[j.axis] - snapshot[i]) * e;
+        j.bone.rotation[j.axis] = Number.isFinite(r) ? Math.min(Math.max(r, Math.min(j.min, j.max)), Math.max(j.min, j.max)) : j.rest;
       });
     }
 
     robot.setExpression(f.emotion);
     const face = motionFace(gesture, gt);
     // Scripted speech energy: syllable-like pulses, never a fixed sine.
-    const talk = f.voice ?? (f.talk > 0 ? f.talk * (0.3 + 0.7 * Math.abs(Math.sin(elapsed * 9.3) * Math.sin(elapsed * 3.1 + 1.3))) : 0);
-    robot.updateFace(elapsed, { ...face, talk, speaking: (f.voice ?? f.talk) > 0.02 });
+    // Reduced motion: the host passes a fixed time, so the face holds still.
+    const now = opts.reduced ? elapsed : clock;
+    // Measured voice loudness (when a voice is playing) drives the mouth; otherwise scripted pulses.
+    const talk = f.voice ?? (f.talk > 0 ? f.talk * (0.3 + 0.7 * Math.abs(Math.sin(now * 9.3) * Math.sin(now * 3.1 + 1.3))) : 0);
+    robot.updateFace(now, { ...face, talk, speaking: (f.voice ?? f.talk) > 0.02 });
 
     if (Math.abs(f.explode - lastExplode) > 1e-4) {
       lastExplode = f.explode;
@@ -138,7 +167,16 @@ function build(): AvatarRig {
     });
   };
 
-  return { robot, aura, root, update };
+  const mount = (parent: THREE.Object3D) => {
+    if (root.parent === parent) return;
+    root.visible = false;
+    parent.add(root);
+  };
+  const release = (parent: THREE.Object3D) => {
+    if (root.parent === parent) parent.remove(root);
+  };
+
+  return { robot, aura, root, update, mount, release };
 }
 
 /** The page's avatar, built on first call. Prefer scheduleAvatarBuild() so it builds in idle time. */
@@ -146,6 +184,7 @@ export function getAvatarRig(): AvatarRig {
   if (!rig) {
     const t0 = performance.now();
     rig = build();
+    slot.__afvarAvatarRig = rig;
     try {
       performance.measure("afvar-avatar-build", { start: t0, end: performance.now() });
     } catch {

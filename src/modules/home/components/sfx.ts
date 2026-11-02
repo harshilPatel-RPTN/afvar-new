@@ -334,13 +334,20 @@ export function playSfx(name: Sfx) {
   // Before the first gesture the context can't start; skip rather than queue a burst.
   if (!ctx && !navigator.userActivation?.hasBeenActive) return;
   const c = ensureCtx();
-  if (!c || !master || c.state !== "running") return;
+  if (!c || !master) return;
   lastAt[name] = now;
-  const trim = c.createGain();
-  trim.gain.value = LEVEL[name];
-  trim.connect(master);
-  SYNTH[name](c, trim, c.currentTime + 0.01);
-  window.setTimeout(() => trim.disconnect(), 3000);
+  const play = () => {
+    if (!master) return;
+    const trim = c.createGain();
+    trim.gain.value = LEVEL[name];
+    trim.connect(master);
+    SYNTH[name](c, trim, c.currentTime + 0.01);
+    window.setTimeout(() => trim.disconnect(), 3000);
+  };
+  // The browser may have suspended the context (idle tab, power saving): resume, then play,
+  // instead of dropping the sound.
+  if (c.state === "running") play();
+  else void c.resume().then(() => c.state === "running" && play()).catch(() => {});
 }
 
 /* ------------------------------------------------------------ haptics */

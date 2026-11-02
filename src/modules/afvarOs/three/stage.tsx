@@ -19,7 +19,8 @@ import { clamp01, window4, type Window4 } from "../story/timeline";
 import { cameraViewport, createCameraTrack, sampleCameraTrack, type CameraKey } from "./framing";
 
 export type { CameraKey } from "./framing";
-export type SceneCue<C extends string = string> = { at: number; cue: C };
+/** A sound at progress `at`. With `until`, it plays every time progress enters [at, until] from either side. */
+export type SceneCue<C extends string = string> = { at: number; cue: C; until?: number };
 
 interface StoryFrame {
   /** Damped master progress — read inside useFrame. */
@@ -142,12 +143,16 @@ function ProgressDamper({
   settledP: number;
   lambda: number;
 }) {
-  const primed = useRef(false);
+  const lastFrame = useRef(-Infinity);
   useFrame((_, dt) => {
     const target = still ? settledP : clamp01(progress.current ?? 0);
-    if (still || !primed.current) {
+    // First frame, or the first frame after the loop was paused (off screen,
+    // covered): show where the story is now, never a stale or easing frame.
+    const now = performance.now();
+    const resumed = now - lastFrame.current > 250;
+    lastFrame.current = now;
+    if (still || resumed) {
       smoothedRef.current = target;
-      primed.current = true;
       return;
     }
     // Large jumps (rail navigation) settle quickly instead of crawling.
@@ -166,6 +171,15 @@ function CueRunner<C extends string>({ smoothed, cues, onCue }: { smoothed: RefO
     prev.current = p;
     if (last === null) return;
     cues.forEach((c, i) => {
+      if (c.until !== undefined) {
+        // Window cue: fires on every entry, scrolling down or up, even if a frame jumps past the edge.
+        const inside = p >= c.at && p <= c.until;
+        if (inside && armed.current[i]) {
+          armed.current[i] = false;
+          onCue(c.cue);
+        } else if (!inside) armed.current[i] = true;
+        return;
+      }
       if (armed.current[i] && last < c.at && p >= c.at && p - c.at < 0.02) {
         armed.current[i] = false;
         onCue(c.cue);
@@ -179,13 +193,24 @@ function CueRunner<C extends string>({ smoothed, cues, onCue }: { smoothed: RefO
 
 function AdaptiveQuality() {
   const setDpr = useThree((s) => s.setDpr);
+  const viewportDpr = useThree((s) => s.viewport.dpr);
   const [small] = useState(() => window.matchMedia("(max-width: 767px)").matches);
+  // Degrade only. Every DPR change reallocates the drawing buffer and the
+  // composer targets; raising it again after a smooth stretch made the
+  // resolution flip-flop (1.75 ↔ 1.5) while scrolling. Once lowered, it stays.
+  const ceiling = useRef(Infinity);
+  const lower = (dpr: number) => {
+    const next = Math.min(dpr, ceiling.current, viewportDpr);
+    if (next >= Math.min(ceiling.current, viewportDpr)) return;
+    ceiling.current = next;
+    setDpr(next);
+  };
   return (
     <PerformanceMonitor
       factor={small ? 0.3 : 1}
       flipflops={3}
-      onChange={({ factor }) => setDpr(Math.round((1 + 0.75 * factor) * 4) / 4)}
-      onFallback={() => setDpr(1)}
+      onChange={({ factor }) => lower(Math.round((1 + 0.75 * factor) * 4) / 4)}
+      onFallback={() => lower(1)}
     />
   );
 }

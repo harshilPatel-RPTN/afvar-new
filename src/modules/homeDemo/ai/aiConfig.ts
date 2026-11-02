@@ -23,7 +23,10 @@ import type { Cue } from "../audio";
 export const PANEL_CAMERA: CameraKey[] = [0, 1].map(at => ({ at, pos: [.2, .14, 3.8], look: [.35, -.55, 0] }));
 
 export function coreOpeningScale(film: Film, progress: number, openingScale: number) {
-  return 1 + (openingScale - 1) * (1 - easeInOut(ramp(progress, 0, film.at("cores", .3))));
+  // Desktop: the core settles by the end of the (short) hero, so the shrink is
+  // already happening while the headline leaves and the cores act takes over.
+  const end = film.kind === "desktop" ? film.at("hero", 1) : film.at("cores", .3);
+  return 1 + (openingScale - 1) * (1 - easeInOut(ramp(progress, 0, end)));
 }
 
 export type FilmKind = "desktop" | "compact";
@@ -98,15 +101,17 @@ export const GATE = { x: 2.4, radius: 1.05, tilt: 0.55 };
 
 const ACTS: Record<FilmKind, { id: ActId; vh: number; label: string }[]> = {
   desktop: [
-    { id: "hero", vh: 110, label: "AFVAR AI" },
-    { id: "cores", vh: 200, label: "Multicore" },
-    { id: "stream", vh: 320, label: "Every tick" },
-    { id: "think", vh: 300, label: "How it thinks" },
-    { id: "always", vh: 220, label: "Always on" },
+    // Acts are kept short so the film moves even on a slow scroll (2140 vh).
+    // The finale still settles (core home, robot wave, register) by .65 of its act.
+    { id: "hero", vh: 70, label: "AFVAR AI" },
+    { id: "cores", vh: 120, label: "Multicore" },
+    { id: "stream", vh: 180, label: "Every tick" },
+    { id: "think", vh: 180, label: "How it thinks" },
+    { id: "always", vh: 130, label: "Always on" },
     { id: "avatar", vh: 380, label: "Meet AFVAR" },
-    { id: "os", vh: 1250, label: "The OS" },
-    { id: "trust", vh: 260, label: "Trust" },
-    { id: "finale", vh: 160, label: "Join" },
+    { id: "os", vh: 820, label: "The OS" },
+    { id: "trust", vh: 160, label: "Trust" },
+    { id: "finale", vh: 100, label: "Join" },
   ],
   compact: [
     { id: "hero", vh: 110, label: "AFVAR AI" },
@@ -162,25 +167,32 @@ export interface Film {
 }
 
 export function createFilm(kind: FilmKind, acts = ACTS[kind], allBeats = BEATS, portraitColumnSqueeze = 1, portraitColumnLift = 0): Film {
-  const story = defineStory(acts);
+  const desktop = kind === "desktop";
+  // Desktop: copy hands off at each act boundary (see defineStory handoff).
+  const story = defineStory(acts, { handoff: desktop });
   const has = (id: ActId) => story.order.includes(id);
   const at = (id: ActId, f: number) => story.at(id, f);
   const S = at;
 
+  // Layout moves [start, end] in act fractions. Desktop spreads each move over
+  // most of its act so a slow scroll keeps moving instead of parking on a hold.
+  const T = desktop
+    ? { orbit: [0.05, 0.6], column: [0.03, 0.35], ring: [0.02, 0.4], tight: [0, 0.4], home: [0.05, 0.65] }
+    : { orbit: [0.1, 0.4], column: [0.05, 0.2], ring: [0.02, 0.25], tight: [0, 0.18], home: [0.1, 0.6] };
   const plan: Film["plan"] = [
-    { a: 0, b: S("cores", 0.1), from: "inside", to: "inside" },
-    { a: S("cores", 0.1), b: S("cores", 0.4), from: "inside", to: "orbit" },
-    { a: S("cores", 0.4), b: S("stream", 0.05), from: "orbit", to: "orbit" },
-    { a: S("stream", 0.05), b: S("stream", 0.2), from: "orbit", to: "column" },
-    { a: S("stream", 0.2), b: S("always", 0.02), from: "column", to: "column" },
-    { a: S("always", 0.02), b: S("always", 0.25), from: "column", to: "ring" },
-    { a: S("always", 0.25), b: S("avatar", 0.0), from: "ring", to: "ring" },
+    { a: 0, b: S("cores", T.orbit[0]), from: "inside", to: "inside" },
+    { a: S("cores", T.orbit[0]), b: S("cores", T.orbit[1]), from: "inside", to: "orbit" },
+    { a: S("cores", T.orbit[1]), b: S("stream", T.column[0]), from: "orbit", to: "orbit" },
+    { a: S("stream", T.column[0]), b: S("stream", T.column[1]), from: "orbit", to: "column" },
+    { a: S("stream", T.column[1]), b: S("always", T.ring[0]), from: "column", to: "column" },
+    { a: S("always", T.ring[0]), b: S("always", T.ring[1]), from: "column", to: "ring" },
+    { a: S("always", T.ring[1]), b: S("avatar", 0.0), from: "ring", to: "ring" },
     { a: S("avatar", 0.0), b: S("avatar", AVATAR.merge[1]), from: "ring", to: "inside" },
-    { a: S("avatar", AVATAR.merge[1]), b: S("trust", 0.0), from: "inside", to: "inside" },
-    { a: S("trust", 0.0), b: S("trust", 0.18), from: "inside", to: "tight" },
-    { a: S("trust", 0.18), b: S("finale", 0.1), from: "tight", to: "tight" },
-    { a: S("finale", 0.1), b: S("finale", 0.6), from: "tight", to: "inside" },
-    { a: S("finale", 0.6), b: 1.01, from: "inside", to: "inside" },
+    { a: S("avatar", AVATAR.merge[1]), b: S("trust", T.tight[0]), from: "inside", to: "inside" },
+    { a: S("trust", T.tight[0]), b: S("trust", T.tight[1]), from: "inside", to: "tight" },
+    { a: S("trust", T.tight[1]), b: S("finale", T.home[0]), from: "tight", to: "tight" },
+    { a: S("finale", T.home[0]), b: S("finale", T.home[1]), from: "tight", to: "inside" },
+    { a: S("finale", T.home[1]), b: 1.01, from: "inside", to: "inside" },
   ];
 
   const beats = allBeats.filter((b) => has(b.act));
@@ -198,6 +210,8 @@ export function createFilm(kind: FilmKind, acts = ACTS[kind], allBeats = BEATS, 
     { at: S("avatar", 0.3), cue: "latch" },
     { at: S("avatar", AVATAR.answer[0]), cue: "ping" },
     ...(has("os") ? [{ at: S("os", 0.02), cue: "whoosh" as Cue }] : []),
+    // Plays each time the "Place trade · refused" label is on screen (it shows from trust .3 to .85).
+    { at: S("trust", 0.3), until: S("trust", 0.85), cue: "alert" },
   ];
 
   const weight = (p: number, id: ActId, soft = 0.12) => {
