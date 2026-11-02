@@ -1,0 +1,68 @@
+- PROGRESS · M4 · started page glue: phone backdrop, top scroll-progress bar (top-only, under nav), section hairline counters + block entry, launch reminder restyle. Files: HomeDemoPage.tsx (structure), HomeAmbient/home-ambient.css, LaunchReminder.tsx, home-layout.css, new MobileChrome.tsx + mobile-page.css. Phone-only (<640).
+- PCT · M4 · 50% · MobileChrome.tsx + mobile-page.css written (backdrop, progress bar, marks, block entry); reminder restyle hooked
+- PCT · M3 · 40% · phone route map + closing composition + reveal CSS in; footer next
+- PROGRESS · M2 · mobile-mid.css + OverviewVideo/LaunchQueue phone markup (terminal-framed reel, swipe carousel + pager, draw-in edges, staggered list, CTA shine)
+- PCT · M2 · 70% · phone redesign built, lint/tsc clean, 390 shots ok; desktop check pending
+- PCT · M4 · 70% · wired into HomeDemoPage (marks 02–05, block entry); eslint+tsc clean
+- PCT · M5 · 0% · QA starting, taking desktop baseline
+- PROGRESS · M1 · MobileStory.tsx + mobile-story.css added; AiStory renders it on responsive home < 640px (mode=mobile, no canvas)
+- PCT · M1 · 70% · mobile story built, eslint/tsc clean, first screenshots ok
+- PCT · M3 · 70% · footer phone pills + scroll-driven hairline/stagger in; verifying
+- PCT · M1 · 100% · mobile story done; 320–568 landscape checked, vitest 189/189, tsc/eslint clean
+- PROGRESS · M1 · DONE
+- PROGRESS · M4 · done: phone backdrop #050607 dotted grid + slow scanline (HomeAmbient stars hidden <640), 2px green scroll-progress bar fixed under the 72px nav (+safe-area top; top-only, M1 owns the left rail), hairline "0N / 05" counters (CSS-drawn, no DOM text) before video/queue/closing/footer, video/queue/closing fade+slide in (IO, opacity/transform, reduced motion static), reminder restyled (hairline, mono label, green pulse dot, flat green CTA, safe-area insets). ≥640 unchanged (display:none/contents). Checked 390×844, 320×480, 440×956, 568×320: no horizontal overflow.
+- PROGRESS · M4 · note: LaunchReminder never appears on / (pre-existing — it waits for #chapter-01, which the AiStory home doesn't render), so its phone styling is not visually verified.
+- PCT · M4 · 100% · page glue done; eslint/tsc/vitest green; screenshots in scratchpad mobile-redesign/page/
+- PCT · M2 · 100% · phone overview reel + launch queue redesigned; 1440 unchanged; lint/tsc clean
+- PROGRESS · M2 · DONE
+- PCT · M1 · 10% · phase 2 started (stacking cards, mask reveal, odometer, marquee, beam, tint)
+- PROGRESS · M3 · phase 1 DONE (closing route map + phone footer); shots in scratchpad mobile-redesign/close/c-*. Note: closing headline word spans + .home-close-cta wrapper were added in HomeDemoPage before M4 joined — M4 please keep them
+- PCT · M3 · 10% · phase 2 started
+- PCT · M4 · 10% · phase 2 started: clip reveal, odometer, velocity progress, press ripple, aurora/grain
+- PCT · M2 · 10% · phase 2 started: clip-path reel, depth carousel, mask headings, beam CTAs
+- PCT · M2 · 40% · phase 2 CSS: clip-path expand, depth carousel, mask headings, beam/ripple
+- PCT · M4 · 30% · MobileChrome: velocity progress head, odometer markup, press ripple layer
+- PCT · M3 · 30% · phase 2: comet trail, node pop keys, CTA ripple hook in
+- PCT · M2 · 70% · phase 2 markup wired (ripple, rail); lint/tsc clean
+- PCT · M6 · 0% · hero rebuild starting (MobileHero.tsx + mobile-hero.css)
+- PCT · M7 · 0% · started card inner animations (cards.tsx phone paths + ai/mobile-cards.css)
+- PCT · M3 · 70% · phase 2: iris clip reveal, sequential route draw, line-mask words, CTA border beam+ripple, footer velocity skew + beast bob; verifying
+- PCT · M4 · 60% · mobile-page.css: clip reveal + depth exit (view() + IO fallback), odometer, aurora/grain, ripple; lint+tsc clean
+- PCT · M1 · 40% · stacking cards, mask reveal, odometer, marquee, beam, tint wired in MobileStory.tsx (CSS next)
+- PCT · M7 · 10% · plan set: usePhoneCard hook (data-mc / data-mc-play at ≥40% / data-mc-off) self-detects .ms-root + <640, no MobileStory prop needed; CSS in ai/mobile-cards.css
+- PCT · M3 · 100% · phase 2 done; 320x480…568x320 sweep: no horizontal overflow, nothing cut; vitest 189/189, tsc 0
+- PROGRESS · M3 · DONE
+- PCT · M1 · 60% · phase-2 CSS in; lint/tsc clean; screenshotting
+- PCT · M2 · 100% · phase 2 done: clip-path reel open, depth carousel + scroll rail, mask headings, beam+ripple CTAs; 189/189 tests
+- PROGRESS · M2 · DONE
+- PCT · M1 · 80% · 390x844 verified (stacking, marquee, mask reveal, odometer)
+- NOTE · M6 → M1 · hero moved to MobileHero.tsx; please don't edit hero markup
+- PCT · M6 · 30% · MobileHero.tsx + mobile-hero.css written; wiring into MobileStory
+- NOTE · M6 → M1 · MobileStory: hero <header> replaced by <MobileHero/> (+import, HeroCopy import dropped). The old hero ref / useMaskedHeadings(hero), Ticker and .ms-hero/.ms-spark/.ms-tape CSS are now unused — yours to remove if you like
+- PCT · M6 · 50% · wired; eslint/tsc clean; browser checks next
+- PCT · M7 · 50% · all 5 cards + OS beat dots wired (cards.tsx data-mc hooks, mobile-cards.css); eslint/tsc clean; browser check next
+- PCT · M6 · 60% · intro/chart/touch/scroll-exit verified at 390×844; fitting other sizes
+- PCT · M4 · 80% · verified 390/320/440/480x320/568x320 + 1440: no overflow, clip reveal + odometer + press ripple/scale working
+- PCT · M1 · 100% · phase 2 done; 390/360/320 checked, 1440 unchanged, lint/tsc/vitest 189/189 green; removed dead hero code after M6 move
+- PROGRESS · M1 · DONE (phase 2)
+- PCT · M4 · 100% · phase 2 page layer complete; eslint/tsc/vitest (189/189) green
+- DONE · M4 · phase 2: inset clip reveal (scroll-linked view(), IO fallback) + scale .96/dim depth exit (not on closing), odometer counters, progress bar with glowing head + velocity glow, press scale .97 + touch-point ripple (+6ms vibrate Android; not navbar/avatar), aurora (scroll-shifted) + grain backdrop. ≥640 unchanged.
+- PCT · M7 · 70% · 390/360 shots ok; live log now measures row pitch (two-line rows from responsive-story container query). NOTE → M1: at 360×640 the stacking finale chapter covers most of the trust PermissionsCard when centred; its toggle/lock sequence plays under the overlap
+- PCT · M6 · 80% · all 14 sizes fit (12 portrait in one screen except 320×480; landscape grows), no h-scroll; 1440 has no .mh-root
+- PCT · M7 · 100% · cards animated; 320×480/440×956/480×320/568×320 no overflow, 1440 unchanged (0 data-mc), /platform/market-data unaffected; eslint/tsc/vitest green
+- PROGRESS · M7 · DONE
+- PCT · M6 · 90% · reduced-motion static frame ok; tape speeds up with scroll velocity (45 → ~980 px/s); loop + CSS loops pause off screen; vitest 189/189
+- NOTE · M6 · hydration warning seen under prefers-reduced-motion comes from the footer (FooterBear motion.button tabindex), not the hero. MobileStory's useCalm (useReducedMotion) can also mismatch on SSR — MobileHero uses only useAfvarReducedMotion for that reason
+- PCT · M6 · 100% · fit: one screen at 320×568 → 440×956; 320×480 and landscape 480/568×320 grow taller (nothing clipped); no h-scroll anywhere; 1440 unchanged
+- PROGRESS · M6 · DONE
+- QA · M5 · round r1 (360x800, 375x667, 390x844, 412x915, 430x932): no horizontal overflow, no cut text, no console/page errors, no Next overlay at any size
+- QA · M5 → M3 · 320x480 · CONFIRMED: closing never enters — #afvar-globe keeps data-offscreen=true + clip-path circle(12%) after 5 s parked on it; headline/map/route all invisible (360x640 + 390x844 enter fine) · /private/tmp/claude-501/-Users-mac-Desktop-Ai-Trading-AFVAR-Frontend/c47b1caf-d3c9-450e-bf74-4349c603663a/scratchpad/mobile-redesign/qa/r1/probe/closing_320x480_5000.png
+- QA · M5 → M3 · 390x844 · closing headline area blank 900 ms after scrolling to it (iris still closed between "04 / 05" label and the map) · /private/tmp/claude-501/-Users-mac-Desktop-Ai-Trading-AFVAR-Frontend/c47b1caf-d3c9-450e-bf74-4349c603663a/scratchpad/mobile-redesign/qa/r1/390x844/14.png
+- QA · M5 → M3 · all phones · closing still mounts a 0x0 <canvas> inside .home-globe-disc (lite mode) — should not mount on phones
+- QA · M5 → M4 · all phones · navbar logo (.afvar-header-symbol) is a WebGL <canvas> 30x30 — only canvas left on phones; owner = page chrome, flag if out of scope
+- QA · M5 → M1|M4 · 390x844 · ~400 px empty black band between AI finale CTA card and "02 / 05" overview (seen once in sweep, layout shifted ~700 px later; re-checking next round) · /private/tmp/claude-501/-Users-mac-Desktop-Ai-Trading-AFVAR-Frontend/c47b1caf-d3c9-450e-bf74-4349c603663a/scratchpad/mobile-redesign/qa/r1/390x844/11.png
+- QA · M5 → M4 · 390x844 · Register tap: navigates fine (href app.afvar.com); ripple nodes present, but no .97 scale captured at 120 ms of CDP touchStart (transform = identity) — check press scale fires on touch, not only :active · /private/tmp/claude-501/-Users-mac-Desktop-Ai-Trading-AFVAR-Frontend/c47b1caf-d3c9-450e-bf74-4349c603663a/scratchpad/mobile-redesign/qa/r1/probe/press.png
+- QA · M5 · /platform + /about footer at 390x844: phone layout OK, no overflow · /private/tmp/claude-501/-Users-mac-Desktop-Ai-Trading-AFVAR-Frontend/c47b1caf-d3c9-450e-bf74-4349c603663a/scratchpad/mobile-redesign/qa/r1/probe/footer_about.png
+- QA · M5 · red tint: only red I see at 390 is the footer's right-hand bear gradient (M3, by design); M2 mid sections + M4 backdrop show no red edges in r1 shots
+- QA · M5 · copy diff 390 (baseline-text vs r1): no copy removed/added except live states (log rows, SPEAKING/LISTENING). NB baseline was grabbed after edits had begun
+- PCT · M5 · 20% · 5 common phones swept + 320x480/360x640 closing probes

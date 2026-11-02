@@ -6,7 +6,7 @@
 //
 //   <CandleChart candles={q.candles} decimals={2} levels={[{ v: 4050, label: "AI high", tone: "gold" }]} />
 import type { MotionValue } from "framer-motion";
-import { motion, useMotionValue } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useMemo } from "react";
 
 export interface ChartCandle {
@@ -43,6 +43,7 @@ export function CandleChart({
   event,
   live = false,
   draw,
+  reveal,
   last,
 }: {
   candles: readonly ChartCandle[];
@@ -65,6 +66,8 @@ export function CandleChart({
   live?: boolean;
   /** 0→1: how much of the AI drawing (levels, trend, averages) is shown — tie it to scroll. */
   draw?: MotionValue<number>;
+  /** 0→1: the whole chart wipes in left → right (the candles are the real ones; only the view is clipped). */
+  reveal?: MotionValue<number>;
   /** Override for the last-price tag (e.g. the spot price). */
   last?: number;
 }) {
@@ -86,7 +89,11 @@ export function CandleChart({
   }, [candles, levels, width, height, axis, priceAxis]);
 
   const one = useMotionValue(1);
-  const reveal = draw ?? one;
+  const shown = reveal ?? one;
+  const clipPath = useTransform(shown, (v) => (v >= 1 ? "none" : `inset(0 ${((1 - v) * 100).toFixed(2)}% 0 0)`));
+  // The AI drawing (levels, trend, averages) follows the candles: it fades in over the last
+  // fifth of the wipe, on top of its own `draw` ramp.
+  const drawn = useTransform([draw ?? one, shown], ([d, r]: number[]) => d * Math.min(1, Math.max(0, (r - 0.8) / 0.2)));
   if (candles.length < 2) {
     return (
       <div className="grid h-full min-h-[120px] place-items-center font-mono text-[11px] uppercase tracking-[0.14em] text-[#92A399]">
@@ -114,7 +121,7 @@ export function CandleChart({
   };
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="block h-full w-full" preserveAspectRatio="none" role="img" aria-label={`Candlestick chart, ${n} candles, last ${fmt(tagV)}`}>
+    <motion.svg viewBox={`0 0 ${width} ${height}`} className="block h-full w-full" preserveAspectRatio="none" role="img" aria-label={`Candlestick chart, ${n} candles, last ${fmt(tagV)}`} style={{ clipPath }}>
       {[0, 1, 2, 3, 4].map((k) => {
         const v = lo + ((hi - lo) * (k + 0.5)) / 5;
         return (
@@ -142,7 +149,7 @@ export function CandleChart({
           </g>
         );
       })}
-      <motion.g style={{ opacity: reveal }}>
+      <motion.g style={{ opacity: drawn }}>
         {avg.map((a) => (
           <polyline key={a.len} points={a.pts} fill="none" stroke="#A8DEC2" strokeWidth={1.5} strokeDasharray={a.dash ? "4 3" : undefined} />
         ))}
@@ -152,12 +159,23 @@ export function CandleChart({
             <g key={`${l.v}-${l.label}`}>
               <line x1={4} x2={width - R} y1={Y(l.v)} y2={Y(l.v)} stroke={c} strokeWidth={l.solid ? 1.6 : 1.2} strokeDasharray={l.solid ? undefined : "5 4"} />
               {l.label && priceAxis ? (
-                <>
-                  <rect x={width - R + 2} y={Y(l.v) - 8} width={R - 4} height={15} rx={2} fill={c} opacity={0.16} />
-                  <text x={width - R + 6} y={Y(l.v) + 3} fill={c} fontFamily="var(--font-mono, monospace)" fontSize={9}>
-                    {l.label}
-                  </text>
-                </>
+                // ~5.4 px per mono character at 9 px: a label wider than the price axis sits inside the
+                // plot instead, right-aligned above its line, so it is never cut by the chart's edge.
+                l.label.length * 5.4 <= R - 10 ? (
+                  <>
+                    <rect x={width - R + 2} y={Y(l.v) - 8} width={R - 4} height={15} rx={2} fill={c} opacity={0.16} />
+                    <text x={width - R + 6} y={Y(l.v) + 3} fill={c} fontFamily="var(--font-mono, monospace)" fontSize={9}>
+                      {l.label}
+                    </text>
+                  </>
+                ) : (
+                  <>
+                    <rect x={width - R - 8 - l.label.length * 5.4} y={Y(l.v) - 17} width={l.label.length * 5.4 + 6} height={13} rx={2} fill="#0B0F10" opacity={0.85} />
+                    <text x={width - R - 5} y={Y(l.v) - 7} textAnchor="end" fill={c} fontFamily="var(--font-mono, monospace)" fontSize={9}>
+                      {l.label}
+                    </text>
+                  </>
+                )
               ) : null}
             </g>
           );
@@ -184,10 +202,25 @@ export function CandleChart({
         <g>
           <line x1={X(cross)} x2={X(cross)} y1={T} y2={height - B} stroke="rgba(255,255,255,0.35)" strokeDasharray="3 3" />
           <line x1={4} x2={width - R} y1={Y(candles[cross].c)} y2={Y(candles[cross].c)} stroke="rgba(255,255,255,0.35)" strokeDasharray="3 3" />
-          <rect x={10} y={T + 4} width={290} height={18} rx={3} fill="#06110C" stroke="rgba(255,255,255,0.14)" />
-          <text x={16} y={T + 16} fill="#C9CFD1" fontFamily="var(--font-mono, monospace)" fontSize={9.5}>
-            O {fmt(candles[cross].o)} H {fmt(candles[cross].h)} L {fmt(candles[cross].l)} C {fmt(candles[cross].c)}
-          </text>
+          {width - R >= 300 ? (
+            <>
+              <rect x={10} y={T + 4} width={290} height={18} rx={3} fill="#06110C" stroke="rgba(255,255,255,0.14)" />
+              <text x={16} y={T + 16} fill="#C9CFD1" fontFamily="var(--font-mono, monospace)" fontSize={9.5}>
+                O {fmt(candles[cross].o)} H {fmt(candles[cross].h)} L {fmt(candles[cross].l)} C {fmt(candles[cross].c)}
+              </text>
+            </>
+          ) : (
+            // Narrow charts (phone cards): the same four values on two lines, so none is cut.
+            <>
+              <rect x={10} y={T + 4} width={150} height={30} rx={3} fill="#06110C" stroke="rgba(255,255,255,0.14)" />
+              <text x={16} y={T + 16} fill="#C9CFD1" fontFamily="var(--font-mono, monospace)" fontSize={9.5}>
+                O {fmt(candles[cross].o)} H {fmt(candles[cross].h)}
+              </text>
+              <text x={16} y={T + 28} fill="#C9CFD1" fontFamily="var(--font-mono, monospace)" fontSize={9.5}>
+                L {fmt(candles[cross].l)} C {fmt(candles[cross].c)}
+              </text>
+            </>
+          )}
         </g>
       ) : null}
       {event && candles[event.i] ? (
@@ -217,7 +250,7 @@ export function CandleChart({
             );
           })
         : null}
-    </svg>
+    </motion.svg>
   );
 }
 

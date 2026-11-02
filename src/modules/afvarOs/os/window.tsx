@@ -3,7 +3,7 @@
 // AFVAR OS surfaces: windows (chrome, tabs, resize grip), the AI spotlight,
 // notification toasts, the pointer, and the snap ghost. Position/size come in
 // as motion styles so a scroll timeline (or real interaction later) drives them.
-import { motion, type MotionStyle } from "framer-motion";
+import { motion, type MotionStyle, type MotionValue } from "framer-motion";
 import type { ReactNode, RefObject } from "react";
 import { AiOrb, AppGlyph, type AppGlyphName } from "./chrome";
 
@@ -20,6 +20,7 @@ export function OsWindow({
   style,
   z = 10,
   toolbar,
+  flash,
   children,
 }: {
   title: string;
@@ -34,6 +35,8 @@ export function OsWindow({
   style?: MotionStyle;
   z?: number;
   toolbar?: ReactNode;
+  /** 0→1: a brief mint edge as the window opens. */
+  flash?: MotionValue<number>;
   children: ReactNode;
 }) {
   return (
@@ -45,7 +48,7 @@ export function OsWindow({
       }`}
       style={{ zIndex: z, ...style }}
     >
-      <div className="flex h-[30px] shrink-0 items-center gap-2 border-b max-sm:h-auto max-sm:min-h-7.5 max-sm:py-1 border-[rgba(255,255,255,0.08)] bg-[#14181A] px-3">
+      <div className="flex h-[30px] shrink-0 items-center gap-2 border-b [.afv-stack_&]:h-auto [.afv-stack_&]:min-h-[30px] [.afv-stack_&]:py-1.5 border-[rgba(255,255,255,0.08)] bg-[#14181A] px-3">
         <span className="flex gap-1.5" aria-hidden="true">
           <span className={`h-2.5 w-2.5 rounded-full ${focused ? "bg-[#A8DEC2]" : "bg-[#3A3F42]"}`} />
           <span className="h-2.5 w-2.5 rounded-full bg-[#3A3F42]" />
@@ -54,7 +57,9 @@ export function OsWindow({
         <span className="ml-1 text-[#8A9295]">
           <AppGlyph name={glyph} size={13} />
         </span>
-        <span className="min-w-0 truncate text-[12px] font-medium text-[#C9CFD1] max-sm:whitespace-normal max-sm:leading-tight">{title}</span>
+        <span title={title} className="min-w-0 truncate text-[12px] font-medium text-[#C9CFD1] [.afv-stack_&]:whitespace-normal">
+          {title}
+        </span>
         {aiOwned ? (
           <span className="ml-1 flex items-center gap-1 rounded bg-[rgba(168,222,194,0.16)] px-1.5 py-0.5 font-mono text-[9.5px] tracking-[0.1em] text-[#A8DEC2]">
             <AiOrb size={7} /> AI
@@ -79,6 +84,7 @@ export function OsWindow({
       <div className="relative min-h-0 flex-1">{children}</div>
       <span aria-hidden="true" className="absolute bottom-1 right-1 h-2.5 w-2.5 border-b-2 border-r-2 border-[rgba(255,255,255,0.25)]" />
       {dimmed ? <div aria-hidden="true" className="absolute inset-0 bg-[rgba(23,23,23,0.62)] backdrop-grayscale" /> : null}
+      {flash ? <motion.span aria-hidden="true" className="pointer-events-none absolute inset-0 z-[3] rounded-xl border border-[rgba(168,222,194,0.9)]" style={{ opacity: flash }} /> : null}
     </motion.div>
   );
 }

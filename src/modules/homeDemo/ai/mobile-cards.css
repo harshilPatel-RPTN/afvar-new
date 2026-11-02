@@ -1,0 +1,208 @@
+/* Phone-only story card animations (M7).
+   Everything visible lives under `[data-mc]`, which cards.tsx sets only on cards
+   inside .ms-root below 640 px (usePhoneCard), and inside a < 640 px media query.
+   `[data-mc-play]` arrives once ≥ 40 % of the card is on screen; `[data-mc-off]`
+   pauses loops while it is off screen. Base rules = final state, so reduced
+   motion (animation: none) shows the settled card. Desktop: decorations hidden. */
+
+.mc-deco { display: none; }
+
+@media (max-width: 639.98px) {
+  [data-mc] {
+    --mc-green: #00E676;
+    --mc-soft: #A8DEC2;
+    --mc-red: #FF5252;
+    --mc-gold: #E8C26A;
+    --mc-ease: cubic-bezier(.2, .8, .2, 1);
+    --mc-spring: cubic-bezier(.34, 1.56, .64, 1);
+  }
+  [data-mc-off] *, [data-mc-off] *::before, [data-mc-off] *::after { animation-play-state: paused !important; }
+
+  /* ================================================================ think */
+  [data-mc].mc-think .mc-think-head { gap: 8px; }
+  [data-mc].mc-think .mc-think-head > span { margin-left: auto; }
+  [data-mc] .mc-ring { display: block; width: 18px; height: 18px; flex: none; transform: rotate(-90deg); }
+  [data-mc] .mc-ring circle { fill: none; stroke: rgba(255, 255, 255, .1); stroke-width: 2.4; }
+  [data-mc] .mc-ring .mc-ring-fill {
+    stroke: var(--mc-gold); stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--mc-p, 0));
+    transition: stroke-dashoffset .6s var(--mc-ease), stroke .4s;
+  }
+  [data-mc].mc-think:has(.mc-out[data-out="true"]) .mc-ring-fill { stroke: var(--mc-green); }
+
+  [data-mc] .mc-step { position: relative; }
+  /* connector drawn from each finished step down to the next */
+  [data-mc] .mc-step:not(:last-child)::before {
+    content: ""; position: absolute; left: -7px; top: 50%; width: 1px; height: calc(100% + 4px);
+    background: linear-gradient(to bottom, var(--mc-green), rgba(0, 230, 118, .25));
+    transform: scaleY(0); transform-origin: top; transition: transform .45s var(--mc-ease);
+  }
+  [data-mc] .mc-step[data-state="done"]:not(:last-child)::before { transform: scaleY(1); }
+  [data-mc] .mc-step::after {
+    content: ""; position: absolute; left: -9px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 999px;
+    background: #0B0E0D; border: 1px solid rgba(255, 255, 255, .18); transition: border-color .3s, background-color .3s;
+  }
+  [data-mc] .mc-step[data-state="now"]::after { border-color: var(--mc-gold); background: var(--mc-gold); }
+  [data-mc] .mc-step[data-state="done"]::after { border-color: var(--mc-green); background: var(--mc-green); }
+
+  /* the core lights up gold while it thinks; a gold bar scans its row */
+  [data-mc] .mc-step .mc-core { transition: color .3s; }
+  [data-mc] .mc-step[data-state="now"] .mc-core { color: var(--mc-gold); }
+  [data-mc] .mc-step[data-state="now"] { border-color: rgba(232, 194, 106, .55) !important; }
+  [data-mc] .mc-scan { display: block; position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .25s; }
+  [data-mc] .mc-scan::before {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 38%;
+    background: linear-gradient(90deg, transparent, rgba(232, 194, 106, .22), transparent);
+    transform: translateX(-100%);
+  }
+  [data-mc] .mc-step[data-state="now"] .mc-scan { opacity: 1; }
+  [data-mc] .mc-step[data-state="now"] .mc-scan::before { animation: mc-scan 1.1s linear infinite; }
+  [data-mc] .mc-step[data-state="done"] .mc-tick { display: inline-block; animation: mc-pop .5s var(--mc-spring) both; }
+  [data-mc] .mc-step[data-state="now"] .mc-tick { animation: mc-blink 1s steps(2, end) infinite; }
+
+  /* the answer slides in with a soft green flash */
+  [data-mc] .mc-out { position: relative; overflow: hidden; transform: translateY(10px); transition: transform .6s var(--mc-ease), opacity .5s, border-color .5s, background-color .5s !important; }
+  [data-mc] .mc-out[data-out="true"] { transform: none; }
+  [data-mc] .mc-out::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+    background: radial-gradient(120% 90% at 20% 0%, rgba(0, 230, 118, .28), transparent 70%);
+  }
+  [data-mc] .mc-out[data-out="true"]::after { animation: mc-flash 1.1s ease-out .15s both; }
+  [data-mc] .mc-out[data-out="true"] .mc-verdict { animation: mc-pop .55s var(--mc-spring) .2s both; }
+
+  /* ============================================================= sessions */
+  [data-mc] .mc-sess { flex-wrap: wrap; row-gap: 3px; }
+  [data-mc] .mc-track {
+    display: block; position: relative; flex: 0 0 100%; height: 10px; overflow: hidden; border-radius: 2px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, .06) 1px, transparent 1px) 0 0 / 25% 100%, rgba(255, 255, 255, .03);
+  }
+  [data-mc] .mc-seg {
+    position: absolute; top: 3px; height: 4px; border-radius: 2px; background: rgba(168, 222, 194, .35);
+    transform-origin: left; transform: scaleX(1);
+  }
+  [data-mc] .mc-sess[data-open="true"] .mc-seg { background: var(--mc-green); }
+  [data-mc]:not([data-mc-play]) .mc-seg { transform: scaleX(0); }
+  [data-mc][data-mc-play] .mc-seg { animation: mc-grow .8s var(--mc-ease) calc(.15s + var(--i, 0) * .12s) both; }
+  [data-mc] .mc-needle-run { position: absolute; inset: 0; transform: translateX(calc(var(--mc-now, 0) * 100%)); }
+  [data-mc]:not([data-mc-play]) .mc-needle-run { transform: translateX(0); opacity: 0; }
+  [data-mc][data-mc-play] .mc-needle-run { animation: mc-sweep 1.4s var(--mc-ease) calc(.5s + var(--i, 0) * .12s) both; }
+  [data-mc] .mc-needle { position: absolute; left: -1px; top: 0; bottom: 0; width: 2px; border-radius: 1px; background: var(--mc-gold); box-shadow: 0 0 6px rgba(232, 194, 106, .7); }
+  [data-mc] .mc-dot { position: relative; }
+  [data-mc] .mc-sess[data-open="true"] .mc-dot::after {
+    content: ""; position: absolute; inset: 0; border-radius: 999px; background: var(--mc-green);
+    animation: mc-ping 1.8s ease-out 1.6s infinite both;
+  }
+  [data-mc]:not([data-mc-play]) .mc-sess[data-open="true"] .mc-dot::after { animation: none; opacity: 0; }
+
+  /* ============================================================= dialogue */
+  [data-mc] .mc-user { transform-origin: 100% 100%; }
+  [data-mc]:not([data-mc-play]) .mc-user,
+  [data-mc][data-step="-1"] .mc-user { opacity: 0 !important; transform: translateX(28px) scale(.9); }
+  [data-mc][data-mc-play]:not([data-step="-1"]) .mc-user { animation: mc-bubble-r .55s var(--mc-spring) both; }
+
+  [data-mc] .mc-ai-head { transition: opacity .4s, transform .4s var(--mc-ease); }
+  [data-mc]:not([data-mc-play]) .mc-ai-head,
+  [data-mc][data-step="-1"] .mc-ai-head,
+  [data-mc][data-step="0"] .mc-ai-head { opacity: 0; transform: translateY(6px); }
+
+  [data-mc] .mc-ai-line {
+    position: relative; padding: 8px 10px 8px 12px; border-radius: 4px; background: rgba(232, 194, 106, .05);
+    transform-origin: 0 0;
+  }
+  [data-mc] .mc-ai-line::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; border-radius: 2px;
+    background: linear-gradient(to bottom, var(--mc-gold), rgba(232, 194, 106, .2));
+    transform: scaleY(0); transform-origin: top; transition: transform .7s var(--mc-ease);
+  }
+  [data-mc]:not([data-step="-1"]):not([data-step="0"]) .mc-ai-line::before { transform: scaleY(1); }
+  [data-mc]:not([data-mc-play]) .mc-ai-line,
+  [data-mc][data-step="-1"] .mc-ai-line,
+  [data-mc][data-step="0"] .mc-ai-line { opacity: 0; transform: scale(.9); }
+  [data-mc][data-mc-play][data-step="1"] .mc-ai-line { animation: mc-bubble-l .5s var(--mc-spring) both; }
+  [data-mc] .mc-typing { display: none; gap: 4px; align-items: center; height: 1.2em; vertical-align: middle; }
+  [data-mc][data-step="1"] .mc-typing { display: inline-flex; }
+  [data-mc] .mc-typing i { width: 5px; height: 5px; border-radius: 999px; background: var(--mc-gold); animation: mc-dots 1s ease-in-out infinite both; }
+  [data-mc] .mc-typing i:nth-child(2) { animation-delay: .15s; }
+  [data-mc] .mc-typing i:nth-child(3) { animation-delay: .3s; }
+
+  [data-mc] .mc-stat { transition: none; }
+  [data-mc][data-step="3"] .mc-stat { animation: mc-rise .5s var(--mc-spring) calc(var(--i, 0) * .1s) both; }
+
+  /* ========================================================== permissions */
+  [data-mc] .mc-perms-head { display: flex; align-items: center; justify-content: space-between; }
+  [data-mc] .mc-lock { display: block; width: 14px; height: 16px; flex: none; overflow: visible; }
+  [data-mc] .mc-lock rect { fill: rgba(0, 230, 118, .14); stroke: var(--mc-green); stroke-width: 1.4; }
+  [data-mc] .mc-lock path { fill: none; stroke: var(--mc-green); stroke-width: 1.6; stroke-linecap: round; }
+  [data-mc] .mc-lock .mc-shackle { transform: none; }
+  [data-mc]:not([data-mc-play]) .mc-lock .mc-shackle { transform: translateY(-3px); }
+  [data-mc][data-mc-play] .mc-lock .mc-shackle { animation: mc-shut .35s cubic-bezier(.5, 0, .2, 1.4) 2.55s both; }
+  [data-mc][data-mc-play] .mc-lock { animation: mc-click .3s var(--mc-spring) 2.85s both; }
+
+  [data-mc] .mc-perm { align-items: center; gap: 8px; }
+  [data-mc] .mc-perm > span:first-child { min-width: 0; flex: 1 1 auto; }
+  [data-mc] .mc-perm > span:nth-child(2) { text-align: right; }
+  [data-mc] .mc-perm[data-kind="deny"] > span:nth-child(2) { color: var(--mc-red); transition: color .3s; }
+  [data-mc]:not([data-mc-play]) .mc-perm[data-kind="deny"] > span:nth-child(2) { color: #C9CFD1; }
+  [data-mc][data-mc-play] .mc-perm[data-kind="deny"] { animation: mc-shake .45s ease-in-out calc(.3s + var(--i) * .5s + .45s) both; }
+  [data-mc][data-mc-play] .mc-perm[data-kind="deny"] > span:nth-child(2) { transition-delay: calc(.3s + var(--i) * .5s + .45s); }
+
+  [data-mc] .mc-toggle {
+    display: block; position: relative; flex: none; width: 24px; height: 14px; border-radius: 999px;
+    background: rgba(0, 230, 118, .22); border: 1px solid var(--mc-green);
+  }
+  [data-mc] .mc-perm[data-kind="deny"] .mc-toggle { background: rgba(255, 82, 82, .14); border-color: var(--mc-red); }
+  [data-mc] .mc-knob {
+    position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; border-radius: 999px; background: var(--mc-green);
+    transform: translateX(10px);
+  }
+  [data-mc] .mc-perm[data-kind="deny"] .mc-knob { background: var(--mc-red); transform: none; }
+  [data-mc]:not([data-mc-play]) .mc-toggle { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .2); }
+  [data-mc]:not([data-mc-play]) .mc-knob { background: #5A6266; transform: none; }
+  [data-mc][data-mc-play] .mc-perm[data-kind="allow"] .mc-knob { animation: mc-knob-on .5s var(--mc-spring) calc(.3s + var(--i) * .5s) both; }
+  [data-mc][data-mc-play] .mc-perm[data-kind="deny"] .mc-knob { animation: mc-knob-deny .6s var(--mc-ease) calc(.3s + var(--i) * .5s) both; }
+  [data-mc][data-mc-play] .mc-perm .mc-toggle { animation: mc-fade-in .3s ease calc(.3s + var(--i) * .5s) both; }
+  [data-mc] .mc-mark { position: absolute; inset: 0; width: 8px; height: 8px; overflow: visible; }
+  [data-mc] .mc-mark path { fill: none; stroke: #050607; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+  [data-mc]:not([data-mc-play]) .mc-mark path { stroke-dashoffset: 1; }
+  [data-mc][data-mc-play] .mc-mark path { animation: mc-draw .35s var(--mc-ease) calc(.3s + var(--i) * .5s + .35s) both; }
+
+  /* ================================================================== log */
+  [data-mc] .mc-log-list { display: flex; flex-direction: column-reverse; justify-content: flex-end; overflow: hidden; }
+  [data-mc] .mc-log-list > li { margin: 0 !important; border-radius: 2px; }
+  [data-mc] .mc-log-list > li + li { margin-bottom: 5px !important; }
+  [data-mc] .mc-log-list > li:first-child { box-shadow: inset 2px 0 0 var(--mc-green); padding-left: 4px; }
+  [data-mc] .mc-log-list > li:first-child .mc-stamp { color: var(--mc-soft); }
+}
+
+/* the OS beats list in the phone story: each beat's dot pops as it arrives */
+@media (max-width: 639.98px) {
+  .ms-root .ms-stagger[data-on="true"] .ms-os-item::before {
+    animation: mc-node .55s cubic-bezier(.34, 1.56, .64, 1) calc(.35s + var(--i, 0) * .09s) both;
+  }
+}
+
+@keyframes mc-scan { to { transform: translateX(270%); } }
+@keyframes mc-pop { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes mc-blink { 50% { opacity: .25; } }
+@keyframes mc-flash { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes mc-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes mc-sweep { from { transform: translateX(0); opacity: 0; } 15% { opacity: 1; } to { transform: translateX(calc(var(--mc-now, 0) * 100%)); opacity: 1; } }
+@keyframes mc-ping { 0% { transform: scale(1); opacity: .7; } 80%, 100% { transform: scale(3.2); opacity: 0; } }
+@keyframes mc-bubble-r { from { opacity: 0; transform: translateX(28px) scale(.9); } to { opacity: 1; transform: none; } }
+@keyframes mc-bubble-l { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+@keyframes mc-dots { 0%, 80%, 100% { transform: translateY(0); opacity: .35; } 40% { transform: translateY(-3px); opacity: 1; } }
+@keyframes mc-rise { from { opacity: 0; transform: translateY(10px) scale(.92); } to { opacity: 1; transform: none; } }
+@keyframes mc-shut { from { transform: translateY(-3px); } to { transform: none; } }
+@keyframes mc-click { 0% { transform: scale(1); } 50% { transform: scale(1.25); } 100% { transform: scale(1); } }
+@keyframes mc-shake { 0%, 100% { transform: none; } 20% { transform: translateX(-4px); } 40% { transform: translateX(4px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
+@keyframes mc-knob-on { from { transform: none; } to { transform: translateX(10px); } }
+@keyframes mc-knob-deny { 0% { transform: none; } 45% { transform: translateX(10px); } 100% { transform: none; } }
+@keyframes mc-fade-in { from { opacity: .4; } to { opacity: 1; } }
+@keyframes mc-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes mc-node { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-mc] *, [data-mc] *::before, [data-mc] *::after, .ms-root .ms-os-item::before { animation: none !important; transition: none !important; }
+}
+:root[data-reduce-motion="true"] [data-mc] *,
+:root[data-reduce-motion="true"] [data-mc] *::before,
+:root[data-reduce-motion="true"] [data-mc] *::after { animation: none !important; transition: none !important; }

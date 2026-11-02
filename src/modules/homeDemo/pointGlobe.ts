@@ -263,6 +263,8 @@ export async function mountGlobe(canvas: HTMLCanvasElement, { initialLeg = 0, on
   let index = tracks[initialLeg] ? initialLeg : 0;
   let legTime = 0, follow = true, disposed = false;
   let angle = tracks[index].heading, inView = false, playing = false, held = false;
+  // Tablets and touch screens paint a lighter backing store than desktops.
+  const maxRatio = matchMedia("(max-width:1099px), (pointer:coarse)").matches ? 1.25 : 1.5;
   function announce() {
     canvas.dataset.routeIndex = String(index);
     canvas.dataset.routeCurrency = CURRENCY_ROUTES[index].from.code;
@@ -271,7 +273,7 @@ export async function mountGlobe(canvas: HTMLCanvasElement, { initialLeg = 0, on
   let frame = 0, timer = 0, last = 0;
   function draw() {
     angle = (angle % TAU + TAU) % TAU;
-    const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+    const ratio = Math.min(window.devicePixelRatio || 1, maxRatio);
     const size = Math.max(1, Math.round(canvas.clientWidth * ratio));
     if (size !== canvas.width || size !== canvas.height) canvas.width = canvas.height = size;
     ctx.setTransform(size/640, 0, 0, size/640, 0, 0);

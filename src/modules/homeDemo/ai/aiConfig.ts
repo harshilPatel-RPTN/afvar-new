@@ -239,3 +239,52 @@ const PHONE_BEATS: Beat[] = BEATS.map((beat) => {
 });
 
 export const HOME_MOBILE_FILM = createFilm("compact", ACTS.desktop.map(act => ({ ...act, vh: mobileLengths[act.id] })), PHONE_BEATS, 0.8, 0.42);
+
+// Compact landscape (tablets on their side, landscape phones ≥ 640 px) puts the
+// caption in the left 48 % of the stage. Pan the desktop camera path sideways
+// (camera and target together, by a share of its distance) so each act's art
+// sits in the right-hand space instead of under the caption; the contain-fit
+// then keeps it whole. Cached so the poster and the live canvas share one path.
+const SIDE_PAN = 0.12;
+const panned = new WeakMap<readonly CameraKey[], CameraKey[]>();
+export function compactLandscapeCamera(keys: readonly CameraKey[]): CameraKey[] {
+  let out = panned.get(keys);
+  if (!out) {
+    out = keys.map(({ at, pos, look }) => {
+      const dx = Math.hypot(pos[0] - look[0], pos[1] - look[1], pos[2] - look[2]) * SIDE_PAN;
+      return { at, pos: [pos[0] - dx, pos[1], pos[2]], look: [look[0] - dx, look[1], look[2]] };
+    });
+    panned.set(keys, out);
+  }
+  return out;
+}
+
+// The root home's portrait stage shows its full-height canvas through a shorter
+// art row. Its framing puts the subject about a third down the canvas (32 svh,
+// i.e. 0.36 above the centre in NDC). Tilt the whole path up by that much
+// instead, so the subject sits at the canvas centre and the canvas itself can
+// be centred on the row: then the contain-fit's zoom origin is the middle of
+// the visible art, and pulling back keeps the art centred instead of sliding
+// it out of the row. Same picture, same motion. (fov 50 for portrait.)
+export const PORTRAIT_FOCUS_NDC = 0.36;
+const PORTRAIT_HALF_FOV = Math.tan((50 / 2) * Math.PI / 180);
+const centred = new WeakMap<readonly CameraKey[], CameraKey[]>();
+function centredPortraitCamera(keys: readonly CameraKey[]): CameraKey[] {
+  let out = centred.get(keys);
+  if (!out) {
+    out = keys.map(({ at, pos, look }) => {
+      const dy = Math.hypot(pos[0] - look[0], pos[1] - look[1], pos[2] - look[2]) * PORTRAIT_HALF_FOV * PORTRAIT_FOCUS_NDC;
+      return { at, pos: [pos[0], pos[1] + dy, pos[2]], look: [look[0], look[1] + dy, look[2]] };
+    });
+    centred.set(keys, out);
+  }
+  return out;
+}
+
+/** The camera path a film plays at an orientation (shared by poster and canvas). */
+export const filmCamera = (film: Film, portrait: boolean): CameraKey[] =>
+  portrait
+    ? film === HOME_MOBILE_FILM ? centredPortraitCamera(film.cameraPortrait) : film.cameraPortrait
+    : film.kind === "compact" ? compactLandscapeCamera(film.camera) : film.camera;
+/** The root home's portrait canvas is centred on its art row (see above). */
+export const centredPortraitStage = (film: Film, portrait: boolean) => portrait && film === HOME_MOBILE_FILM;

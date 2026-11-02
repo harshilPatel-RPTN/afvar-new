@@ -1,0 +1,32 @@
+/* SiteFooter, phones only (< 640 px): a green hairline draws across the top
+   edge and the link groups fade up in turn as the footer scrolls into view.
+   Scroll-driven (no client JS); browsers without view timelines and reduced
+   motion just show the final state. ≥ 640 px is untouched. */
+.mk-ft-hairline { display: none; }
+@media (max-width: 639px) {
+  .mk-ft-hairline {
+    display: block; position: absolute; top: -1px; left: 0; right: 0; height: 1px; z-index: 1;
+    background: linear-gradient(90deg, #00E676, #A8DEC2 60%, transparent); transform-origin: left; pointer-events: none;
+  }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .mk-ft-hairline { animation: mk-ft-draw linear both; animation-timeline: view(); animation-range: entry 0% entry 60%; }
+      .mk-ft-group {
+        animation: mk-ft-rise linear both; animation-timeline: view();
+        animation-range: entry calc(var(--i, 0) * 4%) entry calc(55% + var(--i, 0) * 4%);
+      }
+    }
+  }
+}
+html[data-reduce-motion="true"] .mk-ft-hairline, html[data-reduce-motion="true"] .mk-ft-group { animation: none !important; }
+@keyframes mk-ft-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes mk-ft-rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+
+/* Phones: the bull and bear idle with a small bob. Uses the independent
+   `translate` property so their own click motion (transform) is untouched. */
+@media (max-width: 639px) and (prefers-reduced-motion: no-preference) {
+  .mk-ft-root button[data-glass-hit-area] { animation: mk-ft-bob 3.2s ease-in-out infinite alternate; }
+  .mk-ft-root button[data-glass-hit-area][aria-label*="bear"] { animation-delay: -1.6s; }
+}
+html[data-reduce-motion="true"] .mk-ft-root button[data-glass-hit-area] { animation: none; }
+@keyframes mk-ft-bob { from { translate: 0 0; } to { translate: 0 -3px; } }

@@ -5,13 +5,64 @@
 // (desktop) and a compact (phone / tablet bottom panel) form.
 import { type MotionValue } from "framer-motion";
 import Link from "next/link";
-import { createContext, useContext, useEffect, useRef, useSyncExternalStore } from "react";
+import { createContext, useContext, useEffect, useRef, useSyncExternalStore, type CSSProperties, type RefObject } from "react";
 import { fmtPrice, type HomeQuote } from "@/modules/home/kit";
 import { AiOrb, BODY, CARD, CARD_AI, EYEBROW, GHOST_LINK, AI_CTA, H1, H2, HAIR, HeroTitle, MONO, SOFT, useStep, useTypedText } from "@/modules/afvarOs";
 import { REGISTER_HREF } from "../ui";
 import { AVATAR, SATELLITES, SOURCES, THINK, THINK_OUT, type ActId, type Film } from "./aiConfig";
+import "./mobile-cards.css";
 
 export type Quotes = Record<string, HomeQuote>;
+
+/* ------------------------------------------------------ phone card motion */
+
+const PHONE_MQ = "(max-width: 639.98px)";
+
+function calmMotion(): boolean {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true || document.documentElement.dataset.reduceMotion === "true";
+}
+
+/** True when `el` is a card inside the phone story (.ms-root, < 640 px). */
+function inPhoneStory(el: HTMLElement | null): el is HTMLElement {
+  return !!el && !!el.closest(".ms-root") && typeof window.matchMedia === "function" && window.matchMedia(PHONE_MQ).matches;
+}
+
+/**
+ * Phone story only (< 640 px inside .ms-root): marks the card `data-mc`, adds
+ * `data-mc-play` once ≥ 40 % of it is on screen and toggles `data-mc-off`
+ * while it is off screen (pauses loops). Reduced motion plays at once, and
+ * mobile-cards.css then shows the final state. Desktop never gets the marks.
+ */
+function usePhoneCard<T extends HTMLElement>(onVisible?: (on: boolean) => void): RefObject<T | null> {
+  const ref = useRef<T>(null);
+  const cb = useRef(onVisible);
+  useEffect(() => {
+    cb.current = onVisible;
+  }, [onVisible]);
+  useEffect(() => {
+    const el = ref.current;
+    if (!inPhoneStory(el)) return;
+    el.setAttribute("data-mc", "");
+    const play = () => el.setAttribute("data-mc-play", "");
+    if (calmMotion() || typeof IntersectionObserver === "undefined") {
+      play();
+      cb.current?.(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([e]) => {
+        const vh = window.innerHeight || 1;
+        if (e.intersectionRatio >= 0.4 || e.intersectionRect.height >= vh * 0.4) play();
+        el.toggleAttribute("data-mc-off", !e.isIntersecting);
+        cb.current?.(e.isIntersecting && el.hasAttribute("data-mc-play"));
+      },
+      { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return ref;
+}
 
 /* ----------------------------------------------------------- film context */
 
@@ -187,7 +238,15 @@ const CORE_TAG: Record<string, string> = { price: "MARKET", macro: "MACRO", news
 /** A live log of what the AI is reading, line by line, with millisecond stamps. */
 export function ReadingLog({ quotes, mv, at, rows: rowCount = 9 }: { quotes: Quotes; mv?: MotionValue<number>; at?: readonly [number, number]; rows?: number }) {
   const rows = useRef<(HTMLLIElement | null)[]>([]);
+  const list = useRef<HTMLOListElement>(null);
   const quotesRef = useRef(quotes);
+  /** Phone story: on screen and ≥ 40 % seen once (set by usePhoneCard). */
+  const live = useRef(false);
+  const wake = useRef<(() => void) | null>(null);
+  const root = usePhoneCard<HTMLDivElement>((on) => {
+    live.current = on;
+    if (on) wake.current?.();
+  });
   useEffect(() => {
     quotesRef.current = quotes;
   }, [quotes]);
@@ -196,10 +255,13 @@ export function ReadingLog({ quotes, mv, at, rows: rowCount = 9 }: { quotes: Quo
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.dataset.reduceMotion === "true";
+    // Phone story: a terminal — newest line at the bottom, pushed in from below,
+    // slower ticks, starts once the card is in view and pauses off screen.
+    const phone = !!root.current?.hasAttribute("data-mc");
     const lines: { t: string; text: string; tag: string; tone: string }[] = [];
     let n = 0;
     const pad = (x: number, l = 2) => String(x).padStart(l, "0");
-    const next = () => {
+    const next = (animate = false) => {
       const d = new Date();
       const stamp = `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}.${pad(d.getUTCMilliseconds(), 3)}`;
       const pick = n % 7 < 4 ? 0 : 1 + (n % 4);
@@ -220,7 +282,7 @@ export function ReadingLog({ quotes, mv, at, rows: rowCount = 9 }: { quotes: Quo
         if (!el) return;
         el.replaceChildren();
         const a = document.createElement("span");
-        a.className = "w-[84px] shrink-0 tabular-nums text-[#92A399]";
+        a.className = "mc-stamp w-[84px] shrink-0 tabular-nums text-[#92A399]";
         a.textContent = l.t;
         const b = document.createElement("span");
         b.className = `min-w-0 flex-1 truncate ${l.tone}`;
@@ -231,29 +293,55 @@ export function ReadingLog({ quotes, mv, at, rows: rowCount = 9 }: { quotes: Quo
         el.append(a, b, c);
         el.style.opacity = String(1 - i * 0.085);
       });
+      if (animate && typeof list.current?.animate === "function") {
+        const top = rows.current[0];
+        const prev = rows.current[1];
+        const shift = top && prev ? Math.abs(top.offsetTop - prev.offsetTop) : 22;
+        list.current.animate([{ transform: `translateY(${shift}px)` }, { transform: "translateY(0)" }], { duration: 260, easing: "cubic-bezier(.2,.8,.2,1)" });
+        top?.animate([{ backgroundColor: "rgba(0,230,118,0.16)" }, { backgroundColor: "rgba(0,230,118,0)" }], { duration: 1100, easing: "ease-out" });
+        top?.firstElementChild?.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0.25 }, { opacity: 1 }], { duration: 320, easing: "steps(4, end)" });
+      }
     };
     const visible = () => {
       if (a0 === undefined || a1 === undefined || !mv) return !document.hidden;
       const p = mv.get();
       return !document.hidden && p >= a0 && p <= a1;
     };
+    if (phone && !reduce) {
+      // Empty until seen; the first screenful types in fast, then a steady beat.
+      let id: ReturnType<typeof setTimeout> | undefined;
+      const tick = () => {
+        id = undefined;
+        if (!live.current || document.hidden) return;
+        next(true);
+        id = setTimeout(tick, n < rows.current.length ? 150 : 900);
+      };
+      wake.current = () => {
+        if (id === undefined) tick();
+      };
+      if (live.current) wake.current();
+      return () => {
+        wake.current = null;
+        if (id !== undefined) clearTimeout(id);
+      };
+    }
     for (let i = 0; i < rows.current.length; i++) next();
     if (reduce) return;
     const id = setInterval(() => {
       if (visible()) next();
     }, 140);
     return () => clearInterval(id);
-  }, [mv, a0, a1, rowCount]);
+  }, [mv, a0, a1, rowCount, root]);
 
   return (
-    <div className={`${CARD} p-4`}>
+    <div ref={root} className={`home-reading-log mc-log ${CARD} p-4`}>
       <div className="flex items-center justify-between">
         <p className={`${MONO} text-[10px] text-[#8A9295]`}>What the AI is reading · now</p>
         <span className="flex items-center gap-1.5 font-mono text-[10px] text-[#A8DEC2]">
           <AiOrb size={7} /> LIVE LOG
         </span>
       </div>
-      <ol className="mt-3 space-y-1 font-mono text-[11px]">
+      <ol ref={list} className="mc-log-list mt-3 space-y-1 font-mono text-[11px]">
         {Array.from({ length: rowCount }, (_, i) => (
           <li key={i} ref={(el) => void (rows.current[i] = el)} className="flex h-[18px] items-center gap-2.5" />
         ))}
@@ -283,13 +371,24 @@ export function ThinkCard({ mv, compact = false }: { mv: MotionValue<number>; co
   const thresholds = [...THINK.map((r) => film.at("think", r.at)), film.at("think", THINK_OUT)];
   const step = useStep(mv, thresholds);
   const out = step >= THINK.length;
+  const root = usePhoneCard<HTMLDivElement>();
+  const progress = Math.max(0, Math.min(step + 1, THINK.length + 1)) / (THINK.length + 1);
   return (
-    <div className={`${CARD_AI} ${compact ? "p-3" : "p-4 [@media(max-height:780px)]:p-3"}`} aria-label="How AFVAR AI reaches one answer, sample">
-      <div className="flex items-center justify-between">
+    <div
+      ref={root}
+      className={`mc-think ${CARD_AI} ${compact ? "p-3" : "p-4 [@media(max-height:780px)]:p-3"}`}
+      style={{ "--mc-p": progress } as CSSProperties}
+      aria-label="How AFVAR AI reaches one answer, sample"
+    >
+      <div className="mc-think-head flex items-center justify-between">
         <p className="flex items-center gap-2 text-sm font-semibold">
           <AiOrb size={12} /> “Should I buy gold now?”
         </p>
         <span className={`${MONO} text-[10px] text-[#92A399]`}>Sample</span>
+        <svg className="mc-deco mc-ring" viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="10" cy="10" r="8" />
+          <circle className="mc-ring-fill" cx="10" cy="10" r="8" pathLength={1} />
+        </svg>
       </div>
       <ol className={`${compact ? "mt-2 space-y-1" : "mt-3 space-y-1.5"}`}>
         {THINK.map((r, i) => {
@@ -297,25 +396,30 @@ export function ThinkCard({ mv, compact = false }: { mv: MotionValue<number>; co
           return (
             <li
               key={r.core + r.text}
-              className={`flex items-start gap-3 rounded-lg border px-3 ${compact ? "py-1" : "py-1.5 [@media(max-height:760px)]:py-1"} transition-colors duration-300 ${
+              data-state={state}
+              className={`mc-step flex items-start gap-3 rounded-lg border px-3 ${compact ? "py-1" : "py-1.5 [@media(max-height:760px)]:py-1"} transition-colors duration-300 ${
                 state === "now" ? "border-[rgba(168,222,194,0.6)] bg-[rgba(168,222,194,0.08)]" : "border-[rgba(255,255,255,0.06)]"
               } ${state === "wait" ? "opacity-35" : ""}`}
             >
-              <span className={`${MONO} mt-0.5 ${compact ? "w-[64px]" : "w-[92px]"} shrink-0 text-[10px] ${state === "wait" ? "text-[#92A399]" : "text-[#A8DEC2]"}`}>
+              <span className="mc-deco mc-scan" aria-hidden="true" />
+              <span className={`mc-core ${MONO} mt-0.5 ${compact ? "w-[64px]" : "w-[92px]"} shrink-0 text-[10px] ${state === "wait" ? "text-[#92A399]" : "text-[#A8DEC2]"}`}>
                 {SATELLITES[r.core].label.replace(" core", "")}
               </span>
               <span className={`min-w-0 flex-1 ${compact ? "text-[12px]" : "text-[12.5px]"} leading-snug text-[#E6E9EB]`}>{r.text}</span>
-              <span className={`shrink-0 font-mono text-[11px] ${state === "done" ? "text-[#00E676]" : state === "now" ? "text-[#A8DEC2]" : "text-[#4A5256]"}`}>
+              <span className={`mc-tick shrink-0 font-mono text-[11px] ${state === "done" ? "text-[#00E676]" : state === "now" ? "text-[#A8DEC2]" : "text-[#4A5256]"}`}>
                 {state === "done" ? "✓" : state === "now" ? "…" : "·"}
               </span>
             </li>
           );
         })}
       </ol>
-      <div className={`mt-3 rounded-xl border ${compact ? "p-3" : "p-3.5"} transition-all duration-500 ${out ? "border-[rgba(168,222,194,0.7)] bg-[#06110C] opacity-100" : "border-[rgba(255,255,255,0.06)] opacity-30"}`}>
+      <div
+        data-out={out}
+        className={`mc-out mt-3 rounded-xl border ${compact ? "p-3" : "p-3.5"} transition-all duration-500 ${out ? "border-[rgba(168,222,194,0.7)] bg-[#06110C] opacity-100" : "border-[rgba(255,255,255,0.06)] opacity-30"}`}
+      >
         <div className="flex items-center justify-between">
           <span className={`${MONO} text-[10px] text-[#A8DEC2]`}>The answer</span>
-          <span className="rounded-full border border-[rgba(168,222,194,0.6)] bg-[rgba(168,222,194,0.14)] px-3 py-0.5 font-mono text-[12px] tracking-[0.16em] text-[#A8DEC2]">WAIT</span>
+          <span className="mc-verdict rounded-full border border-[rgba(168,222,194,0.6)] bg-[rgba(168,222,194,0.14)] px-3 py-0.5 font-mono text-[12px] tracking-[0.16em] text-[#A8DEC2]">WAIT</span>
         </div>
         <p className={`mt-2 ${compact ? "text-[13px]" : "text-[14px]"} leading-relaxed text-[#F2F5F2]`}>Not before payrolls. A 1H close above 4,040 turns the view bullish; below 3,985 it turns bearish.</p>
         {compact ? null : <p className="mt-2 text-[11px] text-[#92A399] [@media(max-height:780px)]:hidden">Graded in public after 4 hours · not investment advice</p>}
@@ -379,22 +483,42 @@ export function sessionsNow(now: Date | null) {
   ];
 }
 
+/** Phone story: a session's hours on a 24 h UTC track, as [left %, width %] segments. */
+function sessionSegments(i: number): [number, number][] {
+  const s = SESSION_HOURS[i];
+  if (!s) return [[0, 100]];
+  const pct = (h: number) => (h / 24) * 100;
+  return s.from < s.to ? [[pct(s.from), pct(s.to - s.from)]] : [[pct(s.from), pct(24 - s.from)], [0, pct(s.to)]];
+}
+
 export function SessionCard({ compact = false }: { compact?: boolean }) {
   const now = useNowMinute();
   const rows = sessionsNow(now);
+  const root = usePhoneCard<HTMLDivElement>();
+  const nowPct = now ? (now.getUTCHours() + now.getUTCMinutes() / 60) / 24 : 0;
   return (
-    <div className={`${CARD} ${compact ? "p-3" : "p-4"}`}>
+    <div ref={root} className={`mc-sessions ${CARD} ${compact ? "p-3" : "p-4"}`} style={{ "--mc-now": nowPct } as CSSProperties}>
       <div className="flex items-center justify-between">
         <p className={`${MONO} text-[10px] text-[#8A9295]`}>Sessions right now</p>
         <span className="font-mono text-[11px] text-[#8A9295]">{now ? `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")} UTC` : "—"}</span>
       </div>
       <ul className={compact ? "mt-2 grid grid-cols-2 gap-x-4 gap-y-1" : "mt-3 space-y-1.5"}>
-        {rows.map((r) => (
-          <li key={r.name} className="flex items-center justify-between text-[13px]">
+        {rows.map((r, i) => (
+          <li key={r.name} data-open={r.open === true} style={{ "--i": i } as CSSProperties} className="mc-sess flex items-center justify-between text-[13px]">
             <span className="text-[#C9CFD1]">{r.name}</span>
             <span className={`flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider ${r.open ? "text-[#00E676]" : "text-[#92A399]"}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${r.open ? "bg-[#00E676]" : "bg-[#3A4044]"}`} />
+              <span className={`mc-dot h-1.5 w-1.5 rounded-full ${r.open ? "bg-[#00E676]" : "bg-[#3A4044]"}`} />
               {r.open === null ? "—" : r.open ? "Open" : "Closed"}
+            </span>
+            <span className="mc-deco mc-track" aria-hidden="true">
+              {sessionSegments(i).map(([l, w]) => (
+                <i key={l} className="mc-seg" style={{ left: `${l}%`, width: `${w}%` }} />
+              ))}
+              {now ? (
+                <span className="mc-needle-run">
+                  <i className="mc-needle" />
+                </span>
+              ) : null}
             </span>
           </li>
         ))}
@@ -454,31 +578,37 @@ export function Dialogue({ mv, compact = false }: { mv: MotionValue<number>; com
   const A = (f: number) => film.at("avatar", f);
   const step = useStep(mv, [A(AVATAR.listen[0]), A(AVATAR.think[0]), A(AVATAR.answer[0]), A(AVATAR.answer[1] - 0.04)]);
   const typed = useTypedText(mv, ANSWER, [A(AVATAR.answer[0] + 0.01), A(AVATAR.answer[1] - 0.06)]);
+  const root = usePhoneCard<HTMLElement>();
   return (
-    <article className={`rounded-3xl border border-[rgba(168,222,194,0.3)] bg-[#10231B] ${compact ? "p-3.5" : "p-5"}`} aria-label="Sample conversation with the AFVAR avatar">
-      <div className={`ml-auto flex w-max max-w-full items-center gap-3 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#182B21] px-4 py-2.5 transition-opacity duration-300 ${step >= 0 ? "opacity-100" : "opacity-0"}`}>
+    <article ref={root} data-step={step} className={`mc-talk rounded-3xl border border-[rgba(168,222,194,0.3)] bg-[#10231B] ${compact ? "p-3.5" : "p-5"}`} aria-label="Sample conversation with the AFVAR avatar">
+      <div className={`mc-user ml-auto flex w-max max-w-full items-center gap-3 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#182B21] px-4 py-2.5 transition-opacity duration-300 ${step >= 0 ? "opacity-100" : "opacity-0"}`}>
         {step === 0 ? <VoiceBars /> : null}
         <span className={compact ? "text-[14px]" : "text-[15px]"} lang="hi">
           आज मेरी लिमिट कितनी बची है?
         </span>
       </div>
-      <div className={`${compact ? "mt-3" : "mt-4"} flex items-center gap-2.5`}>
+      <div className={`mc-ai-head ${compact ? "mt-3" : "mt-4"} flex items-center gap-2.5`}>
         <AiOrb size={16} pulse={step === 1 || step === 2} />
         <span className="text-sm font-semibold">AFVAR</span>
         <span className={`${MONO} text-[10px] text-[#92A399]`}>{step === 1 ? "Thinking…" : step >= 2 ? "Speaking · sample" : "Listening"}</span>
       </div>
-      <p className={`${compact ? "mt-2 min-h-[4.4em] text-[13px]" : "mt-3 min-h-[4.8em] text-[14px]"} leading-relaxed text-[#E6E9EB]`} aria-live="off">
+      <p className={`mc-ai-line ${compact ? "mt-2 min-h-[4.4em] text-[13px]" : "mt-3 min-h-[4.8em] text-[14px]"} leading-relaxed text-[#E6E9EB]`} aria-live="off">
+        <span className="mc-deco mc-typing" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
         <span ref={typed} />
         {step === 2 ? <span className="afv-caret" /> : null}
       </p>
       <span className="sr-only">{ANSWER}</span>
-      <div className={`mt-3 grid grid-cols-3 gap-2 transition-opacity duration-500 ${step >= 3 ? "opacity-100" : "opacity-0"}`}>
+      <div className={`mc-stats mt-3 grid grid-cols-3 gap-2 transition-opacity duration-500 ${step >= 3 ? "opacity-100" : "opacity-0"}`}>
         {[
           ["Used today", "40%", "text-[#F2F5F2]"],
           ["At risk", "+21%", "text-[#FF6B6B]"],
           ["Room left", "39%", "text-[#00E676]"],
-        ].map(([k, v, c]) => (
-          <div key={k} className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[#06110C] p-2">
+        ].map(([k, v, c], i) => (
+          <div key={k} style={{ "--i": i } as CSSProperties} className="mc-stat rounded-xl border border-[rgba(255,255,255,0.08)] bg-[#06110C] p-2">
             <p className={`${MONO} text-[9px] text-[#92A399]`}>{k}</p>
             <p className={`mt-0.5 text-[15px] font-semibold ${c}`}>{v}</p>
           </div>
@@ -531,13 +661,31 @@ export function PermissionsCard({ compact = false }: { compact?: boolean }) {
     ["Your journal & notes", "Private to you", "text-[#C9CFD1]"],
     ["Every number", "Source + time shown", "text-[#C9CFD1]"],
   ] as const;
+  const root = usePhoneCard<HTMLDivElement>();
   return (
-    <div className={`${CARD} overflow-hidden`}>
-      <p className={`border-b border-[rgba(255,255,255,0.08)] px-4 ${compact ? "py-2" : "py-2.5"} text-[13px] font-semibold`}>Privacy & permissions</p>
-      {rows.map(([k, v, c]) => (
-        <div key={k} className={`flex justify-between border-b border-[rgba(255,255,255,0.05)] px-4 ${compact ? "py-1.5" : "py-2.5"} text-[13px] last:border-b-0`}>
+    <div ref={root} className={`home-permissions-card mc-perms ${CARD} overflow-hidden`}>
+      <p className={`mc-perms-head border-b border-[rgba(255,255,255,0.08)] px-4 ${compact ? "py-2" : "py-2.5"} text-[13px] font-semibold`}>
+        Privacy & permissions
+        <svg className="mc-deco mc-lock" viewBox="0 0 14 16" aria-hidden="true">
+          <path className="mc-shackle" d="M3.5 7.5V5a3.5 3.5 0 0 1 7 0v2.5" />
+          <rect x="1.5" y="7.5" width="11" height="7.5" rx="1.5" />
+        </svg>
+      </p>
+      {rows.map(([k, v, c], i) => (
+        <div
+          key={k}
+          data-kind={v === "Never" ? "deny" : "allow"}
+          style={{ "--i": i } as CSSProperties}
+          className={`mc-perm flex justify-between border-b border-[rgba(255,255,255,0.05)] px-4 ${compact ? "py-1.5" : "py-2.5"} text-[13px] last:border-b-0`}>
           <span className="text-[#C9CFD1]">{k}</span>
           <span className={c}>{v}</span>
+          <span className="mc-deco mc-toggle" aria-hidden="true">
+            <i className="mc-knob">
+              <svg className="mc-mark" viewBox="0 0 8 8">
+                <path pathLength={1} d={v === "Never" ? "M2.2 2.2l3.6 3.6M5.8 2.2L2.2 5.8" : "M1.8 4.2l1.6 1.6 2.9-3.4"} />
+              </svg>
+            </i>
+          </span>
         </div>
       ))}
     </div>

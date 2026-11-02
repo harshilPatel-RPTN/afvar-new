@@ -6,11 +6,17 @@
 // price, change, freshness, source and time. The other seven markets run as
 // faint lines behind. Closes only — the feeds give no open / high / low, so
 // there are no invented candles.
-import { Html } from "@react-three/drei";
+//
+// Motion (clock only — the hero's progress is fixed): Gold's line draws in from
+// left to right on first view, the spark riding its tip; then the spark pulses
+// on the newest price, the background markets shimmer one after another and
+// drift, and the wall sways slowly. Phones: sway + spark pulse only. Reduced
+// motion: the finished frame, no motion.
+import { Html, type Line } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef, type RefObject } from "react";
+import { useMemo, useRef, type ComponentRef, type Ref, type RefObject } from "react";
 import * as THREE from "three";
-import { COLORS } from "@/modules/afvarOs";
+import { COLORS, easeInOut, ramp } from "@/modules/afvarOs";
 import { AiSpark, GlowLine, useStoryFrame } from "@/modules/afvarOs/gl";
 import { fmtPrice, type HomeQuote } from "@/modules/home/kit";
 import { LANE_KEYS, type Quotes } from "@/modules/homeDemo/kit";
@@ -20,6 +26,13 @@ import { STATUS_LABEL, asOfText, signedPct } from "./analysis";
 /** The wall in its own space: x along time, y up from the floor. */
 export const WALL = { length: 4.6, base: -1.2, low: 0.4, high: 2.1, depth: 1.2 } as const;
 const LEAD = "XAUUSD";
+const TAU = Math.PI * 2;
+/** Seconds Gold's line takes to draw in. */
+const DRAW = 2.6;
+/** The newest-price spark pulses every PULSE seconds. */
+const PULSE = 3.2;
+type LineObj = ComponentRef<typeof Line>;
+const beat = (d: number) => (d < 0 ? 0 : d < 0.12 ? d / 0.12 : Math.exp(-(d - 0.12) * 3));
 
 function wallFace(pts: THREE.Vector3[], base: number, color: string): THREE.BufferGeometry {
   // Three rows per close (under the line, a third of the way down, the floor):
@@ -55,11 +68,22 @@ function segments(pairs: [THREE.Vector3, THREE.Vector3][]): THREE.BufferGeometry
   return g;
 }
 
-export function PriceWall({ quotes, compact, yaw, pitch, x = 0 }: { quotes: Quotes; compact: boolean; yaw: number; pitch: number; x?: number }) {
+export function PriceWall({ quotes, compact, lite = false, yaw, pitch, x = 0 }: { quotes: Quotes; compact: boolean; lite?: boolean; yaw: number; pitch: number; x?: number }) {
   const { still } = useStoryFrame();
   const group = useRef<THREE.Group>(null);
-  const lead = quotes[LEAD];
-  const closes = useMemo(() => lead?.closes ?? [], [lead]);
+  const lead = useRef<LineObj>(null);
+  const mirror = useRef<LineObj>(null);
+  const face = useRef<THREE.Mesh>(null);
+  const ribs = useRef<THREE.LineSegments>(null);
+  const spark = useRef<THREE.Group>(null);
+  const tag = useRef<HTMLDivElement>(null);
+  const drift = useRef<(THREE.Group | null)[]>([]);
+  const faint = useRef<(LineObj | null)[]>([]);
+  const faintDots = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
+  /** Seconds of the draw-in shown so far (frame deltas, capped — a hidden tab doesn't skip it). */
+  const drawn = useRef(0);
+  const leadQ = quotes[LEAD];
+  const closes = useMemo(() => leadQ?.closes ?? [], [leadQ]);
   const L = compact ? WALL.length * 0.8 : WALL.length;
   const B = WALL.base;
 
@@ -95,57 +119,96 @@ export function PriceWall({ quotes, compact, yaw, pitch, x = 0 }: { quotes: Quot
     [quotes, L, B],
   );
 
-  useFrame((s) => {
+  useFrame((s, dt) => {
     if (!group.current) return;
     const t = still ? 0 : s.clock.elapsedTime;
-    group.current.rotation.y = yaw + 0.04 * Math.sin(t * 0.18);
+    // a slow sway (±7.5°, 19 s) with a gentle nod
+    group.current.rotation.y = yaw + 0.13 * Math.sin((t / 19) * TAU);
+    group.current.rotation.x = pitch + 0.025 * Math.sin((t / 23) * TAU);
+    if (!wall) return;
+
+    // Gold's line draws in, left → right (phones and still: already drawn)
+    if (!still && !lite) drawn.current += Math.min(dt, 0.1);
+    const u = still || lite ? 1 : easeInOut(Math.min(1, drawn.current / DRAW));
+    const segs = wall.pts.length - 1;
+    const head = u * segs;
+    const shown = Math.ceil(head);
+    if (lead.current) lead.current.geometry.instanceCount = shown;
+    if (mirror.current) mirror.current.geometry.instanceCount = shown;
+    face.current?.geometry.setDrawRange(0, shown * 12);
+    ribs.current?.geometry.setDrawRange(0, 2 * (Math.floor(head) + 1));
+    if (tag.current) tag.current.style.opacity = String(ramp(u, 0.85, 1));
+
+    // the spark rides the tip, then pulses on the newest price
+    const sp = spark.current;
+    if (sp) {
+      const i = Math.min(segs - 1, Math.floor(head));
+      sp.position.lerpVectors(wall.pts[i], wall.pts[i + 1], head - i);
+      sp.position.z += 0.01;
+      const b = still || u < 1 ? 0 : beat(t % PULSE);
+      sp.scale.setScalar(1 + 0.7 * b);
+      if (lead.current) lead.current.material.linewidth = (compact ? 1.8 : 2.2) + (lite ? 0 : 0.8 * b);
+    }
+
+    // the other markets shimmer one after another and drift (not on phones)
+    if (lite || still) return;
+    for (let k = 0; k < others.length; k++) {
+      const w = Math.max(0, Math.sin(((t / 8 - k / others.length) % 1) * TAU));
+      const hump = w * w;
+      const l = faint.current[k];
+      if (l) l.material.opacity = 0.15 + 0.4 * hump;
+      const d = faintDots.current[k];
+      if (d) d.opacity = 0.35 + 0.55 * hump;
+      const g = drift.current[k];
+      if (g) g.position.set(0.09 * Math.sin(t * 0.23 + k * 0.9), 0.03 * Math.sin(t * 0.37 + k * 1.7), 0);
+    }
   });
 
   // Inside the wall: turn a child back to face the camera.
-  const face: [number, number, number, THREE.EulerOrder] = [-pitch, -yaw, 0, "YXZ"];
+  const faceCam: [number, number, number, THREE.EulerOrder] = [-pitch, -yaw, 0, "YXZ"];
   return (
     <group ref={group} name="PriceWall" position={[x, 0, 0]} rotation={[pitch, yaw, 0]}>
       <lineSegments geometry={floor}>
         <lineBasicMaterial color={COLORS.ink} transparent opacity={0.07} depthWrite={false} />
       </lineSegments>
-      {others.map((o) => (
-        <group key={o.key}>
-          <GlowLine points={o.pts} color={o.color} intensity={0.75} width={0.9} opacity={0.15} />
+      {others.map((o, k) => (
+        <group key={o.key} ref={(el) => void (drift.current[k] = el)}>
+          <GlowLine ref={(el: LineObj | null) => void (faint.current[k] = el)} points={o.pts} color={o.color} intensity={0.75} width={0.9} opacity={0.15} />
           <mesh position={o.pts[o.pts.length - 1]}>
             <sphereGeometry args={[0.02, 10, 10]} />
-            <meshBasicMaterial color={o.color} transparent opacity={0.35} toneMapped={false} />
+            <meshBasicMaterial ref={(el) => void (faintDots.current[k] = el)} color={o.color} transparent opacity={0.35} toneMapped={false} />
           </mesh>
         </group>
       ))}
       {wall ? (
         <>
-          <mesh geometry={wall.face} renderOrder={1}>
+          <mesh ref={face} geometry={wall.face} renderOrder={1}>
             <meshBasicMaterial vertexColors transparent side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
           </mesh>
-          <lineSegments geometry={wall.ribs} renderOrder={2}>
+          <lineSegments ref={ribs} geometry={wall.ribs} renderOrder={2}>
             <lineBasicMaterial color={wall.color} transparent opacity={0.16} depthWrite={false} toneMapped={false} />
           </lineSegments>
-          <GlowLine points={wall.mirror} color={wall.color} intensity={0.7} width={1} opacity={0.16} />
-          <GlowLine points={wall.pts} color={wall.color} intensity={1.35} width={compact ? 1.8 : 2.2} />
-          <group position={[wall.last.x, wall.last.y, wall.last.z + 0.01]} rotation={face}>
+          <GlowLine ref={mirror} points={wall.mirror} color={wall.color} intensity={0.7} width={1} opacity={0.16} />
+          <GlowLine ref={lead} points={wall.pts} color={wall.color} intensity={1.35} width={compact ? 1.8 : 2.2} />
+          <group ref={spark} position={[wall.last.x, wall.last.y, wall.last.z + 0.01]} rotation={faceCam}>
             <AiSpark size={0.062} />
           </group>
-          <PriceLabel q={lead!} at={wall.last} compact={compact} />
+          <PriceLabel q={leadQ!} at={wall.last} compact={compact} boxRef={tag} />
         </>
       ) : null}
     </group>
   );
 }
 
-/** The newest price, with everything that makes it checkable. */
-function PriceLabel({ q, at, compact }: { q: HomeQuote; at: THREE.Vector3; compact: boolean }) {
+/** The newest price, with everything that makes it checkable (leans left: the newest price is at the wall's right end). */
+function PriceLabel({ q, at, compact, boxRef }: { q: HomeQuote; at: THREE.Vector3; compact: boolean; boxRef?: Ref<HTMLDivElement> }) {
   const { labels } = useStoryFrame();
   const up = q.changePct >= 0;
   const fresh = q.status === "snapshot" ? "Stored values · not live" : `${STATUS_LABEL[q.status]} · ${q.source ?? "provider"} · ${asOfText(q.asOf)}`;
   const dot = q.status === "live" ? "bg-[#00E676]" : q.status === "delayed" ? "bg-[#F6B94A]" : "bg-[#92A399]";
   return (
     <Html position={[at.x, at.y + (compact ? 0.42 : 0.5), at.z]} center portal={labels as RefObject<HTMLElement>} zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
-      <div className={`whitespace-nowrap rounded-lg border border-[rgba(255,255,255,0.14)] bg-[rgba(15,18,20,0.88)] font-mono ${compact ? "-translate-x-[34%] px-2 py-1" : "px-3 py-2"}`}>
+      <div ref={boxRef} className={`whitespace-nowrap rounded-lg border border-[rgba(255,255,255,0.14)] bg-[rgba(15,18,20,0.88)] font-mono ${compact ? "-translate-x-[34%] px-2 py-1" : "-translate-x-[22%] px-3 py-2"}`}>
         <p className={`${compact ? "text-[8.5px]" : "text-[9.5px]"} uppercase tracking-[0.16em] text-[#8A9295]`}>XAU/USD · 1H closes</p>
         <p className="mt-0.5 flex items-baseline gap-2">
           <span className={`font-sans font-semibold tabular-nums text-[#F2F5F2] ${compact ? "text-[13px]" : "text-[17px]"}`}>{fmtPrice(q.last, q.decimals)}</span>

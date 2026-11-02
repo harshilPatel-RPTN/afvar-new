@@ -2,7 +2,7 @@
 
 // AFVAR OS chrome: the screen (a fixed design canvas scaled to fit, so the
 // OS reads the same at every size), the menu bar, the dock and app glyphs.
-import { motion, type MotionStyle } from "framer-motion";
+import { motion, type MotionStyle, type MotionValue } from "framer-motion";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 /* ----------------------------------------------------------------- glyphs */
@@ -207,7 +207,18 @@ export function dockSlotX(index: number, count: number, screenWidth = 1200) {
   return screenWidth / 2 - total / 2 + 12 + index * (DOCK_ITEM + DOCK_GAP) + DOCK_ITEM / 2;
 }
 
-export function Dock({ items, style }: { items: readonly DockItem[]; style?: MotionStyle }) {
+function dockTile(attention?: boolean) {
+  return `flex h-11 w-11 items-center justify-center rounded-xl border ${
+    attention ? "border-[rgba(168,222,194,0.7)] bg-[#10231B] text-[#A8DEC2]" : "border-[rgba(255,255,255,0.1)] bg-[#181C1F] text-[#C9CFD1]"
+  }`;
+}
+
+/**
+ * `bounce`: y offset (px) for the running app — a macOS launch bounce.
+ * `onLaunch`: makes each app tile a real button (the hands-on playground);
+ * omitted, the dock is a picture (the films).
+ */
+export function Dock({ items, style, bounce, onLaunch }: { items: readonly DockItem[]; style?: MotionStyle; bounce?: MotionValue<number>; onLaunch?: (id: string) => void }) {
   return (
     <motion.nav
       aria-label="Dock"
@@ -218,16 +229,24 @@ export function Dock({ items, style }: { items: readonly DockItem[]; style?: Mot
         <AiOrb size={22} />
       </span>
       {items.map((it) => (
-        <span key={it.id} title={it.label} className="relative flex flex-col items-center">
-          <span
-            className={`flex h-11 w-11 items-center justify-center rounded-xl border ${
-              it.attention ? "border-[rgba(168,222,194,0.7)] bg-[#10231B] text-[#A8DEC2]" : "border-[rgba(255,255,255,0.1)] bg-[#181C1F] text-[#C9CFD1]"
-            }`}
-          >
-            <AppGlyph name={it.glyph} size={20} />
-          </span>
+        <motion.span key={it.id} title={it.label} className="relative flex flex-col items-center" style={bounce && it.running ? { y: bounce } : undefined}>
+          {onLaunch ? (
+            <button
+              type="button"
+              data-glass-hit-area=""
+              aria-label={`Open ${it.label}`}
+              onClick={() => onLaunch(it.id)}
+              className={`${dockTile(it.attention)} cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#A8DEC2]`}
+            >
+              <AppGlyph name={it.glyph} size={20} />
+            </button>
+          ) : (
+            <span className={dockTile(it.attention)}>
+              <AppGlyph name={it.glyph} size={20} />
+            </span>
+          )}
           <span className={`absolute -bottom-1.5 h-1 w-1 rounded-full ${it.running ? "bg-[#A8DEC2]" : "bg-transparent"}`} />
-        </span>
+        </motion.span>
       ))}
     </motion.nav>
   );

@@ -35,9 +35,10 @@ import {
 } from "./cards";
 import { OS_BEATS, OsDesktop, OsFilm } from "./OsFilm";
 import { setFilmOnScreen } from "../filmPresence";
-import { COMPACT_FILM, DESKTOP_FILM, HOME_MOBILE_FILM, PANEL_CAMERA, coreOpeningScale, type ActId, type Film } from "./aiConfig";
+import { COMPACT_FILM, DESKTOP_FILM, HOME_MOBILE_FILM, PANEL_CAMERA, centredPortraitStage, coreOpeningScale, filmCamera, type ActId, type Film } from "./aiConfig";
 
 import { CorePoster } from "./CorePoster";
+import { MobileStory } from "./MobileStory";
 
 const AiCoreScene = dynamic(() => import("./AiCoreScene"), { ssr: false });
 
@@ -99,10 +100,12 @@ function win(film: Film, id: ActId, w: Window4): Window4 {
 /* ===================================================================== story */
 
 const homeDesktop = "(min-width:1100px) and (min-height:650px)";
-// Phones, tablets and any touch-first screen never fetch or run the WebGL film:
-// the poster plays a CSS-only stand-in. Shared with the closing globe.
-const liteDevice = "(max-width:1099px), (max-height:649px), (pointer:coarse)";
-const crampedScreen = "(max-height:600px), (max-width:540px) and (max-height:720px), (max-width:360px) and (max-height:800px)";
+// The film (WebGL core + scroll animation) runs on every screen 640 px wide and
+// up — touch tablets and landscape phones included. Narrower phones never fetch
+// or run the WebGL film: the poster plays a CSS-only stand-in.
+const filmScreen = "(min-width:640px)";
+// Below 640 px, cramped screens read the story as stacked sections instead.
+const crampedScreen = "(max-width:639px) and (max-height:600px), (max-width:540px) and (max-height:720px), (max-width:360px) and (max-height:800px)";
 const HOME_TRACK_CSS = `.afvar-responsive-home #afvar-ai{height:${HOME_MOBILE_FILM.story.totalVh}svh}
 @media ${homeDesktop}{.afvar-responsive-home #afvar-ai{height:${DESKTOP_FILM.story.totalVh}vh}}
 @media ${crampedScreen}{.afvar-responsive-home #afvar-ai{height:auto}}
@@ -114,17 +117,19 @@ export function AiStory({ responsiveHome = false }: { responsiveHome?: boolean }
   const cramped = useMedia(crampedScreen);
   const portraitMq = useMedia("(orientation: portrait)");
   const coarse = useMedia("(pointer: coarse)");
-  const liteMq = useMedia(liteDevice);
+  const filmMq = useMedia(filmScreen);
+  // Root homepage on phones (< 640 px): a dedicated canvas-free layout.
+  const phoneMq = useMedia("(max-width:639px)");
   const film = wide === false ? (responsiveHome ? HOME_MOBILE_FILM : COMPACT_FILM) : DESKTOP_FILM;
   const { trackRef, progressRef, progress, active, mounted, webgl, revealRef } = useStory({ settledP: film.settledP, minWidth: 0 });
   const { quotes } = useLiveMarket();
   const priceTexts = useMemo(() => LANE_KEYS.map(([k, sym]) => quoteLine(quotes[k], sym)), [quotes]);
 
-  const mode: "boot" | "desktop" | "compact" | "stacked" = wide === null ? "boot" : reduced || (responsiveHome && cramped) ? "stacked" : wide ? "desktop" : "compact";
+  const mode: "boot" | "desktop" | "compact" | "stacked" | "mobile" = wide === null ? "boot" : responsiveHome && phoneMq === true ? "mobile" : reduced || (responsiveHome && cramped) ? "stacked" : wide ? "desktop" : "compact";
   const portrait = mode === "compact" && portraitMq === true;
   const lite = mode === "compact" || coarse === true;
-  // Undecided (boot) counts as lite: nothing heavy starts before the device is known.
-  const noGl = responsiveHome && liteMq !== false;
+  // Undecided (boot) counts as no-GL: nothing heavy starts before the device is known.
+  const noGl = responsiveHome && filmMq !== true;
   const actStarts = useMemo(() => noGl ? film.story.order.map(id => film.at(id, 0)) : [], [noGl, film]);
   const actStep = useStep(progress, actStarts);
   const coreAct = noGl ? film.story.order[Math.max(0, actStep)] : undefined;
@@ -168,18 +173,22 @@ export function AiStory({ responsiveHome = false }: { responsiveHome?: boolean }
   }, [avatarActStep, mode, active]);
   useEffect(() => () => void window.dispatchEvent(new CustomEvent("afvar:avatar", { detail: { launcher: "show" } })), []);
   useEffect(() => {
-    setFilmOnScreen(active && mode !== "stacked" && mode !== "boot");
+    setFilmOnScreen(active && mode !== "stacked" && mode !== "boot" && mode !== "mobile");
     return () => setFilmOnScreen(false);
   }, [active, mode]);
 
   const openingScale = responsiveHome ? (mode === "desktop" ? 1.41 : 1.12) : 1;
+  // Portrait home: the full-height canvas (and its poster) is centred on the art
+  // row, matching the centred camera path, so the contain-fit zooms about the
+  // middle of the visible art. Overrides the row's "a third down" offset.
+  const stageHost = centredPortraitStage(film, portrait) ? { top: "calc(50% - 50svh)" } : undefined;
   const poster = (still: boolean) => {
     const compactPanel = responsiveHome && still && !wide;
     const p = still ? film.settledP : 0;
-    return <CorePoster ready={mode !== "boot"} keys={compactPanel ? PANEL_CAMERA : portrait ? film.cameraPortrait : film.camera}
+    return <CorePoster ready={mode !== "boot"} keys={compactPanel ? PANEL_CAMERA : filmCamera(film, portrait)}
       progress={p} scale={coreOpeningScale(film, p, openingScale)} fov={portrait ? 50 : 38}
       belowHeader={responsiveHome && mode === "desktop"} compact={portrait || compactPanel}
-      lite={noGl && mode !== "boot"} act={still ? undefined : coreAct} />;
+      lite={noGl && mode !== "boot"} act={still ? undefined : coreAct} hostStyle={still ? undefined : stageHost} />;
   };
   const scene = (still: boolean, run: boolean) =>
     webgl !== false && !noGl && mounted && sceneReady ? (
@@ -191,13 +200,15 @@ export function AiStory({ responsiveHome = false }: { responsiveHome?: boolean }
       <FilmUi.Provider value={film}>
         <style>{responsiveHome ? HOME_TRACK_CSS : TRACK_CSS}</style>
         <section ref={trackRef} id="afvar-ai" data-mode={mode} data-acts={mode === "boot" ? undefined : JSON.stringify(film.story.range)} aria-label="AFVAR AI — the trading operating system that never stops thinking" className="relative text-[#F2F5F2]">
-          {mode === "stacked" ? (
+          {mode === "mobile" ? (
+            <MobileStory film={film} quotes={quotes} revealRef={revealRef} />
+          ) : mode === "stacked" ? (
             <Stacked revealRef={revealRef} poster={poster(true)} scene={scene(true, active)} quotes={quotes} film={film} compactHome={responsiveHome && !wide} />
           ) : (
             <div className="home-story-stage sticky top-0 h-svh overflow-hidden">
               <motion.div className="home-story-scene absolute inset-0" style={{ opacity: coreOpacity }}>
                 {poster(false)}
-                {mode !== "boot" ? <div className="home-core-live absolute inset-0">{scene(false, active && !osCovered)}</div> : null}
+                {mode !== "boot" ? <div className="home-core-live absolute inset-0" style={stageHost}>{scene(false, active && !osCovered)}</div> : null}
               </motion.div>
               {mode === "boot" ? <BootStage /> : mode === "desktop" ? <DesktopStage centeredHome={responsiveHome} mv={progress} trackRef={trackRef} quotes={quotes} film={film} avatarInOs={avatarInOs} /> : <CompactStage mv={progress} trackRef={trackRef} quotes={quotes} film={film} portrait={portrait} />}
             </div>

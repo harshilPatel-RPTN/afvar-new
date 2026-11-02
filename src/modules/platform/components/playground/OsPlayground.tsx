@@ -7,11 +7,13 @@
 // Gold chart, which shows real prices as labelled.
 //
 // Phones get the home film's rule: no OS on a phone — the avatar talks instead.
-import { useCallback, useReducer, useRef, useState, type KeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useReducer, useRef, useState, type KeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { motion } from "framer-motion";
 import { AiOrb, AppGlyph, CARD_AI, Dock, EYEBROW, GOLD_CTA, H2, MONO, MenuBar, MiniChart, OsScreen, SOFT, Toast, type AppGlyphName, type DockItem } from "@/modules/afvarOs";
 import { fmtPrice, useLiveMarket } from "@/modules/home/kit";
 import { openLiveAvatar, useNowMinute, type Quotes } from "@/modules/homeDemo/kit";
 import { getCapability } from "../../content";
+import { RuleDraw, useReveal } from "../../film/motion";
 import type { CapabilitySlug } from "../../types";
 import { resolve, type Intent } from "../os/commands";
 import { APP_ORDER, INITIAL, reducer, type Frame } from "../os/desktop-state";
@@ -25,21 +27,26 @@ const TITLE: Record<Lang, Record<CapabilitySlug, string>> = {
 };
 const MENUS: Record<Lang, string[]> = { en: ["Workspace", "Apps", "Layouts", "Window", "Help"], hi: ["वर्कस्पेस", "ऐप्स", "लेआउट", "विंडो", "मदद"] };
 
+/** Window buttons: 10 px dots with a taller invisible hit area (the screen is scaled down). */
+const HIT = "relative after:absolute after:-inset-x-[3px] after:-inset-y-[10px] after:content-['']";
+
 /** Desktop area inside the 1200×660 screen: under the menu bar, above the dock. */
 const AREA = { top: 36, height: 540 };
 const px = (f: Frame) => ({ left: `${f.l}%`, top: AREA.top + (f.t / 100) * 660 * 0.92, width: `${f.w}%`, height: (f.h / 100) * 660 * 0.92 });
 
 export function TrySection() {
   return (
-    <section id="try-afvar" aria-labelledby="try-title" className="scroll-mt-28 border-t border-[rgba(255,255,255,0.06)] bg-transparent px-5 py-24 sm:px-8 lg:px-16">
+    <section id="try-afvar" aria-labelledby="try-title" className="relative scroll-mt-28 bg-transparent px-5 py-24 sm:px-8 lg:px-16">
+      <RuleDraw />
       <div className="mx-auto max-w-[1240px]">
         <p className={EYEBROW}>Hands on</p>
         <h2 id="try-title" className={`mt-4 ${H2}`}>
           Try it yourself. <span className={SOFT}>Type a command, or drag a window.</span>
         </h2>
-        <div className="mt-10 max-lg:hidden">
+        {/* D6: the OS screen rises and scales in once. */}
+        <ScreenRise>
           <OsPlayground />
-        </div>
+        </ScreenRise>
         <div className="mt-8 lg:hidden">
           <PhoneTalk />
         </div>
@@ -51,10 +58,29 @@ export function TrySection() {
 /* ------------------------------------------------------------- phones */
 
 function PhoneTalk() {
+  // D6 (phones): the card rises in, then the orb pulses once.
+  const ref = useRef<HTMLDivElement>(null);
+  const st = useReveal(ref)(0);
+  const hidden = st.s === "wait";
   return (
-    <div className={`${CARD_AI} p-5`}>
+    <motion.div
+      ref={ref}
+      data-reveal={0}
+      className={`${CARD_AI} p-5`}
+      initial={false}
+      animate={hidden ? { opacity: 0, y: 26 } : { opacity: 1, y: 0 }}
+      transition={hidden || st.s === "static" ? NOW : { duration: 0.9, ease: EASE }}
+    >
       <p className="flex items-center gap-2 text-[15px] font-semibold">
-        <AiOrb size={12} /> The OS is a desktop and laptop experience.
+        <motion.span
+          className="inline-flex shrink-0"
+          initial={false}
+          animate={{ scale: st.s === "in" ? [1, 1.25, 1] : 1 }}
+          transition={st.s === "in" ? { duration: 1.1, delay: 0.7, ease: "easeInOut" } : NOW}
+        >
+          <AiOrb size={12} />
+        </motion.span>{" "}
+        The OS is a desktop and laptop experience.
       </p>
       <p className="mt-2 text-[14px] leading-relaxed text-[#B7C5BC]">On a phone, talk to AFVAR instead: ask in English or हिन्दी and hear the answer.</p>
       <button type="button" onClick={openLiveAvatar} className={`${GOLD_CTA} mt-5 inline-flex items-center gap-2`}>
@@ -62,6 +88,29 @@ function PhoneTalk() {
         Talk to AFVAR
       </button>
       <p className="mt-3 text-[12px] text-[#92A399]">Live voice beta · uses your microphone</p>
+    </motion.div>
+  );
+}
+
+/* ------------------------------------------------------- D6 (desktop) */
+
+const EASE = [0.22, 1, 0.36, 1] as const;
+const NOW = { duration: 0 };
+
+/** The playground's OS screen: rises 30 px and scales .96 → 1 once, as it enters (after the splash). */
+function ScreenRise({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const st = useReveal(ref)(0);
+  const hidden = st.s === "wait";
+  return (
+    <div ref={ref} data-reveal={0} className="mt-10 max-lg:hidden">
+      <motion.div
+        initial={false}
+        animate={hidden ? { opacity: 0, y: 30, scale: 0.96 } : { opacity: 1, y: 0, scale: 1 }}
+        transition={hidden || st.s === "static" ? NOW : { duration: 1.1, ease: EASE }}
+      >
+        {children}
+      </motion.div>
     </div>
   );
 }
@@ -190,9 +239,9 @@ export function OsPlayground() {
                   onPointerCancel={onTitleUp}
                 >
                   <span className="flex gap-1.5">
-                    <button type="button" aria-label={`Close ${TITLE[lang][app]}`} onClick={() => dispatch({ type: "close", app })} className={`h-2.5 w-2.5 rounded-full ${active ? "bg-[#A8DEC2]" : "bg-[#3A3F42]"} hover:bg-[#FF6B6B]`} />
-                    <button type="button" aria-label={`Minimize ${TITLE[lang][app]}`} onClick={() => dispatch({ type: "minimize", app })} className="h-2.5 w-2.5 rounded-full bg-[#3A3F42] hover:bg-[#B7C5BC]" />
-                    <button type="button" aria-label={`Zoom ${TITLE[lang][app]}`} onClick={() => dispatch({ type: "toggleMax", app })} className="h-2.5 w-2.5 rounded-full bg-[#3A3F42] hover:bg-[#B7C5BC]" />
+                    <button type="button" aria-label={`Close ${TITLE[lang][app]}`} onClick={() => dispatch({ type: "close", app })} className={`${HIT} h-2.5 w-2.5 rounded-full ${active ? "bg-[#A8DEC2]" : "bg-[#3A3F42]"} hover:bg-[#FF6B6B]`} />
+                    <button type="button" aria-label={`Minimize ${TITLE[lang][app]}`} onClick={() => dispatch({ type: "minimize", app })} className={`${HIT} h-2.5 w-2.5 rounded-full bg-[#3A3F42] hover:bg-[#B7C5BC]`} />
+                    <button type="button" aria-label={`Zoom ${TITLE[lang][app]}`} onClick={() => dispatch({ type: "toggleMax", app })} className={`${HIT} h-2.5 w-2.5 rounded-full bg-[#3A3F42] hover:bg-[#B7C5BC]`} />
                   </span>
                   <span className="ml-1 text-[#8A9295]">
                     <AppGlyph name={GLYPH[app]} size={13} />
@@ -210,7 +259,7 @@ export function OsPlayground() {
           <div className="absolute inset-x-0 top-0 z-[60] h-[30px]">
             <MenuBar menus={MENUS[lang]} space="Space 1 / 1 · Sample" clock={<UtcHm />} />
           </div>
-          <div className="absolute left-[640px] top-[5px] z-[61] flex overflow-hidden rounded-md border border-[rgba(255,255,255,0.14)] font-mono text-[10px]" role="group" aria-label="Language">
+          <div className="absolute left-[640px] top-[5px] z-[61] flex rounded-md border border-[rgba(255,255,255,0.14)] font-mono text-[10px]" role="group" aria-label="Language">
             {LANGS.map((l) => (
               <button
                 key={l.id}
@@ -218,7 +267,7 @@ export function OsPlayground() {
                 lang={l.id}
                 aria-pressed={lang === l.id}
                 onClick={() => setLang(l.id)}
-                className={`px-2 py-0.5 ${lang === l.id ? "bg-[rgba(168,222,194,0.22)] text-[#F2F5F2]" : "text-[#8A9295] hover:text-[#F2F5F2]"}`}
+                className={`relative px-2 py-0.5 after:absolute after:inset-x-0 after:-inset-y-2 after:content-[''] first:rounded-l-md last:rounded-r-md ${lang === l.id ? "bg-[rgba(168,222,194,0.22)] text-[#F2F5F2]" : "text-[#8A9295] hover:text-[#F2F5F2]"}`}
               >
                 {l.label}
               </button>
@@ -286,21 +335,9 @@ export function OsPlayground() {
   );
 }
 
-/** The film's dock, with real buttons over it. */
+/** The film's dock, its app tiles as real buttons (above the windows). */
 function DockButtons({ items, onLaunch }: { items: DockItem[]; onLaunch: (id: string) => void }) {
-  return (
-    <div className="absolute bottom-3 left-1/2 z-[65] -translate-x-1/2">
-      <div className="relative">
-        <Dock items={items} style={{ position: "relative", left: 0, bottom: 0, transform: "none" }} />
-        <div className="absolute inset-0 flex items-end gap-[10px] px-3 py-2">
-          <span className="h-11 w-11 shrink-0" aria-hidden="true" />
-          {items.map((it) => (
-            <button key={it.id} type="button" aria-label={`Open ${it.label}`} title={it.label} onClick={() => onLaunch(it.id)} className="h-11 w-11 shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-[#A8DEC2]" />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+  return <Dock items={items} onLaunch={onLaunch} style={{ zIndex: 65 }} />;
 }
 
 function UtcHm() {

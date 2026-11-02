@@ -1,0 +1,353 @@
+/* Phones only (< 640 px): the overview reel and the launch queue as a
+   "live trading terminal in your pocket". Everything here sits inside one
+   max-width: 639px query — 640 px and up render exactly as before.
+   Motion is CSS keyed on [data-mm-in] (set once the block is in view);
+   transform/opacity only; reduced motion shows the final state. */
+
+@media (max-width: 639px) {
+  /* ── shared ─────────────────────────────────────────────── */
+  .mm-sec {
+    position: relative;
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 100% 32px,
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 32px 100%,
+      radial-gradient(120% 60% at 0% 0%, rgba(0, 230, 118, 0.09), transparent 60%),
+      #050607;
+  }
+  /* Heading block becomes a terminal "prompt": a green rail on the left. */
+  .mm-ov .demo-overview-heading,
+  .mm-lq .mm-lq-head {
+    position: relative;
+    padding-left: 14px;
+    border-left: 1px solid rgba(0, 230, 118, 0.45);
+  }
+  .mm-edge {
+    position: absolute;
+    inset-inline: 0;
+    top: -1px;
+    height: 1px;
+    transform-origin: left;
+    background: linear-gradient(90deg, #00e676, rgba(0, 230, 118, 0.25) 70%, transparent);
+    box-shadow: 0 0 10px rgba(0, 230, 118, 0.55);
+    pointer-events: none;
+  }
+  .mm-sec .mk-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: #00e676;
+  }
+  .mm-sec .mk-eyebrow::before {
+    content: "";
+    width: 18px;
+    height: 1px;
+    background: #00e676;
+  }
+  .mm-sec h2 {
+    font-size: clamp(30px, 9.4vw, 40px) !important;
+    line-height: 1.04 !important;
+    letter-spacing: -0.03em !important;
+  }
+
+  /* CTA: press scale + a single shine sweep on enter. */
+  .mm-cta {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .mm-cta:active { transform: scale(0.96); }
+  .mm-cta::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+    transform: translateX(-120%);
+  }
+
+  /* ── overview: terminal window ──────────────────────────── */
+  .mm-ov .demo-overview-languages > span {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    color: #a8dec2;
+  }
+  .mm-term {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    background: #0a0c0d;
+    overflow: hidden;
+    box-shadow: 0 24px 60px -30px rgba(0, 230, 118, 0.35);
+  }
+  .mm-term-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding-inline: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: #0d1011;
+  }
+  .mm-term-bar i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2a2f31;
+  }
+  .mm-term-bar i:nth-child(1) { background: #ff5252; }
+  .mm-term-bar i:nth-child(2) { background: #3a3f41; }
+  .mm-term-bar i:nth-child(3) { background: #00e676; }
+  .mm-term-bar b {
+    margin-left: auto;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00e676;
+    box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.6);
+  }
+  .mm-term-bar[data-playing] b { background: #ff5252; }
+  .mm-term .aspect-video {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  .afvar-responsive-home .mm-ov figure.mm-term { margin-top: 1.25rem; }
+  .mm-ov #overview-video-note {
+    margin: 0 !important;
+    padding: 10px 12px 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 11px !important;
+    line-height: 1.6 !important;
+  }
+
+  /* ── launch queue: swipe carousel ───────────────────────── */
+  .mm-lq .mm-lq-head { text-align: left; }
+  .mm-lq .mm-lq-head p { margin-inline: 0; }
+  .mm-lq .demo-queue-offers {
+    --mm-gutter: clamp(1rem, 4vw, 2.5rem);
+    display: flex;
+    gap: 12px;
+    margin-inline: calc(-1 * var(--mm-gutter));
+    padding: 8px var(--mm-gutter) 4px;
+    scroll-padding-inline: var(--mm-gutter);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .mm-lq .demo-queue-offers::-webkit-scrollbar { display: none; }
+  .mm-lq .demo-queue-offers > * {
+    flex: 0 0 86%;
+    scroll-snap-align: start;
+  }
+  .mm-lq .demo-queue-card { border-color: rgba(255, 255, 255, 0.1); background: #0a0c0d; }
+  .mm-lq .demo-queue-card h3 { font-size: 26px; letter-spacing: -0.02em; }
+  .mm-lq .demo-queue-card li {
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .mm-lq .demo-queue-card li:last-child { border-bottom: 0; padding-bottom: 0; }
+
+  .mm-pager {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 14px;
+  }
+  .mm-pager span {
+    width: 18px;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.18);
+    transform: scaleX(0.4);
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.4s;
+  }
+  .mm-pager span[data-on] { transform: scaleX(1); background: #00e676; }
+
+  .mm-lq .demo-queue-registration { background: #0a0c0d; border-color: rgba(0, 230, 118, 0.22); }
+}
+
+@media (min-width: 640px) {
+  .mm-only { display: none !important; }
+}
+
+/* ── motion (phones, motion allowed) ───────────────────────── */
+@media (max-width: 639px) and (prefers-reduced-motion: no-preference) {
+  .mm-edge { transform: scaleX(0); }
+  [data-mm-in] .mm-edge,
+  [data-mm-in].mm-edge { animation: mm-draw 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s forwards; }
+
+  .mm-up { opacity: 0; transform: translateY(24px); }
+  [data-mm-in] .mm-up {
+    animation: mm-up 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: calc(0.15s + var(--i, 0) * 0.09s);
+  }
+
+  [data-mm-in] .mm-cta::after { animation: mm-shine 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.9s forwards; }
+  .mm-term-bar b { animation: mm-pulse 1.6s ease-out infinite; }
+
+  .mm-term { transform: translateY(24px) scale(0.97); opacity: 0; }
+  [data-mm-in] .mm-term { animation: mm-up 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s forwards; }
+}
+
+@keyframes mm-draw { to { transform: scaleX(1); } }
+@keyframes mm-up { to { opacity: 1; transform: none; } }
+@keyframes mm-shine { to { transform: translateX(120%); } }
+@keyframes mm-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.6); }
+  100% { box-shadow: 0 0 0 7px rgba(0, 230, 118, 0); }
+}
+
+/* ═══ Phase 2 — modern mobile patterns (phones only) ═══════════════════ */
+
+@property --mm-a {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@media (max-width: 639px) {
+  /* Heading line-mask: each word rises out of its own overflow-hidden mask.
+     (`translate` is separate from framer's inline `transform`.) */
+  .mm-sec h2 > span[data-gap] {
+    overflow: hidden;
+    vertical-align: top;
+    padding-bottom: 0.12em;
+    margin-bottom: -0.12em;
+  }
+  .mm-sec h2 [data-gap-line] { display: none; }
+  .mm-sec h2 [data-gap] > span:first-child { transform: none !important; }
+
+  /* CTA border beam: a conic sweep around the pill's 1px edge. */
+  .mm-cta::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    padding: 1px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: conic-gradient(from var(--mm-a), transparent 0 72%, #00e676 86%, #a8dec2 90%, transparent 96%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+  }
+  .mm-rip {
+    position: absolute;
+    left: var(--rx, 50%);
+    top: var(--ry, 50%);
+    z-index: -1;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border-radius: 50%;
+    background: rgba(168, 222, 194, 0.45);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .mm-rip[data-go] { animation: mm-rip 0.55s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+  /* Carousel progress rail (scroll-linked where supported). */
+  .mm-rail {
+    display: block;
+    width: 64px;
+    height: 2px;
+    margin: 10px auto 0;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+    border-radius: 2px;
+  }
+  .mm-rail > span {
+    display: block;
+    height: 100%;
+    background: #00e676;
+    transform-origin: left;
+    transform: scaleX(var(--mm-p, 0.5));
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+@media (max-width: 639px) and (prefers-reduced-motion: no-preference) {
+  .mm-sec h2 [data-gap] > span:first-child { translate: 0 110%; }
+  [data-mm-in] .mm-sec h2 [data-gap] > span:first-child,
+  [data-mm-in].mm-sec h2 [data-gap] > span:first-child {
+    animation: mm-mask 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+  .mm-sec h2 [data-gap]:nth-child(2) > span:first-child { animation-delay: 0.05s; }
+  .mm-sec h2 [data-gap]:nth-child(3) > span:first-child { animation-delay: 0.1s; }
+  .mm-sec h2 [data-gap]:nth-child(4) > span:first-child { animation-delay: 0.15s; }
+  .mm-sec h2 [data-gap]:nth-child(5) > span:first-child { animation-delay: 0.2s; }
+  .mm-sec h2 [data-gap]:nth-child(6) > span:first-child { animation-delay: 0.25s; }
+  .mm-sec h2 [data-gap]:nth-child(7) > span:first-child { animation-delay: 0.3s; }
+  .mm-sec h2 [data-gap]:nth-child(n + 8) > span:first-child { animation-delay: 0.35s; }
+
+  .mm-cta::before { animation: mm-beam 3.2s linear infinite; }
+}
+
+/* Scroll-driven upgrades (Chrome/Safari 26+); others keep the entries above. */
+@supports (animation-timeline: view()) {
+  @media (max-width: 639px) and (prefers-reduced-motion: no-preference) {
+    /* Reel: a small rounded inset that opens to the full frame as it scrolls in. */
+    /* The window itself just appears; only the video box clips open, so the
+       caption under it is never cut. */
+    .mm-term,
+    [data-mm-in] .mm-term {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+    .mm-term .aspect-video {
+      animation: mm-expand linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+    .mm-term-bar,
+    [data-mm-in] .mm-term-bar {
+      animation: mm-bar linear both;
+      animation-timeline: view();
+      animation-range: entry 30% cover 45%;
+    }
+    .mm-term-bar b { animation: mm-pulse 1.6s ease-out infinite; }
+
+    /* Carousel depth: side cards scale down and dim; the centred card lifts. */
+    .mm-lq .demo-queue-offers > * {
+      animation: mm-depth linear both;
+      animation-timeline: view(inline);
+    }
+    .mm-lq .mm-q-wrap { timeline-scope: --mmq; }
+    .mm-lq .demo-queue-offers { scroll-timeline: --mmq x; }
+    .mm-rail > span {
+      transition: none;
+      animation: mm-fill linear both;
+      animation-timeline: --mmq;
+    }
+  }
+}
+
+@keyframes mm-mask { to { translate: 0 0; } }
+@keyframes mm-beam { to { --mm-a: 360deg; } }
+@keyframes mm-rip {
+  0% { opacity: 0.8; transform: scale(0); }
+  100% { opacity: 0; transform: scale(28); }
+}
+@keyframes mm-expand {
+  from { clip-path: inset(12% 8% round 24px); }
+  to { clip-path: inset(0 0 round 0); }
+}
+@keyframes mm-bar {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes mm-depth {
+  0% { transform: scale(0.9); opacity: 0.55; }
+  45%, 55% { transform: translateY(-4px) scale(1); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.55; }
+}
+@keyframes mm-fill {
+  from { transform: scaleX(0.5); }
+  to { transform: scaleX(1); }
+}

@@ -250,7 +250,7 @@ function Brokers() {
             )),
           )}
         </div>
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
           <Chip tone="sample">Sample brokers</Chip>
           <Chip>Each fact links its source</Chip>
         </div>

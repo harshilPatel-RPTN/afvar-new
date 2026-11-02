@@ -3,10 +3,10 @@
 // The 3D heroes of the site pages (About, Pricing, the Markets family, the
 // Resources family) — each page's own centrepiece, built from the shared kit.
 // No page reuses another's object, and none uses the home's gold core.
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useMemo, useRef, type ReactNode } from "react";
 import * as THREE from "three";
-import { COLORS, type CameraKey } from "@/modules/afvarOs";
+import { COLORS, useFilmMode, type CameraKey } from "@/modules/afvarOs";
 import { AiSpark, CoreCanvas, GlassPlate, GlowLine, GoldDust, hdr, useStoryFrame } from "@/modules/afvarOs/gl";
 import type { HeroSceneArgs } from "./HeroStage";
 import { TIERS_X, tiersFit } from "./tiersFit";
@@ -154,61 +154,114 @@ function Candle({ x, z = 0, o, c, h, l, s = 0.16 }: { x: number; z?: number; o: 
   );
 }
 
-/* About: five principles stacked like a monument, a gold spine through them. */
-function PrinciplesStack() {
-  const { still } = useStoryFrame();
-  const slabs = useRef<(THREE.Group | null)[]>([]);
-  const spine = useRef<THREE.Group>(null);
-  const pulse = useRef<THREE.Mesh>(null);
-  const spark = useRef<THREE.Group>(null);
-  // The slabs settle onto each other from above, the gold spine then draws itself up through them,
-  // and the spark lands at the top. Live: the stack breathes out of step, the crown slab lifts a
-  // touch, and every few seconds a gold pulse climbs the spine from base to spark.
-  useFrame((s) => {
-    const t = s.clock.elapsedTime;
-    slabs.current.forEach((g, i) => {
-      if (!g) return;
-      const k = still ? 1 : ease(t, 0.15 + i * 0.16, 0.8);
-      g.position.y = i * 0.45 + (still ? 0 : 0.9 * (1 - k) + 0.025 * Math.sin(t * 0.8 + i * 1.9) + (i === 4 ? 0.04 * (0.5 + 0.5 * Math.sin(t * 0.6)) : 0));
-      g.scale.setScalar(still ? 1 : pop(t, 0.15 + i * 0.16, 0.8));
-      g.rotation.y = still ? 0 : 0.02 * Math.sin(t * 0.4 + i * 1.3);
-    });
-    if (spine.current) spine.current.scale.y = still ? 1 : Math.max(0.001, ease(t, 1.1, 0.9));
-    // The climbing pulse: every 4 s after the spine is drawn, base to spark, fading as it goes.
-    const c = (t - 2.2) % 4;
-    const k = still || t < 2.2 ? 1 : clamp01(c / 1.4);
-    if (pulse.current) {
-      pulse.current.visible = !still && t > 2.2 && c < 1.4;
-      pulse.current.position.y = -0.1 + ease(k, 0, 1) * 2.35;
-      pulse.current.scale.setScalar(Math.max(0.001, Math.sin(Math.PI * k)));
-    }
-    if (spark.current) {
-      spark.current.scale.setScalar(still ? 1 : pop(t, 1.9, 0.7));
-      spark.current.position.y = 2.45 + (still ? 0 : 0.05 * Math.sin(t * 0.6));
+/* About: five principles stacked like a monument, a gold spine through them.
+ * Idle motion (the hero's progress is fixed, so it runs on the clock): every
+ * CHECK_PERIOD s a gold check pulse climbs the spine and each rule's tile lights
+ * as it passes (the AI enforcing it), lifts a touch and settles; the tiles also
+ * breathe in a slow wave up the stack, the spark swells when the check lands,
+ * and the whole stack sways (~6°). Lite: sway + pulse + tile light only.
+ * Still: one settled frame — all five rules lit (checked), no pulse, no motion. */
+const RULE_GAP = 0.45;
+const SPINE_FROM = -0.1;
+const SPINE_TO = 2.25;
+const CHECK_PERIOD = 5.5;
+/** Share of the period the pulse spends climbing (the rest is a pause at the top). */
+const CHECK_CLIMB = 0.55;
+const BREATHE_PERIOD = 4.8;
+const SWAY_PERIOD = 10;
+type RuleMats = { edge: (THREE.Material & { opacity: number })[]; edgeBase: number[]; body: THREE.MeshPhysicalMaterial[] };
+const RULE_GOLD = new THREE.Color(COLORS.gold);
+
+function collectRuleMats(tile: THREE.Object3D): RuleMats {
+  const out: RuleMats = { edge: [], edgeBase: [], body: [] };
+  tile.traverse((o) => {
+    const m = (o as THREE.Mesh).material as THREE.Material | THREE.Material[] | undefined;
+    if (!m || Array.isArray(m)) return;
+    if (m instanceof THREE.MeshPhysicalMaterial) {
+      m.emissive.copy(RULE_GOLD);
+      m.emissiveIntensity = 0;
+      out.body.push(m);
+    } else if (m.transparent) {
+      out.edge.push(m as THREE.Material & { opacity: number });
+      out.edgeBase.push(m.opacity);
     }
   });
+  return out;
+}
+
+/** 0…1 light of the rule at height fraction `f` up the spine, at check phase `ph` (0…1). */
+function ruleLight(ph: number, f: number): number {
+  const dt = (((ph - f * CHECK_CLIMB) % 1) + 1) % 1 * CHECK_PERIOD;
+  return dt < 0.18 ? dt / 0.18 : Math.exp(-(dt - 0.18) / 1.1);
+}
+
+function animateRules(stack: THREE.Group, mats: RuleMats[], pulse: THREE.Object3D | null, spark: THREE.Object3D | null, t: number, still: boolean, lite: boolean) {
+  const ph = (t / CHECK_PERIOD) % 1;
+  // whole stack: slow visible sway (~6°) and a hint of roll
+  stack.rotation.y = still ? 0 : 0.1 * Math.sin((t / SWAY_PERIOD) * Math.PI * 2);
+  stack.rotation.z = still || lite ? 0 : 0.02 * Math.sin((t / (SWAY_PERIOD * 1.3)) * Math.PI * 2);
+  for (let i = 0; i < mats.length; i++) {
+    const tile = stack.children[i];
+    const f = (i * RULE_GAP - SPINE_FROM) / (SPINE_TO - SPINE_FROM);
+    const k = still ? 0.4 : ruleLight(ph, f);
+    const breathe = still || lite ? 0 : 0.035 * Math.sin((t / BREATHE_PERIOD - i / 5) * Math.PI * 2);
+    tile.position.y = i * RULE_GAP + breathe + (still || lite ? 0 : 0.05 * k);
+    const m = mats[i];
+    for (let j = 0; j < m.edge.length; j++) m.edge[j].opacity = Math.min(1, m.edgeBase[j] + (1 - m.edgeBase[j]) * k);
+    for (const b of m.body) b.emissiveIntensity = 0.32 * k;
+  }
+  if (pulse) {
+    const u = ph / CHECK_CLIMB;
+    const on = !still && u < 1;
+    const r = on ? 0.05 * Math.sin(Math.PI * Math.min(1, u * 1.15)) + 0.012 : 0;
+    pulse.position.y = SPINE_FROM + (SPINE_TO - SPINE_FROM) * Math.min(1, u);
+    pulse.scale.setScalar(Math.max(1e-4, r));
+  }
+  if (spark) {
+    // the spark swells as the check lands at the top, then breathes back
+    const land = still || lite ? 0 : ruleLight(ph, 1.08);
+    spark.scale.setScalar(1 + 0.35 * land);
+  }
+}
+
+function PrinciplesStack({ portrait = false }: { portrait?: boolean }) {
+  const { still } = useStoryFrame();
+  // Short portrait phones (e.g. 320×640) have ~120 px between the navbar and the copy: shrink the stack
+  // and lift it so its lower tiles never sit behind the headline. 840 px and taller: unchanged.
+  const h = useThree((st) => st.size.height);
+  const k = portrait ? Math.min(1, Math.max(0, (h - 640) / 200)) : 1;
+  const fitS = 0.56 + 0.44 * k;
+  const fitY = (1 - k) * 0.85;
+  const { lite } = useFilmMode();
+  const stack = useRef<THREE.Group>(null);
+  const pulse = useRef<THREE.Mesh>(null);
+  const spark = useRef<THREE.Group>(null);
+  const mats = useRef<RuleMats[] | null>(null);
+  useFrame((s) => {
+    const g = stack.current;
+    if (!g) return;
+    if (!mats.current) mats.current = [0, 1, 2, 3, 4].map((i) => collectRuleMats(g.children[i]));
+    animateRules(g, mats.current, pulse.current, spark.current, s.clock.elapsedTime, still, lite);
+  });
   return (
-    <group position={[0.4, -0.9, 0]} rotation={[0.3, -0.45, 0]}>
-      <Lean yaw={0.18} pitch={0.08}>
+    <group position={[0.4, -0.9 + fitY, 0]} rotation={[0.3, -0.45, 0]} scale={fitS}>
+      <group ref={stack}>
         {[0, 1, 2, 3, 4].map((i) => (
-          <group key={i} position={[0, i * 0.45, 0]} ref={(g) => { slabs.current[i] = g; }}>
+          <group key={i} position={[0, i * RULE_GAP, 0]}>
             <GlassPlate width={2.6 - i * 0.34} depth={1.6 - i * 0.18} thickness={0.05} radius={0.1} edge={i === 4 ? 0.95 : 0.4} tint={i === 4 ? "#0E1F17" : "#06110C"} opacity={0.55} />
           </group>
         ))}
-        <group position={[0, -0.1, 0]}>
-          {/* A 2-point line can't draw on by segments, so the spine unrolls from its base by scale. */}
-          <group ref={spine}>
-            <GlowLine points={[v(0, 0, 0), v(0, 2.35, 0)]} color={COLORS.gold} intensity={1.3} width={2} />
+        <GlowLine points={[v(0, SPINE_FROM, 0), v(0, SPINE_TO, 0)]} color={COLORS.gold} intensity={1.3} width={2} />
+        <group position={[0, 2.45, 0]} rotation={face(0.3, -0.45)}>
+          <group ref={spark}>
+            <AiSpark size={0.08} />
           </group>
         </group>
-        <mesh ref={pulse} visible={false}>
-          <sphereGeometry args={[0.05, 12, 12]} />
-          <meshBasicMaterial color={hdr(COLORS.gold, 1.7)} toneMapped={false} />
+        <mesh ref={pulse} position={[0, SPINE_FROM, 0]} scale={0.0001}>
+          <sphereGeometry args={[1, 12, 12]} />
+          <meshBasicMaterial color={hdr(COLORS.goldHot, 2.2)} toneMapped={false} />
         </mesh>
-        <group ref={spark} position={[0, 2.45, 0]} rotation={face(0.3, -0.45)}>
-          <AiSpark size={0.08} />
-        </group>
-      </Lean>
+      </group>
     </group>
   );
 }

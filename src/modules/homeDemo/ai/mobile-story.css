@@ -1,0 +1,175 @@
+/* Phone story (< 640 px, root homepage) — "a live trading terminal in your pocket".
+   Every rule is scoped to .ms-root, which only renders below 640 px. */
+.afvar-responsive-home #afvar-ai[data-mode="mobile"] { height: auto; }
+
+.ms-root {
+  --ms-bg: #050607;
+  --ms-green: #00E676;
+  --ms-soft: #A8DEC2;
+  --ms-red: #FF5252;
+  --ms-gold: #E8C26A;
+  --ms-hair: rgba(255, 255, 255, 0.09);
+  --ms-ease: cubic-bezier(.2, .8, .2, 1);
+  position: relative;
+  background: var(--ms-bg);
+  overflow-x: clip;
+  padding-bottom: 32px;
+}
+
+/* ------------------------------------------------------------ rail */
+.ms-rail {
+  position: fixed; left: 0; top: 72px; bottom: 0; width: 3px; z-index: 30;
+  background: rgba(255, 255, 255, 0.06); pointer-events: none;
+}
+.ms-rail-fill {
+  display: block; width: 100%; height: 100%; transform-origin: top;
+  background: linear-gradient(to bottom, var(--ms-soft), var(--ms-green));
+}
+
+/* ------------------------------------------------------------ chapters */
+.ms-chapter {
+  position: relative; z-index: 1;
+  margin: 20px 12px 0;
+}
+.ms-chapter[data-pin="true"] { position: sticky; }
+.ms-scale {
+  position: relative;
+  padding: 56px 18px 26px;
+  border: 1px solid var(--ms-hair);
+  border-radius: 4px;
+  background: #08090A;
+  overflow: hidden;
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+.ms-dim {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: #000; opacity: 0;
+}
+.ms-edge {
+  position: absolute; left: 0; right: 0; top: -1px; height: 2px;
+  background: linear-gradient(90deg, var(--ms-green), var(--ms-soft) 60%, transparent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .9s var(--ms-ease) .1s;
+}
+.ms-edge[data-on="true"] { transform: scaleX(1); }
+.ms-num {
+  position: absolute; top: 18px; right: 18px; display: flex; align-items: center; gap: 6px;
+  color: #F2F5F2 !important; font-size: 12px !important; font-variant-numeric: tabular-nums;
+}
+.ms-num-total { color: #5E6669; }
+.ms-ai-dot {
+  width: 7px; height: 7px; border-radius: 999px; background: var(--ms-gold); margin-right: 4px;
+  box-shadow: 0 0 0 0 rgba(232, 194, 106, .55);
+  animation: ms-ai 1.8s ease-out infinite;
+}
+@keyframes ms-ai { 0% { box-shadow: 0 0 0 0 rgba(232, 194, 106, .55); } 70% { box-shadow: 0 0 0 9px rgba(232, 194, 106, 0); } 100% { box-shadow: 0 0 0 0 rgba(232, 194, 106, 0); } }
+@keyframes ms-pulse { 50% { opacity: .3; } }
+
+.ms-chapter h2 {
+  font-size: clamp(28px, min(10.4vw, 12svh), 44px) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.04em !important;
+  margin-top: 14px !important;
+}
+.ms-chapter .home-chapter-prose > p:not(:first-child) { font-size: 15px; line-height: 1.6; }
+.ms-chapter .home-story-actions { flex-wrap: wrap !important; }
+
+/* children slide up one after another once the chapter is in view */
+.ms-stagger > * { opacity: 0; transform: translateY(24px); transition: opacity .7s var(--ms-ease), transform .7s var(--ms-ease); }
+.ms-stagger > :nth-child(2) { transition-delay: .14s; }
+.ms-stagger > :nth-child(3) { transition-delay: .28s; }
+.ms-stagger[data-on="true"] > * { opacity: 1; transform: none; }
+
+/* square-shouldered terminal cards */
+.ms-root .ms-card,
+.ms-chapter .rounded-2xl,
+.ms-chapter .rounded-3xl { border-radius: 4px !important; }
+.ms-chapter [class*="bg-[#10231B]"] { background: #0B0E0D !important; }
+.ms-card { position: relative; }
+
+/* ------------------------------------------------------- heading mask reveal */
+.ms-w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .14em; margin-bottom: -.14em; }
+.ms-wi {
+  display: inline-block; transform: translateY(110%);
+  transition: transform .8s var(--ms-ease); transition-delay: calc(.08s + var(--w) * 50ms);
+}
+[data-on="true"] .ms-wi { transform: none; }
+
+/* ------------------------------------------------------- velocity marquee */
+.ms-marquee {
+  position: relative; z-index: 1; overflow: hidden;
+  margin: 20px 0 0; padding: 10px 0;
+  border-block: 1px solid var(--ms-hair); background: var(--ms-bg);
+}
+.ms-mq-move { display: flex; width: max-content; will-change: transform; }
+.ms-mq-row { display: flex; flex: none; }
+.ms-mq-row > span {
+  padding: 0 .35em; white-space: nowrap;
+  font-size: clamp(44px, min(16vw, 15svh), 76px); font-weight: 700; line-height: 1.05; letter-spacing: -0.04em;
+  color: transparent; -webkit-text-stroke: 1px rgba(168, 222, 194, .55);
+}
+.ms-mq-row > span.ms-mq-fill { color: #0f1a14; -webkit-text-stroke: 1px var(--ms-green); }
+.ms-mq-row > span::after { content: ""; display: inline-block; width: .16em; height: .16em; margin-left: .7em; border-radius: 999px; background: var(--ms-green); vertical-align: middle; }
+
+/* ------------------------------------------------------- border beam */
+.ms-beam { position: relative; padding: 1.5px; border-radius: 5px; overflow: hidden; isolation: isolate; }
+.ms-beam-light {
+  position: absolute; left: 50%; top: 50%; width: 200%; aspect-ratio: 1; z-index: -1;
+  background: conic-gradient(from 0deg, transparent 0 62%, rgba(0, 230, 118, .9) 78%, var(--ms-gold) 90%, transparent 100%);
+  transform: translate(-50%, -50%) rotate(0deg);
+  animation: ms-beam 4.5s linear infinite;
+}
+.ms-beam::after { content: ""; position: absolute; inset: 0; z-index: -2; background: rgba(255, 255, 255, 0.08); border-radius: inherit; }
+.ms-beam-body { position: relative; border-radius: 4px; background: #0B0E0D; }
+.ms-beam-body > * { border-color: transparent !important; }
+@keyframes ms-beam { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+/* ------------------------------------------------------- chapter tint */
+.ms-tint { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+.ms-tint > span { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s var(--ms-ease); }
+.ms-tint > span[data-on="true"] { opacity: 1; }
+.ms-tint-green { background: radial-gradient(120% 60% at 0% 30%, rgba(0, 230, 118, .10), transparent 60%), radial-gradient(90% 50% at 100% 90%, rgba(168, 222, 194, .06), transparent 60%); }
+.ms-tint-gold { background: radial-gradient(120% 60% at 100% 25%, rgba(232, 194, 106, .11), transparent 60%), radial-gradient(90% 50% at 0% 85%, rgba(232, 194, 106, .05), transparent 60%); }
+
+/* ------------------------------------------------------------ OS timeline */
+.ms-os { list-style: none; margin: 18px 0 0; padding: 0 0 0 18px; position: relative; }
+.ms-os::before {
+  content: ""; position: absolute; left: 3px; top: 6px; bottom: 6px; width: 1px;
+  background: linear-gradient(to bottom, var(--ms-green), rgba(168, 222, 194, .15));
+  transform: scaleY(0); transform-origin: top; transition: transform 1.2s var(--ms-ease) .2s;
+}
+.ms-stagger[data-on="true"] .ms-os::before { transform: scaleY(1); }
+.ms-os-item { position: relative; padding: 14px 0; border-bottom: 1px solid var(--ms-hair); }
+.ms-os-item:last-child { border-bottom: 0; }
+.ms-os-item::before {
+  content: ""; position: absolute; left: -18px; top: 20px; width: 7px; height: 7px; border-radius: 999px;
+  background: var(--ms-bg); border: 1px solid var(--ms-green);
+}
+.ms-os-item { opacity: 0; transform: translateY(18px); transition: opacity .6s var(--ms-ease), transform .6s var(--ms-ease); transition-delay: calc(.25s + var(--i) * .09s); }
+.ms-stagger[data-on="true"] .ms-os-item { opacity: 1; transform: none; }
+.ms-os-step { color: var(--ms-soft) !important; font-size: 10px !important; }
+.ms-os-item h3 { margin-top: 6px; font-size: 19px; font-weight: 600; letter-spacing: -0.02em; color: #F2F5F2; }
+.ms-os-item p { margin-top: 4px; font-size: 14px; line-height: 1.55; color: #B7C5BC; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-wi { transform: none !important; transition: none !important; }
+  .ms-beam-light { animation: none; }
+  .ms-ai-dot { animation: none !important; }
+  .ms-stagger > *, .ms-os-item { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .ms-edge, .ms-os::before { transform: none !important; transition: none !important; }
+}
+:root[data-reduce-motion="true"] .ms-beam-light,
+:root[data-reduce-motion="true"] .ms-ai-dot { animation: none !important; }
+:root[data-reduce-motion="true"] .ms-wi { transform: none !important; transition: none !important; }
+
+/* compositor-driven enters where supported (scroll-driven animations) */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .ms-os-item { opacity: 1; transform: none; transition: none; animation: ms-rise-in linear both; animation-timeline: view(); animation-range: entry 0% entry 70%; }
+    .ms-stagger[data-on="true"] .ms-os-item { opacity: 1; transform: none; }
+    .ms-marquee { animation: ms-clip-in linear both; animation-timeline: view(); animation-range: entry 0% entry 100%; }
+  }
+}
+@keyframes ms-rise-in { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes ms-clip-in { from { clip-path: inset(0 50% 0 50%); } to { clip-path: inset(0 0 0 0); } }

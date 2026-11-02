@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ClosingCopy, SiteFrame } from "@/modules/homeDemo";
 import { pathOf } from "../../routes";
 import type { Capability } from "../../types";
+import { PageProgress } from "../motion";
 import { FeatureJumpGrid, NotesAndRelated, OtherAreas, OutcomeLine } from "./sections";
 
 /**
@@ -34,6 +35,7 @@ export function CapabilityTemplate({
     <SiteFrame
       closing={<ClosingCopy title="Join before launch." soft={closing} second={{ label: "Platform overview", href: pathOf("platform") }} />}
     >
+      <PageProgress />
       {film}
       <FeatureJumpGrid capability={capability} filmId={filmId} actOf={actOf} />
       <OutcomeLine capability={capability} />

@@ -8,6 +8,7 @@
 // view, slot-reel tags and the currency-swapping heading.
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
+import { useState, type CSSProperties, type PointerEvent, type UIEvent } from "react";
 import {
   AnimatedHeading,
   BTN_OUTLINE,
@@ -24,6 +25,7 @@ import {
   useOnce,
 } from "@/modules/home/kit";
 import { REGISTER_HREF } from "./ui";
+import "./mobile-mid.css";
 
 const OFFERS = [
   {
@@ -51,14 +53,46 @@ const OFFERS = [
   },
 ] as const;
 
+/** Phone CTA tap ripple: place the ripple under the finger and restart it. */
+function ripple(e: PointerEvent<HTMLAnchorElement>) {
+  const a = e.currentTarget;
+  const dot = a.querySelector<HTMLElement>(".mm-rip");
+  if (!dot) return;
+  const box = a.getBoundingClientRect();
+  dot.style.setProperty("--rx", `${e.clientX - box.left}px`);
+  dot.style.setProperty("--ry", `${e.clientY - box.top}px`);
+  dot.removeAttribute("data-go");
+  void dot.offsetWidth;
+  dot.setAttribute("data-go", "");
+}
+
+const RIP = <span aria-hidden="true" className="mm-rip mm-only" />;
+
 export function LaunchQueue({ showRain = true }: { showRain?: boolean }) {
   const reduce = useReducedMotion();
   const [ref, inView] = useOnce<HTMLDivElement>();
+  const [secRef, secIn] = useOnce<HTMLElement>();
+  const [signRef, signIn] = useOnce<HTMLDivElement>();
+  // Phone carousel pager: which offer card is snapped into view.
+  const [slide, setSlide] = useState(0);
+  const onSwipe = (e: UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const first = el.firstElementChild as HTMLElement | null;
+    if (!first) return;
+    setSlide(Math.min(OFFERS.length - 1, Math.max(0, Math.round(el.scrollLeft / (first.offsetWidth + 12)))));
+  };
   return (
-    <section id="launch-queue" aria-label="Launch queue" className="relative isolate scroll-mt-28 overflow-x-clip border-t border-white/[.08] px-5 pb-24 pt-16 sm:px-10 md:pb-28">
+    <section
+      ref={secRef}
+      data-mm-in={secIn ? "" : undefined}
+      id="launch-queue"
+      aria-label="Launch queue"
+      className="mm-sec mm-lq relative isolate scroll-mt-28 overflow-x-clip border-t border-white/[.08] px-5 pb-24 pt-16 sm:px-10 md:pb-28"
+    >
+      <span aria-hidden="true" className="mm-edge mm-only" />
       {showRain && <PercentRain />}
       <CandleSnake from="left" />
-      <motion.div className="mx-auto max-w-[680px] text-center" initial="hidden" whileInView="visible" viewport={VIEW_ONCE}>
+      <motion.div className="mm-lq-head mx-auto max-w-[680px] text-center" initial="hidden" whileInView="visible" viewport={VIEW_ONCE}>
         <AnimatedHeading
           center
           kicker="Launch queue"
@@ -71,8 +105,8 @@ export function LaunchQueue({ showRain = true }: { showRain?: boolean }) {
       </motion.div>
 
       {/* Cards rise with a small stagger; each top accent line draws on view; the disclaimer lands last. */}
-      <motion.div ref={ref} initial="hidden" animate={inView ? "visible" : "hidden"}>
-        <div className="demo-queue-offers mx-auto mt-10 grid max-w-[920px] gap-4 md:grid-cols-2">
+      <motion.div ref={ref} className="mm-q-wrap" data-mm-in={inView ? "" : undefined} initial="hidden" animate={inView ? "visible" : "hidden"}>
+        <div onScroll={onSwipe} className="demo-queue-offers mx-auto mt-10 grid max-w-[920px] gap-4 md:grid-cols-2">
           {OFFERS.map((offer, index) => (
             <CandleCard key={offer.title} index={index} delay={index * 0.1} snakeTarget={index === 0}>
               <div
@@ -93,20 +127,29 @@ export function LaunchQueue({ showRain = true }: { showRain?: boolean }) {
                 </div>
                 <h3 className="mt-1.5 text-[24px] font-semibold tracking-[-.015em] text-(--mk-text)">{offer.title}</h3>
                 <ul className="mt-5 space-y-3">
-                  {offer.points.map((point) => (
-                    <li key={point} className="flex gap-2.5 text-[13.5px] leading-relaxed text-(--mk-dim)">
+                  {offer.points.map((point, pi) => (
+                    <li key={point} style={{ "--i": index * 3 + pi } as CSSProperties} className="mm-up flex gap-2.5 text-[13.5px] leading-relaxed text-(--mk-dim)">
                       <Icon name="check" className={`mt-1 h-3.5 w-3.5 shrink-0 ${offer.primary ? "text-[#A8DEC2]" : "text-[#FF918B]"}`} strokeWidth={2} />
                       {point}
                     </li>
                   ))}
                 </ul>
-                <Link href={REGISTER_HREF} prefetch={false} className={`mt-7 w-full ${offer.primary ? BTN_PRIMARY : BTN_OUTLINE}`}>
+                <Link href={REGISTER_HREF} prefetch={false} onPointerDown={ripple} className={`mm-cta mt-7 w-full ${offer.primary ? BTN_PRIMARY : BTN_OUTLINE}`}>
+                  {RIP}
                   {offer.cta}
                   <Icon name="arrow" className="h-3.5 w-3.5" strokeWidth={2} />
                 </Link>
               </div>
             </CandleCard>
           ))}
+        </div>
+        <div aria-hidden="true" className="mm-pager mm-only hidden max-sm:flex">
+          {OFFERS.map((offer, i) => (
+            <span key={offer.n} data-on={i === slide ? "" : undefined} />
+          ))}
+        </div>
+        <div aria-hidden="true" className="mm-rail mm-only hidden max-sm:block" style={{ "--mm-p": (slide + 1) / OFFERS.length } as CSSProperties}>
+          <span />
         </div>
 
         <motion.p variants={fade(reduce, 0.6)} className="mx-auto mt-6 max-w-[720px] text-center text-[12.5px] leading-relaxed text-(--mk-faint)">
@@ -116,16 +159,18 @@ export function LaunchQueue({ showRain = true }: { showRain?: boolean }) {
 
       {/* Register */}
       <CandleCard standalone index={0} delay={0.1} className="demo-queue-signup mx-auto mt-10 max-w-[920px]">
-        <div className={`demo-queue-registration flex h-full flex-col gap-6 p-7 transition-colors duration-200 hover:border-white/[.2] sm:flex-row sm:items-center sm:justify-between sm:p-9 ${PANEL}`}>
+        <div ref={signRef} data-mm-in={signIn ? "" : undefined} className={`demo-queue-registration flex h-full flex-col gap-6 p-7 transition-colors duration-200 hover:border-white/[.2] sm:flex-row sm:items-center sm:justify-between sm:p-9 ${PANEL}`}>
           <p className="max-w-md text-[13.5px] leading-relaxed text-(--mk-dim)">
             Registration is free and reserves your place. It doesn&apos;t grant access to the OS yet — access comes later by invitation.
           </p>
           <div className="demo-queue-actions flex flex-nowrap items-center gap-2.5 sm:gap-3">
-            <Link href={REGISTER_HREF} prefetch={false} className={BTN_PRIMARY}>
+            <Link href={REGISTER_HREF} prefetch={false} onPointerDown={ripple} className={`mm-cta ${BTN_PRIMARY}`}>
+              {RIP}
               Register Now
               <Icon name="arrow" className="h-4 w-4" strokeWidth={2} />
             </Link>
-            <Link href={REGISTER_HREF} prefetch={false} className={BTN_OUTLINE}>
+            <Link href={REGISTER_HREF} prefetch={false} onPointerDown={ripple} className={`mm-cta ${BTN_OUTLINE}`}>
+              {RIP}
               Explore Launch Offers
             </Link>
           </div>

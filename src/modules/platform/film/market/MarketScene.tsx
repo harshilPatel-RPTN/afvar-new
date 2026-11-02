@@ -48,7 +48,7 @@ export default function MarketScene({ film, progress, active, still, portrait, l
     >
       <Ctx.Provider value={ctx}>
         <WallStage>
-          <PriceWall quotes={quotes} compact={portrait} yaw={portrait ? -0.3 : -0.4} pitch={portrait ? 0.14 : 0.12} x={portrait ? -0.2 : -0.3} />
+          <PriceWall quotes={quotes} compact={portrait} lite={lite} yaw={portrait ? -0.3 : -0.4} pitch={portrait ? 0.14 : 0.12} x={portrait ? -0.2 : -0.3} />
         </WallStage>
         <GoldDust count={lite ? 150 : 220} box={[11, 6, 6]} center={[0, 0, -0.8]} drift={[0.05, 0.006, 0]} opacity={0.38} />
         {avatarHere ? (

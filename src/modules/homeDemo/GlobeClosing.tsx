@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from "react";
 import { useAfvarReducedMotion, useMedia } from "@/modules/afvarOs";
 import { CURRENCY_ROUTES } from "./currencyRoutes";
 import type { mountGlobe } from "./pointGlobe";
@@ -9,11 +9,67 @@ import "./globe-closing.css";
 
 type Globe = Awaited<ReturnType<typeof mountGlobe>>;
 
-// Phones, tablets and touch-first screens never fetch three.js: the per-currency
-// stills crossfade under a CSS atmosphere instead. Shared with the AI story.
-const LITE_DEVICE = "(max-width:1099px), (max-height:649px), (pointer:coarse)";
+// The live globe runs on every screen 640 px wide and up (touch and short
+// landscape included; the canvas clamps its pixel ratio on tablets/touch), the
+// same rule as the AI story's film. Below 640 px the per-currency stills
+// crossfade under a CSS atmosphere instead and the globe code is never fetched.
+const LITE_DEVICE = "(max-width:639px)";
 const LEG_SECONDS = 5;
 const legCount = CURRENCY_ROUTES.length;
+// Equirectangular placement of each hub on the phone route map (viewBox 360×200).
+const MAP_W = 360, MAP_H = 200;
+const mapPoint = (lat: number, lon: number) => ({ x: 22 + (lon + 80) / 240 * (MAP_W - 44), y: 26 + (62 - lat) / 104 * (MAP_H - 52) });
+const HUB_POINTS = CURRENCY_ROUTES.map(leg => mapPoint(leg.from.lat, leg.from.lon));
+/** A gentle arc between two hubs, lifted in proportion to its span. */
+const arcPath = (a: {x: number; y: number}, b: {x: number; y: number}) => {
+  const span = Math.hypot(b.x - a.x, b.y - a.y);
+  return `M${a.x.toFixed(1)} ${a.y.toFixed(1)} Q${((a.x + b.x) / 2).toFixed(1)} ${(Math.min(a.y, b.y) - span * .38).toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+};
+const ARCS = CURRENCY_ROUTES.map((_, i) => arcPath(HUB_POINTS[i], HUB_POINTS[(i + 1) % legCount]));
+// [start lag s, radius, opacity] — the comet head first, then its trail.
+const COMET = [[0, 3.4, 1], [.05, 2.6, .5], [.1, 2, .28], [.15, 1.5, .14]] as const;
+const GRID_DOTS = Array.from({ length: 9 * 17 }, (_, i) => ({ x: 12 + (i % 17) * 21, y: 12 + Math.floor(i / 17) * 22 }));
+
+/** Phones only (shown by CSS below 640 px): a flat FX route map — every hub a
+ *  node on a dotted field, the active leg's arc drawing in with a dot riding it. */
+function RouteMap({ active, lite }: { active: number; lite: boolean }) {
+  const route = CURRENCY_ROUTES[active];
+  return (
+    <div className="home-route-map" role={lite ? "img" : undefined} aria-hidden={lite ? undefined : true}
+      aria-label={lite ? `Route map showing the ${route.from.code} route from ${route.from.city} to ${route.to.city}. The next leg carries ${route.to.code}.` : undefined}>
+      <svg viewBox={`0 0 ${MAP_W} ${MAP_H}`} aria-hidden="true">
+        <g className="home-route-grid">
+          {GRID_DOTS.map((dot, i) => <circle key={i} cx={dot.x} cy={dot.y} r=".9" />)}
+        </g>
+        <g className="home-route-faint">
+          {ARCS.map((d, i) => <path key={i} d={d} pathLength={1} style={{ "--r": i } as CSSProperties} />)}
+        </g>
+        <g key={active} className="home-route-live">
+          <path id={`home-route-arc-${active}`} d={ARCS[active]} pathLength={1} />
+          {/* Comet: a bright head and a fading trail of lagging copies. */}
+          {COMET.map(([lag, r, opacity]) => (
+            <circle key={lag} className="home-route-runner" r={r} opacity={opacity}>
+              <animateMotion dur="2.4s" begin={`${lag}s`} repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines=".45 0 .35 1">
+                <mpath href={`#home-route-arc-${active}`} />
+              </animateMotion>
+            </circle>
+          ))}
+        </g>
+        {HUB_POINTS.map((point, i) => {
+          const state = i === active ? "from" : i === (active + 1) % legCount ? "to" : undefined;
+          return (
+            <g key={`${CURRENCY_ROUTES[i].id}-${state ?? ""}`} className="home-route-node" data-state={state} transform={`translate(${point.x.toFixed(1)} ${point.y.toFixed(1)})`}>
+              {state === "from" && <circle className="home-route-pulse" r="5" />}
+              <circle className="home-route-dot" r={state ? 3.4 : 2.4} />
+              <text y={i % 2 ? 15 : -8} textAnchor="middle">{CURRENCY_ROUTES[i].from.code}</text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
 const stillSrc = (index: number) => `/home-globe/routes/${CURRENCY_ROUTES[index].from.code.toLowerCase()}.webp`;
 
 export function GlobeClosing({ children }: { children: ReactNode }) {
@@ -29,8 +85,9 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
   // null until the client answers; the SSR poster covers both outcomes.
   const lite = useMedia(LITE_DEVICE);
   const section = useRef<HTMLElement>(null);
-  const [seen, setSeen] = useState<ReadonlySet<number>>(() => new Set([0]));
   const [onscreen, setOnscreen] = useState(false);
+  // Latches true the first time the lite section scrolls in (phone reveal).
+  const [entered, setEntered] = useState(false);
   useEffect(() => {
     const node = canvas.current;
     if (!node || lite !== false || matchMedia(LITE_DEVICE).matches) return;
@@ -65,7 +122,10 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
   useEffect(() => {
     const node = section.current;
     if (!lite || !node) return;
-    const view = new IntersectionObserver(([entry]) => setOnscreen(entry.isIntersecting));
+    const view = new IntersectionObserver(([entry]) => {
+      setOnscreen(entry.isIntersecting);
+      if (entry.isIntersecting) setEntered(true);
+    }, { rootMargin: "0px 0px -12% 0px" });
     view.observe(node);
     return () => view.disconnect();
   }, [lite]);
@@ -76,21 +136,17 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
       const next = (requestedLeg.current + 1) % legCount;
       requestedLeg.current = next;
       setActiveLeg(next);
-      setSeen(previous => previous.has(next) ? previous : new Set(previous).add(next));
     }, LEG_SECONDS * 1000);
     return () => window.clearTimeout(tick);
   }, [lite, playing, onscreen, activeLeg]);
   function selectLeg(index: number) {
     requestedLeg.current = index;
     setActiveLeg(index);
-    setSeen(previous => previous.has(index) ? previous : new Set(previous).add(index));
     globe?.selectLeg(index);
   }
-  // Lite keeps every visited still mounted (and warms the next) so swaps are a
-  // pure opacity crossfade; the WebGL path keeps its single poster.
-  const stills = lite
-    ? CURRENCY_ROUTES.map((_, i) => i).filter(i => seen.has(i) || i === activeLeg || i === (activeLeg + 1) % legCount)
-    : [globe ? 0 : activeLeg];
+  // Phones (lite) draw the 2D route map instead, so no globe still is fetched;
+  // the WebGL path keeps its single poster.
+  const stills = lite ? [] : [globe ? 0 : activeLeg];
   function start(event: PointerEvent<HTMLCanvasElement>) {
     if (!globe || !event.isPrimary || event.button !== 0) return;
     drag.current = { id: event.pointerId, x: event.clientX };
@@ -108,9 +164,21 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
     drag.current = null;
     globe?.hold(false);
   }
+  // Phones: a tap ripple on the closing CTA, started where the finger lands.
+  function ripple(event: PointerEvent<HTMLElement>) {
+    const cta = (event.target as Element).closest<HTMLElement>(".home-close-cta");
+    if (!lite || !cta) return;
+    const box = cta.getBoundingClientRect();
+    cta.style.setProperty("--rx", `${event.clientX - box.left}px`);
+    cta.style.setProperty("--ry", `${event.clientY - box.top}px`);
+    cta.removeAttribute("data-ripple");
+    void cta.offsetWidth;
+    cta.setAttribute("data-ripple", "");
+  }
   return (
-    <section ref={section} id="afvar-globe" data-home-globe="" data-globe-lite={lite || undefined}
-      data-offscreen={(lite && !onscreen) || undefined} className="home-globe-closing" aria-labelledby="demo-closing-title">
+    <section ref={section} onPointerDown={ripple} id="afvar-globe" data-home-globe="" data-globe-lite={lite || undefined}
+      data-offscreen={(lite && !onscreen) || undefined} data-entered={(lite && entered) || undefined} className="home-globe-closing" aria-labelledby="demo-closing-title">
+      <span className="home-route-chapter" aria-hidden="true">10 / Close</span>
       <div className="home-globe-copy">
         {children}
         <div className="home-fx-route" data-fx-route={activeLeg}>
@@ -139,12 +207,12 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
         </div>
       </div>
       <div className="home-globe-figure">
+        <RouteMap active={activeLeg} lite={!!lite} />
         <div className="home-globe-disc" role="img" aria-label={`Globe showing the ${route.from.code} route from ${route.from.city} to ${route.to.city}. The next leg carries ${route.to.code}.`}>
           {stills.map(i => (
             <Image key={i} className="home-globe-still" src={stillSrc(i)} data-active={!lite || i === activeLeg || undefined}
               fill sizes="(max-width: 700px) 94vw, 58vw" unoptimized alt="" />
           ))}
-          {lite && <span className="home-globe-atmosphere" aria-hidden="true" />}
           <canvas ref={canvas} data-globe-canvas="" aria-hidden="true"
             onPointerDown={start} onPointerMove={move} onPointerUp={end} onPointerCancel={end} onLostPointerCapture={end} />
         </div>

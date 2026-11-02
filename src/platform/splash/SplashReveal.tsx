@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { INTRO_SEEN, readStorage, setCookie, writeStorage } from "@/platform/storage";
 import { SignatureCaption } from "./SignatureCaption";
-import { SignatureStandby } from "./SignatureStandby";
 import "./signature.css";
 
 const runtimeURL = "/afvar-signature/flight.js";
@@ -69,7 +68,8 @@ export function SplashReveal({ previouslySeen = false }: { previouslySeen?: bool
     return () => controller.abort();
   }, []);
 
-  if (finished) return <SignatureStandby />;
+  // The idle standby ("sleep mode") is switched off for good: nothing takes over the page after the splash.
+  if (finished) return null;
   return (
     <div ref={root} className="afvar-flight-splash" data-afvar-splash="" data-phase="preparing" aria-hidden="true" suppressHydrationWarning>
       <script dangerouslySetInnerHTML={{ __html: hideSeenIntro }} />

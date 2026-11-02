@@ -53,7 +53,7 @@ export default function PlatformScene({ film, progress, active, still, portrait,
     >
       <Ctx.Provider value={ctx}>
         <StackStage>
-          <PlatformStack quotes={quotes} compact={film.kind === "compact"} labelShow={labelShow} />
+          <PlatformStack quotes={quotes} compact={film.kind === "compact"} lite={lite} labelShow={labelShow} />
         </StackStage>
         <GoldDust count={lite ? 160 : 240} box={[10, 6.5, 6]} center={[0, 0, -0.6]} drift={[0.01, 0.04, 0]} opacity={0.42} />
         {avatarHere ? (

@@ -17,17 +17,26 @@ import { LaunchQueue } from "./LaunchQueue";
 import { LaunchReminder } from "./LaunchReminder";
 import { OverviewVideo } from "./OverviewVideo";
 import { DEMO_CSS, REGISTER_HREF } from "./ui";
+import { MobileBlock, MobilePageChrome, MobileSectionMark } from "./MobileChrome";
 
+import { Fragment, type CSSProperties } from "react";
 import "./home-layout.css";
 import "./home-sections-responsive.css";
+
+// Closing headline split per word for the phone word-by-word reveal (text unchanged).
+const CLOSING_LEAD = ["The", "AI", "operating", "system"];
+const CLOSING_TAIL = ["for", "trading."];
+// Big blocks on the phone page: story, video, queue, closing, footer.
+const SECTIONS = 5;
 
 export function HomeDemoPage({ responsiveHome = false }: { responsiveHome?: boolean }) {
   const closingCopy = (
     <>
       <h2 id="demo-closing-title" className="text-[clamp(2.1rem,4.2vw,3.5rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-(--afvar-text)">
-        The AI operating system <span className="text-[#A3AAAC]">for trading.</span>
+        {CLOSING_LEAD.map((word, i) => <Fragment key={i}><span className="home-close-word" style={{ "--w": i } as CSSProperties}>{word}</span>{" "}</Fragment>)}
+        <span className="text-[#A3AAAC]">{CLOSING_TAIL.map((word, i) => <Fragment key={i}>{i > 0 && " "}<span className="home-close-word" style={{ "--w": CLOSING_LEAD.length + i } as CSSProperties}>{word}</span></Fragment>)}</span>
       </h2>
-      <div className="mt-9">
+      <div className="home-close-cta mt-9">
         <a href={REGISTER_HREF} className={BTN_PRIMARY}>Register Now</a>
       </div>
     </>
@@ -43,14 +52,32 @@ export function HomeDemoPage({ responsiveHome = false }: { responsiveHome?: bool
       {!responsiveHome && <DemoHeader />}
       <LaunchReminder />
 
+      {responsiveHome && <MobilePageChrome />}
+
       <main>
         <AiStory responsiveHome={responsiveHome} />
-        <OverviewVideo />
-        <LaunchQueue showRain={!responsiveHome} />
+        {responsiveHome ? (
+          <>
+            {/* Phones: hairline "0N / 05" counters + block entry (CSS hides both from 640 px up). */}
+            <MobileSectionMark n={2} of={SECTIONS} />
+            <MobileBlock><OverviewVideo /></MobileBlock>
+            <MobileSectionMark n={3} of={SECTIONS} />
+            <MobileBlock><LaunchQueue showRain={false} /></MobileBlock>
+          </>
+        ) : (
+          <>
+            <OverviewVideo />
+            <LaunchQueue showRain />
+          </>
+        )}
       </main>
 
       {responsiveHome ? (
-        <GlobeClosing>{closingCopy}</GlobeClosing>
+        <>
+          <MobileSectionMark n={4} of={SECTIONS} />
+          <MobileBlock last><GlobeClosing>{closingCopy}</GlobeClosing></MobileBlock>
+          <MobileSectionMark n={5} of={SECTIONS} />
+        </>
       ) : (
         <EarthHorizon labelledBy="demo-closing-title">
           <div className="mx-auto max-w-3xl text-center">

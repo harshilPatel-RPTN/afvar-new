@@ -10,8 +10,10 @@
 // until the visitor presses play.
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { AnimatedHeading, OVERVIEW, VIEW_ONCE, VideoSpotlight } from "@/modules/home/kit";
+import type { CSSProperties } from "react";
+import { AnimatedHeading, OVERVIEW, VIEW_ONCE, VideoSpotlight, useOnce } from "@/modules/home/kit";
 import { setDucked } from "./audio";
+import "./mobile-mid.css";
 
 const LANGS = [
   { code: "en", label: "English" },
@@ -24,6 +26,7 @@ export function OverviewVideo() {
   const [lang, setLang] = useState<Lang>("en");
   const [playing, setPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [mmRef, mmIn] = useOnce<HTMLElement>();
   /** Where to resume after a language swap (applied once the new file's metadata loads). */
   const pending = useRef<{ at: number; play: boolean } | null>(null);
 
@@ -55,7 +58,12 @@ export function OverviewVideo() {
   };
 
   return (
-    <section className="demo-home-overview border-t border-white/[.08] text-(--mk-text)" aria-label={OVERVIEW.title}>
+    <section
+      ref={mmRef}
+      data-mm-in={mmIn ? "" : undefined}
+      className="demo-home-overview mm-sec mm-ov border-t border-white/[.08] text-(--mk-text)" aria-label={OVERVIEW.title}
+    >
+      <span aria-hidden="true" className="mm-edge mm-only" />
       <div className="demo-overview-body mx-auto max-w-[1100px] px-5 py-24 sm:px-10">
         <motion.div className="demo-overview-heading" initial="hidden" whileInView="visible" viewport={VIEW_ONCE}>
           <AnimatedHeading
@@ -63,13 +71,13 @@ export function OverviewVideo() {
             title={OVERVIEW.title}
             currency
             sub={OVERVIEW.body}
-            titleClassName="mt-3 max-w-[640px] text-[30px] font-semibold leading-[1.1] tracking-[-.02em] text-(--mk-text) sm:text-[40px]"
+            titleClassName="mt-3 max-w-[640px] max-sm:mt-4 text-[30px] font-semibold leading-[1.1] tracking-[-.02em] text-(--mk-text) sm:text-[40px]"
             subClassName="mt-5 max-w-2xl text-[15.5px] leading-relaxed text-(--mk-dim)"
           />
         </motion.div>
 
         {/* narration language */}
-        <div className="demo-overview-languages mt-10 flex flex-wrap items-center gap-3">
+        <div style={{ "--i": 1 } as CSSProperties} className="demo-overview-languages mm-up mt-10 flex flex-wrap items-center gap-3">
           <span className="text-[11px] font-semibold uppercase tracking-[.16em] text-(--mk-faint)">Narration</span>
           <div role="radiogroup" aria-label="Narration language" className="afvar-glass-track inline-flex rounded-full p-0.5">
             {LANGS.map((l) => {
@@ -92,7 +100,13 @@ export function OverviewVideo() {
         </div>
 
         {/* "/"'s spotlight stage around the narrated reel. */}
-        <figure className="mt-8">
+        <figure className="mm-term mt-8">
+          <div aria-hidden="true" data-playing={playing ? "" : undefined} className="mm-term-bar mm-only hidden max-sm:flex">
+            <i />
+            <i />
+            <i />
+            <b />
+          </div>
           <VideoSpotlight playing={playing} badge="PLAYING">
             <video
               ref={videoRef}

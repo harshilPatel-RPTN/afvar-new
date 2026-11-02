@@ -63,13 +63,13 @@ function WatchRows({ added = [], hot }: { added?: string[]; hot?: string }) {
             key={k}
             gold={k === hot}
             k={
-              <span className="flex items-center gap-2">
+              <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <StatusChip q={q} /> {SYM[k]}
                 {added.includes(k) ? <Chip tone="gold">added by AFVAR</Chip> : null}
               </span>
             }
             v={
-              <span className="flex items-center gap-3">
+              <span className="flex flex-wrap items-center justify-end gap-x-3">
                 <span className="text-[#F2F5F2]">{fmt(q)}</span>
                 {q ? <Pct v={q.changePct} /> : null}
               </span>

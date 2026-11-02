@@ -25,8 +25,15 @@ export function SignatureStandby() {
     const options = { capture: true, passive: true, signal: controller.signal };
     // Count genuine interactions during the initial runtime download as well.
     for (const type of inputEvents) window.addEventListener(type, activity, options);
+    // While the AFVAR avatar chat is open the visitor is talking or listening, not idle:
+    // keep counting that time as activity so standby never covers the conversation.
+    const avatarOpen = () => document.querySelector('[data-avatar-dock] button[aria-expanded="true"]') !== null;
+    const lastActive = () => {
+      if (avatarOpen()) lastActivity = performance.now();
+      return lastActivity;
+    };
     import(/* webpackIgnore: true */ runtimeURL).then(runtime => {
-      if (!controller.signal.aborted) wake = runtime.startStandby(host, controller.signal, () => lastActivity);
+      if (!controller.signal.aborted) wake = runtime.startStandby(host, controller.signal, lastActive);
     }).catch(() => { host.dataset.phase = "armed"; });
     return () => controller.abort();
   }, [pathname]);

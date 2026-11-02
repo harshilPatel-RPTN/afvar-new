@@ -7,27 +7,32 @@
 // requests through the policy gate. Every transform is a pure function of
 // (damped progress, clock), so scrolling back replays cleanly.
 import { Html } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import * as THREE from "three";
 import {
   AiCore,
   AvatarActor,
   COLORS,
+  CORE_SIZE,
   CoreCanvas,
   SceneLabel,
+  cameraViewport,
+  createCameraTrack,
   easeInOut,
   easeOut,
   ramp,
+  sampleCameraTrack,
   useStoryFrame,
   window4,
   type AvatarFrame,
+  type CameraKey,
   type CoreDrive,
   type Window4,
 } from "@/modules/afvarOs";
 import { playCue } from "../audio";
 import { MachinedArc } from "../MachinedArc";
-import { AVATAR, COLUMN, GATE, ORBIT, PANEL_CAMERA, RING, SATELLITES, SOURCES, THINK, THINK_OUT, columnPos, coreOpeningScale, type ActId, type Film, type Layout } from "./aiConfig";
+import { AVATAR, COLUMN, GATE, ORBIT, PANEL_CAMERA, RING, SATELLITES, SOURCES, THINK, THINK_OUT, columnPos, coreOpeningScale, filmCamera, type ActId, type Film, type Layout } from "./aiConfig";
 
 export interface AiCoreSceneProps {
   film: Film;
@@ -64,11 +69,24 @@ export default function AiCoreScene({ film, progress, active, still, portrait, l
   // The orbit and the pipeline are composed for a 16:10 stage. The capped
   // 1440 px stage is squarer on taller screens (1920×1080 → 4:3), so pull
   // back through those acts until they span the same width as on 16:10.
-  const zoomFit = useMemo(() => {
-    if (portrait || compactPanel) return undefined;
+  const camera = compactPanel ? PANEL_CAMERA : filmCamera(film, portrait);
+  const fov = portrait ? 50 : 38;
+  const fit = useMemo(() => {
+    if (compactPanel) return undefined;
     const inK = (p: number) => easeInOut(ramp(p, film.at("hero", 0.5), film.at("cores", 0.25)) * (1 - ramp(p, film.at("always", 0.85), film.at("avatar", 0.1))));
-    return (p: number, w: number, h: number) => 1 - (1 - Math.min(1, w / h / 1.6)) * inK(p);
-  }, [film, portrait, compactPanel]);
+    const aspect = (p: number, w: number, h: number) => portrait ? 1 : 1 - (1 - Math.min(1, w / h / 1.6)) * inK(p);
+    // Then contain-fit: whatever the screen's aspect and height, pull back
+    // just enough that the act's composition stays whole inside the canvas.
+    const contain = makeContainFit(film, camera, fov, belowHeader, openingScale, portrait);
+    return {
+      zoom: (p: number, w: number, h: number) => {
+        const a = aspect(p, w, h);
+        return a * contain.fit(p, w, h, a);
+      },
+      // The part of the canvas actually seen, kept up to date by <VisibleBand/>.
+      setBand: contain.setBand,
+    };
+  }, [film, portrait, compactPanel, camera, fov, belowHeader, openingScale]);
   return (
     <CoreCanvas
       belowHeader={belowHeader}
@@ -77,17 +95,18 @@ export default function AiCoreScene({ film, progress, active, still, portrait, l
       active={active}
       still={still}
       settledP={film.settledP}
-      camera={compactPanel ? PANEL_CAMERA : portrait ? film.cameraPortrait : film.camera}
-      fov={portrait ? 50 : 38}
+      camera={camera}
+      fov={fov}
       parallax={portrait ? 0.04 : 0.12}
       bloom={lite ? 0.55 : 0.75}
       dpr={lite ? [1, 1.4] : [1, 1.75]}
-      zoomFit={zoomFit}
+      zoomFit={fit?.zoom}
       cues={film.sound}
       onCue={playCue}
     >
       <FilmCtx.Provider value={ctx}>
         <FirstCoreFrame />
+        {fit ? <VisibleBand onBand={fit.setBand} /> : null}
         <AiCore drive={drive} />
         <Satellites />
         <Near acts={["stream"]}>
@@ -121,6 +140,173 @@ function FirstCoreFrame() {
     }
   });
   return null;
+}
+
+/* ---------------------------------------------------------- contain-fit */
+
+/** A point of an act's composition and the screen-space half size (px) of
+ * whatever is pinned there (a DOM label), so the label stays whole too. */
+type FitPoint = { at: THREE.Vector3; px: number; py: number };
+/** Canvas edge clearance (px); the right edge also clears the chapter rail. */
+const FIT_EDGE = { left: 16, right: 56, top: 14, bottom: 30 };
+const HEADER_PX = 72;
+type Band = { top: number; right: number; bottom: number; left: number };
+
+/**
+ * Measures how much of each canvas edge is hidden: the fixed header over the
+ * pinned stage, the clipping art row (portrait phones and tablets keep a
+ * full-height canvas behind a shorter, masked row) and the stacked intro
+ * card. Runs on resize only.
+ */
+function VisibleBand({ onBand }: { onBand: (band: Band) => void }) {
+  const canvas = useThree((s) => s.gl.domElement);
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => {
+    const clip = canvas.closest<HTMLElement>(".home-story-scene, .home-story-intro-art");
+    const stage = canvas.closest<HTMLElement>(".home-story-stage");
+    const measure = () => {
+      const k = canvas.getBoundingClientRect();
+      if (!k.width || !k.height) return;
+      let top = k.top, bottom = k.bottom, left = k.left;
+      const right = k.right;
+      // (The compact landscape caption column is not a band edge: the zoom
+      // origin sits near its edge, so fitting to it would shrink the art to a dot.)
+      if (clip) {
+        const c = clip.getBoundingClientRect();
+        // mask-image fades on the portrait art row (top 6 %, bottom 8 %)
+        const masked = getComputedStyle(clip).maskImage.includes("gradient");
+        top = Math.max(top, c.top + (masked ? c.height * 0.06 : 0));
+        bottom = Math.min(bottom, c.bottom - (masked ? c.height * 0.08 : 0));
+        left = Math.max(left, c.left);
+      }
+      if (stage) {
+        const st = stage.getBoundingClientRect();
+        // The header covers the pinned stage's top edge.
+        top = Math.max(top, st.top + HEADER_PX);
+      }
+      onBand({ top: top - k.top, bottom: k.bottom - bottom, left: left - k.left, right: k.right - right });
+      invalidate();
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(canvas);
+    if (clip) ro.observe(clip);
+    return () => ro.disconnect();
+  }, [canvas, onBand, invalidate]);
+  return null;
+}
+/** A uppercase mono SceneLabel: ≈10.5 px per character + padding, 26 px tall. */
+const labelHalf = (text: string) => (text.length * 10.5 + 22) / 2;
+
+/**
+ * Returns the extra zoom factor (≤ 1) that keeps the main composition of the
+ * acts on screen — the core, the orbit and pipeline cores with their labels,
+ * the 24-hour ring and the policy gate — fully inside the canvas at any
+ * aspect and height. It replays the camera rig's projection for (progress,
+ * canvas size), so it is a pure function: no feedback, no jitter. Each act's
+ * pull-back is blended by that act's presence, so it eases in and out.
+ */
+function makeContainFit(film: Film, keys: readonly CameraKey[], fov: number, belowHeader: boolean, openingScale: number, portrait: boolean) {
+  let band: Band = { top: 0, right: 0, bottom: 0, left: 0 };
+  const track = createCameraTrack(keys);
+  const cam = new THREE.PerspectiveCamera(fov, 1, 0.1, 100);
+  const pos = new THREE.Vector3();
+  const look = new THREE.Vector3();
+  const v = new THREE.Vector3();
+  const pt = (x: number, y: number, z: number, px = 0, py = 0): FitPoint => ({ at: new THREE.Vector3(x, y, z), px, py });
+  const around = (n: number, f: (a: number) => FitPoint) => Array.from({ length: n }, (_, i) => f((i / n) * Math.PI * 2));
+
+  const coreR = CORE_SIZE.shell * 1.12;
+  const core = [pt(coreR, 0, 0), pt(-coreR, 0, 0), pt(0, coreR, 0), pt(0, -coreR, 0)];
+  const satLabel = Math.max(...SATELLITES.map((s) => labelHalf(s.label)));
+  // Orbit (and the tight trust orbit): the ellipse the cores ride, plus their labels above.
+  const orbit = (r: number, labels: boolean) =>
+    around(16, (a) => pt(Math.cos(a) * r, Math.sin(a) * r * ORBIT.tilt, Math.sin(a) * r * 0.9, 18, 18)).concat(
+      labels ? around(16, (a) => pt(Math.cos(a) * r, Math.sin(a) * r * ORBIT.tilt + ORBIT.size + 0.3, Math.sin(a) * r * 0.9, satLabel, 13)) : [],
+    );
+  const column = (squeeze: number, lift: number) =>
+    SATELLITES.flatMap((s, i) => {
+      const c = columnPos(i, squeeze, lift);
+      return [pt(c[0], c[1], c[2], 18, 18), pt(c[0], c[1] + ORBIT.size + 0.3, c[2], labelHalf(s.label), 13)];
+    });
+  const sessionR = RING.radius + 0.16 + 3 * 0.09 + 0.45;
+  const ring = [
+    ...around(12, (a) => pt(Math.cos(a) * (RING.radius + 0.5), Math.sin(a) * (RING.radius + 0.5), 0)),
+    ...around(8, (a) => pt(Math.cos(a) * sessionR, Math.sin(a) * sessionR, 0, labelHalf("New York"), 13)),
+    pt(0, RING.radius + 0.95, 0, labelHalf("Crypto · 24/7/365"), 13),
+  ];
+  const gateTurn = Math.PI / 2 - GATE.tilt;
+  const gateR = GATE.radius + 0.06;
+  const gate = [
+    ...around(12, (a) => pt(GATE.x + Math.cos(a) * gateR * Math.cos(gateTurn), Math.sin(a) * gateR, -Math.cos(a) * gateR * Math.sin(gateTurn))),
+    pt(GATE.x, GATE.radius + 0.35, 0, labelHalf("Policy gate"), 13),
+    ...orbit(ORBIT.tight, false),
+  ];
+
+  // The core's live size (it opens large, hides inside the avatar, returns for trust).
+  const coreDrive = makeCoreDrive(film, openingScale);
+  const groups: { points: FitPoint[]; weight: (p: number) => number; scale: (p: number) => number }[] = [
+    { points: core, weight: () => 1, scale: (p) => coreDrive(p).scale },
+    { points: orbit(ORBIT.radius, true), weight: (p) => film.weight(p, "cores"), scale: () => 1 },
+    {
+      points: column(portrait ? film.portraitColumnSqueeze : 1, portrait ? film.portraitColumnLift : 0),
+      weight: (p) => Math.max(film.weight(p, "stream"), film.weight(p, "think")),
+      scale: () => 1,
+    },
+    // Same group scales as <ClockRing/> and <PolicyGate/>.
+    { points: ring, weight: (p) => film.weight(p, "always"), scale: (p) => 0.85 + 0.15 * film.weight(p, "always") },
+    { points: gate, weight: (p) => film.weight(p, "trust"), scale: (p) => 0.6 + 0.4 * film.weight(p, "trust") },
+  ];
+
+  const fit = (p: number, w: number, h: number, pre: number) => {
+    if (!w || !h) return 1;
+    const view = cameraViewport(w, h, belowHeader);
+    sampleCameraTrack(track, p, pos, look);
+    cam.position.copy(pos);
+    cam.lookAt(look);
+    cam.aspect = w / h;
+    cam.zoom = view.zoom * pre;
+    if (view.shift || view.drop) cam.setViewOffset(w, h, -view.shift, -view.drop, w, h);
+    else cam.clearViewOffset();
+    cam.updateProjectionMatrix();
+    cam.updateMatrixWorld();
+    // Zoom scales the image about the camera axis; the view offset is a fixed
+    // shift on top. The look target sits on the axis, so it marks that origin.
+    v.copy(look).project(cam);
+    const ox = v.x;
+    const oy = v.y;
+    const b = band;
+    const xL = -1 + (2 * (FIT_EDGE.left + b.left)) / w;
+    const xR = 1 - (2 * (FIT_EDGE.right + b.right)) / w;
+    const yB = -1 + (2 * (FIT_EDGE.bottom + b.bottom)) / h;
+    const yT = 1 - (2 * (FIT_EDGE.top + b.top)) / h;
+    // Largest factor s ≤ 1 with lo ≤ o + s·(n − o) ± pad ≤ hi. Zooming out
+    // cannot help an edge the zoom origin itself lies beyond: leave it be.
+    const limit = (n: number, o: number, pad: number, lo: number, hi: number) => {
+      if (o <= lo || o >= hi) return 1;
+      const d = n - o;
+      if (d > 0 && n + pad > hi) return (hi - pad - o) / d;
+      if (d < 0 && n - pad < lo) return (lo + pad - o) / d;
+      return 1;
+    };
+    let k = 1;
+    for (let g = 0; g < groups.length; g++) {
+      const group = groups[g];
+      const wgt = group.weight(p);
+      if (wgt < 0.001) continue;
+      const scale = group.scale(p);
+      if (scale < 0.01) continue;
+      let kg = 1;
+      for (const { at, px, py } of group.points) {
+        v.copy(at).multiplyScalar(scale).project(cam);
+        if (v.z > 1) continue; // behind the camera (the dive into the OS)
+        kg = Math.min(kg, limit(v.x, ox, (2 * px) / w, xL, xR), limit(v.y, oy, (2 * py) / h, yB, yT));
+      }
+      k = Math.min(k, 1 - wgt * (1 - Math.max(0, kg)));
+    }
+    return Math.max(0.4, k);
+  };
+  return { fit, setBand: (next: Band) => void (band = next) };
 }
 
 function makeCoreDrive(film: Film, openingScale: number) {

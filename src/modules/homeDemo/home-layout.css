@@ -35,43 +35,15 @@
 }
 .afvar-responsive-home [aria-label="Launch queue reminder"] { inset-inline-end: calc(var(--home-edge) + 24px); }
 @media (min-width:1441px) {
-  body:has(.afvar-responsive-home) .fixed:has(> section[role="dialog"] + button[aria-expanded]) {
+  body:has(.afvar-responsive-home) .fixed:has(> [data-avatar-layer] + button[aria-expanded]) {
     right: calc((100vw - 1440px) / 2 + 24px);
   }
 }
-/* Small and short screens dock the assistant launcher in the header row, just
-   left of the Menu pill (header padding + pill width + 8 px), so it never sits
-   over page content. The pill is 44 px icon-only below 400 px, 96 px above. */
-@media (max-width:1023px), (max-height:500px) {
-  body:has(.afvar-responsive-home) .fixed:has(> section[role="dialog"] + button[aria-expanded]) {
-    --menu-gap: calc(12px + 44px + 8px);
-    top: 14px; right: max(var(--menu-gap), calc(env(safe-area-inset-right) + var(--menu-gap))); bottom: auto;
-    z-index: 51; flex-direction: column-reverse; gap: 6px;
-  }
-  body:has([data-home-menu-open]) .fixed:has(> section[role="dialog"] + button[aria-expanded]) { visibility: hidden; }
-  body:has(.afvar-responsive-home) .fixed:has(> section[role="dialog"]) > button[aria-expanded] {
-    width: 44px; height: 44px; padding: 4px; flex: none;
-  }
-  body:has(.afvar-responsive-home) .fixed:has(> section[role="dialog"]) > button[aria-expanded] img { height: 34px; }
-  /* The docked launcher sits mid-header, so the panel pins to the viewport
-     edge under the header instead of hanging off the launcher. */
-  body:has(.afvar-responsive-home) .fixed > section[role="dialog"]:has(+ button[aria-expanded]) {
-    position: fixed; top: 64px; right: max(10px, env(safe-area-inset-right));
-    width: min(21rem, calc(100vw - 20px));
-    height: min(30rem, calc(100dvh - 76px)); max-height: none;
-  }
-}
-@media (min-width:360px) and (max-width:1023px), (min-width:360px) and (max-height:500px) {
-  body:has(.afvar-responsive-home) .fixed:has(> section[role="dialog"] + button[aria-expanded]) { --menu-gap: calc(16px + 44px + 8px); }
-}
-@media (min-width:400px) and (max-width:1023px), (min-width:400px) and (max-height:500px) {
-  body:has(.afvar-responsive-home) .fixed:has(> section[role="dialog"] + button[aria-expanded]) { --menu-gap: calc(16px + 96px + 8px); }
-}
-@media (min-width:640px) and (max-width:1023px), (min-width:640px) and (max-height:500px) {
-  body:has(.afvar-responsive-home) .fixed:has(> section[role="dialog"] + button[aria-expanded]) { --menu-gap: calc(24px + 96px + 8px); }
-}
-@media (min-width:1024px) and (max-height:500px) {
-  body:has(.afvar-responsive-home) .fixed:has(> section[role="dialog"] + button[aria-expanded]) { --menu-gap: calc(40px + 96px + 8px); }
+/* Short landscape desktops: the chat panel opens to the launcher's left at nearly
+   full height. Below 1024 px the panel is a centred modal (AvatarChatWidget). */
+@media (min-width:1024px) and (max-height:500px) and (orientation:landscape) {
+  [data-avatar-dock] { flex-direction: row; align-items: flex-end; }
+  [data-avatar-dock] > [data-avatar-layer] > section[role="dialog"] { height: calc(100dvh - 88px); transform-origin: 100% 100%; }
 }
 @media (max-width:639px) {
   .afvar-responsive-home [aria-label="Launch queue reminder"] { inset-inline: 12px; }

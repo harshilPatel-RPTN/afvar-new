@@ -42,10 +42,41 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Phones: the avatar launcher sits bottom-right; while the launch reminder
+   banner holds the bottom edge (< 640 px) it steps up above the banner. Only the
+   launcher moves: a translate on the dock would become the containing block of
+   the centred chat layer (fixed inset-0) and drag it off-centre. */
+@media (max-width: 639px) {
+  body:has([aria-label="Launch queue reminder"]) [data-avatar-dock] > button[aria-expanded] {
+    translate: 0 -68px;
+  }
+}
+/* Short landscape phones/tablets: the centred chat panel uses nearly the whole
+   height (16 px above and below) and may widen so the 3D stage keeps room for
+   the viewer's Talk / Stop row. */
+@media (max-width: 1023.98px) and (max-height: 500px) and (orientation: landscape) {
+  [data-avatar-layer] > section[role="dialog"] {
+    height: calc(100dvh - 2 * max(16px, env(safe-area-inset-bottom)));
+    width: min(36rem, calc(100vw - 2 * max(16px, env(safe-area-inset-left), env(safe-area-inset-right))));
+  }
+}
+
 /* Avatar chat launcher: the robot bobs while a soft glow breathes behind it. */
 @theme {
   --animate-avatar-float: avatar-float 3.2s ease-in-out infinite;
   --animate-avatar-glow: avatar-glow 3.2s ease-in-out infinite;
+  --animate-avatar-hello: avatar-hello 1.6s ease-out 1.2s 2 forwards;
+
+  @keyframes avatar-hello {
+    0% {
+      opacity: 0.85;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.55);
+    }
+  }
 
   @keyframes avatar-float {
     0%,

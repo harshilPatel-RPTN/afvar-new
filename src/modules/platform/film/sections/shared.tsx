@@ -4,7 +4,7 @@
 // the live feed, a chart window, and process steps that tick with the scroll.
 import { animate, backOut, useInView, useMotionValueEvent } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { CandleChart, Chip, Steps, Win, useAfvarReducedMotion, useSection, useSectionRamp, type AppGlyphName, type ChartLevel2 } from "@/modules/afvarOs";
+import { CandleChart, Chip, Steps, Win, useAfvarReducedMotion, useCardEntered, useSection, useSectionRamp, useWinReveal, type AppGlyphName, type ChartLevel2 } from "@/modules/afvarOs";
 import { useLiveMarket, type HomeQuote } from "@/modules/home/kit";
 import { STATUS_LABEL, asOfText } from "../market/analysis";
 
@@ -105,24 +105,54 @@ export function ChartWin({
         {head ? (
           <div className="mb-1.5 flex items-center gap-2">
             <StatusChip q={q} />
-            <span className="truncate font-mono text-[10px] text-[#92A399]">{sourceLine(q)}</span>
+            <span className="min-w-0 break-words font-mono text-[10px] leading-snug text-[#92A399]">{sourceLine(q)}</span>
           </div>
         ) : null}
         <div ref={setBox} className="min-h-0 flex-1" style={stack ? { height: ch } : undefined}>
-          <CandleChart candles={candles} decimals={q?.decimals ?? 2} width={cw} height={ch} levels={levels} trend={trend} averages={averages} marks={marks} band={band} cross={cross} event={event} draw={drawFrom ? draw : undefined} last={q?.last} />
+          <RevealChart candles={candles} decimals={q?.decimals ?? 2} width={cw} height={ch} levels={levels} trend={trend} averages={averages} marks={marks} band={band} cross={cross} event={event} draw={drawFrom ? draw : undefined} last={q?.last} />
         </div>
       </div>
     </Win>
   );
 }
 
-/** Process steps that tick, one by one, as the section scrolls (`at[i]` = when step i completes). */
+/** The chart inside a window, wiping in left → right as the window opens (B5 / C5; data unchanged). */
+function RevealChart(props: Parameters<typeof CandleChart>[0]) {
+  const reveal = useWinReveal();
+  return <CandleChart {...props} reveal={reveal} />;
+}
+
+/**
+ * Process steps that tick, one by one, as the section scrolls (`at[i]` = when step i completes).
+ * Stacked: all done, or — with the motion layer — ticking 300 ms apart once the card enters (C4).
+ * A thin thread joins the ticks and fills as they complete (B7 / C4).
+ */
 export function ScrollSteps({ items, at, refusedAt }: { items: readonly { label: string; detail: string }[]; at: readonly number[]; refusedAt?: number }) {
-  const { p, mode } = useSection();
+  const { p, mode, on } = useSection();
   const [v, setV] = useState(mode === "stack" ? 1 : p.get());
   useMotionValueEvent(p, "change", setV);
-  const now = mode === "stack" ? 1 : v;
-  return <Steps items={items.map((s, i) => ({ ...s, state: refusedAt !== undefined && i === refusedAt && now >= at[i] ? "no" : now >= at[i] ? "ok" : "idle" }))} />;
+  // Stacked + motion: null = all done (before / without the entrance), else how many have ticked.
+  const [ticked, setTicked] = useState<number | null>(null);
+  // A step whose `at` is above 1 never completes on desktop (e.g. "in development"); it must stay pending on phones too.
+  const reachable = (i: number) => at[i] <= 1;
+  useCardEntered(() => {
+    if (mode !== "stack" || !on) return;
+    setTicked(0);
+    items.forEach((_, i) => reachable(i) && window.setTimeout(() => setTicked(i + 1), 400 + i * 300));
+  });
+  const done = (i: number) => (mode === "stack" ? reachable(i) && (ticked === null || i < ticked) : v >= at[i]);
+  // The thread runs through the completed steps and stops at a refusal.
+  let reach = -1;
+  while (reach + 1 < items.length && done(reach + 1)) {
+    reach++;
+    if (reach === refusedAt) break;
+  }
+  return (
+    <Steps
+      items={items.map((s, i) => ({ ...s, state: refusedAt !== undefined && i === refusedAt && done(i) ? "no" : done(i) ? "ok" : "idle" }))}
+      thread={on ? Math.max(0, reach) / Math.max(1, items.length - 1) : undefined}
+    />
+  );
 }
 
 const k01 = (v: number) => Math.min(1, Math.max(0, v));

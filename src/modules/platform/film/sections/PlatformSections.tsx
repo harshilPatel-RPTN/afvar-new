@@ -68,7 +68,7 @@ function StopOrCancel() {
         <Row k="Gold chart" v={<span className="text-[#00E676]">✓ Opened and verified</span>} />
         <Row k="Dollar chart" v={<span className="text-[#F6B94A]">● Checking outcome</span>} />
         <Row k="Ten-year yield" v="Not started" />
-        <div className="mt-4 flex items-center gap-2.5">
+        <div className="mt-4 flex flex-wrap items-center gap-2.5">
           <Chip tone="gold">Running</Chip>
           <span className="flex-1" />
           <span className="rounded-full border border-[rgba(255,255,255,0.18)] px-3 py-1 text-[12px]">Stop speaking</span>
@@ -127,7 +127,7 @@ function Workspace() {
         <Row k="News feed" v="connected" />
       </Win>
       <Win at={0.66} x={640} y={380} w={520} h={130} title="Language" glyph="settings">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Chip>EN</Chip>
           <span className="text-[#A8DEC2]">⇄</span>
           <Chip tone="gold">हिन्दी</Chip>
@@ -146,7 +146,7 @@ function QuoteWin({ k, at, x, y, label }: { k: string; at: number; x: number; y:
       <div className="my-2">
         <StatusChip q={q} />
       </div>
-      <p className="truncate font-mono text-[10.5px] text-[#B7C5BC]">{sourceLine(q)}</p>
+      <p className="break-words font-mono text-[10.5px] text-[#B7C5BC]">{sourceLine(q)}</p>
     </Win>
   );
 }

@@ -14,6 +14,7 @@ import { capabilityPath, pathOf } from "../../routes";
 import type { Capability, CapabilitySlug } from "../../types";
 import { PIcon } from "../../components/mac/icons";
 import { APPS } from "../overviewFilm";
+import { RevealItem, RevealList, RevealMark, RevealRing, RuleDraw, WordLight } from "../motion";
 
 /* ------------------------------------------------------------- features */
 
@@ -44,19 +45,21 @@ export function jumpToAct(filmId: string, act: string) {
 
 export function FeatureJumpGrid({ capability: c, filmId, actOf }: { capability: Capability; filmId: string; actOf: Record<string, string> }) {
   return (
-    <section id="features" aria-labelledby="features-title" className="scroll-mt-24 border-t border-[rgba(255,255,255,0.06)] bg-transparent px-5 py-24 sm:px-8 lg:px-16">
+    <section id="features" aria-labelledby="features-title" className="relative scroll-mt-24 bg-transparent px-5 py-24 sm:px-8 lg:px-16">
+      <RuleDraw />
       <div className="mx-auto max-w-[1240px]">
         <p className={EYEBROW}>Inside {c.title}</p>
         <h2 id="features-title" className={`mt-4 ${H2}`}>
           {numberWord(c.features.length)} features. <span className={SOFT}>Each one plays in the film above.</span>
         </h2>
-        <ul className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <RevealList className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {c.features.map((f, i) => {
             const act = actOf[f.title];
             return (
-              <li key={f.title} className={`${CARD} flex flex-col p-5`}>
+              <RevealItem key={f.title} i={i} className={`${CARD} flex flex-col p-5`}>
                 <span className="flex items-center justify-between">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-[rgba(168,222,194,0.35)] text-[#A8DEC2]">
+                  <span className="relative flex h-9 w-9 items-center justify-center rounded-xl text-[#A8DEC2]">
+                    <RevealRing className="rounded-xl border border-[rgba(168,222,194,0.35)]" />
                     <PIcon name={f.icon} size={18} />
                   </span>
                   <span className="font-mono text-[10px] text-[#7E8F85]">{String(i + 1).padStart(2, "0")}</span>
@@ -76,10 +79,10 @@ export function FeatureJumpGrid({ capability: c, filmId, actOf }: { capability: 
                     </button>
                   ) : null}
                 </span>
-              </li>
+              </RevealItem>
             );
           })}
-        </ul>
+        </RevealList>
       </div>
     </section>
   );
@@ -93,12 +96,13 @@ function numberWord(n: number): string {
 
 export function OutcomeLine({ capability: c }: { capability: Capability }) {
   return (
-    <section aria-labelledby="outcome-title" className="border-t border-[rgba(255,255,255,0.06)] bg-transparent px-5 py-24 sm:px-8 lg:px-16">
+    <section aria-labelledby="outcome-title" className="relative bg-transparent px-5 py-24 sm:px-8 lg:px-16">
+      <RuleDraw />
       <div className="mx-auto max-w-[1040px]">
         <p id="outcome-title" className={EYEBROW}>
           {c.outcome.title}
         </p>
-        <p className="mt-6 text-[clamp(1.8rem,3.6vw,3rem)] font-semibold leading-[1.12] tracking-[-0.03em] text-[#F2F5F2]">{c.outcome.description}</p>
+        <WordLight text={c.outcome.description} className="mt-6 text-[clamp(1.8rem,3.6vw,3rem)] font-semibold leading-[1.12] tracking-[-0.03em] text-[#F2F5F2]" />
       </div>
     </section>
   );
@@ -109,26 +113,27 @@ export function OutcomeLine({ capability: c }: { capability: Capability }) {
 export function NotesAndRelated({ capability: c, notes }: { capability: Capability; notes: readonly string[] }) {
   const all = [...(c.note ? [c.note] : []), ...notes, "Feature availability and sources will be confirmed before publication."];
   return (
-    <section aria-labelledby="notes-title" className="border-t border-[rgba(255,255,255,0.06)] bg-transparent px-5 py-20 sm:px-8 lg:px-16">
+    <section aria-labelledby="notes-title" className="relative bg-transparent px-5 py-20 sm:px-8 lg:px-16">
+      <RuleDraw />
       <div className="mx-auto grid max-w-[1240px] gap-12 lg:grid-cols-[1fr_1.2fr]">
         <div>
           <h2 id="notes-title" className={EYEBROW}>
             Notes
           </h2>
-          <ul className={`mt-5 border-t ${HAIR}`}>
-            {all.map((n) => (
-              <li key={n} className={`flex gap-3 border-b ${HAIR} py-3 text-[14px] leading-relaxed text-[#B7C5BC]`}>
-                <span className="text-[#A8DEC2]">›</span>
+          <RevealList step={0.18} className={`mt-5 border-t ${HAIR}`}>
+            {all.map((n, i) => (
+              <RevealItem key={n} i={i} className={`flex gap-3 border-b ${HAIR} py-3 text-[14px] leading-relaxed text-[#B7C5BC]`}>
+                <RevealMark className="text-[#A8DEC2]">›</RevealMark>
                 {n}
-              </li>
+              </RevealItem>
             ))}
-          </ul>
+          </RevealList>
         </div>
         <div>
           <h2 className={EYEBROW}>Related</h2>
-          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-            {c.related.map((r) => (
-              <li key={`${r.route}-${r.title}`}>
+          <RevealList className="mt-5 grid gap-3 sm:grid-cols-2">
+            {c.related.map((r, i) => (
+              <RevealItem key={`${r.route}-${r.title}`} i={i}>
                 <Link href={pathOf(r.route)} className={`${CARD} group flex h-full items-start gap-3 p-4 transition-colors hover:border-[rgba(255,255,255,0.22)]`}>
                   <span className="mt-0.5 text-[#A8DEC2]">
                     <PIcon name={r.icon} size={18} />
@@ -139,9 +144,9 @@ export function NotesAndRelated({ capability: c, notes }: { capability: Capabili
                   </span>
                   <span className="ml-auto text-[#92A399] transition-transform group-hover:translate-x-0.5 group-hover:text-[#C9CFD1]">→</span>
                 </Link>
-              </li>
+              </RevealItem>
             ))}
-          </ul>
+          </RevealList>
         </div>
       </div>
     </section>
@@ -158,17 +163,19 @@ const coreNames = (slug: CapabilitySlug) =>
 export function OtherAreas({ current }: { current: CapabilitySlug }) {
   const others = CAPABILITIES.filter((o) => o.slug !== current);
   return (
-    <section aria-labelledby="areas-title" className="border-t border-[rgba(255,255,255,0.06)] bg-transparent px-5 py-24 sm:px-8 lg:px-16">
+    <section aria-labelledby="areas-title" className="relative bg-transparent px-5 py-24 sm:px-8 lg:px-16">
+      <RuleDraw />
       <div className="mx-auto max-w-[1240px]">
         <p className={EYEBROW}>Platform</p>
         <h2 id="areas-title" className={`mt-4 ${H2}`}>
           The other four areas. <span className={SOFT}>The same AI runs all five.</span>
         </h2>
-        <ul className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Other capability pages">
-          {others.map((o) => (
-            <li key={o.slug}>
+        <RevealList className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Other capability pages">
+          {others.map((o, i) => (
+            <RevealItem key={o.slug} i={i}>
               <Link href={capabilityPath(o.slug)} className={`${CARD} group flex h-full flex-col p-5 transition-colors hover:border-[rgba(168,222,194,0.45)]`}>
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[rgba(168,222,194,0.35)] text-[#A8DEC2]">
+                <span className="relative flex h-10 w-10 items-center justify-center rounded-xl text-[#A8DEC2]">
+                  <RevealRing className="rounded-xl border border-[rgba(168,222,194,0.35)]" />
                   <AppGlyph name={APPS.find((a) => a.slug === o.slug)!.glyph} size={18} />
                 </span>
                 <h3 className="mt-4 text-[16px] font-semibold text-[#F2F5F2]">{o.title}</h3>
@@ -176,9 +183,9 @@ export function OtherAreas({ current }: { current: CapabilitySlug }) {
                 <span className={`${MONO} mt-5 block text-[9.5px] text-[#A8DEC2]`}>Led by {coreNames(o.slug)}</span>
                 <span className={`${MONO} mt-2 block text-[9.5px] text-[#92A399] group-hover:text-[#C9CFD1]`}>Explore →</span>
               </Link>
-            </li>
+            </RevealItem>
           ))}
-        </ul>
+        </RevealList>
       </div>
     </section>
   );

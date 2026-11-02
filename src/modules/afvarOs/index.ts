@@ -38,3 +38,9 @@ export { AiSpark, GlassPlate, GlowLine, GoldDust, hdr } from "./three/kit";
 export { CORE_NODE, CoreNodes, CorePulses, NearRange, orbitPlace, useCorePositions, useNearRange } from "./three/parts";
 export { getAvatarRig, scheduleAvatarBuild, useAvatarRig, avatarFrame, AVATAR_HEIGHT, type AvatarFrame, type AvatarRig, type MotionName } from "./avatar/rig";
 export { AvatarActor, AvatarOverlay, type AvatarTrack } from "./avatar/actors";
+
+// Platform scroll-motion layer switch (docs/PLATFORM-SCROLL-MOTION-PLAN.md).
+export { PLATFORM_MOTION } from "./motion/flag";
+export { PLATFORM_READING_FOCUS, afterSplash, createEnterQueue, useEnterQueue, useMotionOn, useOnEnter, useSplashGone, type EnterQueue } from "./motion/enter";
+export { Rise, RuleDraw } from "./motion/Rise";
+export { useCardEntered, useWinReveal } from "./sections/OsSection";

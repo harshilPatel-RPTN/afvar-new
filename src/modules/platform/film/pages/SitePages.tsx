@@ -9,6 +9,7 @@ import { BriefsSections, GroupSections, InstrumentSections, MarketsSections } fr
 import { EvidenceSections, FaqSections, GuidesSections, HelpSections, HubSections, StartSections } from "../sections/ResourceSections";
 import { GROUP, GROUP_IDS, INST, type GroupId } from "../sections/marketMap";
 import { DirCard, Directory, SitePage } from "./SitePage";
+import { PageProgress } from "../motion";
 
 const RES_CRUMB = { label: "Resources", href: "/resources" };
 
@@ -24,7 +25,7 @@ const ABOUT_T: CapHeroText = {
   second: { label: "Contact the team", href: "/contact" },
 };
 export function AboutFilmPage() {
-  return <SitePage id="about" film={<><PageHero kind="about" id="about-hero" label="About AFVAR" text={ABOUT_T} /><AboutSections /></>} closing="Be early." soft="Join the launch queue." second={{ label: "Contact the team", href: "/contact" }} />;
+  return <SitePage id="about" film={<><PageProgress /><PageHero kind="about" id="about-hero" label="About AFVAR" text={ABOUT_T} /><AboutSections /></>} closing="Be early." soft="Join the launch queue." second={{ label: "Contact the team", href: "/contact" }} />;
 }
 
 const PRICING_T: CapHeroText = {

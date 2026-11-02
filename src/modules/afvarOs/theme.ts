@@ -82,4 +82,10 @@ export const AFVAR_CSS = `
 }
 html[data-reduce-motion="true"] .afv-cta, html[data-reduce-motion="true"] .afv-cta::before, html[data-reduce-motion="true"] .afv-link { transition: none; }
 html[data-reduce-motion="true"] .afv-voice > span, html[data-reduce-motion="true"] .afv-caret, html[data-reduce-motion="true"] .afv-orb::after { animation: none; }
+/* Platform motion layer, hero A1/A3: the copy waits (hidden) until the splash has gone, then the
+   staircase plays (HeroStage). Failsafe: it shows by itself after 5 s if the script never runs. */
+@keyframes afv-failsafe { to { opacity: 1 } }
+[data-afv-enter="wait"] [data-afv-copy] > * > *, [data-afv-enter="wait"] ~ [data-afv-cue] { opacity: 0; animation: afv-failsafe .01s 5s forwards; }
+@media (prefers-reduced-motion: reduce) { [data-afv-enter="wait"] [data-afv-copy] > * > * { opacity: 1; animation: none; } }
+html[data-reduce-motion="true"] [data-afv-enter="wait"] [data-afv-copy] > * > * { opacity: 1; animation: none; }
 `;

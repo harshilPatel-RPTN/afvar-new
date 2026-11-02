@@ -27,7 +27,7 @@ function RuleInWords() {
         <Row k="Condition" v="close above the 20-hour average" gold />
         <Row k="When met" v="notify me once · app and phone" />
         <Row k="Runs until" v="you pause or delete it" />
-        <div className="mt-4 flex items-center gap-2.5">
+        <div className="mt-4 flex flex-wrap items-center gap-2.5">
           <span className="rounded-full bg-[#A8DEC2] px-3.5 py-1 text-[12px] font-semibold text-[#06110C]">Confirm rule</span>
           <span className="rounded-full border border-[rgba(255,255,255,0.18)] px-3 py-1 text-[12px]">Edit</span>
         </div>
@@ -198,7 +198,7 @@ function Results() {
         <Row k="Winning trades" v="11 of 24" />
         <Row k="Worst stretch" v="5 losing trades in a row" />
         <Row k="After costs" v="shown with fees and slippage" />
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           <Chip tone="sample">Sample result</Chip>
         </div>
       </Win>

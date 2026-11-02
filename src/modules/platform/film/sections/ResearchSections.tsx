@@ -43,7 +43,7 @@ export function ResearchSections() {
           </div>
           <p className="mb-1 mt-4 font-mono text-[10.5px] tracking-[0.12em] text-[#92A399]">PAST RELEASES · FIRST HOUR</p>
           <Row k="Each release, with Gold's first-hour move" v="from the candles" />
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             <Chip tone="sample">Sample layout</Chip>
             <Chip tone="gold">Each line links its source</Chip>
           </div>

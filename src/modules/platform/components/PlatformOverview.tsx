@@ -3,6 +3,7 @@ import { OVERVIEW } from "../content";
 import { pathOf } from "../routes";
 import { PlatformHero } from "../film/hero/PlatformHero";
 import { PlatformSections } from "../film/sections/PlatformSections";
+import { PageProgress } from "../film/motion";
 import { AtAGlanceGrid } from "./overview/AtAGlanceGrid";
 import { TrySection } from "./playground/OsPlayground";
 
@@ -16,6 +17,7 @@ export function PlatformOverview() {
     <SiteFrame
       closing={<ClosingCopy title={`${OVERVIEW.closing.title}.`} soft="One AI, five areas." lede={OVERVIEW.closing.summary} second={{ label: "Getting Started", href: pathOf("getting-started") }} />}
     >
+      <PageProgress />
       <PlatformHero />
       <PlatformSections />
       <TrySection />
