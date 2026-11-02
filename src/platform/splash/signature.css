@@ -6,7 +6,8 @@ body:not(:has([data-afvar-brand-mark])) .afvar-flight-splash { visibility: hidde
 .afvar-flight-backdrop { position:absolute; inset:0; background:#000; }
 .afvar-flight-stage { position:absolute; left:50%; top:49%; width:min(55svh,470px,79vw); aspect-ratio:1; transform:translate(-50%,-50%); pointer-events:none; }
 .afvar-flight-splash[data-phase="preparing"] [data-signature-stage] { visibility:hidden; }
-.afvar-flight-poster { background:url("/afvar-signature/assets/approved.webp") center / 94% auto no-repeat; opacity:0; transition:opacity .18s ease-out; }
+/* The dim poster holds while the live logo forms over it (flight.js entranceMs), so there is never an empty black frame between them. */
+.afvar-flight-poster { background:url("/afvar-signature/assets/approved.webp") center / 94% auto no-repeat; opacity:0; transition:opacity .6s cubic-bezier(.55,0,1,.45); }
 .afvar-flight-splash[data-phase="preparing"] .afvar-flight-poster { opacity:.14; }
 @media(max-width:600px) { .afvar-flight-poster { background-image:url("/afvar-signature/assets/approved-lite.webp"); } }
 .afvar-flight-stage > [data-signature-mount] { position:absolute; inset:0; }

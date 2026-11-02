@@ -1,5 +1,8 @@
 import { createFollowingLogo as createFace } from '../face-follow.js';
 
+// Must match the splash poster's opacity during "preparing" (signature.css).
+const POSTER_DIM = .14;
+
 function smooth(low, high, value) {
   const t = Math.max(0, Math.min(1, (value - low) / (high - low)));
   return t * t * (3 - 2 * t);
@@ -71,6 +74,10 @@ export async function createFollowingLogo(mount, canvas) {
       fill[i] = smooth(0, 1.54, t - (1.98 + 1.62 * path));
     }
     const out = output.data;
+    // This layer is opaque, so it would hide the splash's dim poster (the
+    // approved art at 14%) and flash black. Carry that same dim art inside the
+    // layer instead, fading out as the gold forms over it.
+    const dim = POSTER_DIM * (1 - smooth(0, .7, progress));
     for (const i of indices) {
       const path = material[i];
       const ridge = (material[i + 1] + spread[i / 4] * .16) / 255;
@@ -78,9 +85,10 @@ export async function createFollowingLogo(mount, canvas) {
       const color = fill[path];
       const highlight = Math.max(0, energy - .44) * 48;
       const amount = energy * 1.37;
-      out[i]     = gold[0] * amount + highlight;
-      out[i + 1] = gold[1] * amount * .79 + highlight;
-      out[i + 2] = gold[2] * amount * .60 + highlight;
+      const base = art[i + 3] / 255 * dim;
+      out[i]     = gold[0] * amount + highlight + art[i] * base;
+      out[i + 1] = gold[1] * amount * .79 + highlight + art[i + 1] * base;
+      out[i + 2] = gold[2] * amount * .60 + highlight + art[i + 2] * base;
       // The approved artwork is always underneath this layer at its native sampling.
       out[i + 3] = 255 * (1 - color);
     }

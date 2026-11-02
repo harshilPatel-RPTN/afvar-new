@@ -3,11 +3,13 @@ import { sample } from "./timeline.mjs";
 import { createFollowingLogo } from "./golden-reveal/reveal.js";
 import { createLockup } from "./golden-reveal/lockup.js";
 
-// The ribbon reveal is a single short signature. Only real page readiness
-// can extend the centered, interactive part of a first visit.
-const entranceMs = 330;
-const dockMs = 450;
-const openingMs = 230;
+// The ribbon reveal plays at an unhurried pace: the gold sweep forms the
+// mark, the finished lockup holds for a beat, then it glides into the header
+// and the page opens. Only real page readiness can extend the centred part.
+const entranceMs = 1100;
+const holdMs = 280;
+const dockMs = 850;
+const openingMs = 600;
 const clamp = value => Math.min(1, Math.max(0, value));
 
 function waitForRoute(signal) {
@@ -105,23 +107,27 @@ export async function startFlight(root, signal, finish, started) {
     if (signal.aborted || document.hidden) return;
     try {
       if (targets && !targets.name.isConnected) return finish();
-      elapsed += lastTick == null ? 0 : now - lastTick;
+      // Cap each step: a long main-thread stall (hydration on a cold load)
+      // must slow the signature down, never skip the logo's formation.
+      elapsed += lastTick == null ? 0 : Math.min(now - lastTick, 34);
       lastTick = now;
       if (targets && readyAt === null) {
         readyAt = elapsed;
         gaze.release(elapsed);
       }
-      // The eye blinks naturally during a real wait. The exit begins
-      // immediately after both the route and the formed signature are ready.
+      // The eye blinks naturally during a real wait. The exit begins a short
+      // hold after both the route and the formed signature are ready.
       const frame = sample(elapsed, null, {entranceMs});
       if (readyAt !== null && frame.formation === 1) {
-        const moving = elapsed - Math.max(entranceMs, readyAt);
+        const settled = elapsed - Math.max(entranceMs, readyAt);
+        const moving = settled - holdMs;
         frame.dock = clamp(moving / dockMs);
         frame.open = clamp((moving - dockMs) / openingMs);
-        frame.phase = frame.dock < 1 ? "docking" : frame.open < 1 ? "opening" : "complete";
-        frame.gazeStrength = 1 - clamp(moving / 180);
+        frame.phase = moving < 0 ? "holding" : frame.dock < 1 ? "docking" : frame.open < 1 ? "opening" : "complete";
+        frame.gazeStrength = 1 - clamp(settled / holdMs);
       }
-      const minFrame = frame.dock || frame.open ? 1000 / 60 - 1 : 1000 / 30 - 1;
+      // Every moving phase paints at 60 fps; only an idle wait drops to 30 fps.
+      const minFrame = frame.phase === "waiting" ? 1000 / 30 - 1 : 1000 / 60 - 1;
       if (now - lastPaint >= minFrame) {
         lastPaint = now;
         const face = gaze.sample(elapsed, {waiting:frame.phase === "waiting", blink:frame.blink, reduced:false});

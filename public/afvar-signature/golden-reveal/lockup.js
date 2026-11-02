@@ -1,6 +1,8 @@
 const clamp = n => Math.max(0, Math.min(1, n));
 const smooth = n => { const t = clamp(n); return t * t * (3 - 2 * t); };
 const glide = t => t * t * t * (10 + t * (-15 + t * 6));
+// The iris opens the moment the mark lands, then decelerates into the corners.
+const iris = n => 1 - (1 - clamp(n)) ** 3;
 const mix = (a, b, t) => a + (b - a) * t;
 
 export function createLockup(stage, caption, backdrop, nameTarget) {
@@ -47,7 +49,7 @@ export function createLockup(stage, caption, backdrop, nameTarget) {
     caption.style.setProperty('--dock-weight', p);
     caption.style.setProperty('--surface', 1 - p);
     if (backdrop && lastOpening !== frame.open) {
-      const radius = l.radius * smooth(frame.open);
+      const radius = l.radius * iris(frame.open);
       const mask = frame.open > 0 && frame.open < 1 && supportsIris
         ? `radial-gradient(circle at ${l.dx}px ${l.dy}px, transparent ${radius}px, black ${radius + 1}px)`
         : 'none';

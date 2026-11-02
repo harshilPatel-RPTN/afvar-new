@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import { translate } from "@/platform/i18n";
 import { getServerEdition } from "@/platform/i18n/server";
 import "./globals.css";
 import "@/platform/ui/brand.css";
 import { SplashReveal } from "@/platform/splash";
-import { INTRO_SEEN } from "@/platform/storage";
 import { AvatarChatWidget } from "@/platform/avatar/AvatarChatWidget";
 import { Providers } from "./providers";
 
@@ -37,7 +35,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   // The edition cookie decides lang on the server, so the first frame is already in the chosen edition.
-  const [edition, jar] = await Promise.all([getServerEdition(), cookies()]);
+  const edition = await getServerEdition();
   return (
     <html
       lang={edition}
@@ -45,7 +43,7 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <SplashReveal previouslySeen={jar.get(INTRO_SEEN)?.value === "1"} />
+        <SplashReveal />
         <Providers edition={edition}>
           {children}
           {/* Sudhakar's avatar chatbot, floating bottom-right on every page. */}
