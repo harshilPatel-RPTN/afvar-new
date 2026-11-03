@@ -6,7 +6,7 @@
 // "What registering does" fills in row by row, each answer after its question.
 import { useMotionValueEvent } from "framer-motion";
 import { useState } from "react";
-import { OsSection, Row, Steps, Win, useCardEntered, useSection } from "@/modules/afvarOs";
+import { Note, OsSection, Row, Steps, Win, useCardEntered, useSection } from "@/modules/afvarOs";
 import { ABOUT } from "@/modules/company/kit";
 import { Arrive, ArrivingRows, useWinOpened } from "./motionBits";
 
@@ -27,14 +27,25 @@ const ARRIVE = [0.12, 0.24, 0.3, 0.36] as const;
 export function BuildStatus() {
   return (
     <OsSection n={7} label="Build status" title="Where the build stands." soft="Updated only when verified." body={ABOUT.stage.body} app="Workspace">
-      <Win at={0.06} x={40} y={20} w={600} h={330} title="Build status" glyph="calendar">
+      <Win at={0.06} x={40} y={20} w={600} h={205} title="Build status" glyph="calendar">
         <ArrivingRows at={ARRIVE}>
           <BuildSteps />
         </ArrivingRows>
       </Win>
-      <Win at={0.36} x={670} y={20} w={490} h={330} title="What registering does" glyph="alerts" ai>
+      <Win at={0.36} x={670} y={20} w={490} h={205} title="What registering does" glyph="alerts" ai>
         <Registering />
       </Win>
+      <Win at={0.5} x={40} y={250} w={600} h={170} title="On this site" glyph="layouts">
+        <Row k="Previews" v="labelled as previews" />
+        <Row k="Confirmed scope" v="marked as confirmed" />
+        <Row k="Unconfirmed values" v="shown as unconfirmed" />
+      </Win>
+      <Win at={0.6} x={670} y={250} w={490} h={170} title="Launch queue" glyph="calendar">
+        <Row k="Registration" v="free, no payment" gold />
+        <Row k="Needs" v="mobile and email verified" />
+        <Row k="Identity check" v="optional" />
+      </Win>
+      <Note at={0.72} x={40} y={450} w={1120} title="Stage: pre-launch · OS in development" sub="Progress updates are published only after they are verified" />
     </OsSection>
   );
 }

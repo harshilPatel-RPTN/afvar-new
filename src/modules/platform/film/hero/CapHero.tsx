@@ -73,6 +73,6 @@ export function CapHero({ kind, id, label, text }: { kind: CapHeroKind; id: stri
   return <HeroStage id={id} label={label} copy={(compact) => <CapHeroCopy t={text} compact={compact} />} scene={(a) => <CapHeroScene kind={kind} a={a} />} />;
 }
 
-export function PageHero({ kind, id, label, text }: { kind: PageHeroKind; id: string; label: string; text: CapHeroText }) {
-  return <HeroStage id={id} label={label} copy={(compact) => <CapHeroCopy t={text} compact={compact} />} scene={(a) => <PageHeroScene kind={kind} a={a} />} />;
+export function PageHero({ kind, variant, id, label, text }: { kind: PageHeroKind; variant?: string; id: string; label: string; text: CapHeroText }) {
+  return <HeroStage id={id} label={label} copy={(compact) => <CapHeroCopy t={text} compact={compact} />} scene={(a) => <PageHeroScene kind={kind} variant={variant} a={a} />} />;
 }

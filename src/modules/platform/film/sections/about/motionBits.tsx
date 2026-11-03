@@ -4,7 +4,7 @@
 // All of them render the finished state when PLATFORM_MOTION is off or motion is
 // reduced (the kit's `useWinReveal` is then undefined / `on` is false).
 // Transform / opacity only; the text content never changes (only wrapped in spans).
-import { animate, motion, stagger, useInView, useMotionValue, useMotionValueEvent, useTransform, type MotionValue } from "framer-motion";
+import { animate, motion, stagger, useInView, useMotionValue, useMotionValueEvent } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { afterSplash, ramp, useCardEntered, useSection, useWinReveal } from "@/modules/afvarOs";
 
@@ -127,25 +127,7 @@ export function AfterStep({ i, started, children }: { i: number; started: boolea
   );
 }
 
-/**
- * A principle's body: words light up (ink only, opacity .3 → 1) with the scroll.
- * Desk: tied to the section's progress after the window opens; stacked: film/motion's WordLight.
- */
-export function DeskWordLight({ text, from, to, className }: { text: string; from: number; to: number; className: string }) {
-  const { p } = useSection();
-  const words = text.split(" ");
-  return (
-    <p className={className}>
-      {words.map((w, i) => (
-        <DeskWord key={`${i}-${w}`} p={p} a={from + ((to - from) * i) / words.length} b={from + ((to - from) * (i + 1)) / words.length}>
-          {i < words.length - 1 ? `${w} ` : w}
-        </DeskWord>
-      ))}
-    </p>
-  );
-}
-
-function DeskWord({ p, a, b, children }: { p: MotionValue<number>; a: number; b: number; children: string }) {
-  const opacity = useTransform(p, (v) => 0.3 + 0.7 * ramp(v, a, b));
-  return <motion.span style={{ opacity }}>{children}</motion.span>;
+/** A principle's body, shown whole (no scroll-linked word-by-word lighting). */
+export function DeskWordLight({ text, className }: { text: string; from: number; to: number; className: string }) {
+  return <p className={className}>{text}</p>;
 }

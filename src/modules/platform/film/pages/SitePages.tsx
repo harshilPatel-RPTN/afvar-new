@@ -96,12 +96,11 @@ export function MarketGroupFilmPage({ group }: { group: GroupId }) {
     short: `${g.items.length} instruments · ${g.short.toLowerCase()}.`,
     facts: [`${g.items.length} instruments`, "Real hourly candles", "Times in IST"],
     second: { label: "See the instruments", href: "#group-instruments" },
-    crumb: [{ label: "Markets", href: "/market" }, { label: g.name }],
   };
   return (
     <SitePage
       id={`group-${group}`}
-      film={<><PageHero kind="group" id={`${group}-hero`} label={g.name} text={t} /><GroupSections group={group} /></>}
+      film={<><PageHero kind="group" variant={group} id={`${group}-hero`} label={g.name} text={t} /><GroupSections group={group} /></>}
       after={
         <Directory id="group-instruments" title={`Instruments in ${g.name}.`}>
           <div className="grid gap-4 md:grid-cols-3">
@@ -130,12 +129,11 @@ export function InstrumentFilmPage({ slug }: { slug: string }) {
     short: i.key ? `Real hourly candles for ${i.name}, its levels and its events.` : `${i.name} is listed; candles follow once a source is connected.`,
     facts: [i.key ? "Real hourly candles" : "No source yet", g.name, "Times in IST"],
     second: { label: "Read the chart", href: "#s02-price" },
-    crumb: [{ label: "Markets", href: "/market" }, { label: g.name, href: `/market/${i.group}` }, { label: i.name }],
   };
   return (
     <SitePage
       id={`inst-${slug}`}
-      film={<><PageHero kind="instrument" id={`${slug}-hero`} label={i.name} text={t} /><InstrumentSections slug={slug} /></>}
+      film={<><PageHero kind="instrument" variant={slug} id={`${slug}-hero`} label={i.name} text={t} /><InstrumentSections slug={slug} /></>}
       after={
         <Directory id="instrument-more" title="Keep going.">
           <div className="grid gap-4 md:grid-cols-3">
@@ -160,7 +158,6 @@ const BRIEFS_T: CapHeroText = {
   short: "Short editions on a fixed clock, every line numbered to its source.",
   facts: ["Sources on every line", "Morning · evening · weekly", "IST times"],
   second: { label: "How an edition reads", href: "#s03-inside-an-edition" },
-  crumb: [{ label: "Markets", href: "/market" }, { label: "Briefs" }],
 };
 export function BriefsFilmPage() {
   return (

@@ -40,6 +40,8 @@ export default async function RootLayout({
     <html
       lang={edition}
       dir="ltr"
+      // Next 16 no longer resets smooth scroll-behavior on navigation; this opts back in so new pages open at the top instantly.
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">

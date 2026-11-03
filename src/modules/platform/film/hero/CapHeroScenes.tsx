@@ -26,7 +26,7 @@ export default function CapHeroScene({ kind, a }: { kind: CapHeroKind; a: HeroSc
   return (
     <CoreCanvas progress={a.progress} active={a.active} still={a.still} settledP={0} camera={a.portrait ? CAM_P : CAM} fov={a.portrait ? 50 : 38} parallax={a.portrait ? 0.04 : 0.12} bloom={a.lite ? 0.55 : 0.75} dpr={a.lite ? [1, 1.4] : [1, 1.75]}>
       <Sway>
-        {kind === "research" ? <ResearchFan lite={a.lite} /> : kind === "alerts" ? <AlertLevels lite={a.lite} /> : kind === "risk" ? <RiskTimeline /> : a.portrait ? (
+        {kind === "research" ? <ResearchFan /> : kind === "alerts" ? <AlertLevels lite={a.lite} /> : kind === "risk" ? <RiskTimeline /> : a.portrait ? (
           <CommunityFit>
             <CommunityRooms lite={a.lite} />
           </CommunityFit>
@@ -55,63 +55,225 @@ const v = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 /** Inside a group turned by `rot`, face a child back to the camera. */
 const face = (x: number, y: number): [number, number, number, THREE.EulerOrder] => [-x, -y, 0, "YXZ"];
 
-/* Research: source pages fan out; gold threads pull their lines into one brief. */
-const PAGES = [-0.5, -0.2, 0.1];
-const BRIEF_ROWS = [-0.35, -0.1, 0.15, 0.4];
-/** Motion: the pages float in turn; the spark reads along each thread, page → brief; the brief's lines write themselves. */
-function ResearchFan({ lite }: { lite: boolean }) {
-  const pages = PAGES;
-  const threads = useMemo(() => PAGES.map((_r, i) => new THREE.CatmullRomCurve3([v(-1.2 + i * 0.25, 0.4 - i * 0.35, 0.1), v(-0.2, 0.3 - i * 0.2, 0.4), v(0.9, 0.35 - i * 0.35, 0.25)]).getPoints(24)), []);
+/* Research: numbered source cards; a gold thread carries each cited line into its row of the brief. */
+const TILT: [number, number] = [0.1, -0.24];
+const SOURCES = [0.82, 0.04, -0.74].map((y) => v(-1.5, y, 0));
+const SOURCE_CARD = { w: 1.2, h: 0.62 };
+const BRIEF = v(1.2, 0, 0.15);
+const BRIEF_W = 1.45;
+/** World y of the cited rows on the brief, one per source, top to bottom. */
+const BRIEF_ROWS = [0.4, 0.05, -0.3];
+const MARK_X = BRIEF.x - BRIEF_W / 2 + 0.1;
+/** Spark and brief share one cycle: 3.2 s per source, and row k writes as the spark lands on it. */
+const CYCLE = 3.2;
+const LEAD = 1.4;
+const TOTAL = CYCLE * SOURCES.length;
+/** Where the reading is: k is the source being read, f how far through its slot (0…1). */
+const slot = (t: number) => {
+  const c = (t + LEAD) % TOTAL;
+  return { c, k: Math.floor(c / CYCLE), f: (c % CYCLE) / CYCLE };
+};
+/** The spark scans its source until READ, travels, and lands on the brief at LAND (fractions of a slot). */
+const READ = 0.25;
+const LAND = 0.9;
+/** Seconds since brief row r last received its line. */
+const sinceLanding = (c: number, r: number) => (c - (r + LAND) * CYCLE + TOTAL) % TOTAL;
+
+type Fade = { mat: THREE.Material; base: number }[];
+/** The transparent materials under a group, with their own opacity, so a frame can scale them. */
+function fadesOf(g: THREE.Object3D): Fade {
+  const out: Fade = [];
+  g.traverse((o) => {
+    const m = (o as THREE.Mesh).material as THREE.Material | THREE.Material[] | undefined;
+    if (m && !Array.isArray(m) && m.transparent) out.push({ mat: m, base: m.opacity });
+  });
+  return out;
+}
+function useFade() {
+  const g = useRef<THREE.Group>(null);
+  const cache = useRef<Fade | null>(null);
+  const set = (k: number) => {
+    if (!g.current) return;
+    cache.current ??= fadesOf(g.current);
+    for (const x of cache.current) x.mat.opacity = x.base * k;
+  };
+  return [g, set] as const;
+}
+
+/** A rounded rectangle outline in a plate's top plane (x across, z down the plate). */
+function roundRect(w: number, h: number, r: number, y = 0.035) {
+  const pts: THREE.Vector3[] = [];
+  const corners: [number, number, number][] = [
+    [w / 2 - r, h / 2 - r, 0],
+    [-w / 2 + r, h / 2 - r, 0.5],
+    [-w / 2 + r, -h / 2 + r, 1],
+    [w / 2 - r, -h / 2 + r, 1.5],
+  ];
+  for (const [cx, cz, a0] of corners) for (let s = 0; s <= 6; s++) {
+    const a = (a0 + s / 12) * Math.PI;
+    pts.push(v(cx + r * Math.cos(a), y, cz + r * Math.sin(a)));
+  }
+  pts.push(pts[0].clone());
+  return pts;
+}
+const SOURCE_RIM = roundRect(SOURCE_CARD.w + 0.05, SOURCE_CARD.h + 0.05, 0.08);
+const BRIEF_RIM = roundRect(BRIEF_W + 0.06, 1.86, 0.1);
+
+/** Motion: the spark reads along each thread, source → brief; the cited row writes itself as it lands. */
+function ResearchFan() {
+  const threads = useMemo(
+    () =>
+      SOURCES.map((s, i) => {
+        const from = v(s.x + 0.42, s.y, 0.03);
+        const to = v(MARK_X, BRIEF_ROWS[i], BRIEF.z + 0.03);
+        return new THREE.CatmullRomCurve3([from, v(from.x + 0.5, from.y, 0.12), v(to.x - 0.5, to.y, 0.12), to]).getPoints(32);
+      }),
+    [],
+  );
   return (
-    <group position={[0.1, 0, 0]} rotation={[0.12, -0.35, 0]} scale={1.12}>
-      {pages.map((r, i) => (
-        <Float key={i} y={0.06} x={lite ? 0 : 0.025} period={4.8} phase={i / 3}>
-          <group position={[-1.4 + i * 0.22, -0.1 - i * 0.05, -0.3 + i * 0.12]} rotation={[Math.PI / 2, 0, r]}>
-            <GlassPlate width={1.3} depth={1.7} thickness={0.03} radius={0.06} edge={0.45} />
-            {[0.5, 0.3, 0.1, -0.1, -0.3].map((y, k) => (
-              <GlowLine key={k} points={[v(-0.45, 0.03, -y), v(k === 2 - (i % 3) ? 0.45 : 0.3, 0.03, -y)]} color={k === 2 - (i % 3) ? COLORS.gold : "#2A3F35"} intensity={k === 2 - (i % 3) ? 1.3 : 1} width={k === 2 - (i % 3) ? 1.6 : 1} />
-            ))}
-          </group>
-        </Float>
-      ))}
-      <Float y={0.035} period={6} phase={0.5}>
-        <group position={[1.35, 0, 0.3]} rotation={[Math.PI / 2, 0, 0]}>
-          <GlassPlate width={1.5} depth={1.9} thickness={0.04} radius={0.08} edge={0.85} tint="#0E1F17" opacity={0.75} />
-          <Pulse period={3} amp={0.35}>
-            <GlowLine points={[v(-0.5, 0.03, -0.7), v(0.5, 0.03, -0.7)]} color={COLORS.gold} intensity={1.2} width={3} />
+    <group position={[0.15, 0.02, 0]} rotation={[TILT[0], TILT[1], 0]} scale={1.2}>
+      {SOURCES.map((s, i) => (
+        <group key={i} position={s} rotation={[Math.PI / 2, 0, 0]}>
+          <GlassPlate width={SOURCE_CARD.w} depth={SOURCE_CARD.h} thickness={0.03} radius={0.06} edge={0.5} />
+          {/* the source's number, then its title, the cited line in gold and one more line */}
+          {Array.from({ length: i + 1 }, (_, n) => (
+            <GlowLine key={n} points={[v(-0.5 + n * 0.05, 0.03, -0.2), v(-0.5 + n * 0.05, 0.03, -0.12)]} color={COLORS.gold} intensity={1.2} width={1.4} />
+          ))}
+          <GlowLine points={[v(-0.3, 0.03, -0.16), v(0.15, 0.03, -0.16)]} color="#3A5A4A" intensity={1} width={1.1} />
+          <Pulse period={CYCLE * 3} amp={0.4}>
+            <GlowLine points={[v(-0.5, 0.03, 0), v(0.42, 0.03, 0)]} color={COLORS.gold} intensity={1.3} width={1.6} />
           </Pulse>
-          <BriefRows />
+          <GlowLine points={[v(-0.5, 0.03, 0.16), v(0.1, 0.03, 0.16)]} color="#2A3F35" intensity={1} width={1} />
+          <SourceFocus i={i} />
         </group>
-      </Float>
-      <Pulse period={2.8} amp={0.5}>
-        {threads.map((p, i) => (
-          <GlowLine key={i} points={p} color={COLORS.gold} intensity={1.15} width={1.2} opacity={0.8} />
+      ))}
+      <group position={BRIEF} rotation={[Math.PI / 2, 0, 0]}>
+        <GlassPlate width={BRIEF_W} depth={1.8} thickness={0.04} radius={0.08} edge={0.85} tint="#0E1F17" opacity={0.75} />
+        <Pulse period={3} amp={0.35}>
+          <GlowLine points={[v(-0.6, 0.03, -0.7), v(0.35, 0.03, -0.7)]} color={COLORS.gold} intensity={1.2} width={3} />
+        </Pulse>
+        <BriefRows />
+        {[-0.55, -0.7].map((y, k) => (
+          <GlowLine key={k} points={[v(-0.6, 0.03, -y), v(k ? 0.05 : 0.4, 0.03, -y)]} color="#24372D" intensity={1} width={1} />
         ))}
-      </Pulse>
+        <BriefFlash />
+      </group>
+      {threads.map((p, i) => (
+        <Thread key={i} i={i} points={p} />
+      ))}
+      <Tracer paths={threads} colors={[COLORS.goldHot]} size={0.014} period={2.4} stagger={0.33} intensity={1.6} />
+      <LandingPings />
       <ReadingSpark threads={threads} />
     </group>
   );
 }
 
-/** The brief's rows write themselves left → right, one after another, and stay a while. */
+/** The source being read lights its rim, and a scan line runs down it to the cited line. */
+function SourceFocus({ i }: { i: number }) {
+  const { still } = useStoryFrame();
+  const [rim, setRim] = useFade();
+  const [scan, setScan] = useFade();
+  const sweep = useRef<THREE.Group>(null);
+  useFrame((s) => {
+    const { k, f } = slot(s.clock.elapsedTime);
+    const on = still || k !== i ? 0 : THREE.MathUtils.smoothstep(f, 0, 0.08) * (1 - THREE.MathUtils.smoothstep(f, 0.55, 0.9));
+    setRim(on);
+    const u = THREE.MathUtils.clamp(f / READ, 0, 1);
+    setScan(still || k !== i ? 0 : Math.sin(Math.PI * u));
+    if (sweep.current) sweep.current.position.z = -0.27 + 0.27 * THREE.MathUtils.smoothstep(u, 0, 1);
+  });
+  return (
+    <>
+      <group ref={rim}>
+        <GlowLine points={SOURCE_RIM} color={COLORS.goldHot} intensity={1.4} width={1.6} opacity={1} />
+      </group>
+      <group ref={sweep}>
+        <group ref={scan}>
+          <GlowLine points={[v(-0.56, 0.04, 0), v(0.56, 0.04, 0)]} color={COLORS.goldHot} intensity={1.8} width={2} opacity={1} />
+        </group>
+      </group>
+    </>
+  );
+}
+
+/** A thread glows while the spark carries its line, and rests dim otherwise. */
+function Thread({ i, points }: { i: number; points: THREE.Vector3[] }) {
+  const { still } = useStoryFrame();
+  const [g, set] = useFade();
+  useFrame((s) => {
+    const { k, f } = slot(s.clock.elapsedTime);
+    set(still ? 0.75 : k === i ? 0.35 + 0.65 * THREE.MathUtils.smoothstep(f, READ - 0.1, READ + 0.05) : 0.32);
+  });
+  return (
+    <group ref={g}>
+      <GlowLine points={points} color={COLORS.gold} intensity={1.15} width={1.2} opacity={1} />
+    </group>
+  );
+}
+
+/** A ring ripples out from each citation marker as its line lands. */
+function LandingPings() {
+  const { still } = useStoryFrame();
+  const rings = useRef<(THREE.Mesh | null)[]>([]);
+  useFrame((s) => {
+    const { c } = slot(s.clock.elapsedTime);
+    rings.current.forEach((m, r) => {
+      if (!m) return;
+      const d = sinceLanding(c, r) / 0.9;
+      m.visible = !still && d < 1;
+      m.scale.setScalar(1 + 2.6 * d);
+      (m.material as THREE.MeshBasicMaterial).opacity = 0.9 * (1 - d) * (1 - d);
+    });
+  });
+  return (
+    <>
+      {BRIEF_ROWS.map((y, r) => (
+        <mesh key={r} ref={(el) => void (rings.current[r] = el)} position={[MARK_X + 0.035, y, BRIEF.z + 0.05]} visible={false}>
+          <ringGeometry args={[0.03, 0.042, 32]} />
+          <meshBasicMaterial color={hdr(COLORS.goldHot, 1.6)} transparent opacity={0} depthWrite={false} toneMapped={false} />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
+/** Once the last line lands, the brief's rim flares: the brief is complete. */
+function BriefFlash() {
+  const { still } = useStoryFrame();
+  const [g, set] = useFade();
+  useFrame((s) => {
+    const d = sinceLanding(slot(s.clock.elapsedTime).c, BRIEF_ROWS.length - 1);
+    set(still ? 0 : d < 1.6 ? THREE.MathUtils.smoothstep(d, 0.5, 0.75) * (1 - THREE.MathUtils.smoothstep(d, 0.9, 1.6)) : 0);
+  });
+  return (
+    <group ref={g}>
+      <GlowLine points={BRIEF_RIM} color={COLORS.goldHot} intensity={1.5} width={2} opacity={1} />
+    </group>
+  );
+}
+
+/** Each cited row writes left → right as the spark lands on its marker, holds, then all reset together. */
 function BriefRows() {
   const { still } = useStoryFrame();
   const rows = useRef<(THREE.Group | null)[]>([]);
   useFrame((s) => {
-    const t = still ? 0 : s.clock.elapsedTime;
+    const { c } = slot(s.clock.elapsedTime);
     rows.current.forEach((g, k) => {
       if (!g) return;
-      // a 9 s cycle: row k writes over 1 s starting at k s, holds, then fades back to a stub together
-      const c = t % 9;
-      const w = still ? 1 : c < 7.6 ? THREE.MathUtils.smoothstep(c, 0.4 + k * 0.9, 1.4 + k * 0.9) : 1 - THREE.MathUtils.smoothstep(c, 7.6, 8.8);
-      g.scale.x = 0.08 + 0.92 * w;
+      const lands = (k + LAND) * CYCLE;
+      const w = still ? 1 : c < 0.5 ? 1 - THREE.MathUtils.smoothstep(c, 0, 0.5) : THREE.MathUtils.smoothstep(c, lands - 0.15, lands + 0.75);
+      g.scale.x = 0.04 + 0.96 * w;
     });
   });
   return (
     <>
       {BRIEF_ROWS.map((y, k) => (
-        <group key={k} ref={(el) => void (rows.current[k] = el)} position={[-0.5, 0, 0]}>
-          <GlowLine points={[v(0, 0.03, y), v(0.95, 0.03, y)]} color="#355445" intensity={1} width={1.2} />
+        <group key={k}>
+          {/* the citation marker the thread lands on */}
+          <GlowLine points={[v(-0.62, 0.03, -y), v(-0.55, 0.03, -y)]} color={COLORS.gold} intensity={1.3} width={2.2} />
+          <group ref={(el) => void (rows.current[k] = el)} position={[-0.48, 0, 0]}>
+            <GlowLine points={[v(0, 0.03, -y), v(k === 1 ? 0.8 : 1.0, 0.03, -y)]} color="#4A7560" intensity={1.05} width={1.3} />
+          </group>
         </group>
       ))}
     </>
@@ -119,24 +281,22 @@ function BriefRows() {
 }
 
 const sparkAt = new THREE.Vector3();
-/** The spark (the AI) reads along each thread from its page to the brief, then the next. */
+/** The spark (the AI) reads along each thread from its source to the brief, then the next. */
 function ReadingSpark({ threads }: { threads: THREE.Vector3[][] }) {
   const { still } = useStoryFrame();
   const g = useRef<THREE.Group>(null);
   const lens = useMemo(() => threads.map(lengths), [threads]);
   useFrame((s) => {
     if (!g.current) return;
-    // 3.2 s per thread; eased so it lingers at the page and at the brief
-    const t = still ? 1.6 : s.clock.elapsedTime;
-    const k = Math.floor(t / 3.2) % threads.length;
-    const u = THREE.MathUtils.smootherstep((t % 3.2) / 3.2, 0.05, 0.95);
-    along(threads[k], lens[k], still ? 0.5 : u, sparkAt);
+    // waits on its source while the scan reads it, then eases across and lands on the brief
+    const { k, f } = slot(s.clock.elapsedTime);
+    along(threads[still ? 0 : k], lens[still ? 0 : k], still ? 0.5 : THREE.MathUtils.smootherstep(f, READ, LAND), sparkAt);
     g.current.position.copy(sparkAt);
   });
   return (
     <group ref={g} position={[-0.2, 0.25, 0.45]}>
-      <group rotation={face(0.12, -0.35)}>
-        <AiSpark size={0.07} />
+      <group rotation={face(TILT[0], TILT[1])}>
+        <AiSpark size={0.05} />
       </group>
     </group>
   );
@@ -337,7 +497,7 @@ function CommunityRooms({ lite = false }: { lite?: boolean }) {
         <group key={k} position={[NODES[k].x, CARD.y + i * CARD.step, NODES[k].z]} rotation={face(0.45, -0.3)}>
           <Float y={0.04} tilt={0.02} period={4.6} phase={i * 0.45}>
             <group rotation={[Math.PI / 2, 0, 0]}>
-              <GlassPlate width={CARD.w} depth={CARD.h} thickness={0.03} radius={0.08} edge={0.85} tint="#06110C" opacity={0.85} />
+              <GlassPlate width={SOURCE_CARD.w} depth={SOURCE_CARD.h} thickness={0.03} radius={0.08} edge={0.85} tint="#06110C" opacity={0.85} />
             </group>
             <GlowLine points={[v(-0.4, -0.15, 0.03), v(-0.2, -0.02, 0.03), v(0, -0.08, 0.03), v(0.2, 0.1, 0.03), v(0.4, 0.05, 0.03)]} color={COLORS.gold} intensity={1.2} width={1.6} />
             {i === 0

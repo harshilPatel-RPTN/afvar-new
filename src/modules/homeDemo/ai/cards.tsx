@@ -10,7 +10,7 @@ import { fmtPrice, useLiveMarket, type HomeQuote } from "@/modules/home/kit";
 import { AiOrb, BODY, CARD, CARD_AI, EYEBROW, GHOST_LINK, AI_CTA, H1, H2, HAIR, HeroTitle, MONO, SOFT, useStep, useTypedText } from "@/modules/afvarOs";
 import { REGISTER_HREF } from "../ui";
 import { AVATAR, SATELLITES, SOURCES, THINK, THINK_OUT, type ActId, type Film } from "./aiConfig";
-import { useVoicedText, VOICE } from "./voice";
+import { useSpokenLine, VOICE } from "./voice";
 import "./mobile-cards.css";
 
 export type Quotes = Record<string, HomeQuote>;
@@ -703,31 +703,29 @@ export function SessionCard({ compact = false }: { compact?: boolean }) {
 
 /* ---------------------------------------------------------------- avatar */
 
-/** The avatar's hello as it waves, typed with its voice; only in the scroll film (`mv`). */
-function Hello({ mv }: { mv: MotionValue<number> }) {
+/** The avatar's spoken hello as it waves, shown as the Talk button's orb; only in the scroll film (`mv`). */
+function HelloOrb({ mv }: { mv: MotionValue<number> }) {
   const film = useFilmUi();
   const A = (f: number) => film.at("avatar", f);
   const step = useStep(mv, [A(AVATAR.wave[0]), A(AVATAR.listen[0])]);
-  // Spoken only while this line is actually on screen, not just while the film is at the wave.
-  const line = useRef<HTMLParagraphElement>(null);
+  // Spoken only while the button is actually on screen, not just while the film is at the wave.
+  const orb = useRef<HTMLSpanElement>(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
-    const el = line.current;
+    const el = orb.current;
     if (!el) return;
     const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.9 });
     io.observe(el);
     return () => io.disconnect();
   }, []);
-  const typed = useVoicedText(mv, VOICE.hello, HELLO, step === 0 && inView, [A(AVATAR.wave[0]), A(AVATAR.wave[0] + 0.04)]);
+  // Heard, not written: the orb pulses while the voice says hello.
+  useSpokenLine(VOICE.hello, step === 0 && inView);
   return (
-    <p ref={line} className={`mt-4 flex items-center gap-2 text-[14px] text-[#E6E9EB] transition-opacity duration-300 ${step === 0 ? "opacity-100" : "opacity-0"}`}>
+    <span ref={orb} className="inline-flex">
       <AiOrb size={10} pulse={step === 0} />
-      <span ref={typed} aria-hidden="true" />
-      <span className="sr-only">{HELLO}</span>
-    </p>
+    </span>
   );
 }
-const HELLO = "Hi, I am AFVAR.";
 
 export function AvatarCopy({ compact = false, mv }: { compact?: boolean; mv?: MotionValue<number> }) {
   const film = useFilmUi();
@@ -746,12 +744,11 @@ export function AvatarCopy({ compact = false, mv }: { compact?: boolean; mv?: Mo
       )}
       <div className={`home-story-actions ${compact ? "mt-4" : "mt-6"} flex flex-wrap items-center gap-4`}>
         <button type="button" onClick={openLiveAvatar} className={`${AI_CTA} inline-flex items-center gap-2`}>
-          <span aria-hidden="true" className="h-2 w-2 rounded-full bg-(--afvar-mint)" />
+          {mv ? <HelloOrb mv={mv} /> : <span aria-hidden="true" className="h-2 w-2 rounded-full bg-(--afvar-mint)" />}
           Talk to AFVAR
         </button>
         <span className="text-[12px] text-[#92A399]">Live voice beta · uses your microphone</span>
       </div>
-      {mv ? <Hello mv={mv} /> : null}
     </div>
   );
 }

@@ -124,7 +124,7 @@ export function voiceMouth(): number | undefined {
 /** Speaks `line` as `on` turns true (the line appears) and cuts it if `on` turns false again
  *  or sound is switched off. A line already showing on mount stays silent. Sound only has to
  *  be chosen on: a browser still waiting for a click holds the line until that click. */
-function useSpokenLine(line: VoiceLine, on: boolean) {
+export function useSpokenLine(line: VoiceLine, on: boolean) {
   const [sound] = useSoundState();
   const was = useRef(on);
   useEffect(() => {

@@ -5,8 +5,8 @@
 // value); "Awaiting confirmation" pulses once, softly, as its window opens.
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
-import { Chip, Note, OsSection, Row, Win } from "@/modules/afvarOs";
-import { ABOUT, COMPANY_FACTS } from "@/modules/company/kit";
+import { Chip, OsSection, Row, Win } from "@/modules/afvarOs";
+import { ABOUT, COMPANY_FACTS, CONTACT } from "@/modules/company/kit";
 import { Para } from "../shared";
 import { Typed, useWinOpened } from "./motionBits";
 
@@ -19,11 +19,22 @@ const START = 0.2;
 export function Company() {
   return (
     <OsSection n={6} label="Company" title="Who is behind it." soft="Registered facts only." body={ABOUT.people.body} app="Workspace">
-      <Win at={0.06} x={40} y={20} w={600} h={300} title="Company record" glyph="settings">
+      <Win at={0.06} x={40} y={20} w={600} h={205} title="Company record" glyph="settings">
         <CompanyRecord />
       </Win>
-      <Win at={0.34} x={670} y={20} w={490} h={300} title="Team profiles" glyph="community">
+      <Win at={0.24} x={670} y={20} w={490} h={205} title="Built in-house" glyph="layouts">
+        <Row k="Designed" v="in-house" />
+        <Row k="Engineered" v="in-house" />
+        <Row k="Company" v="registered in India" />
+        <p className="mt-3 text-[12.5px] leading-relaxed text-[#B7C5BC]">No invented people, milestones or customer claims.</p>
+      </Win>
+      <Win at={0.4} x={40} y={250} w={740} h={240} title="Team profiles" glyph="community">
         <Para>Profiles are added here once each person’s details are confirmed.</Para>
+        <div className="mt-3">
+          <Row k="Invented bios" v="never" />
+          <Row k="Stock-photo teams" v="never" />
+          <Row k="Borrowed titles" v="never" />
+        </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <PulseOnce>
             <Chip tone="delayed">Awaiting confirmation</Chip>
@@ -31,7 +42,11 @@ export function Company() {
           <Chip>No stock photos</Chip>
         </div>
       </Win>
-      <Note at={0.62} x={40} y={350} w={600} title="Contact the team" sub="General, partnership and press enquiries · /contact" />
+      <Win at={0.62} x={810} y={250} w={350} h={240} title="Contact the team · /contact" glyph="phone">
+        {CONTACT.topics.map((t) => (
+          <Row key={t} k={t} v="→ team" />
+        ))}
+      </Win>
     </OsSection>
   );
 }

@@ -9,6 +9,10 @@ import * as THREE from "three";
 import { COLORS, useFilmMode, type CameraKey } from "@/modules/afvarOs";
 import { AiSpark, CoreCanvas, GlassPlate, GlowLine, GoldDust, hdr, useStoryFrame } from "@/modules/afvarOs/gl";
 import type { HeroSceneArgs } from "./HeroStage";
+import { Candle, Card, clamp01, draw, ease, face, Lean, Lines, pop, tick, v, type LineHandle, type PageSceneProps } from "./pageHeroKit";
+import { BriefsScene } from "./scenes/BriefsScene";
+import { GroupScene } from "./scenes/GroupScene";
+import { InstrumentScene } from "./scenes/InstrumentScene";
 import { TIERS_X, tiersFit } from "./tiersFit";
 
 export type PageHeroKind = "about" | "pricing" | "markets" | "group" | "instrument" | "briefs" | "resources" | "start" | "guides" | "help" | "faqs" | "evidence" | "contact";
@@ -28,8 +32,9 @@ const CAM_P: CameraKey[] = [
  * large and off the right edge. Each gets a smaller scale and a re-centring shift.
  */
 const PORTRAIT_FIT: Partial<Record<PageHeroKind, { s: number; x?: number; y?: number }>> = {
-  group: { s: 0.8, x: -0.35 },
-  briefs: { s: 0.72, x: -0.4 },
+  group: { s: 1.12, x: -0.45, y: -0.45 },
+  instrument: { s: 1.2, x: -0.15, y: -0.3 },
+  briefs: { s: 0.92, x: -0.5, y: -0.3 },
   resources: { s: 0.78, x: -0.18 },
   start: { s: 0.78, x: 0 },
   guides: { s: 0.68, x: -0.45 },
@@ -38,13 +43,13 @@ const PORTRAIT_FIT: Partial<Record<PageHeroKind, { s: number; x?: number; y?: nu
   evidence: { s: 0.76, x: -0.1 },
 };
 
-const SCENES: Record<PageHeroKind, (p: { portrait: boolean }) => ReactNode> = {
+const SCENES: Record<PageHeroKind, (p: PageSceneProps) => ReactNode> = {
   about: PrinciplesStack,
   pricing: Tiers,
   markets: Islands,
-  group: CardArc,
-  instrument: BigCandles,
-  briefs: BriefDial,
+  group: GroupScene,
+  instrument: InstrumentScene,
+  briefs: BriefsScene,
   resources: HubOrbit,
   start: StepPath,
   guides: OpenGuide,
@@ -54,7 +59,7 @@ const SCENES: Record<PageHeroKind, (p: { portrait: boolean }) => ReactNode> = {
   contact: LetterRoutes,
 };
 
-export default function PageHeroScene({ kind, a }: { kind: PageHeroKind; a: HeroSceneArgs }) {
+export default function PageHeroScene({ kind, variant, a }: { kind: PageHeroKind; variant?: string; a: HeroSceneArgs }) {
   const Scene = SCENES[kind];
   const fit = a.portrait ? PORTRAIT_FIT[kind] : undefined;
   return (
@@ -62,10 +67,10 @@ export default function PageHeroScene({ kind, a }: { kind: PageHeroKind; a: Hero
       <Sway>
         {fit ? (
           <group position={[fit.x ?? 0, fit.y ?? 0, 0]} scale={fit.s}>
-            <Scene portrait={a.portrait} />
+            <Scene portrait={a.portrait} variant={variant} />
           </group>
         ) : (
-          <Scene portrait={a.portrait} />
+          <Scene portrait={a.portrait} variant={variant} />
         )}
       </Sway>
       <GoldDust count={a.lite ? 140 : 200} box={[10, 6.5, 6]} center={[0, 0, -0.6]} drift={[0.02, 0.03, 0]} opacity={0.38} />
@@ -83,75 +88,6 @@ function Sway({ children }: { children: ReactNode }) {
     g.current.position.y = 0.04 * Math.sin(t * 0.5);
   });
   return <group ref={g}>{children}</group>;
-}
-
-const clamp01 = (k: number) => Math.min(1, Math.max(0, k));
-/** A part's entrance: 0→1 over `dur` seconds from `delay`, eased out. */
-const ease = (t: number, delay: number, dur = 0.7) => 1 - (1 - clamp01((t - delay) / dur)) ** 3;
-/** The same entrance with a spring's overshoot; never exactly 0, so the matrix stays invertible. */
-const pop = (t: number, delay: number, dur = 0.8) => {
-  const k = clamp01((t - delay) / dur) - 1;
-  return Math.max(0.001, 1 + 2.70158 * k ** 3 + 1.70158 * k ** 2);
-};
-/** A candle's live tick: two detuned sines, so neighbours never move in lockstep. */
-const tick = (t: number, i: number) => 0.6 * Math.sin(t * 1.3 + i * 1.7) + 0.4 * Math.sin(t * 2.9 + i * 0.6);
-/** The bits of a GlowLine (drei's Line2) a scene animates: its material, and how many segments it draws. */
-type LineHandle = { material: { opacity: number; dashOffset: number }; geometry: { instanceCount: number; setPositions: (a: Float32Array) => unknown } };
-/** Draws the first `k` (0–1) of a line of `segs` segments — a line drawing itself on. */
-const draw = (l: LineHandle | null, k: number, segs: number) => {
-  if (l) l.geometry.instanceCount = Math.round(k * segs);
-};
-
-/** A page model turns a little toward the pointer (damped), so it answers the hand. */
-function Lean({ children, yaw = 0.22, pitch = 0.1 }: { children: ReactNode; yaw?: number; pitch?: number }) {
-  const { still } = useStoryFrame();
-  const g = useRef<THREE.Group>(null);
-  useFrame((s, dt) => {
-    if (!g.current || still) return;
-    g.current.rotation.y = THREE.MathUtils.damp(g.current.rotation.y, s.pointer.x * yaw, 3, dt);
-    g.current.rotation.x = THREE.MathUtils.damp(g.current.rotation.x, -s.pointer.y * pitch, 3, dt);
-  });
-  return <group ref={g}>{children}</group>;
-}
-
-const v = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
-const face = (x: number, y: number): [number, number, number, THREE.EulerOrder] => [-x, -y, 0, "YXZ"];
-/** A vertical glass card facing the camera (GlassPlate lies flat by default). */
-function Card({ w, h, edge = 0.5, gold = false, opacity = 0.7, children }: { w: number; h: number; edge?: number; gold?: boolean; opacity?: number; children?: ReactNode }) {
-  return (
-    <group>
-      <group rotation={[Math.PI / 2, 0, 0]}>
-        <GlassPlate width={w} depth={h} thickness={0.03} radius={0.07} edge={gold ? 0.95 : edge} edgeColor={gold ? COLORS.gold : "#92A399"} tint={gold ? "#0E1F17" : "#06110C"} opacity={opacity} />
-      </group>
-      {children}
-    </group>
-  );
-}
-/** Text-like lines on a card (in the card's own x/y). */
-function Lines({ w, ys, goldAt = -1 }: { w: number; ys: number[]; goldAt?: number }) {
-  return (
-    <>
-      {ys.map((y, i) => (
-        <GlowLine key={i} points={[v(-w / 2, y, 0.03), v(i === goldAt ? w / 2 : w / 2 - 0.2, y, 0.03)]} color={i === goldAt ? COLORS.gold : "#2F4A3D"} intensity={i === goldAt ? 1.25 : 1} width={i === goldAt ? 1.8 : 1.1} />
-      ))}
-    </>
-  );
-}
-function Candle({ x, z = 0, o, c, h, l, s = 0.16 }: { x: number; z?: number; o: number; c: number; h: number; l: number; s?: number }) {
-  const up = c >= o;
-  const body = Math.max(0.04, Math.abs(c - o));
-  return (
-    <group position={[x, 0, z]}>
-      <mesh position={[0, (h + l) / 2, 0]}>
-        <cylinderGeometry args={[0.012, 0.012, h - l, 6]} />
-        <meshBasicMaterial color={hdr(up ? COLORS.up : COLORS.down, 0.9)} toneMapped={false} />
-      </mesh>
-      <mesh position={[0, (o + c) / 2, 0]}>
-        <boxGeometry args={[s, body, s]} />
-        <meshPhysicalMaterial color={up ? "#0E2A1B" : "#2A0E0E"} emissive={up ? COLORS.up : COLORS.down} emissiveIntensity={0.35} metalness={0.3} roughness={0.35} transparent opacity={0.9} />
-      </mesh>
-    </group>
-  );
 }
 
 /* About: five principles stacked like a monument, a gold spine through them.
@@ -415,178 +351,6 @@ function Islands() {
         <group position={[0.2, 1.25, -0.5]} rotation={face(0.42, -0.3)}>
           <AiSpark size={0.07} />
         </group>
-      </Lean>
-    </group>
-  );
-}
-
-/* Market group: one card per instrument, fanned in an arc, each with its own trace. */
-const TRACE_SEGS = 8;
-function CardArc() {
-  const { still } = useStoryFrame();
-  const cards = useRef<(THREE.Group | null)[]>([]);
-  const lines = useRef<(LineHandle | null)[]>([]);
-  const traces = useMemo(() => [0, 1, 2, 3, 4].map((i) => Array.from({ length: TRACE_SEGS + 1 }, (_, k) => v(-0.42 + k * 0.105, -0.25 + 0.3 * Math.sin(k * 0.8 + i) * 0.5 + (k / 9) * 0.25 * (i % 2 ? -1 : 1), 0.03))), []);
-  // The cards flip in from edge-on and fan out from the middle; each trace then draws itself, and
-  // redraws every few seconds in turn like a fresh hour printing. A slow ripple runs across the fan.
-  useFrame((s) => {
-    const t = s.clock.elapsedTime;
-    cards.current.forEach((g, i) => {
-      if (!g) return;
-      const ang = (i - 2) * 0.32;
-      const d = 0.2 + Math.abs(i - 2) * 0.18;
-      const open = still ? 1 : ease(t, d, 1.0);
-      const flip = still ? 1 : pop(t, d, 1.0);
-      g.position.set(Math.sin(ang * open) * 2.4, (i % 2) * 0.12 + (still ? 0 : 0.09 * Math.sin(t * 1.1 - i * 0.7)), -Math.cos(ang * open) * 2.4 + 2.2 + (still || i !== 2 ? 0 : 0.08 + 0.08 * Math.sin(t * 0.9)));
-      g.rotation.set(still ? 0 : 0.05 * Math.sin(t * 1.1 - i * 0.7 - 0.8), ang * open + (Math.PI / 2) * (1 - flip) + (still ? 0 : 0.06 * Math.sin(t * 0.5 + i)), 0);
-    });
-    lines.current.forEach((l, i) => {
-      if (still) return draw(l, 1, TRACE_SEGS);
-      const start = 1.0 + Math.abs(i - 2) * 0.18;
-      const cycle = (t - start - i * 0.5) % 7;
-      draw(l, t < start ? 0 : t < start + 3.5 + i * 0.5 ? ease(t, start, 0.9) : cycle < 1 ? ease(cycle, 0, 1) : 1, TRACE_SEGS);
-    });
-  });
-  return (
-    <group position={[0.5, -0.1, 0]} rotation={[0.12, -0.3, 0]}>
-      <Lean>
-        {traces.map((pts, i) => {
-          const ang = (i - 2) * 0.32;
-          return (
-            <group key={i} ref={(g) => { cards.current[i] = g; }} position={[Math.sin(ang) * 2.4, (i % 2) * 0.12, -Math.cos(ang) * 2.4 + 2.2]} rotation={[0, ang, 0]}>
-              <Card w={1.05} h={1.4} gold={i === 2}>
-                <GlowLine ref={(l: LineHandle | null) => { lines.current[i] = l; }} points={pts} color={i === 2 ? COLORS.gold : COLORS.ink} intensity={1.2} width={1.6} />
-                <Lines w={0.85} ys={[0.5, 0.38]} />
-              </Card>
-            </group>
-          );
-        })}
-        <group position={[0, 0.95, 0.3]}>
-          <AiSpark size={0.065} />
-        </group>
-      </Lean>
-    </group>
-  );
-}
-
-/* Instrument: its own candles in 3D on a glass base, a gold level across them. */
-const BIG = [
-  [0.4, 0.7, 0.85, 0.3],
-  [0.7, 0.55, 0.8, 0.45],
-  [0.55, 0.95, 1.05, 0.5],
-  [0.95, 1.2, 1.3, 0.85],
-  [1.2, 1.05, 1.35, 0.95],
-  [1.05, 1.4, 1.5, 1.0],
-  [1.4, 1.25, 1.55, 1.15],
-  [1.25, 1.6, 1.7, 1.2],
-  [1.6, 1.75, 1.9, 1.5],
-] as const;
-function BigCandles() {
-  const { still } = useStoryFrame();
-  const base = useRef<THREE.Group>(null);
-  const bars = useRef<(THREE.Group | null)[]>([]);
-  const level = useRef<LineHandle | null>(null);
-  const roll = useRef<THREE.Group>(null);
-  // The glass base slides open, the candles spring up left to right, then the gold level draws across.
-  // Live: every candle ticks, a hop runs along the row now and then, and the level's dashes march.
-  useFrame((s) => {
-    const t = s.clock.elapsedTime;
-    if (base.current) base.current.scale.x = still ? 1 : Math.max(0.001, ease(t, 0.1, 0.8));
-    bars.current.forEach((g, i) => {
-      if (!g) return;
-      const live = (i === BIG.length - 1 ? 0.12 : 0.05) * tick(t, i);
-      g.visible = still || t > 0.5 + i * 0.11; // not a flat sliver before its turn
-      g.scale.y = still ? 1 : pop(t, 0.5 + i * 0.11, 0.7) * (1 + live);
-      g.position.y = still ? 0 : 0.12 * Math.max(0, Math.sin(t * 1.2 - i * 0.45)) ** 12;
-    });
-    // A 2-point line can't draw on by segments, so the level unrolls from its left end by scale.
-    if (roll.current) roll.current.scale.x = still ? 1 : Math.max(0.001, ease(t, 1.7, 0.9));
-    if (level.current) level.current.material.dashOffset = still ? 0 : -t * 0.25;
-  });
-  return (
-    <group position={[0.1, -0.95, 0]} rotation={[0.25, -0.38, 0]} scale={0.78}>
-      <Lean>
-        <group ref={base}>
-          <GlassPlate width={4.4} depth={1.6} thickness={0.03} radius={0.1} edge={0.35} />
-        </group>
-        {BIG.map(([o, c, h, l], i) => (
-          <group key={i} ref={(g) => { bars.current[i] = g; }}>
-            <Candle x={-1.9 + i * 0.47} o={o} c={c} h={h} l={l} s={0.26} />
-          </group>
-        ))}
-        <group position={[-2.2, 0, 0]}>
-          <group ref={roll}>
-            <GlowLine ref={(l: LineHandle | null) => { level.current = l; }} points={[v(0, 1.45, 0), v(4.4, 1.45, 0)]} color={COLORS.gold} intensity={1.25} width={1.4} dashed dashSize={0.12} gapSize={0.08} />
-          </group>
-        </group>
-        <group position={[1.86, 1.95, 0]} rotation={face(0.25, -0.38)}>
-          <AiSpark size={0.07} />
-        </group>
-      </Lean>
-    </group>
-  );
-}
-/* Briefs: a schedule dial behind three editions — morning, evening, weekly. */
-function BriefDial() {
-  const { still } = useStoryFrame();
-  const dial = useRef<THREE.Group>(null);
-  const hand = useRef<THREE.Group>(null);
-  const dots = useRef<(THREE.Mesh | null)[]>([]);
-  const cards = useRef<(THREE.Group | null)[]>([]);
-  const ticks = useMemo(() => [0.25, 0.77, 0.95].map((f) => f * Math.PI * 2), []);
-  // The dial spins in, its marks pop on and the three editions are dealt in from the right.
-  // Live: the hand sweeps the dial; as it passes an edition's mark the mark flares and that edition steps forward.
-  useFrame((s) => {
-    const t = s.clock.elapsedTime;
-    if (dial.current) {
-      dial.current.scale.setScalar(still ? 1 : pop(t, 0.15, 1.0));
-      dial.current.rotation.z = still ? 0 : -1.4 * (1 - ease(t, 0.15, 1.2));
-    }
-    const sweep = still ? 0 : Math.max(0, t - 1.4) * 0.45;
-    if (hand.current) {
-      hand.current.rotation.z = -sweep;
-      hand.current.scale.setScalar(still ? 1 : Math.max(0.001, ease(t, 0.9, 0.6)));
-    }
-    ticks.forEach((tk, i) => {
-      const d = Math.atan2(Math.sin(ticks[0] + sweep - tk), Math.cos(ticks[0] + sweep - tk));
-      const hit = still ? 0 : d >= 0 ? Math.exp(-d / 0.7) : Math.exp(d / 0.12);
-      const m = dots.current[i];
-      if (m) m.scale.setScalar(still ? 1 : pop(t, 0.6 + i * 0.15, 0.6) * (1 + 0.8 * hit));
-      const g = cards.current[i];
-      if (!g) return;
-      const k = still ? 1 : ease(t, 0.5 + i * 0.2, 0.9);
-      g.position.set(-0.5 + i * 0.5 + 2.2 * (1 - k), -0.3 + i * 0.12 + (still ? 0 : 0.05 * Math.sin(t * 0.75 + i * 1.3) + 0.12 * hit), i * 0.3 + (still ? 0 : 0.3 * hit));
-      g.rotation.y = still ? 0 : -0.9 * (1 - k) + 0.05 * Math.sin(t * 0.6 + i);
-    });
-  });
-  return (
-    <group position={[0.55, 0.05, 0]} rotation={[0.1, -0.35, 0]}>
-      <Lean>
-        <group position={[0.5, 0.2, -0.9]}>
-          <group ref={dial}>
-            <mesh>
-              <torusGeometry args={[1.55, 0.02, 12, 120]} />
-              <meshBasicMaterial color={hdr(COLORS.gold, 1.2)} toneMapped={false} transparent opacity={0.8} />
-            </mesh>
-            {ticks.map((t, i) => (
-              <mesh key={i} ref={(m) => { dots.current[i] = m; }} position={[Math.sin(t) * 1.55, Math.cos(t) * 1.55, 0]}>
-                <sphereGeometry args={[0.06, 16, 16]} />
-                <meshBasicMaterial color={hdr(COLORS.gold, 1.6)} toneMapped={false} />
-              </mesh>
-            ))}
-          </group>
-          <group ref={hand}>
-            <GlowLine points={[v(0, 0, 0), v(Math.sin(ticks[0]) * 1.2, Math.cos(ticks[0]) * 1.2, 0)]} color={COLORS.gold} intensity={1.2} width={1.6} />
-          </group>
-        </group>
-        {[0, 1, 2].map((i) => (
-          <group key={i} ref={(g) => { cards.current[i] = g; }} position={[-0.5 + i * 0.5, -0.3 + i * 0.12, i * 0.3]}>
-            <Card w={1.2} h={1.6} gold={i === 2} opacity={0.8}>
-              <GlowLine points={[v(-0.45, 0.6, 0.03), v(0.1, 0.6, 0.03)]} color={COLORS.gold} intensity={1.2} width={2.2} />
-              <Lines w={0.9} ys={[0.35, 0.18, 0.01, -0.16, -0.33]} goldAt={i === 2 ? 2 : -1} />
-            </Card>
-          </group>
-        ))}
       </Lean>
     </group>
   );

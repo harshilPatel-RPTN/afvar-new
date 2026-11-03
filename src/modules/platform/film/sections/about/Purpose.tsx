@@ -9,6 +9,7 @@ import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 import type { ReactNode } from "react";
 import { Note, OsSection, Row, Win, useCardEntered, useSection, useSectionRamp } from "@/modules/afvarOs";
 import { ABOUT } from "@/modules/company/kit";
+import { SYM, StatusChip, fmt, sourceLine, useQuote } from "../shared";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 /** Desk progress at which row i of each window writes itself in. */
@@ -18,7 +19,7 @@ const RIGHT_AT = (i: number) => 0.36 + i * 0.06;
 export function Purpose() {
   return (
     <OsSection n={2} label="Purpose" title="Why AFVAR exists." soft="Fewer tabs, more proof." body={ABOUT.purpose} app="Workspace">
-      <Win at={0.06} x={40} y={20} w={520} h={300} title="A trader’s morning, without AFVAR" glyph="layouts">
+      <Win at={0.06} x={40} y={20} w={520} h={196} title="A trader’s morning, without AFVAR" glyph="layouts">
         <RowIn i={0} at={LEFT_AT(0)} answeredAt={RIGHT_AT(0)}>
           <Row k="Eleven browser tabs" v="three price sources" />
         </RowIn>
@@ -32,7 +33,7 @@ export function Purpose() {
           <Row k="A headline from last night" v="time unknown" />
         </RowIn>
       </Win>
-      <Win at={0.32} x={600} y={20} w={560} h={300} title="The same morning, on AFVAR" glyph="research" ai>
+      <Win at={0.32} x={600} y={20} w={560} h={196} title="The same morning, on AFVAR" glyph="research" ai>
         <RowIn i={0} at={RIGHT_AT(0)}>
           <Row k="One price per market" v="source and time on it" gold />
         </RowIn>
@@ -46,9 +47,42 @@ export function Purpose() {
           <Row k="The decision" v="stays with you" />
         </RowIn>
       </Win>
-      <Note at={0.62} x={600} y={350} w={560} title="Built in-house in India" sub="RedPhantom Tech Novelty Private Limited" />
+      <Win at={0.58} x={40} y={232} w={520} h={196} title="One price per market · live" glyph="chart">
+        <LiveRow k="XAUUSD" />
+        <LiveRow k="EURUSD" />
+        <LiveRow k="BTC-USD" />
+        <SourceFoot k="XAUUSD" />
+      </Win>
+      <Win at={0.64} x={600} y={232} w={560} h={196} title="Our purpose" glyph="research">
+        <Row k="Every price" v="names its source" />
+        <Row k="Every analysis" v="graded in public" />
+        <Row k="Every headline" v="tagged with its time" />
+        <Row k="Every decision" v="stays with the trader" gold />
+      </Win>
+      <Note at={0.72} x={40} y={452} w={1120} title="Built in-house in India" sub="RedPhantom Tech Novelty Private Limited" />
     </OsSection>
   );
+}
+
+/** One market's last price from the live feed, with its freshness label. */
+function LiveRow({ k }: { k: string }) {
+  const q = useQuote(k);
+  return (
+    <Row
+      k={SYM[k] ?? k}
+      v={
+        <span className="flex items-center gap-2">
+          {fmt(q?.last, q?.decimals)}
+          <StatusChip q={q} />
+        </span>
+      }
+    />
+  );
+}
+
+/** The source and time of one market's price, as a footer line. */
+function SourceFoot({ k }: { k: string }) {
+  return <p className="mt-2 truncate font-mono text-[10px] text-[#92A399]">{sourceLine(useQuote(k))}</p>;
 }
 
 /**

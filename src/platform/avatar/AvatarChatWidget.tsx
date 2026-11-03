@@ -25,8 +25,7 @@ const readLauncherFlag = () => document.documentElement.dataset.afvarLauncher ==
  * and served from here: that endpoint refuses other origins and has a tight daily voice quota.
  */
 const GREETING_AUDIO = "/avatar/greeting-hi.wav";
-/** Every edition is greeted in Hindi, written and spoken. */
-const GREETING_TEXT = "नमस्कार! मैं AFVAR हूँ, मैं आपकी कैसे सहायता कर सकता हूँ?";
+/** Every edition is greeted in Hindi. */
 /** Greeting starts while the entrance wave is still playing, after the hologram has resolved. */
 const GREET_DELAY = 900;
 /** Viewer phases that mean a voice turn has begun, so the Talk prompt is no longer needed. */
@@ -265,17 +264,6 @@ export function AvatarChatWidget() {
           <AvatarEntrance active={open && phase === "ready"} avatarRef={avatarRef} stateRef={avatarStateRef} />
           {/* Halo over the viewer's Talk button (cross-origin, so it can't be styled directly): the viewer
               centres a 112×46 Talk + Stop pair 22px above the stage bottom, Talk on the left. */}
-          {/* Written greeting, shown alongside the spoken one until the visitor starts talking. */}
-          {talkGlow && (
-            <p
-              role="status"
-              lang="hi"
-              // Left-aligned and kept short of the viewer's own button in the top-right corner.
-              className="pointer-events-none absolute left-3 top-3 max-w-[calc(100%-4.5rem)] rounded-2xl rounded-tl-sm border border-border-subtle bg-surface-raised/90 px-3.5 py-2 text-left text-sm text-foreground shadow-lg shadow-black/30 backdrop-blur-sm"
-            >
-              {GREETING_TEXT}
-            </p>
-          )}
           {talkGlow && (
             <div
               aria-hidden
@@ -313,9 +301,12 @@ export function AvatarChatWidget() {
         // beat these utilities and left the launcher dim); the launcher draws its own ring.
         data-glass-hit-area=""
         // No disc behind the robot: the render itself is the button (larger, so it reads on its own).
-        className={`pointer-events-auto outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#00E676] relative flex h-24 w-20 items-center justify-center rounded-2xl bg-transparent transition-transform duration-150 hover:scale-105 motion-reduce:transition-none lg:h-28 lg:w-24 ${
-          // Below lg the centred panel owns the screen; the launcher steps out until it closes.
-          open ? "max-lg:invisible max-lg:opacity-0" : ""
+        className={`pointer-events-auto outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#00E676] relative flex h-24 w-20 items-center justify-center rounded-2xl bg-transparent transition-[opacity,scale,translate,visibility] hover:scale-105 motion-reduce:transition-none lg:h-28 lg:w-24 ${
+          // The open panel stands in for the launcher, which shrinks and fades out (keeping its space,
+          // so the panel doesn't shift), then pops back with an overshoot once the panel has folded away.
+          open
+            ? "invisible translate-y-2 scale-75 opacity-0 delay-100 duration-[400ms] ease-in"
+            : "visible translate-y-0 scale-100 opacity-100 delay-[450ms] duration-500 ease-[cubic-bezier(.2,1.3,.4,1)] hover:delay-0 hover:duration-150"
         }`}
       >
         {/* The avatar's own render (repo reference.png, background removed). The idle float pauses while the chat is open. */}

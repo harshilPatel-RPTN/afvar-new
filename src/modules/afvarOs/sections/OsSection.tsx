@@ -7,9 +7,13 @@
 // reduced motion: the same windows, stacked as cards in normal flow.
 //
 //   <OsSection n={2} label="Sources" title="Every quote arrives labelled." soft="Live, delayed or stored." body="…">
-//     <Win at={0.1} x={40} y={60} w={560} h={240} title="Data sources" glyph="chart">…</Win>
-//     <Ask at={0.3} x={620} y={40} w={520} text="Add Bitcoin to my watchlist" />
+//     <Win at={0.1} x={40} y={20} w={560} h={490} title="Data sources" glyph="chart">…</Win>
+//     <Ask at={0.3} x={630} y={20} w={530} text="Add Bitcoin to my watchlist" />
+//     <ChartWin k="BTC-USD" at={0.4} x={630} y={80} w={530} h={430} />
 //   </OsSection>
+//
+// Windows fill the desktop (x 40–1160, y ~20–510; the dock sits below it) with
+// ~20–30 px gutters, and each `h` fits its content — no empty window bottoms.
 //
 // Motion layer (docs/PLATFORM-SCROLL-MOTION-PLAN.md, behind PLATFORM_MOTION; reduced
 // motion = finished state): desk B1 caption word-light, B2 window open/close, B4
@@ -139,34 +143,17 @@ function DeskStage({ p, on, label, app, active, caption, children }: { p: Motion
   );
 }
 
-/** B1: the title's words brighten over the first 15 % of the section; the body follows. */
+/** B1: the title and body, shown whole from the start (no scroll-linked brightening). */
 function DeskCaption({ id, eyebrow, title, soft, body }: { id: string; eyebrow: string; title: string; soft?: string; body?: string }) {
-  const { p, on } = useSection();
-  const tw = title.split(" ");
-  const sw = soft ? soft.split(" ") : [];
-  const total = tw.length + sw.length;
-  const bodyO = useTransform(p, (v) => 0.35 + 0.65 * ramp(v, 0.12, 0.2));
-  const word = (w: string, i: number) => (on ? <Word key={i} p={p} i={i} n={total} text={w} /> : w);
-  const join = (ws: string[], from: number) => ws.flatMap((w, i) => (i ? [" ", word(w, from + i)] : [word(w, from + i)]));
   return (
     <header className="max-w-[46rem]">
       <p className={EYEBROW}>{eyebrow}</p>
       <h2 id={`${id}-t`} className={H2_CLS}>
-        {join(tw, 0)} {soft ? <span className="text-[#B7C5BC]">{join(sw, tw.length)}</span> : null}
+        {title} {soft ? <span className="text-[#B7C5BC]">{soft}</span> : null}
       </h2>
-      {body ? (
-        <motion.p className={BODY_CLS} style={{ opacity: on ? bodyO : 1 }}>
-          {body}
-        </motion.p>
-      ) : null}
+      {body ? <p className={BODY_CLS}>{body}</p> : null}
     </header>
   );
-}
-
-function Word({ p, i, n, text }: { p: MotionValue<number>; i: number; n: number; text: string }) {
-  const a = (0.15 * i) / n;
-  const opacity = useTransform(p, (v) => 0.35 + 0.65 * ramp(v, a, a + 0.15 / n + 0.02));
-  return <motion.span style={{ opacity }}>{text}</motion.span>;
 }
 
 /* ----------------------------------------------------------------- stack */
