@@ -23,10 +23,19 @@
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
 }
-.home-ambient [data-ambient-sign="plus"] { color: #74b98e; --sign-alpha: .45; }
-.home-ambient [data-ambient-sign="minus"] { color: var(--afvar-crimson); --sign-alpha: .72; }
+.home-ambient [data-ambient-sign="plus"] { color: #86cfa1; --sign-alpha: .72; text-shadow: 0 0 6px rgb(116 185 142 / .45); }
+.home-ambient [data-ambient-sign="minus"] { color: var(--afvar-crimson); --sign-alpha: .9; text-shadow: 0 0 6px rgb(220 60 60 / .4); }
 
+.home-ambient [data-ambient-blink] {
+  display: inline-block;
+  animation: home-sign-blink 3s steps(1, end) infinite;
+}
 @keyframes home-sky-twinkle { from { opacity: .35; } to { opacity: .95; } }
+/* Mostly on, with a quick off-on flicker (and a second one) each cycle. */
+@keyframes home-sign-blink {
+  0%, 62%, 70%, 76%, 100% { opacity: 1; }
+  64%, 72% { opacity: .12; }
+}
 @keyframes home-sky-drift {
   0% { opacity: 0; transform: translate(0, -32px); }
   20%, 75% { opacity: var(--sign-alpha); }

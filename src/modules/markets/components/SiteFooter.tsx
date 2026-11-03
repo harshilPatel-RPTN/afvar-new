@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BeastStyles } from "@/modules/home/kit";
 import { FooterBear, FooterBull } from "./FooterBeasts";
 import { FooterSkew } from "./FooterSkew";
+import { FooterLanding } from "./FooterLanding";
 import { translate, type MessageKey, type MessageVars } from "@/platform/i18n";
 import { getServerEdition } from "@/platform/i18n/server";
 import "./site-footer-phone.css";
@@ -85,7 +86,7 @@ const SHELL = {
     "relative border-t border-white/15 bg-(--mk-footer)/90 text-(--mk-text) shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] supports-[backdrop-filter]:bg-(--mk-footer)/5 supports-[backdrop-filter]:backdrop-blur-[2px] supports-[backdrop-filter]:backdrop-saturate-200 supports-[backdrop-filter]:backdrop-brightness-110",
 } as const;
 
-/** Static server component: no scroll-reveal motion, so it ships no client JS of its own. */
+/** Server component; its only client island is the FooterLanding pad at the end. */
 export async function SiteFooter({ variant = "solid" }: { variant?: keyof typeof SHELL } = {}) {
   const edition = await getServerEdition();
   const t = (key: MessageKey, vars?: MessageVars) =>
@@ -199,6 +200,8 @@ export async function SiteFooter({ variant = "solid" }: { variant?: keyof typeof
           </p>
         </div>
       </div>
+      {/* The landing pad: the navbar logo flies down and touches down here (decorative). */}
+      <FooterLanding />
     </footer>
   );
 }

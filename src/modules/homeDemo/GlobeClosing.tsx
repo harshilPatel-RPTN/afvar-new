@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from "react";
 import { useAfvarReducedMotion, useMedia } from "@/modules/afvarOs";
-import { CURRENCY_ROUTES } from "./currencyRoutes";
+import { useLiveMarket } from "@/modules/home/kit";
+import { CURRENCY_ROUTES, routePairLabel, routeRate, type RouteRate } from "./currencyRoutes";
 import type { mountGlobe } from "./pointGlobe";
 import "./globe-closing.css";
 
@@ -26,18 +27,41 @@ const arcPath = (a: {x: number; y: number}, b: {x: number; y: number}) => {
   return `M${a.x.toFixed(1)} ${a.y.toFixed(1)} Q${((a.x + b.x) / 2).toFixed(1)} ${(Math.min(a.y, b.y) - span * .38).toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
 };
 const ARCS = CURRENCY_ROUTES.map((_, i) => arcPath(HUB_POINTS[i], HUB_POINTS[(i + 1) % legCount]));
-// [start lag s, radius, opacity] — the comet head first, then its trail.
-const COMET = [[0, 3.4, 1], [.05, 2.6, .5], [.1, 2, .28], [.15, 1.5, .14]] as const;
+// [start lag s, radius, opacity] — the coin's fading trail of sparks.
+const TRAIL = [[.06, 2.6, .45], [.12, 2, .26], [.18, 1.5, .13]] as const;
+const COIN_R = 9;
+/** The travelling coin face (sign text is drawn by the caller). */
+function CoinFace() {
+  return (
+    <>
+      <circle r={COIN_R} fill="url(#home-coin-face)" />
+      <circle r={COIN_R - .65} fill="none" stroke="#8a6726" strokeWidth="1.3" />
+      <circle r={COIN_R * .7} fill="none" stroke="rgb(255 240 196 / .7)" strokeWidth=".45" />
+    </>
+  );
+}
+const coinText = (sign: string) => ({ fontSize: sign.length > 1 ? 7 : 9.4 });
+const STATUS_WORD: Record<RouteRate["status"], string> = { live: "Live", delayed: "Delayed", snapshot: "Stored" };
+const two = (n: number) => String(n).padStart(2, "0");
+/** "Delayed · Yahoo · 14:05 UTC" — the feed's own freshness, never a guess. */
+const rateNote = (rate: RouteRate) => [STATUS_WORD[rate.status], rate.source?.replace(/\s*\((?:live|delayed)\)$/i, ""),
+  rate.asOf === null ? null : `${two(new Date(rate.asOf).getUTCHours())}:${two(new Date(rate.asOf).getUTCMinutes())} UTC`].filter(Boolean).join(" · ");
 const GRID_DOTS = Array.from({ length: 9 * 17 }, (_, i) => ({ x: 12 + (i % 17) * 21, y: 12 + Math.floor(i / 17) * 22 }));
 
 /** Phones only (shown by CSS below 640 px): a flat FX route map — every hub a
  *  node on a dotted field, the active leg's arc drawing in with a dot riding it. */
-function RouteMap({ active, lite }: { active: number; lite: boolean }) {
+function RouteMap({ active, lite, reduced }: { active: number; lite: boolean; reduced: boolean }) {
   const route = CURRENCY_ROUTES[active];
+  const landing = HUB_POINTS[(active + 1) % legCount];
   return (
     <div className="home-route-map" role={lite ? "img" : undefined} aria-hidden={lite ? undefined : true}
-      aria-label={lite ? `Route map showing the ${route.from.code} route from ${route.from.city} to ${route.to.city}. The next leg carries ${route.to.code}.` : undefined}>
+      aria-label={lite ? `Route map showing ${route.from.code} to ${route.to.code}, from ${route.from.city} to ${route.to.city}.` : undefined}>
       <svg viewBox={`0 0 ${MAP_W} ${MAP_H}`} aria-hidden="true">
+        <defs>
+          <radialGradient id="home-coin-face" cx=".32" cy=".3" r=".8">
+            <stop offset="0" stopColor="#fbecb8" /><stop offset=".55" stopColor="#dcb75e" /><stop offset="1" stopColor="#a07a2c" />
+          </radialGradient>
+        </defs>
         <g className="home-route-grid">
           {GRID_DOTS.map((dot, i) => <circle key={i} cx={dot.x} cy={dot.y} r=".9" />)}
         </g>
@@ -46,14 +70,6 @@ function RouteMap({ active, lite }: { active: number; lite: boolean }) {
         </g>
         <g key={active} className="home-route-live">
           <path id={`home-route-arc-${active}`} d={ARCS[active]} pathLength={1} />
-          {/* Comet: a bright head and a fading trail of lagging copies. */}
-          {COMET.map(([lag, r, opacity]) => (
-            <circle key={lag} className="home-route-runner" r={r} opacity={opacity}>
-              <animateMotion dur="2.4s" begin={`${lag}s`} repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines=".45 0 .35 1">
-                <mpath href={`#home-route-arc-${active}`} />
-              </animateMotion>
-            </circle>
-          ))}
         </g>
         {HUB_POINTS.map((point, i) => {
           const state = i === active ? "from" : i === (active + 1) % legCount ? "to" : undefined;
@@ -65,6 +81,49 @@ function RouteMap({ active, lite }: { active: number; lite: boolean }) {
             </g>
           );
         })}
+        {/* The coin rides above the hub dots. */}
+        <g key={`coin-${active}`}>
+          {reduced ? (
+            // Reduced motion: the coin rests at the destination, no spin.
+            <g className="home-route-coin" transform={`translate(${landing.x.toFixed(1)} ${landing.y.toFixed(1)})`}>
+              <CoinFace /><text style={coinText(route.to.symbol)}>{route.to.symbol}</text>
+            </g>
+          ) : (
+            <>
+              {TRAIL.map(([lag, r, opacity]) => (
+                <circle key={lag} className="home-route-runner" r={r} opacity={opacity}>
+                  <animateMotion dur="2.4s" begin={`${lag}s`} repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines=".45 0 .35 1">
+                    <mpath href={`#home-route-arc-${active}`} />
+                  </animateMotion>
+                </circle>
+              ))}
+              {/* The coin: spins on its edge (scaleX), swaps FROM → TO sign edge-on at
+                  the midpoint, then bumps as it lands. */}
+              <g className="home-route-coin">
+                <animateMotion dur="2.4s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines=".45 0 .35 1">
+                  <mpath href={`#home-route-arc-${active}`} />
+                </animateMotion>
+                <g>
+                  <animateTransform attributeName="transform" type="scale" dur="2.4s" repeatCount="indefinite"
+                    values="1 1;1 1;1.3 1.3;1 1" keyTimes="0;.86;.93;1" />
+                  <g>
+                    <animateTransform attributeName="transform" type="scale" dur="2.4s" repeatCount="indefinite"
+                      values="1 1;.08 1;1 1;.08 1;1 1;.08 1;1 1;1 1" keyTimes="0;.1;.25;.5;.7;.8;.86;1" />
+                    <CoinFace />
+                    <text style={coinText(route.from.symbol)}>
+                      {route.from.symbol}
+                      <animate attributeName="opacity" dur="2.4s" repeatCount="indefinite" calcMode="discrete" values="1;0" keyTimes="0;.5" />
+                    </text>
+                    <text style={coinText(route.to.symbol)} opacity="0">
+                      {route.to.symbol}
+                      <animate attributeName="opacity" dur="2.4s" repeatCount="indefinite" calcMode="discrete" values="0;1" keyTimes="0;.5" />
+                    </text>
+                  </g>
+                </g>
+              </g>
+            </>
+          )}
+        </g>
       </svg>
     </div>
   );
@@ -80,6 +139,11 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
   const [activeLeg, setActiveLeg] = useState(0);
   const requestedLeg = useRef(0);
   const route = CURRENCY_ROUTES[activeLeg];
+  const { quotes } = useLiveMarket();
+  const rates = CURRENCY_ROUTES.map(leg => routeRate(leg, quotes));
+  const rate = rates[activeLeg];
+  const pairs = CURRENCY_ROUTES.map((leg, i) => routePairLabel(leg, rates[i]));
+  const pairsKey = pairs.join("|");
   const reduced = useAfvarReducedMotion();
   const playing = manualPlayback ?? !reduced;
   // null until the client answers; the SSR poster covers both outcomes.
@@ -118,6 +182,8 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
     return () => { disposed = true; nearby.disconnect(); surface?.dispose(); setGlobe(null); };
   }, [lite]);
   useEffect(() => { globe?.setPlaying(playing); }, [globe, playing]);
+  useEffect(() => { globe?.setPairs(pairsKey.split("|")); }, [globe, pairsKey]);
+  useEffect(() => { globe?.setStill(reduced); }, [globe, reduced]);
   // Lite: CSS motion and the leg tour run only while the section is in view.
   useEffect(() => {
     const node = section.current;
@@ -196,10 +262,14 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
               <span>{route.to.city}{route.to.city !== route.to.country && <> · {route.to.country}</>}</span>
             </div>
           </div>
+          <p className="home-fx-rate" data-fx-pair="">
+            <span>{route.from.code} → {route.to.code}</span>
+            {rate && <><b>{rate.value.toFixed(rate.decimals)}</b><small>{rateNote(rate)}</small></>}
+          </p>
           <div role="group" aria-label="Choose outgoing currency route" className="home-fx-picker afvar-glass-track">
             {CURRENCY_ROUTES.map((leg, i) => (
               <button key={leg.id} type="button" className="afvar-glass-tab" aria-pressed={i === activeLeg}
-                aria-label={`Show ${leg.from.code} route from ${leg.from.city} to ${leg.to.city}`} onClick={() => selectLeg(i)}>
+                aria-label={`Show ${leg.from.code} to ${leg.to.code} route from ${leg.from.city} to ${leg.to.city}`} onClick={() => selectLeg(i)}>
                 {leg.from.code}
               </button>
             ))}
@@ -207,8 +277,8 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
         </div>
       </div>
       <div className="home-globe-figure">
-        <RouteMap active={activeLeg} lite={!!lite} />
-        <div className="home-globe-disc" role="img" aria-label={`Globe showing the ${route.from.code} route from ${route.from.city} to ${route.to.city}. The next leg carries ${route.to.code}.`}>
+        <RouteMap active={activeLeg} lite={!!lite} reduced={reduced} />
+        <div className="home-globe-disc" role="img" aria-label={`Globe showing ${route.from.code} to ${route.to.code}, from ${route.from.city} to ${route.to.city}.`}>
           {stills.map(i => (
             <Image key={i} className="home-globe-still" src={stillSrc(i)} data-active={!lite || i === activeLeg || undefined}
               fill sizes="(max-width: 700px) 94vw, 58vw" unoptimized alt="" />

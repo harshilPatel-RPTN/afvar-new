@@ -23,6 +23,16 @@ const drifters = [
   { sign: "+", x: 76, y: 16, dx: 9,   size: 15, seconds: 17, delay: 12 },
   { sign: "−", x: 42, y: 20, dx: 16,  size: 14, seconds: 20, delay: 2 },
   { sign: "+", x: 92, y: 76, dx: -12, size: 18, seconds: 23, delay: 9 },
+  { sign: "−", x: 3,  y: 88, dx: 10,  size: 17, seconds: 19, delay: 7 },
+  { sign: "+", x: 50, y: 10, dx: -9,  size: 16, seconds: 18, delay: 14 },
+  { sign: "+", x: 96, y: 46, dx: -10, size: 17, seconds: 20, delay: 3 },
+  { sign: "−", x: 34, y: 92, dx: 11,  size: 15, seconds: 21, delay: 10 },
+  { sign: "+", x: 83, y: 92, dx: -8,  size: 16, seconds: 22, delay: 6 },
+  { sign: "−", x: 58, y: 28, dx: 10,  size: 15, seconds: 17, delay: 15 },
+  { sign: "+", x: 2,  y: 42, dx: 9,   size: 15, seconds: 23, delay: 1 },
+  { sign: "−", x: 70, y: 8,  dx: -11, size: 16, seconds: 19, delay: 18 },
+  { sign: "+", x: 47, y: 74, dx: 8,   size: 14, seconds: 20, delay: 8 },
+  { sign: "−", x: 98, y: 12, dx: -9,  size: 15, seconds: 18, delay: 13 },
 ];
 
 export function HomeAmbient() {
@@ -53,7 +63,8 @@ export function HomeAmbient() {
         <span key={i} data-ambient-sign={sign === "+" ? "plus" : "minus"} data-wide={i >= 4 || undefined}
           style={{ left: x + "%", top: y + "%", fontSize: size, "--dx": dx + "px",
             animationDuration: seconds + "s", animationDelay: -delay + "s" } as CSSProperties}>
-          {sign}
+          {/* Each mark also blinks on its own beat while it drifts. */}
+          <span data-ambient-blink="" style={{ animationDuration: 2.4 + (i % 5) * 0.7 + "s", animationDelay: -(i * 0.9) + "s" }}>{sign}</span>
         </span>
       ))}
     </div>

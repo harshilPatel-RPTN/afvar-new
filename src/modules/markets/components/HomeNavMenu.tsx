@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useIsPresent, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/csr/ArrowUpRight";
 import { BookOpen } from "@phosphor-icons/react/dist/csr/BookOpen";
 import { CaretLeft } from "@phosphor-icons/react/dist/csr/CaretLeft";
@@ -45,6 +45,7 @@ export function HomeNavMenu({ id, items, trigger, pathname, onClose, onSearch, c
 }) {
   const { t } = useT();
   const reducedMotion = useReducedMotion();
+  const swap = { duration: reducedMotion ? 0 : .55, ease: [.22, 1, .36, 1] as const };
   const present = useIsPresent();
   const menu = useRef<HTMLDivElement>(null);
   const children = useRef<HTMLElement>(null);
@@ -68,7 +69,7 @@ export function HomeNavMenu({ id, items, trigger, pathname, onClose, onSearch, c
   }, [onClose, trigger, present]);
 
   function previewGroup(href: string | null, pointerType: string) {
-    if (pointerType !== "mouse" || window.matchMedia("(max-width: 420px)").matches) return;
+    if (pointerType !== "mouse" || window.matchMedia("(max-width: 639px)").matches) return;
     clearTimeout(timer.current);
     // Give the pointer time to cross a neighboring row on its way into the flyout.
     if (active === null) setActive(href);
@@ -91,7 +92,7 @@ export function HomeNavMenu({ id, items, trigger, pathname, onClose, onSearch, c
       event.preventDefault();
       if (group) returnToGroup();
       else { onClose(); trigger.current?.focus(); }
-    } else if (event.key === "ArrowRight" && children.current?.contains(event.target as Node)) {
+    } else if (event.key === "ArrowLeft" && children.current?.contains(event.target as Node)) {
       event.preventDefault();
       returnToGroup();
     }
@@ -105,15 +106,17 @@ export function HomeNavMenu({ id, items, trigger, pathname, onClose, onSearch, c
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: reducedMotion ? 0 : -4, scale: reducedMotion ? 1 : .98 }}
       transition={{ duration: reducedMotion ? 0 : .24, ease: [.22, 1, .36, 1] }}>
-      <nav className="afvar-glass-panel afvar-menu-primary afvar-menu-column" aria-label={t("mk.nav.label")}>
+      {/* Opening a group swaps the cards (main menu slides left, its submenu takes the right
+          slot); closing slides it back. Layout animation runs both ways at the same calm pace. */}
+      <motion.nav layout="position" transition={swap} className="afvar-glass-panel afvar-menu-primary afvar-menu-column" aria-label={t("mk.nav.label")}>
         <div className="afvar-menu-heading" aria-hidden="true">{t("mk.nav.menu")}</div>
         {items.map(item => item.children ? (
           <button key={item.href} type="button" aria-expanded={active === item.href}
             aria-controls={active === item.href ? `${id}-children` : undefined}
             onPointerEnter={event => previewGroup(item.href, event.pointerType)}
-            onKeyDown={event => { if (event.key === "ArrowLeft") { event.preventDefault(); enterGroup(item.href); } }}
+            onKeyDown={event => { if (event.key === "ArrowRight") { event.preventDefault(); enterGroup(item.href); } }}
             onClick={() => enterGroup(item.href)}>
-            <NavIcon href={item.href} /><span className="afvar-menu-label">{t(item.key)}</span><CaretLeft size={14} aria-hidden="true" />
+            <NavIcon href={item.href} /><span className="afvar-menu-label">{t(item.key)}</span><CaretRight size={14} aria-hidden="true" />
           </button>
         ) : (
           <Link key={item.href} href={item.href} onClick={onClose} aria-current={pathname === item.href ? "page" : undefined}
@@ -126,14 +129,20 @@ export function HomeNavMenu({ id, items, trigger, pathname, onClose, onSearch, c
           {extra}
           <a href={REGISTER_URL} className="afvar-glass-button afvar-glass-primary afvar-menu-join">{t("mk.waitlist.cta")}<ArrowUpRight size={16} aria-hidden="true" /></a>
         </div>
-      </nav>
+      </motion.nav>
+      <AnimatePresence initial={false} mode="popLayout">
       {group?.children && (
-        <nav ref={children} id={`${id}-children`} className="afvar-glass-panel afvar-menu-children afvar-menu-column"
+        <motion.nav key={group.href} ref={children} id={`${id}-children`} className="afvar-glass-panel afvar-menu-children afvar-menu-column" style={{ order: 1 }}
+          layout="position"
+          initial={reducedMotion ? false : { opacity: 0, x: -40, scale: .96 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={reducedMotion ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, x: -40, scale: .96, transition: { duration: .32, ease: [.4, 0, .2, 1] } }}
+          transition={swap}
           aria-label={t("mk.nav.submenu", { label: t(group.key) })}
           onPointerEnter={() => clearTimeout(timer.current)}>
           <div className="afvar-menu-heading" aria-hidden="true">{t(group.key)}</div>
           <button type="button" className="afvar-menu-back" onClick={returnToGroup}>
-            <CaretRight size={16} aria-hidden="true" />{t("common.back")}
+            <CaretLeft size={16} aria-hidden="true" />{t("common.back")}
           </button>
           {!group.children.some(child => child.href === group.href) && (
             <Link href={group.href} onClick={onClose}>{t(group.key)}</Link>
@@ -141,8 +150,9 @@ export function HomeNavMenu({ id, items, trigger, pathname, onClose, onSearch, c
           {group.children.map(child => (
             <Link key={child.href} href={child.href} onClick={onClose} aria-current={pathname === child.href ? "page" : undefined}>{t(child.key)}</Link>
           ))}
-        </nav>
+        </motion.nav>
       )}
+      </AnimatePresence>
     </motion.div>
   );
 }

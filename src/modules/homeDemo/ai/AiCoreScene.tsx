@@ -431,7 +431,7 @@ function SceneAvatar() {
   const { film, portrait, lite } = useFilm();
   const { smoothed, still } = useStoryFrame();
   const track = useMemo(() => makeAvatarTrack(film, portrait), [film, portrait]);
-  return <AvatarActor track={track} getP={() => smoothed.current ?? 0} still={still} quality={lite ? "performance" : "balanced"} />;
+  return <AvatarActor track={track} getP={() => smoothed.current ?? 0} still={still} quality={lite ? "performance" : "balanced"} build={AVATAR.buildSeconds} />;
 }
 
 function makeAvatarTrack(film: Film, portrait: boolean) {
@@ -442,6 +442,8 @@ function makeAvatarTrack(film: Film, portrait: boolean) {
   const leaveEnd = film.has("os") ? film.at("os", 0.035) : actEnd;
   const fin = (f: number) => film.at("finale", f);
   const P = AVATAR.place;
+  // `explode` here only says where the build starts: the host plays it as a
+  // timed one-shot from there (AvatarActor `build`), whatever the scroll speed.
   return (p: number, _t: number, out: AvatarFrame): AvatarFrame => {
     const inAct = p >= A(AVATAR.assemble[0]) && p < actEnd;
     const inFinale = p >= fin(0.12);
@@ -652,6 +654,9 @@ function Satellites() {
 
 const SOURCE_LABEL = [0.55, 0.3] as const;
 
+/** How far the travelling data chips (GBP/USD…, US payrolls…) are faded. */
+const CHIP_ALPHA = 0.5;
+
 /** Five sources; labelled packets travel along each line into the core that reads them. */
 function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
   const { film, lite, portrait } = useFilm();
@@ -758,7 +763,8 @@ function Streams({ priceTexts }: { priceTexts: readonly string[] }) {
           const half = ((el.textContent?.length ?? 0) * 6.4 + 18) * 0.5; // mono 10.5px ≈ 6.4px/char + padding
           side = ramp(s.size.width - cx - half, 6, 48);
         }
-        el.style.opacity = String(edge * w * side);
+        // Packets stay a quiet layer under the cores and source labels.
+        el.style.opacity = String(CHIP_ALPHA * edge * w * side);
         const lap = Math.floor(phase) * fit + k;
         const ti = texts.length ? ((lap % texts.length) + texts.length) % texts.length : -1;
         if (ti !== lastText.current[idx]) {

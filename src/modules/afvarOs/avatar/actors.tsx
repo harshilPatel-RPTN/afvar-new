@@ -57,23 +57,45 @@ function adopt(rig: AvatarRig, holder: THREE.Group | null, scene: THREE.Scene): 
  * floating off, arms spread, parts scattered). Instead: once (partly)
  * assembled, the robot stays that way and shrinks out smoothly over the same
  * stretch of scroll; it assembles again only after it has left the stage.
+ *
+ * With `build` (seconds) the assembly is a timed one-shot instead of being
+ * scrubbed by scroll: the track's `explode` leaving 1 only TRIGGERS it, then the
+ * parts come together over `build` seconds of frame time, whatever the scroll
+ * speed — so a fast flick (touch momentum) still shows the whole build, and the
+ * robot grows with it (never full-size while still in parts). Still frames
+ * (reduced motion) show it assembled.
  */
-type Assembly = { held: number };
-const assembly = (): Assembly => ({ held: -1 });
-function oneWay(f: AvatarFrame, a: Assembly): AvatarFrame {
+type Assembly = { held: number; build: number };
+const assembly = (): Assembly => ({ held: -1, build: -1 });
+const smooth = (u: number) => u * u * (3 - 2 * u);
+function oneWay(f: AvatarFrame, a: Assembly, dt: number, build?: number, still = false): AvatarFrame {
   if (!f.visible) {
     a.held = -1;
+    a.build = -1;
     return f;
   }
   const raw = f.explode;
+  let out = 1;
   if (a.held < 0 || raw <= a.held) {
     a.held = raw;
-    return f;
+  } else {
+    const span = 1 - a.held;
+    out = 1 - smooth(span > 1e-3 ? Math.min(1, (raw - a.held) / span) : 1);
+    f.explode = a.held;
   }
-  const span = 1 - a.held;
-  const u = span > 1e-3 ? Math.min(1, (raw - a.held) / span) : 1;
-  f.explode = a.held;
-  f.scale *= 1 - u * u * (3 - 2 * u);
+  if (build && build > 0) {
+    if (still) a.build = 1;
+    else if (a.build < 0) {
+      if (raw < 0.999) a.build = 0;
+    } else if (a.build < 1) a.build = Math.min(1, a.build + Math.min(Math.max(dt, 0), 0.1) / build);
+    const b = Math.max(0, a.build);
+    // Parts converge fast (ease-out cubic) while the size rises smoothly from a
+    // fifth: explode ≤ 0.1 before the robot reaches 0.7 of its size.
+    f.explode = (1 - b) ** 3;
+    out *= 0.2 + 0.8 * smooth(b);
+    if (b < 1) f.aura = "connecting";
+  }
+  f.scale *= out;
   return f;
 }
 
@@ -104,16 +126,33 @@ function usePrecompile(rig: AvatarRig | null) {
 }
 
 /** The avatar inside an existing R3F scene. `track` returns the frame for progress p at time t. */
-export function AvatarActor({ track, getP, still = false, quality = "balanced" }: { track: AvatarTrack; getP: () => number; still?: boolean; quality?: "balanced" | "performance" }) {
+export function AvatarActor({
+  track,
+  getP,
+  still = false,
+  quality = "balanced",
+  build,
+}: {
+  track: AvatarTrack;
+  getP: () => number;
+  still?: boolean;
+  quality?: "balanced" | "performance";
+  /** Seconds for a timed, scroll-triggered assembly (see oneWay); omitted, the track scrubs it. */
+  build?: number;
+}) {
   const rig = useAvatarRig();
   usePrecompile(rig);
   const holder = useHost(rig);
   const out = useRef(avatarFrame());
   const held = useRef(assembly());
   useFrame((s, dt) => {
-    if (!rig || !adopt(rig, holder.current, s.scene)) return;
+    if (!rig || !adopt(rig, holder.current, s.scene)) {
+      // The robot is in another host: it has left this stage, so it builds again when it returns.
+      held.current = assembly();
+      return;
+    }
     const t = still ? 1 : s.clock.elapsedTime;
-    rig.update(Math.min(dt, 0.1), t, oneWay(track(getP(), t, out.current), held.current), { reduced: still, quality });
+    rig.update(Math.min(dt, 0.1), t, oneWay(track(getP(), t, out.current), held.current, dt, build, still), { reduced: still, quality });
   });
   return <group ref={holder} name="AFVAR_AvatarHost" />;
 }
@@ -129,6 +168,7 @@ export function AvatarOverlay({
   design = [1200, 660],
   still = false,
   here = true,
+  build,
   className = "",
 }: {
   mv: MotionValue<number>;
@@ -141,6 +181,8 @@ export function AvatarOverlay({
    * another scene — so handing it back never builds a new renderer.
    */
   here?: boolean;
+  /** Seconds for a timed, scroll-triggered assembly (see oneWay); omitted, the track scrubs it. */
+  build?: number;
   className?: string;
 }) {
   const host = useRef<HTMLDivElement>(null);
@@ -169,7 +211,7 @@ export function AvatarOverlay({
           <Lightformer form="rect" intensity={1.4} position={[0, 5, -4]} scale={[12, 4, 1]} />
           <Lightformer form="rect" intensity={0.8} color="#A8DEC2" position={[-6, 1, 2]} rotation-y={Math.PI / 2} scale={[8, 3, 1]} />
         </Environment>
-        <OverlayActor mv={mv} track={track} design={design} still={still} here={here} reveal={reveal} />
+        <OverlayActor mv={mv} track={track} design={design} still={still} here={here} build={build} reveal={reveal} />
       </Canvas>
     </div>
   );
@@ -181,6 +223,7 @@ function OverlayActor({
   design,
   still,
   here,
+  build,
   reveal,
 }: {
   mv: MotionValue<number>;
@@ -188,6 +231,7 @@ function OverlayActor({
   design: readonly [number, number];
   still: boolean;
   here: boolean;
+  build?: number;
   /** Called after each update has placed the rig: shows a parked canvas again. */
   reveal: () => void;
 }) {
@@ -200,10 +244,17 @@ function OverlayActor({
   const eased = useRef({ p: 0, t: -1 });
   useLayoutEffect(() => {
     // A new stay in this host starts from the live progress, never a stale one.
-    if (here) eased.current.t = -1;
+    // ...and a fresh build: the robot was away in another host.
+    if (here) {
+      eased.current.t = -1;
+      held.current = assembly();
+    }
   }, [here]);
   useFrame((s, dt) => {
-    if (!rig || !here || !adopt(rig, holder.current, s.scene)) return;
+    if (!rig || !here || !adopt(rig, holder.current, s.scene)) {
+      held.current = assembly(); // left this host: build again on return
+      return;
+    }
     const t = still ? 1 : s.clock.elapsedTime;
     // The overlay follows RAW scroll progress (the DOM desktop does too), but a
     // wheel notch can jump it by several percent of the OS act: ease the robot's
@@ -213,7 +264,7 @@ function OverlayActor({
     const ease = eased.current;
     ease.p = ease.t < 0 || dt > 0.25 || Math.abs(raw - ease.p) > 0.05 ? raw : THREE_damp(ease.p, raw, 10, dt);
     ease.t = t;
-    const f = oneWay(track(ease.p, t, out.current), held.current);
+    const f = oneWay(track(ease.p, t, out.current), held.current, dt, build, still);
     // The live size: a render-time closure can lag a resize by a frame.
     const size = s.size;
     const k = Math.min(size.width / design[0], size.height / design[1]);

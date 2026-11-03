@@ -91,6 +91,11 @@ export const AVATAR = {
   answer: [0.66, 0.94] as const, // it speaks
   /** Avatar placement in the 3D stage: feet y, scale (robot units → scene). */
   place: { x: 0, y: -1.2, scale: 0.44 },
+  /**
+   * Seconds the parts take to come together once scroll reaches the build
+   * (avatar act, finale, OS overlay): timed, so a fast flick still shows it all.
+   */
+  buildSeconds: 1.3,
 };
 
 /* ------------------------------------------------------------- the gate */

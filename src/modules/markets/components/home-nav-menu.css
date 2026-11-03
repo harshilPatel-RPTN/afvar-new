@@ -8,7 +8,7 @@
   z-index: 2;
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 12px;
   width: max-content;
   max-width: calc(100vw - 2rem);
   color: var(--afvar-text);
@@ -33,11 +33,22 @@
   -webkit-backdrop-filter: blur(20px) saturate(115%);
   backdrop-filter: blur(20px) saturate(115%);
 }
-.afvar-responsive-home .afvar-menu-primary { width: clamp(184px, 17vw, 224px); }
+.afvar-responsive-home .afvar-menu-primary { width: var(--afvar-menu-main-w); }
+/* Opening a group swaps the cards: the submenu takes the main menu's place on the
+   right and the main menu slides left, with a 12 px gap and both tops aligned. */
+/* Both cards always fit side by side: on narrow screens each shrinks to its share of the width. */
+.afvar-responsive-home .afvar-home-menu {
+  --afvar-menu-main-w: min(clamp(184px, 17vw, 224px), calc((100vw - 2rem - 12px) * .48));
+  --afvar-menu-child-w: min(clamp(194px, 20vw, 248px), calc((100vw - 2rem - 12px) * .52));
+}
 .afvar-responsive-home .afvar-menu-children {
-  order: -1;
-  width: clamp(194px, 20vw, 248px);
-  animation: afvar-menu-flyout .22s cubic-bezier(.22, 1, .36, 1) both;
+  position: relative;
+  z-index: 1;
+  width: var(--afvar-menu-child-w);
+}
+.afvar-responsive-home .afvar-home-menu[data-depth="2"] .afvar-menu-primary {
+  position: relative;
+  z-index: 0;
 }
 .afvar-menu-heading {
   padding: 9px 11px 12px;
@@ -73,7 +84,8 @@
 }
 .afvar-menu-label { flex: 1; }
 .afvar-menu-column svg { flex-shrink: 0; opacity: .86; }
-.afvar-responsive-home .afvar-menu-column :is(a[aria-current="page"], button[aria-expanded="true"], button[aria-pressed="true"]) {
+/* Only the open group (and the hovered row) is highlighted, not the page you are on. */
+.afvar-responsive-home .afvar-menu-column :is(button[aria-expanded="true"], button[aria-pressed="true"]) {
   background: linear-gradient(155deg, rgb(245 252 248 / .14), rgb(245 252 248 / .045));
   border-color: rgb(242 252 246 / .21);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / .15), 0 2px 5px rgb(0 0 0 / .12);
@@ -123,16 +135,47 @@
 .afvar-menu-trigger[aria-expanded="true"] .afvar-menu-line-first { transform: rotate(45deg) translateY(4px); }
 .afvar-menu-trigger[aria-expanded="true"] .afvar-menu-line-middle { opacity: 0; }
 .afvar-menu-trigger[aria-expanded="true"] .afvar-menu-line-last { transform: rotate(-45deg) translateY(-4px); }
-@keyframes afvar-menu-flyout {
-  from { opacity: 0; transform: translateX(6px); }
-  to { opacity: 1; transform: translateX(0); }
-}
 @media (pointer: coarse) {
   .afvar-responsive-home .afvar-menu-column :is(a, button) { min-height: 44px; }
 }
-@media (max-width: 420px) {
-  .afvar-responsive-home .afvar-menu-column { width: min(236px, calc(100vw - 2rem)); }
-  .afvar-responsive-home .afvar-home-menu[data-depth="2"] .afvar-menu-primary { display: none; }
+/* Phones: the menu sits centred in the screen below the navbar. Opening a group stacks
+   the submenu on top of the main menu, which stays visible behind it, faded and set back. */
+@media (max-width: 639px) {
+  .afvar-responsive-home .afvar-home-menu {
+    position: fixed;
+    inset: 72px 0 0;
+    display: grid;
+    place-items: center;
+    justify-content: center;
+    align-content: center;
+    width: auto;
+    max-width: none;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+    transform-origin: center top;
+    pointer-events: none;
+  }
+  .afvar-responsive-home .afvar-menu-column {
+    grid-area: 1 / 1;
+    width: min(300px, calc(100vw - 2rem));
+    max-height: calc(100dvh - 72px - 32px - env(safe-area-inset-bottom));
+    pointer-events: auto;
+  }
+  .afvar-responsive-home .afvar-menu-primary {
+    transition: opacity .4s cubic-bezier(.22, 1, .36, 1), scale .4s cubic-bezier(.22, 1, .36, 1), translate .4s cubic-bezier(.22, 1, .36, 1);
+  }
+  /* Both cards share one grid cell, tops aligned: the main menu sits right behind the
+     submenu, set back and faded, peeking out above and below it like a stacked card. */
+  .afvar-responsive-home .afvar-home-menu[data-depth="2"] .afvar-menu-column { align-self: start; }
+  .afvar-responsive-home .afvar-home-menu[data-depth="2"] .afvar-menu-children { margin-top: 34px; }
+  .afvar-responsive-home .afvar-home-menu[data-depth="2"] .afvar-menu-primary {
+    opacity: .5;
+    scale: .92;
+    pointer-events: none;
+  }
+  .afvar-responsive-home .afvar-menu-children {
+    z-index: 2;
+    box-shadow: 0 -10px 30px -12px rgb(0 0 0 / .7), 0 18px 48px -12px rgb(0 0 0 / .65);
+  }
   .afvar-responsive-home .afvar-menu-column .afvar-menu-back {
     display: flex;
     justify-content: flex-start;
@@ -141,11 +184,14 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .afvar-menu-trigger svg path, .afvar-responsive-home .afvar-menu-column :is(a, button) { transition: none; }
-  .afvar-responsive-home .afvar-menu-children { animation: none; }
+  .afvar-responsive-home .afvar-menu-children,
+  .afvar-responsive-home .afvar-home-menu[data-depth="2"] .afvar-menu-primary { animation: none; }
+  .afvar-responsive-home .afvar-menu-primary { transition: none; }
 }
 html[data-reduce-motion="true"] .afvar-menu-trigger svg path,
 html[data-reduce-motion="true"] .afvar-responsive-home .afvar-menu-column :is(a, button) { transition: none; }
-html[data-reduce-motion="true"] .afvar-responsive-home .afvar-menu-children { animation: none; }
+html[data-reduce-motion="true"] .afvar-responsive-home .afvar-menu-children,
+html[data-reduce-motion="true"] .afvar-responsive-home .afvar-home-menu[data-depth="2"] .afvar-menu-primary { animation: none; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .afvar-responsive-home .afvar-menu-column { background-color: #101b16; }
 }

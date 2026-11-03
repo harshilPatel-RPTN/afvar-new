@@ -47,7 +47,7 @@ import {
   type DockItem,
 } from "@/modules/afvarOs";
 import { fmtPrice } from "@/modules/home/kit";
-import { DESKTOP_FILM } from "./aiConfig";
+import { AVATAR, DESKTOP_FILM } from "./aiConfig";
 import { useNowMinute, sessionsNow, type Quotes } from "./cards";
 
 const U = (u: number) => DESKTOP_FILM.at("os", u);
@@ -380,7 +380,7 @@ export function OsFilm({ mv, quotes, avatarHere, avatarHost = avatarHere }: { mv
       </div>
       <motion.div className="home-os-screen absolute inset-x-[4vw] bottom-[3vh] top-[218px]" style={{ scale: screenScale }}>
         <OsDesktop mv={mv} quotes={quotes} className="h-full w-full" />
-        {avatarHost || avatarHere ? <AvatarOverlay mv={mv} track={osAvatarTrack} here={avatarHere} className="absolute inset-0" /> : null}
+        {avatarHost || avatarHere ? <AvatarOverlay mv={mv} track={osAvatarTrack} here={avatarHere} build={AVATAR.buildSeconds} className="absolute inset-0" /> : null}
       </motion.div>
       <motion.div className="home-os-phone absolute bottom-[5vh] left-[7vw] z-30 w-[176px] rounded-[26px] border border-[rgba(255,255,255,0.18)] bg-[#06110C] p-2.5 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.9)]" style={{ opacity: phone, y: phoneY }}>
         <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-[#2A2F33]" />

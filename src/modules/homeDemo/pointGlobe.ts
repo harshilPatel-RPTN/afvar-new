@@ -1,4 +1,4 @@
-import { CURRENCY_ROUTES, type CurrencyHub } from "./currencyRoutes";
+import { CURRENCY_ROUTES, routePairLabel, type CurrencyHub } from "./currencyRoutes";
 
 // Orthographic earth. Precompute latitude, lighting and land samples once;
 // each frame only shifts longitude and projects the visible point field.
@@ -207,7 +207,46 @@ function paintLabel(ctx: CanvasRenderingContext2D, text: string, anchor: ScreenP
   ctx.fillText(text, box.x + box.w / 2, box.y + box.h / 2);
 }
 
-function drawRoutes(ctx: CanvasRenderingContext2D, sin: number, cos: number, index: number, progress: number, width: number) {
+/** Half-turns of the coin across one leg: an odd count of quarter turns puts
+ *  it edge-on exactly at the midpoint, where the sign changes hands. */
+const SPIN = 5 * Math.PI;
+
+/** A small metal coin carrying the currency sign; `turn` fakes a 3D spin by
+ *  squeezing it horizontally (|cos| of the spin angle). */
+function paintCoin(ctx: CanvasRenderingContext2D, at: ScreenPoint, radius: number, turn: number, sign: string) {
+  const squeeze = Math.max(.07, Math.abs(Math.cos(turn)));
+  ctx.save();
+  ctx.translate(at.x, at.y);
+  // The edge: a darker band that shows as the face turns away.
+  const edge = radius * .16 * (1 - squeeze);
+  if (edge > .2) {
+    ctx.fillStyle = "#6f5420";
+    ctx.beginPath();
+    ctx.ellipse(Math.sign(Math.sin(turn) || 1) * edge, 0, radius * squeeze, radius, 0, 0, TAU);
+    ctx.fill();
+  }
+  ctx.scale(squeeze, 1);
+  const face = ctx.createRadialGradient(-radius * .35, -radius * .4, radius * .1, 0, 0, radius);
+  face.addColorStop(0, "#fbecb8");
+  face.addColorStop(.55, "#dcb75e");
+  face.addColorStop(1, "#a07a2c");
+  ctx.fillStyle = face;
+  ctx.beginPath(); ctx.arc(0, 0, radius, 0, TAU); ctx.fill();
+  ctx.lineWidth = radius * .14;
+  ctx.strokeStyle = "#8a6726";
+  ctx.beginPath(); ctx.arc(0, 0, radius - ctx.lineWidth / 2, 0, TAU); ctx.stroke();
+  ctx.lineWidth = Math.max(.6, radius * .05);
+  ctx.strokeStyle = "rgba(255,240,196,.7)";
+  ctx.beginPath(); ctx.arc(0, 0, radius * .7, 0, TAU); ctx.stroke();
+  ctx.fillStyle = "#3b2a07";
+  ctx.font = `700 ${radius * (sign.length > 1 ? .78 : 1.02)}px system-ui, sans-serif`;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(sign, 0, radius * .05);
+  ctx.restore();
+}
+
+function drawRoutes(ctx: CanvasRenderingContext2D, sin: number, cos: number, index: number, progress: number, width: number,
+  pair: string, arrive: number, still: boolean) {
   let selected: ScreenPoint[] = [];
   ctx.save();
   ctx.lineJoin = ctx.lineCap = "round";
@@ -228,40 +267,66 @@ function drawRoutes(ctx: CanvasRenderingContext2D, sin: number, cos: number, ind
   cityRing(ctx, start, "#a8dec2");
   cityRing(ctx, end, "#e1a7a2");
 
-  const offset = progress * STEPS, i = Math.min(STEPS - 1, Math.floor(offset));
-  const bead = between(selected[i], selected[i + 1], offset - i);
+  // Reduced motion: the coin rests at the destination, face up, no spin.
+  const travelled = still ? 1 : progress;
+  const along = (t: number) => {
+    const offset = t * STEPS, i = Math.min(STEPS - 1, Math.floor(offset));
+    return between(selected[i], selected[i + 1], offset - i);
+  };
+  const bead = along(travelled);
   const route = CURRENCY_ROUTES[index], visibleBead = exposed(bead);
-  const occupied = [start, end, bead].filter(exposed).map(p => ({ x: p.x - 5, y: p.y - 5, w: 10, h: 10 }));
-  const font = Math.min(28, Math.max(14, 11 * 640 / Math.max(1, width)));
+  const scale = 640 / Math.max(1, width);
+  // ~26 CSS px across, plus a short landing bounce.
+  const landing = still ? 0 : Math.sin(Math.PI * Math.min(1, arrive * 1.6)) * (1 - arrive);
+  const coin = Math.min(24, Math.max(10, 13.5 * scale)) * (1 + .28 * landing);
+  const occupied = [start, end].filter(exposed).map(p => ({ x: p.x - 5, y: p.y - 5, w: 10, h: 10 }));
+  if (visibleBead) occupied.push({ x: bead.x - coin, y: bead.y - coin, w: coin * 2, h: coin * 2 });
+  const font = Math.min(28, Math.max(14, 11 * scale));
   const side = start.x <= end.x ? -1 : 1, vertical = start.y <= end.y ? -1 : 1;
   if (visibleBead) {
-    const glow = ctx.createRadialGradient(bead.x, bead.y, 1, bead.x, bead.y, 12);
-    glow.addColorStop(0, "rgba(223,255,222,.95)");
-    glow.addColorStop(.32, "rgba(155,219,176,.68)");
-    glow.addColorStop(1, "rgba(128,202,152,0)");
+    // A faint trail of fading sparks behind the coin while it travels.
+    if (!still && progress > 0 && progress < 1) {
+      for (const [lag, alpha] of [[.025, .5], [.05, .32], [.08, .18], [.115, .09]]) {
+        const spark = along(Math.max(0, travelled - lag));
+        if (!exposed(spark)) continue;
+        ctx.fillStyle = `rgba(232,214,150,${alpha})`;
+        ctx.beginPath(); ctx.arc(spark.x, spark.y, coin * (.42 - lag * 2), 0, TAU); ctx.fill();
+      }
+    }
+    const halo = coin * 1.9;
+    const glow = ctx.createRadialGradient(bead.x, bead.y, coin * .6, bead.x, bead.y, halo);
+    glow.addColorStop(0, "rgba(240,222,160,.42)");
+    glow.addColorStop(1, "rgba(240,222,160,0)");
     ctx.fillStyle = glow;
-    ctx.fillRect(bead.x - 12, bead.y - 12, 24, 24);
-    ctx.fillStyle = "#efffe9";
-    ctx.beginPath();
-    ctx.arc(bead.x, bead.y, 3.6, 0, TAU);
-    ctx.fill();
+    ctx.fillRect(bead.x - halo, bead.y - halo, halo * 2, halo * 2);
+    // Landing pulse: a ring that widens and fades at the destination.
+    if (!still && arrive > 0 && arrive < 1) {
+      ctx.strokeStyle = `rgba(240,222,160,${.6 * (1 - arrive)})`;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(bead.x, bead.y, coin * (1 + arrive * 1.4), 0, TAU); ctx.stroke();
+    }
+    // The sign changes hands edge-on at the midpoint: FROM, then TO.
+    const sign = travelled < .5 ? route.from.symbol : route.to.symbol;
+    paintCoin(ctx, bead, coin, still ? 0 : travelled * SPIN, sign);
 
-    paintLabel(ctx, route.from.code, bead, -side, -1, occupied, font, "#dcf2e2", true);
+    paintLabel(ctx, pair, bead, -side, -1, occupied, font, "#dcf2e2", true);
   }
-  if (start.depth > 0) paintLabel(ctx, route.from.city, start, side, vertical, occupied, font, "#c9e4d2");
-  if (end.depth > 0) paintLabel(ctx, route.to.city, end, -side, -vertical, occupied, font, "#efd0c9");
+  if (start.depth > 0) paintLabel(ctx, `${route.from.city} · ${route.from.code}`, start, side, vertical, occupied, font, "#c9e4d2");
+  if (end.depth > 0) paintLabel(ctx, `${route.to.city} · ${route.to.code}`, end, -side, -vertical, occupied, font, "#efd0c9");
   ctx.restore();
 }
 
-type RouteOptions = { initialLeg?: number; onLegChange?: (index: number) => void };
+type RouteOptions = { initialLeg?: number; onLegChange?: (index: number) => void; still?: boolean };
 
-export async function mountGlobe(canvas: HTMLCanvasElement, { initialLeg = 0, onLegChange }: RouteOptions = {}) {
+export async function mountGlobe(canvas: HTMLCanvasElement, { initialLeg = 0, onLegChange, still: initialStill = false }: RouteOptions = {}) {
   const context = canvas.getContext("2d");
   if (!context || typeof Path2D === "undefined") throw new Error("Globe canvas unavailable");
   const ctx = context;
   const mask = await readLandMask(), points = surfacePoints(mask), paintSurface = makeSurface(mask);
   let index = tracks[initialLeg] ? initialLeg : 0;
-  let legTime = 0, follow = true, disposed = false;
+  let legTime = 0, follow = true, disposed = false, still = initialStill;
+  // Comet labels per leg ("SGD → JPY", with the feed's rate when it has one).
+  let pairs: readonly string[] = CURRENCY_ROUTES.map(route => routePairLabel(route, null));
   let angle = tracks[index].heading, inView = false, playing = false, held = false;
   // Tablets and touch screens paint a lighter backing store than desktops.
   const maxRatio = matchMedia("(max-width:1099px), (pointer:coarse)").matches ? 1.25 : 1.5;
@@ -297,7 +362,8 @@ export async function mountGlobe(canvas: HTMLCanvasElement, { initialLeg = 0, on
     }
     paths.forEach((path, i) => { ctx.fillStyle = tones[i]; ctx.fill(path); });
     const progress = Math.max(0, Math.min(1, (legTime - DEPART) / TRAVEL));
-    drawRoutes(ctx, sin, cos, index, progress, canvas.clientWidth);
+    const arrive = Math.max(0, Math.min(1, (legTime - DEPART - TRAVEL) / ARRIVE));
+    drawRoutes(ctx, sin, cos, index, progress, canvas.clientWidth, pairs[index] ?? routePairLabel(CURRENCY_ROUTES[index], null), arrive, still);
     const value = progress.toFixed(3);
     if (canvas.dataset.routeProgress !== value) canvas.dataset.routeProgress = value;
     if (canvas.dataset.ready === undefined) canvas.dataset.ready = "";
@@ -357,6 +423,16 @@ export async function mountGlobe(canvas: HTMLCanvasElement, { initialLeg = 0, on
       focusLeg();
     },
     focusLeg,
+    setStill(value: boolean) {
+      if (disposed || still === value) return;
+      still = value;
+      if (inView && !document.hidden) draw();
+    },
+    setPairs(next: readonly string[]) {
+      if (disposed || next.join() === pairs.join()) return;
+      pairs = next;
+      if (inView && !document.hidden) draw();
+    },
     setPlaying(value: boolean) { if (playing !== value) { playing = value; sync(); } },
     hold(value: boolean) { if (held !== value) { held = value; sync(); } },
     rotate(radians: number) {
