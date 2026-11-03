@@ -1,32 +1,82 @@
-/* FooterLanding: the landing pad under the footer where the navbar logo
-   touches down. Transform/opacity animation only. States on .fl-root:
-   [data-mode="fly"]  flight armed — the landed copy waits hidden for the clone
-   [data-landed]      clone handed off — lock-in plays
-   [data-mode="still"] reduced motion — landed copy fades in, no travel
-   [data-inview]      on screen — star drift runs
-   No JS: the landed copy simply shows. */
+/* FooterLanding: the landing pad under the footer. The two landed images (mark +
+   wordmark) are themselves the flying logo (transform from JS); everything else
+   is transform/opacity animation only — no CSS filters, no clip-path/mask
+   animation, no blend modes. States on .fl-root:
+   [data-mode="fly"]   flight armed — the pitch (headline, subline, CTAs) waits hidden
+   [data-fl-flying]    logo in the air — backdrop layers hold still
+   [data-landed]       logo home — the reveal plays, idle loops run
+   [data-mode="still"] reduced motion — everything shows in its final state, nothing moves
+   [data-inview]       on screen — idle loops may run
+   No JS: the final state simply shows. */
 
 .fl-root {
-  --fl-gap: 7%; /* extra space between landed letters (GAP in FooterLanding.tsx) */
-  --fl-word: min(45vw, 820px); /* wordmark image width; letters spread to ~1.28× this (≈58 % of the viewport) */
+  --fl-word: min(52vw, 900px, 80svh); /* wordmark width (≈50 % of the viewport on desktop) */
+  --fl-mark: clamp(76px, min(10vw, 16svh), 156px);
+  --fl-green: #00e676;
+  --fl-mint: #a8dec2;
+  --fl-text: #eef6f1;
+  --fl-dim: rgba(214, 232, 222, 0.76);
   position: relative;
   isolation: isolate;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 84svh;
-  min-height: 460px;
-  /* Lift the lockup clear of the floating avatar launcher (bottom-right). */
-  padding-bottom: clamp(110px, 17svh, 180px);
-  overflow: clip;
-  background: linear-gradient(to bottom, rgba(5, 6, 7, 0) 0%, #050607 22%, #050607 100%);
+  /* Full bleed: break out of the footer's centred container, edge to edge (--fl-vw is the viewport minus scrollbar, set in JS). */
+  width: var(--fl-vw, 100vw);
+  margin-inline: calc(50% - var(--fl-vw, 100vw) / 2);
+  height: 100svh;
+  min-height: 600px;
+  /* Bottom band belongs to the earth horizon; content stays above it. */
+  padding: clamp(28px, 6svh, 72px) 24px clamp(150px, 25svh, 290px);
+  /* Sideways clip only: the flying logo must be able to rise above the pad to the navbar. */
+  overflow-x: clip;
+  overflow-y: visible;
+  z-index: 40;
+  background: #040605;
+  color: var(--fl-text);
   user-select: none;
 }
 
 /* ---- backdrop -------------------------------------------------------- */
-.fl-stars,
-.fl-floor,
-.fl-glow { position: absolute; pointer-events: none; z-index: -1; }
+.fl-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.fl-bg > * { position: absolute; pointer-events: none; }
+
+/* Deep black → green vignette, a red breath top-right (the market's other side), fade-in from the footer above. */
+.fl-vignette {
+  inset: 0;
+  background:
+    linear-gradient(to bottom, #050607 0%, rgba(5, 6, 7, 0) 18%),
+    radial-gradient(60% 46% at 50% 30%, rgba(0, 230, 118, 0.13), transparent 70%),
+    radial-gradient(42% 40% at 100% 4%, rgba(255, 64, 64, 0.12), transparent 70%),
+    radial-gradient(45% 50% at 0% 70%, rgba(0, 230, 118, 0.1), transparent 70%),
+    radial-gradient(70% 45% at 50% 100%, rgba(0, 230, 118, 0.22), transparent 72%),
+    radial-gradient(130% 100% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.75));
+}
+.fl-vignette::after {
+  /* Slow breathing of the centre glow (opacity only). */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(38% 30% at 50% 26%, rgba(0, 230, 118, 0.14), transparent 70%);
+  opacity: 0.4;
+}
+
+/* Faint grid that pans one cell per loop, masked to the middle. */
+.fl-grid {
+  inset: -64px;
+  background:
+    repeating-linear-gradient(90deg, rgba(168, 222, 194, 0.06) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(0deg, rgba(168, 222, 194, 0.05) 0 1px, transparent 1px 64px);
+  mask-image: radial-gradient(70% 60% at 50% 42%, #000 20%, transparent 85%);
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 42%, #000 20%, transparent 85%);
+}
 
 .fl-stars {
   inset: -240px 0 0 0;
@@ -36,70 +86,61 @@
     radial-gradient(1.4px 1.4px at 196px 181px, rgba(232, 255, 243, 0.4), transparent 60%),
     radial-gradient(1px 1px at 77px 211px, rgba(0, 230, 118, 0.5), transparent 60%);
   background-size: 240px 240px;
-  mask-image: linear-gradient(to bottom, transparent 5%, #000 40%, #000 62%, transparent 92%);
-  animation: fl-drift 70s linear infinite;
-  animation-play-state: paused;
+  mask-image: linear-gradient(to bottom, transparent 5%, #000 35%, #000 70%, transparent 95%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 5%, #000 35%, #000 70%, transparent 95%);
 }
-.fl-stars-far {
-  background-size: 157px 157px;
-  opacity: 0.5;
-  animation-duration: 120s;
-  animation-direction: reverse;
-}
-.fl-root[data-inview] .fl-stars { animation-play-state: running; }
+.fl-stars-far { background-size: 157px 157px; opacity: 0.5; }
+
+.fl-root[data-inview]:not([data-mode="still"]) .fl-stars { animation: fl-drift 70s linear infinite; }
+.fl-root[data-inview]:not([data-mode="still"]) .fl-stars-far { animation: fl-drift-far 120s linear infinite reverse; }
+.fl-root[data-inview]:not([data-mode="still"]) .fl-grid { animation: fl-grid 26s linear infinite; }
+.fl-root[data-inview]:not([data-mode="still"]) .fl-vignette::after { animation: fl-breathe 7s ease-in-out infinite; }
 @keyframes fl-drift { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-240px, 240px, 0); } }
-.fl-stars-far { animation-name: fl-drift-far; }
 @keyframes fl-drift-far { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(157px, 157px, 0); } }
+@keyframes fl-grid { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 64px, 0); } }
+@keyframes fl-breathe { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
 
-/* Perspective grid floor that fades into the dark. */
-.fl-floor {
-  left: -60%;
-  right: -60%;
-  bottom: -2%;
-  height: 58%;
-  background:
-    repeating-linear-gradient(90deg, rgba(0, 230, 118, 0.16) 0 1px, transparent 1px 88px),
-    repeating-linear-gradient(0deg, rgba(0, 230, 118, 0.12) 0 1px, transparent 1px 88px);
-  transform: perspective(520px) rotateX(72deg);
-  transform-origin: 50% 100%;
-  mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 92%);
+/* Candles + earth: clipped to the pad, above the backdrop, under the stage. */
+.fl-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+  pointer-events: none;
 }
 
-.fl-glow {
-  left: 50%;
-  bottom: -38%;
-  width: 130%;
-  height: 90%;
-  transform: translateX(-50%);
-  background: radial-gradient(closest-side, rgba(0, 230, 118, 0.26), rgba(0, 230, 118, 0.08) 55%, transparent);
-  opacity: 0.55;
-  transition: opacity 1.2s ease;
-}
-.fl-root[data-landed] .fl-glow,
-.fl-root[data-mode="still"] .fl-glow { opacity: 1; }
-
-/* ---- landed lockup ---------------------------------------------------- */
+/* ---- stage ------------------------------------------------------------ */
 .fl-stage {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  text-align: center;
 }
+.fl-lockup { display: flex; flex-direction: column; align-items: center; }
 
+/* ---- mark ------------------------------------------------------------ */
 .fl-mark {
   position: relative;
-  width: clamp(56px, 7.4vw, 120px);
+  z-index: 1;
+  margin-bottom: clamp(14px, 3.2svh, 36px);
+  width: var(--fl-mark);
   aspect-ratio: 1;
-  margin-bottom: clamp(16px, 2.4vw, 36px);
 }
-.fl-mark img,
-.fl-clone-mark img { display: block; width: 100%; height: 100%; }
+.fl-mark-float { position: relative; display: block; width: 100%; height: 100%; }
 .fl-mark picture { display: block; width: 100%; height: 100%; }
-.fl-mark-body { position: relative; display: block; width: 100%; height: 100%; }
-/* The navbar mark component, stretched to the footer mark's box. */
-.fl-mark .afvar-header-symbol, .fl-clone-mark .afvar-header-symbol { --mark-size: 100%; width: 100%; height: 100%; }
 
-/* Bull's eyes, as % of the mark box (measured on approved.webp: 261,326 and 379,326 of 640). */
-.fl-root[data-mode="still"] .fl-root[data-landed] .fl-root[data-landed][data-inview] 
+.fl-mark-halo {
+  position: absolute;
+  inset: -45%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 230, 118, 0.42), rgba(0, 230, 118, 0.1) 55%, transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}
 .fl-mark-ring {
   position: absolute;
   inset: -6%;
@@ -109,78 +150,206 @@
   pointer-events: none;
 }
 
+/* ---- wordmark --------------------------------------------------------- */
 .fl-word {
   position: relative;
   width: var(--fl-word);
   aspect-ratio: 1009 / 150;
 }
-.fl-letter {
-  position: absolute;
-  inset: 0;
-  will-change: transform;
-}
-.fl-word .fl-letter { translate: calc((var(--i) - 2) * var(--fl-gap)) 0; }
-.fl-letter img { display: block; width: 100%; height: 100%; }
 
-/* Green fill + glint, masked to the letter shapes. */
-.fl-flash,
-.fl-sweep-wrap {
+/* The flying images: small, permanently on their own layers; JS writes transform + opacity only. */
+.fl-fly {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.fl-fly-mark { padding: 3%; } /* same inset as the navbar mark's artwork */
+
+/* ---- headline, subline ------------------------------------------------ */
+.fl-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.fl-title {
+  margin: clamp(14px, 3svh, 34px) 0 0;
+  max-width: 22ch;
+  /* System serif stack (no web font: the footer is shared site-wide). */
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  font-size: clamp(30px, min(4vw, 7.2svh), 74px);
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  color: var(--fl-text);
+  text-wrap: balance;
+}
+@media (min-width: 900px) { .fl-title { max-width: none; white-space: nowrap; } }
+
+/* Each word sits in its own mask and rises into it. */
+.fl-w {
+  display: inline-block;
+  overflow: clip;
+  padding-block: 0.06em 0.14em;
+  margin-block: -0.06em -0.14em;
+  vertical-align: top;
+}
+.fl-w-in { display: inline-block; }
+.fl-grad {
+  background: linear-gradient(100deg, #b8ffd9 0%, #4ff09a 35%, var(--fl-green) 60%, #34d39b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.fl-grad-group { position: relative; display: inline-block; white-space: nowrap; }
+.fl-sub {
+  margin: clamp(8px, 1.6svh, 18px) 0 0;
+  max-width: 62ch;
+  font-size: clamp(15px, min(1.45vw, 2.6svh), 21px);
+  line-height: 1.5;
+  color: var(--fl-dim);
+  text-wrap: balance;
+}
+
+/* ---- CTAs ------------------------------------------------------------- */
+.fl-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(14px, 2vw, 28px);
+  margin-top: clamp(18px, 3.6svh, 40px);
+}
+.fl-cta-slot { display: inline-flex; }
+.fl-cta {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(48px, 7svh, 58px);
+  padding: 0 clamp(22px, 2.2vw, 34px);
+  border-radius: 999px;
+  font-size: clamp(15px, 1.2vw, 18px);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: #f2fff8;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: translate 0.3s cubic-bezier(0.22, 1, 0.36, 1), scale 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fl-cta:hover { translate: 0 -3px; }
+.fl-cta:active { scale: 0.97 0.92; transition-duration: 0.3s, 0.08s; }
+.fl-cta:focus-visible { outline: 2px solid var(--fl-green); outline-offset: 4px; }
+.fl-cta-label { position: relative; z-index: 2; display: inline-flex; align-items: center; gap: 10px; }
+.fl-ico { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.fl-ico-play { fill: currentColor; stroke-width: 1.2; }
+.fl-ico-arrow { transition: translate 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+.fl-cta:hover .fl-ico-arrow { translate: 4px 0; }
+
+/* Explore Platform: green fill inside a rotating light beam border. */
+.fl-cta-beam {
   position: absolute;
   inset: 0;
-  mask: url("/afvar-signature/golden-reveal/afvar-wordmark-dock.webp") 0 0 / 100% 100% no-repeat;
-  -webkit-mask: url("/afvar-signature/golden-reveal/afvar-wordmark-dock.webp") 0 0 / 100% 100% no-repeat;
+  z-index: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  background: rgba(0, 230, 118, 0.35);
 }
-.fl-flash { background: linear-gradient(180deg, #a8dec2, #00e676); opacity: 0.16; }
-.fl-sweep-wrap { overflow: hidden; }
-.fl-sweep {
+.fl-cta-beam > span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 150%;
+  aspect-ratio: 1;
+  background: conic-gradient(from 0deg, transparent 0 62%, rgba(0, 230, 118, 0.6) 76%, #e9fff3 86%, rgba(0, 230, 118, 0.6) 92%, transparent 100%);
+  transform: translate(-50%, -50%);
+}
+.fl-cta-fill {
+  position: absolute;
+  inset: 1.5px;
+  z-index: 1;
+  border-radius: inherit;
+  overflow: hidden;
+  background: linear-gradient(180deg, #17b56f 0%, #0c8a52 100%);
+  box-shadow: inset 0 1px 0 rgba(233, 255, 243, 0.25);
+}
+.fl-cta-primary::after {
+  /* Outer glow: shown softly, stronger on hover (opacity only). */
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: 0 0 28px rgba(0, 230, 118, 0.55), 0 10px 30px -8px rgba(0, 230, 118, 0.5);
+  opacity: 0.55;
+  transition: opacity 0.3s ease;
+}
+.fl-cta-primary:hover::after { opacity: 1; }
+.fl-cta-shine {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
-  width: 28%;
-  background: linear-gradient(90deg, transparent, rgba(0, 230, 118, 0.5) 35%, #f2fff8 50%, rgba(0, 230, 118, 0.5) 65%, transparent);
-  transform: translateX(-110%);
+  width: 38%;
+  background: linear-gradient(100deg, transparent, rgba(240, 255, 247, 0.38) 50%, transparent);
+  transform: translateX(-140%) skewX(-18deg);
 }
 
-.fl-horizon {
-  display: block;
-  width: calc(var(--fl-word) * 1.3);
-  height: 1px;
-  margin-top: clamp(16px, 2.6vw, 34px);
-  background: linear-gradient(90deg, transparent, #00e676 18%, #a8dec2 50%, #00e676 82%, transparent);
-  box-shadow: 0 0 12px rgba(0, 230, 118, 0.55);
-  transform-origin: 50% 50%;
+/* Watch Demo: outlined, its border breathes a green glow. */
+.fl-cta-ghost {
+  border: 1.5px solid rgba(232, 255, 243, 0.6);
+  background: rgba(4, 8, 6, 0.55);
+}
+.fl-cta-glow {
+  position: absolute;
+  inset: -1.5px;
+  z-index: 0;
+  border-radius: inherit;
+  border: 1.5px solid var(--fl-green);
+  box-shadow: 0 0 22px rgba(0, 230, 118, 0.45), inset 0 0 14px rgba(0, 230, 118, 0.22);
+  opacity: 0.35;
+  transition: opacity 0.3s ease;
+}
+.fl-cta-ghost:hover .fl-cta-glow { opacity: 1; }
+
+/* ---- flight armed: the pitch waits hidden until the logo is home ------------------------ */
+.fl-root[data-mode="fly"]:not([data-landed]) .fl-mark-halo,
+.fl-root[data-mode="fly"]:not([data-landed]) .fl-sub,
+.fl-root[data-mode="fly"]:not([data-landed]) .fl-cta-slot { opacity: 0; }
+.fl-root[data-mode="fly"]:not([data-landed]) .fl-w-in { transform: translateY(115%); }
+/* A keyboard user tabbing in always sees where focus went. */
+.fl-root[data-mode="fly"]:not([data-landed]):focus-within :is(.fl-sub, .fl-cta-slot) { opacity: 1; }
+.fl-root[data-mode="fly"]:not([data-landed]):focus-within .fl-w-in { transform: none; }
+
+/* ---- touchdown: lock-in, then the pitch reveals in turn --------------------------------- */
+.fl-root[data-landed] .fl-mark-float > picture { animation: fl-pulse 1s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both; }
+.fl-root[data-landed] .fl-mark-ring { animation: fl-ring 1.4s ease-out 0.05s both; }
+.fl-root[data-landed] .fl-mark-halo {
+  animation:
+    fl-halo-in 1.4s cubic-bezier(0.22, 1, 0.36, 1) both,
+    fl-halo 5s ease-in-out 1.4s infinite;
+}
+.fl-root[data-landed] .fl-mark-float { animation: fl-float 6s ease-in-out 1.2s infinite; }
+
+.fl-root[data-landed] .fl-w-in { animation: fl-rise 0.85s cubic-bezier(0.22, 1, 0.36, 1) calc(0.55s + var(--w) * 90ms) both; }
+.fl-root[data-landed] .fl-sub { animation: fl-fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.15s both; }
+.fl-root[data-landed] .fl-cta-slot { animation: fl-pop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) calc(1.4s + var(--d) * 130ms) both; }
+.fl-root[data-landed] .fl-cta-beam > span { animation: fl-beam 3.4s linear 1.6s infinite; }
+.fl-root[data-landed] .fl-cta-shine { animation: fl-cta-shine 4.6s ease-in-out 2.2s infinite; }
+.fl-root[data-landed] .fl-cta-glow { animation: fl-glow 3s ease-in-out 2s infinite; }
+.fl-root[data-landed] .fl-cta-ghost:hover .fl-cta-glow { animation: none; opacity: 1; }
+
+/* Idle loops rest while the pad is off screen. */
+.fl-root:not([data-inview]) :is(.fl-mark-halo, .fl-mark-float, .fl-cta-beam > span, .fl-cta-shine, .fl-cta-glow) {
+  animation-play-state: paused;
 }
 
-/* Flight armed: hidden until the clone hands off. */
-.fl-root[data-mode="fly"]:not([data-landed]) .fl-mark,
-.fl-root[data-mode="fly"]:not([data-landed]) .fl-word { opacity: 0; }
-.fl-root[data-mode="fly"] .fl-horizon { transform: scaleX(0); transition: transform 0.35s ease-in; }
-.fl-root[data-mode="fly"] .fl-flash { opacity: 0; }
-
-/* Touchdown: letters lock in left to right, glint sweeps, mark pulses, horizon draws. */
-.fl-root[data-landed] .fl-word .fl-letter { animation: fl-lock 0.7s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i) * 95ms) both; }
-.fl-root[data-landed] .fl-flash { animation: fl-flash 1.1s ease-out calc(var(--i) * 95ms) both; }
-.fl-root[data-landed] .fl-sweep { animation: fl-sweep 1.3s cubic-bezier(0.45, 0, 0.2, 1) 0.62s both; }
-.fl-root[data-landed] .fl-mark-body { animation: fl-pulse 1s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both; }
-.fl-root[data-landed] .fl-mark-body { position: relative; display: block; width: 100%; height: 100%; }
-
-/* Bull's eyes, as % of the mark box (measured on approved.webp: 261,326 and 379,326 of 640). */
-.fl-root[data-mode="still"] .fl-root[data-landed] .fl-root[data-landed][data-inview] 
-.fl-mark-ring { animation: fl-ring 1.4s ease-out 0.05s both; }
-.fl-root[data-landed] .fl-horizon { transform: scaleX(1); transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.4s; }
-
-@keyframes fl-lock {
-  0% { transform: none; }
-  35% { transform: translateY(-3.5%) scale(1.04); }
-  100% { transform: none; }
-}
-@keyframes fl-flash {
-  0% { opacity: 0; }
-  28% { opacity: 0.95; }
-  100% { opacity: 0.16; }
-}
-@keyframes fl-sweep { from { transform: translateX(-110%); } to { transform: translateX(470%); } }
 @keyframes fl-pulse {
   0% { transform: none; }
   30% { transform: scale(1.09); }
@@ -190,57 +359,71 @@
   0% { opacity: 0.85; transform: scale(0.7); }
   100% { opacity: 0; transform: scale(2.1); }
 }
-
-/* Reduced motion: no travel — the landed lockup fades in. */
-.fl-root[data-mode="still"] .fl-stage { opacity: 0; transition: opacity 0.9s ease; }
-.fl-root[data-mode="still"][data-inview] .fl-stage { opacity: 1; }
-.fl-root[data-mode="still"] .fl-stars { animation: none; }
-
-/* ---- the flying clone (portalled to <body>) ---------------------------- */
-.fl-clone {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-  visibility: hidden;
-  overflow: hidden;
-  contain: strict;
+@keyframes fl-halo-in {
+  0% { opacity: 0; transform: scale(0.6); }
+  35% { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 0.55; transform: none; }
 }
-.fl-clone-mark,
-.fl-clone-word {
-  position: absolute;
-  left: 0;
-  top: 0;
-  transform-origin: 50% 50%;
-  will-change: transform;
+@keyframes fl-halo { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.95; } }
+@keyframes fl-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes fl-rise { from { transform: translateY(115%); } to { transform: none; } }
+@keyframes fl-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
 }
-.fl-clone-mark picture { display: block; width: 100%; height: 100%; }
-.fl-trail {
-  position: absolute;
-  left: -20%;
-  right: -20%;
-  top: 10%;
-  bottom: -60%;
-  background: radial-gradient(closest-side, rgba(0, 230, 118, 0.32), transparent);
-  opacity: 0;
+@keyframes fl-pop {
+  0% { opacity: 0; transform: translateY(18px) scale(0.6); }
+  55% { opacity: 1; }
+  100% { opacity: 1; transform: none; }
 }
+@keyframes fl-beam {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes fl-cta-shine {
+  0% { transform: translateX(-140%) skewX(-18deg); }
+  30%, 100% { transform: translateX(360%) skewX(-18deg); }
+}
+@keyframes fl-glow { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.95; } }
 
-/* Phones: shorter pad, wider wordmark, and the bottom-right corner stays clear for the avatar launcher. */
-@media (min-width: 640px) and (max-width: 1199px) {
-  .fl-root { --fl-word: 52vw; } /* ≈67 % */
+/* ---- tablets and phones ------------------------------------------------ */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .fl-root { --fl-word: min(70vw, 64svh); --fl-mark: clamp(84px, 13vw, 130px); }
 }
 @media (max-width: 639px) {
   .fl-root {
-    --fl-word: 62.5vw; /* ≈80 % */
-    height: 64svh;
-    min-height: 380px;
-    padding-bottom: 120px;
+    --fl-word: 80vw;
+    --fl-mark: clamp(64px, 20vw, 92px);
+    height: auto;
+    min-height: 100svh;
+    /* Content ends well above the bottom-right avatar launcher. */
+    padding: 64px 16px 170px;
   }
-  .fl-floor {
+  .fl-title { font-size: clamp(27px, 8.4vw, 36px); line-height: 1.16; }
+  .fl-sub { font-size: 15px; max-width: 34ch; }
+  .fl-ctas { flex-direction: column; align-items: stretch; width: 100%; max-width: 320px; gap: 12px; }
+  .fl-cta-slot, .fl-cta { width: 100%; }
+  .fl-cta { height: 52px; font-size: 16px; }
+  .fl-grid {
     background:
-      repeating-linear-gradient(90deg, rgba(0, 230, 118, 0.16) 0 1px, transparent 1px 56px),
-      repeating-linear-gradient(0deg, rgba(0, 230, 118, 0.12) 0 1px, transparent 1px 56px);
+      repeating-linear-gradient(90deg, rgba(168, 222, 194, 0.06) 0 1px, transparent 1px 44px),
+      repeating-linear-gradient(0deg, rgba(168, 222, 194, 0.05) 0 1px, transparent 1px 44px);
   }
 }
 
-html[data-reduce-motion="true"] .fl-root .fl-stars { animation: none; }
+/* Reduced motion (OS setting or the site's toggle): the final state, nothing moves. */
+@media (prefers-reduced-motion: reduce) {
+  .fl-root *, .fl-root *::before, .fl-root *::after { animation: none !important; transition: none !important; }
+}
+html[data-reduce-motion="true"] .fl-root *,
+html[data-reduce-motion="true"] .fl-root *::before,
+html[data-reduce-motion="true"] .fl-root *::after { animation: none !important; transition: none !important; }
+
+
+/* While the footer logo flight runs, the site navbar and its logo fade out (see FooterLanding). */
+header:has(.afvar-header-brand) { transition: opacity .35s ease, visibility .35s; }
+html[data-fl-nav-away] header:has(.afvar-header-brand) { opacity: 0; visibility: hidden; pointer-events: none; }
+/* While the logo is in the air every backdrop loop holds still (candles' SVG animations repaint the chart;
+   the earth canvas holds its frame on its own). */
+.fl-root[data-fl-flying] :is(.fl-stars, .fl-grid, .fl-vignette, .fl-backdrop *),
+.fl-root[data-fl-flying] .fl-vignette::after { animation-play-state: paused !important; }

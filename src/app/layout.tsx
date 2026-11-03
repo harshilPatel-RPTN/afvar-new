@@ -6,6 +6,7 @@ import "./globals.css";
 import "@/platform/ui/brand.css";
 import { SplashReveal } from "@/platform/splash";
 import { AvatarChatWidget } from "@/platform/avatar/AvatarChatWidget";
+import { ButtonFx } from "@/platform/ui/ButtonFx";
 import { Providers } from "./providers";
 
 // Not preloaded: the public Markets pages use their own fonts, so these
@@ -50,6 +51,7 @@ export default async function RootLayout({
           {children}
           {/* Sudhakar's avatar chatbot, floating bottom-right on every page. */}
           <AvatarChatWidget />
+          <ButtonFx />
         </Providers>
       </body>
     </html>

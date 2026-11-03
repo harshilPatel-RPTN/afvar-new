@@ -174,13 +174,16 @@ export function CandleSnake({
       return;
     }
     const card = section.querySelector<HTMLElement>(target);
+    let lastP = -1;
     return subscribeScroll(() => {
       const r = (card ?? section).getBoundingClientRect();
       const vh = window.innerHeight;
       // Start as the card's top edge enters the viewport; finish (border fully wrapped)
       // when it reaches ~45% of the viewport height — so the wrap happens on screen.
       const p = clamp01((vh * 1.02 - r.top) / (vh * 0.57));
-      paint(p);
+      // Off screen the progress pins at 0 or 1: skip the repaint (SVG path sampling per candle) then.
+      if (p !== lastP) paint(p);
+      lastP = p;
       // Twinkles only animate while the card's top edge is on screen.
       const stars = starsRef.current;
       if (stars) {

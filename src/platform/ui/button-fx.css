@@ -1,0 +1,65 @@
+/* Site-wide buttons (ButtonFx.tsx, mounted in the root layout): a green light runs round the border, a shine
+   sweeps across once, the trailing arrow slides forward, and a press squishes. Brand green; no glass. */
+.mb-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  pointer-events: none;
+  overflow: hidden;
+}
+.mb-box {
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+/* Beam: a bright green head with a fading tail circling the border. */
+@property --mb-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.mb-beam {
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--mb-a), transparent 0 55%, rgb(0 230 118 / .25) 70%, #00e676 84%, #e6fff1 88%, transparent 93%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  filter: drop-shadow(0 0 4px rgb(0 230 118 / .7));
+  opacity: 0;
+  transition: opacity .25s ease;
+  animation: mb-beam 1.4s linear infinite;
+}
+.mb-box[data-on="true"] .mb-beam { opacity: 1; }
+@keyframes mb-beam { to { --mb-a: 360deg; } }
+
+/* Shine: one diagonal light band sweeping left to right on hover. */
+.mb-shine {
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(105deg, transparent 0%, rgb(255 255 255 / .05) 30%, rgb(214 255 233 / .38) 50%, rgb(255 255 255 / .05) 70%, transparent 100%);
+  mix-blend-mode: screen;
+  translate: -120% 0;
+  opacity: 0;
+}
+.mb-box[data-on="true"] .mb-shine { animation: mb-shine .75s cubic-bezier(.4, 0, .2, 1) forwards; }
+@keyframes mb-shine {
+  0% { translate: -120% 0; opacity: 1; }
+  100% { translate: 260% 0; opacity: 1; }
+}
+
+/* Arrow slides forward while hovered; every button squishes when pressed. */
+[data-mb-hover] > svg:last-child { translate: 5px 0; transition: translate .3s cubic-bezier(.2, .8, .2, 1); }
+body :is(a, button):not([data-avatar-dock] *):not(:disabled):active { scale: .96; transition: scale .15s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mb-layer { display: none; }
+  body :is(a, button):active { scale: none; }
+}
+html[data-reduce-motion="true"] .mb-layer { display: none; }
+html[data-reduce-motion="true"] body :is(a, button):active { scale: none; }

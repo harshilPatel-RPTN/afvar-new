@@ -1,0 +1,183 @@
+/* FooterLandingCandles: decorative candle charts on both flanks of the footer
+   landing pad. Transform/opacity/fill animation only; every loop pauses while
+   the chart is off screen ([data-active] missing). States on .flc-root:
+   [data-shown] (grow-in has played), [data-active] (on screen). */
+
+.flc-root {
+  --flc-up: #00e676;
+  --flc-down: #ff5252;
+  --flc-stagger: 38ms;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 34%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  /* Fade toward the centre (headline stays readable) and toward the bottom (earth horizon). */
+  -webkit-mask-image: var(--flc-mask-x), linear-gradient(to bottom, transparent 0%, #000 14%, #000 50%, transparent 84%);
+  mask-image: var(--flc-mask-x), linear-gradient(to bottom, transparent 0%, #000 14%, #000 50%, transparent 84%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.flc-root[data-side="left"] {
+  left: 0;
+  --flc-mask-x: linear-gradient(to right, #000 0%, #000 28%, transparent 96%);
+}
+.flc-root[data-side="right"] {
+  right: 0;
+  --flc-mask-x: linear-gradient(to left, #000 0%, #000 28%, transparent 96%);
+}
+
+.flc-par {
+  position: absolute;
+  inset: -40px 0;
+  will-change: transform;
+}
+
+.flc-chart {
+  position: absolute;
+  inset: 6% 3% 4%;
+  opacity: 0.8;
+  animation: flc-breathe 7s ease-in-out infinite;
+  animation-play-state: paused;
+}
+/* The chart rises left→right; the left flank mirrors it so both climb outward. */
+.flc-root[data-side="left"] .flc-chart { transform: scaleX(-1); }
+
+.flc-svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.flc-up { --flc-tone: var(--flc-up); fill: var(--flc-up); }
+.flc-down { --flc-tone: var(--flc-down); fill: var(--flc-down); }
+
+/* Depth: a faint, softer second chart behind, set lower and slightly larger. */
+.flc-ghost {
+  position: absolute;
+  inset: 0;
+  transform: translateY(16%) scale(1.08);
+  transform-origin: 100% 100%;
+  opacity: 0;
+  transition: opacity 1.6s ease 0.6s;
+}
+.flc-root[data-shown] .flc-ghost { opacity: 0.22; }
+.flc-gup { fill: var(--flc-up); }
+.flc-gdown { fill: var(--flc-down); }
+.flc-wick { opacity: 0.85; }
+
+/* ---- grow-in: centre → outward, body from its low, wick drawn from the body ---- */
+.flc-c {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transform: scaleY(0);
+  opacity: 0;
+}
+.flc-wick {
+  transform-box: fill-box;
+  transform: scaleY(0);
+}
+.flc-root[data-shown] .flc-c {
+  animation: flc-grow 0.7s cubic-bezier(0.2, 0.9, 0.25, 1) calc(var(--i) * var(--flc-stagger)) both;
+}
+.flc-root[data-shown] .flc-wick {
+  animation: flc-wick 0.5s cubic-bezier(0.3, 0.8, 0.3, 1) calc(var(--i) * var(--flc-stagger) + 0.32s) both;
+}
+
+/* ---- idle: the newest (outermost) candle ticks ---- */
+.flc-root[data-shown] .flc-new .flc-c {
+  animation:
+    flc-grow 0.7s cubic-bezier(0.2, 0.9, 0.25, 1) calc(var(--i) * var(--flc-stagger)) both,
+    flc-tick 1.5s ease-in-out calc(var(--i) * var(--flc-stagger) + 0.9s) infinite;
+}
+.flc-root[data-shown] .flc-new .flc-body {
+  animation: flc-flash 1.5s ease-out calc(var(--i) * var(--flc-stagger) + 0.9s) infinite;
+}
+/* No CSS filters here (they repaint under the footer logo flight); the glow is the backdrop gradients. */
+
+/* ---- idle: a faint price line scans up and down ---- */
+.flc-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(0, 230, 118, 0.38) 30%, rgba(0, 230, 118, 0.38) 70%, transparent);
+  box-shadow: 0 0 8px rgba(0, 230, 118, 0.35);
+  opacity: 0;
+  animation: flc-scan 11s ease-in-out 1.8s infinite alternate;
+  animation-play-state: paused;
+}
+.flc-root[data-shown] .flc-scan { opacity: 1; transition: opacity 1.2s ease 1.6s; }
+
+/* Loops only run while on screen. */
+.flc-root:not([data-active]) .flc-c,
+.flc-root:not([data-active]) .flc-wick,
+.flc-root:not([data-active]) .flc-body { animation-play-state: paused; }
+.flc-root[data-active] .flc-chart,
+.flc-root[data-active][data-shown] .flc-scan { animation-play-state: running; }
+
+@keyframes flc-grow {
+  from { transform: scaleY(0); opacity: 0; }
+  30% { opacity: 1; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+@keyframes flc-wick {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+@keyframes flc-tick {
+  0%, 100% { transform: scaleY(1); opacity: 1; }
+  18% { transform: scaleY(1.07); }
+  38% { transform: scaleY(0.95); }
+  60% { transform: scaleY(1.03); }
+}
+@keyframes flc-flash {
+  0% { fill: #eafff3; }
+  35%, 100% { fill: var(--flc-tone); }
+}
+@keyframes flc-breathe {
+  0%, 100% { opacity: 0.68; }
+  50% { opacity: 0.9; }
+}
+@keyframes flc-scan {
+  from { transform: translateY(18vh); }
+  to { transform: translateY(58vh); }
+}
+
+/* ---- sizes ---- */
+@media (max-width: 1023px) {
+  .flc-root { width: 45%; }
+}
+@media (max-width: 639px) {
+  .flc-root { width: 50%; opacity: 0.32; }
+  .flc-root { --flc-stagger: 28ms; }
+}
+
+/* ---- reduced motion: the finished chart, still ---- */
+@media (prefers-reduced-motion: reduce) {
+  .flc-root .flc-c,
+  .flc-root .flc-wick,
+  .flc-root .flc-body,
+  .flc-root .flc-chart,
+  .flc-root .flc-scan { animation: none !important; transform: none; opacity: 1; }
+  .flc-root .flc-chart { opacity: 0.8; }
+  .flc-root[data-side="left"] .flc-chart { transform: scaleX(-1); }
+  .flc-root .flc-scan { display: none; }
+  .flc-root .flc-par { transform: none !important; }
+  .flc-root .flc-ghost { opacity: 0.22; transition: none; }
+}
+html[data-reduce-motion="true"] .flc-root .flc-c,
+html[data-reduce-motion="true"] .flc-root .flc-wick,
+html[data-reduce-motion="true"] .flc-root .flc-body,
+html[data-reduce-motion="true"] .flc-root .flc-chart,
+html[data-reduce-motion="true"] .flc-root .flc-scan { animation: none !important; transform: none; opacity: 1; }
+html[data-reduce-motion="true"] .flc-root .flc-chart { opacity: 0.8; }
+html[data-reduce-motion="true"] .flc-root[data-side="left"] .flc-chart { transform: scaleX(-1); }
+html[data-reduce-motion="true"] .flc-root .flc-scan { display: none; }
+html[data-reduce-motion="true"] .flc-root .flc-par { transform: none !important; }
+html[data-reduce-motion="true"] .flc-root .flc-ghost { opacity: 0.22; transition: none; }

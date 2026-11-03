@@ -1,0 +1,31 @@
+/* FooterLandingEarth: the glowing dotted planet rising along the bottom of the
+   footer landing pad. One 2D canvas; the outer box clips the parallax lift so
+   it never adds scroll height. z-index -1 sits it with the pad's backdrop
+   layers (mount it after .fl-stars/.fl-floor/.fl-glow so it paints over them)
+   and under the landed lockup. */
+
+.fle-root {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: -1;
+  height: clamp(220px, 38%, 520px);
+  overflow: clip;
+  pointer-events: none;
+}
+
+.fle-lift {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.fle-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 640px) {
+  .fle-root { height: clamp(170px, 28%, 260px); }
+}

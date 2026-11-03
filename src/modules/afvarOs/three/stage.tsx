@@ -90,7 +90,8 @@ export function CoreCanvas<C extends string>({
   // Phones get lighter edge smoothing (2× instead of 4×): the pixels are small anyway.
   const [msaa] = useState(() => (typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches ? 2 : 4));
   return (
-    <div className="relative h-full w-full">
+    // Inactive (off-screen) stages take no pointer/wheel events: R3F would otherwise raycast (and force layout) on every wheel tick.
+    <div className="relative h-full w-full" style={active ? undefined : { pointerEvents: "none" }}>
     <div ref={labels} className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" />
     <Canvas
       dpr={dpr}
