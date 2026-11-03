@@ -28,6 +28,10 @@ export async function generateMetadata({ params }: PageProps<"/platform/[capabil
 
 export default async function CapabilityRoute({ params }: PageProps<"/platform/[capability]">) {
   const segment = (await params).capability;
+  // An old slug URL (/platform/charts, /platform/trade-review): send it to the page's current address first,
+  // so it never renders as a duplicate of that page.
+  const legacy = getCapability(segment);
+  if (legacy && segmentOf(capabilityPath(legacy.slug)) !== segment) permanentRedirect(capabilityPath(legacy.slug));
   const capability = getCapabilityBySegment(segment);
   // Pages already on the AI OS capability template render their own frame (the home's navbar, ticker and footer).
   if (capability?.slug === "charts") return <MarketDataPage />;
@@ -43,8 +47,5 @@ export default async function CapabilityRoute({ params }: PageProps<"/platform/[
         <CapabilityPage capability={capability} />
       </SiteShell>
     );
-  // An old slug URL (/platform/charts, /platform/trade-review): send it to the page's current address.
-  const legacy = getCapability(segment);
-  if (legacy) permanentRedirect(capabilityPath(legacy.slug));
   notFound();
 }
