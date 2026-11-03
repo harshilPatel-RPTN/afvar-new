@@ -1,0 +1,57 @@
+/* TEMPORARY font review for /platform (FontPreview.tsx). */
+@font-face { font-family: "Preview Digital7"; src: url("/fonts/preview/digital-7.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Preview Digital7 Mono"; src: url("/fonts/preview/digital-7-mono.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Preview Orange Avenue"; src: url("/fonts/preview/orange-avenue.otf") format("opentype"); font-display: swap; }
+@font-face { font-family: "Preview Orange Avenue Outline"; src: url("/fonts/preview/orange-avenue-outline.otf") format("opentype"); font-display: swap; }
+@font-face { font-family: "Preview Dusty Grunge"; src: url("/fonts/preview/dusty-grunge.otf") format("opentype"); font-display: swap; }
+
+html { --fp-family: inherit; }
+html[data-font-preview="digital"] { --fp-family: "Preview Digital7", ui-monospace, monospace; }
+html[data-font-preview="digital-mono"] { --fp-family: "Preview Digital7 Mono", ui-monospace, monospace; }
+html[data-font-preview="orange"] { --fp-family: "Preview Orange Avenue", Georgia, serif; }
+html[data-font-preview="orange-outline"] { --fp-family: "Preview Orange Avenue Outline", Georgia, serif; }
+html[data-font-preview="grunge"] { --fp-family: "Preview Dusty Grunge", Impact, sans-serif; }
+
+/* Headings take the preview font. */
+html[data-font-preview] main :is(h1, h2, h3) { font-family: var(--fp-family) !important; letter-spacing: .01em; }
+/* The digital faces also take over numbers and mono labels (prices, times, counters). */
+html:is([data-font-preview="digital"], [data-font-preview="digital-mono"]) main :is(.font-mono, .tabular-nums, [class*="font-mono"], code, kbd) {
+  font-family: var(--fp-family) !important;
+  letter-spacing: .04em;
+}
+
+/* Picker panel (bottom-left, clear of the avatar launcher). */
+.fp-panel {
+  position: fixed;
+  left: 16px;
+  bottom: 72px;
+  z-index: 150;
+  width: min(260px, calc(100vw - 32px));
+  padding: 8px;
+  border: 1px solid rgb(168 222 194 / .3);
+  border-radius: 14px;
+  background: #0a110d;
+  color: #e8f3ed;
+  font: 500 12px/1.3 system-ui, sans-serif;
+  box-shadow: 0 16px 40px -12px rgb(0 0 0 / .8);
+}
+.fp-toggle { width: 100%; padding: 6px 8px; border-radius: 8px; text-align: left; color: #a8dec2; letter-spacing: .04em; }
+.fp-list { display: grid; gap: 4px; margin-top: 6px; max-height: 60vh; overflow: auto; }
+.fp-option {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  text-align: left;
+  color: inherit;
+}
+.fp-option:hover { background: rgb(168 222 194 / .08); }
+.fp-option[aria-checked="true"] { border-color: #00e676; background: rgb(0 230 118 / .12); }
+.fp-sample { font-size: 20px; line-height: 1.1; }
+.fp-name { color: #8fa79a; font-size: 11px; }
+.fp-option[data-font="digital"] .fp-sample { font-family: "Preview Digital7", monospace; }
+.fp-option[data-font="digital-mono"] .fp-sample { font-family: "Preview Digital7 Mono", monospace; }
+.fp-option[data-font="orange"] .fp-sample { font-family: "Preview Orange Avenue", serif; }
+.fp-option[data-font="orange-outline"] .fp-sample { font-family: "Preview Orange Avenue Outline", serif; }
+.fp-option[data-font="grunge"] .fp-sample { font-family: "Preview Dusty Grunge", sans-serif; }

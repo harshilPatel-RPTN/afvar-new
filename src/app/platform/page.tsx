@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { OVERVIEW, PlatformOverview } from "@/modules/platform";
+import { FontPreview, OVERVIEW, PlatformOverview } from "@/modules/platform";
 
 export const metadata: Metadata = {
   title: "Platform",
@@ -8,5 +8,11 @@ export const metadata: Metadata = {
 };
 
 export default function PlatformPage() {
-  return <PlatformOverview />;
+  return (
+    <>
+      <PlatformOverview />
+      {/* TEMPORARY: font review for the team; remove once a font is chosen. */}
+      <FontPreview />
+    </>
+  );
 }

@@ -1,5 +1,6 @@
 // Public API of the platform module (W2 · Platform pages).
 export { PlatformOverview } from "./components/PlatformOverview";
+export { FontPreview } from "./components/FontPreview";
 export { CapabilityPage } from "./components/CapabilityPage";
 export { MarketDataPage } from "./film/market/MarketDataPage";
 export { AlertsPage, CommunityPage, ResearchPage, RiskPage } from "./film/capability/CapPages";
