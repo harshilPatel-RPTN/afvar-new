@@ -7,7 +7,11 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const str = (value: unknown) => (typeof value === "string" ? value : "");
 
 export async function POST(request: Request) {
-  const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+  const parsed: unknown = await request.json().catch(() => null);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+  }
+  const body = parsed as Record<string, unknown>;
   const email = str(body.email).trim();
   const password = str(body.password);
   const displayName = str(body.displayName).trim();

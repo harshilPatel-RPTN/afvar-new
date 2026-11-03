@@ -8,10 +8,9 @@ export { PRICING_FAQS, PRICING_TIERS, PRICING_USAGE } from "./content";
 
 // theme + shared motion CSS
 export { HOME_SCOPE, HomeStyles } from "./components/HomeStyles";
+export { BTN_OUTLINE, BTN_PRIMARY } from "./components/classes";
 export {
   AnimatedHeading,
-  BTN_OUTLINE,
-  BTN_PRIMARY,
   ChangePill,
   EASE,
   FlashPrice,

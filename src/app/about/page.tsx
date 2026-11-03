@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AboutFilmPage } from "@/modules/platform";
 
 export const metadata: Metadata = {
-  title: "About Us — AFVAR",
+  title: "About Us",
   description:
     "AFVAR is one connected desk for understanding international markets, built by RedPhantom Tech Novelty Private Limited. Our purpose, principles and development stage — verified facts only.",
 };

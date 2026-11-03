@@ -49,6 +49,8 @@ export function SplashReveal() {
     const preventScroll = (event: Event) => event.preventDefault();
     host.addEventListener("wheel", preventScroll, { passive: false, signal: controller.signal });
     host.addEventListener("touchmove", preventScroll, { passive: false, signal: controller.signal });
+    // A click or tap skips it too, so early clicks are never swallowed by the overlay.
+    host.addEventListener("pointerdown", finish, { signal: controller.signal });
     window.addEventListener("pagehide", finish, { signal: controller.signal });
     window.addEventListener("keydown", event => {
       if (["Escape", "Tab", " ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"].includes(event.key)) finish();

@@ -199,7 +199,7 @@ export function KeyTopics() {
     <section ref={pauseRef} id="topics" className="relative mt-16 border-y border-white/[.08] py-10 md:mt-20">
       <div className={`${GUTTER} flex flex-wrap items-center justify-between gap-x-8 gap-y-3`}>
         <p className="mk-eyebrow">Key topics</p>
-        <Link href="/desk" className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-(--mk-text) underline-offset-4 hover:text-white hover:underline">
+        <Link href="/market/briefs" className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-(--mk-text) underline-offset-4 hover:text-white hover:underline">
           View All Market Briefs
           <Icon name="arrow" className="h-3.5 w-3.5" strokeWidth={2} />
         </Link>
@@ -210,7 +210,7 @@ export function KeyTopics() {
             KEY_TOPICS.map((topic) => (
               <Link
                 key={`${topic.title}${dup ? "-dup" : ""}`}
-                href="/desk"
+                href="/market"
                 aria-hidden={dup || undefined}
                 tabIndex={dup ? -1 : undefined}
                 className={`mkc-chip mr-3 flex shrink-0 items-center gap-3 whitespace-nowrap rounded-full border border-white/[.11] bg-[#171B1D] py-2 pl-2.5 pr-5 transition-colors duration-300 hover:border-white/[.24] ${dup ? "motion-reduce:hidden" : ""}`}

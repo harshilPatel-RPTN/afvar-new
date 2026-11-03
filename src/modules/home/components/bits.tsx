@@ -339,11 +339,7 @@ export const DOWN_HEX = "#FF3B3B";
 export const UP_TEXT = "text-[#00E676]";
 export const DOWN_TEXT = "text-[#FF6464]";
 
-export const BTN_PRIMARY =
-  "afvar-glass-button afvar-glass-primary inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-[14.5px] font-semibold";
-
-export const BTN_OUTLINE =
-  "afvar-glass-button inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-[14.5px] font-medium";
+export { BTN_OUTLINE, BTN_PRIMARY } from "./classes";
 
 /** Card surface: solid raised panel + hairline border (README §0.3 — no glass). */
 export const CARD = "rounded-2xl border border-white/[.11] bg-(--afvar-panel)";

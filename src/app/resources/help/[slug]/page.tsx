@@ -11,7 +11,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/resources/help/[slug]">): Promise<Metadata> {
   const topic = getTopic((await params).slug);
   if (!topic) return {};
-  return { title: `${topic.title} · Help — AFVAR`, description: topic.symptom, alternates: { canonical: `/resources/help/${topic.slug}` } };
+  return { title: `${topic.title} · Help`, description: topic.symptom, alternates: { canonical: `/resources/help/${topic.slug}` } };
 }
 
 export default async function Page({ params }: PageProps<"/resources/help/[slug]">) {

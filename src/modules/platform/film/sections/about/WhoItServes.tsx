@@ -19,7 +19,7 @@ const USES: readonly (readonly [string, string])[][] = [
   [
     ["Analysis", "in plain words"],
     ["Alerts", "repeated back, then confirmed"],
-    ["Buy or sell pushes", "none"],
+    ["Trade pushes", "none"],
   ],
   [
     ["Deep research", "and event analysis"],
@@ -59,7 +59,7 @@ export function WhoItServes() {
         <Row k="Every price" v="source and time on it" />
       </Win>
       <Win at={0.72} x={790} y={340} w={370} h={155} title="No buy or sell calls, for anyone" glyph="risk">
-        <Row k="Buy or sell calls" v="never" />
+        <Row k="Trade calls" v="never" />
         <Row k="Orders placed" v="never" />
         <Row k="What you get" v="analysis and explanation" />
       </Win>

@@ -387,19 +387,23 @@ export function Ask({ at = 0, x = 40, y = 16, w = 560, text, voice = false }: { 
   const sendScale = useTransform(sent, [0, 1], [1, 1.45]);
   const orbScale = useTransform(sent, [0, 1], [1, 1.6]);
   const TYPE_MS = 1300;
+  // The running type-in frame, cancelled on restart and unmount so two loops never write at once.
+  const typing = useRef(0);
+  useEffect(() => () => cancelAnimationFrame(typing.current), []);
   // C3: stacked, the request types itself once the card is in; the next card waits for it.
   const typeIn = (delay: number) => {
     const el = span.current;
     if (!el) return;
+    cancelAnimationFrame(typing.current);
     el.textContent = "";
     const start = performance.now() + delay * 1000 + 300;
     const tick = (now: number) => {
       const k = Math.max(0, Math.min(1, (now - start) / TYPE_MS));
       el.textContent = text.slice(0, Math.round(text.length * k));
-      if (k < 1) requestAnimationFrame(tick);
+      if (k < 1) typing.current = requestAnimationFrame(tick);
       else animate(sent, [0, 1, 0], { duration: 0.6, ease: "easeInOut" });
     };
-    requestAnimationFrame(tick);
+    typing.current = requestAnimationFrame(tick);
   };
   const inner = (
     <>

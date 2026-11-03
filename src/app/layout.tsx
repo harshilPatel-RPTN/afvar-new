@@ -8,6 +8,7 @@ import { SplashReveal } from "@/platform/splash";
 import { AvatarChatWidget } from "@/platform/avatar/AvatarChatWidget";
 import { ButtonFx } from "@/platform/ui/ButtonFx";
 import { Providers } from "./providers";
+import { SITE_URL } from "./site";
 
 // Not preloaded: the public Markets pages use their own fonts, so these
 // would otherwise compete with the hero image on every /market request.
@@ -26,9 +27,14 @@ const geistMono = Geist_Mono({
 
 export async function generateMetadata(): Promise<Metadata> {
   const edition = await getServerEdition();
+  const brand = translate(edition, "brand.name");
+  const description = translate(edition, "meta.description");
   return {
-    title: { default: translate(edition, "brand.name"), template: `%s · ${translate(edition, "brand.name")}` },
-    description: translate(edition, "meta.description"),
+    metadataBase: new URL(SITE_URL),
+    title: { default: brand, template: `%s · ${brand}` },
+    description,
+    openGraph: { type: "website", siteName: brand, title: brand, description },
+    twitter: { card: "summary_large_image", title: brand, description },
   };
 }
 

@@ -11,7 +11,7 @@ import { SiteShell } from "./SiteShell";
 import Link from "next/link";
 import { SiteFooter } from "@/modules/markets";
 import { EarthHorizon } from "@/modules/platform/kit";
-import { BTN_PRIMARY } from "./bits";
+import { BTN_PRIMARY } from "./classes";
 import { HERO } from "../content";
 
 /** W1 · Home, matched to the approved visual mockup (content order per WF01). */

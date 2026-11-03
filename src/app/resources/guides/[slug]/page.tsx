@@ -11,7 +11,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/resources/guides/[slug]">): Promise<Metadata> {
   const guide = getGuide((await params).slug);
   if (!guide) return {};
-  return { title: `${guide.title} · Product Guides — AFVAR`, description: guide.task, alternates: { canonical: `/resources/guides/${guide.slug}` } };
+  return { title: `${guide.title} · Product Guides`, description: guide.task, alternates: { canonical: `/resources/guides/${guide.slug}` } };
 }
 
 export default async function Page({ params }: PageProps<"/resources/guides/[slug]">) {

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { isSoundEnabled } from "@/modules/home/kit";
 import { useT } from "@/platform/i18n";
 import { AvatarEntrance } from "./AvatarEntrance";
 import { mountAvatar, type AvatarController, type AvatarState } from "./embed";
@@ -132,6 +133,8 @@ export function AvatarChatWidget() {
     audio.addEventListener("playing", talk);
     audio.addEventListener("ended", quiet);
     const timer = window.setTimeout(() => {
+      // The site sound switch mutes the greeting too.
+      if (!isSoundEnabled()) return;
       audio.play().catch(() => {});
     }, GREET_DELAY);
     return () => {

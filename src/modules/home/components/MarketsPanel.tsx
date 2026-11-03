@@ -242,7 +242,7 @@ export function MarketsCovered() {
                     {" · not investment advice"}
                     </span>
                   </p>
-                  <Link href="/desk" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-(--mk-text) underline-offset-4 hover:text-white hover:underline">
+                  <Link href="/platform/market-data" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-(--mk-text) underline-offset-4 hover:text-white hover:underline">
                     Open in the desk
                     <Icon name="arrow" className="h-3.5 w-3.5" strokeWidth={2} />
                   </Link>

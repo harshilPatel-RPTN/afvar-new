@@ -84,7 +84,7 @@ export function AuthCard({ eyebrow, title, subtitle, shake, children, footer, wi
 }
 
 const FIELD_CLASS =
-  "h-11 w-full rounded-xl border border-(--afvar-mint)/30 bg-(--afvar-forest)/70 px-3.5 text-[13px] text-(--afvar-text) outline-none transition-colors placeholder:text-(--afvar-muted)/75 focus:border-(--afvar-mint) focus:shadow-[0_0_0_3px_rgb(168_222_194/.17)] aria-[invalid=true]:border-(--afvar-loss)";
+  "h-11 w-full rounded-xl border border-(--afvar-mint)/30 bg-(--afvar-forest)/70 px-3.5 text-[16px] sm:text-[13px] text-(--afvar-text) outline-none transition-colors placeholder:text-(--afvar-muted)/75 focus:border-(--afvar-mint) focus:shadow-[0_0_0_3px_rgb(168_222_194/.17)] aria-[invalid=true]:border-(--afvar-loss)";
 
 interface AuthFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;

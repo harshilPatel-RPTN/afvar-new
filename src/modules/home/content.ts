@@ -9,7 +9,7 @@ export const HERO = {
   titleB: "for trading.",
   sub: "One connected desk to understand international markets, explore ideas and review your trading — commodities, forex and crypto, in English and हिन्दी.",
   primary: { label: "Register Now", href: "/register" },
-  secondary: { label: "Explore the platform", href: "/desk" },
+  secondary: { label: "Explore the platform", href: "/platform" },
   /** Only accurate while quotes come from the AFVAR data layer (Yahoo proxy; futures delayed). */
   caption: "Quotes via the AFVAR data layer · futures delayed · not investment advice",
   sceneNote: "The market terrain is an illustrative render — the callout and ticker quotes are real",
@@ -120,19 +120,19 @@ export const OVERVIEW = {
 
 /** W1.1.3 — five capability previews (links per W1.2). */
 export const CAPABILITIES = [
-  { n: "01", title: "Follow markets", linkLabel: "Charts & watchlists", body: "Live charts, watchlists and heatmaps across commodities, forex and crypto — one connected workspace instead of twelve tabs.", href: "/desk", glyph: "chart" },
-  { n: "02", title: "Understand context", linkLabel: "News & research", body: "News, economic calendar and market briefs tied to the instruments they move, with the source and freshness on every number.", href: "/desk", glyph: "doc" },
-  { n: "03", title: "Evaluate ideas", linkLabel: "Alerts & strategy tools", body: "Plain-words alerts, screeners and strategy tests — repeated back and confirmed before anything is armed.", href: "/desk", glyph: "bulb" },
-  { n: "04", title: "Review your trading", linkLabel: "Risk & trade review", body: "Read-only broker connections, exposure, personal limits and a journal. Risk Guardian warns — it never acts on your account.", href: "/desk", glyph: "shield" },
-  { n: "05", title: "Connect with traders", linkLabel: "Community", body: "Eight official rooms, one per coverage lane, with shared charts and verified records. No scam channels, by design.", href: "/communities", glyph: "users" },
+  { n: "01", title: "Follow markets", linkLabel: "Charts & watchlists", body: "Live charts, watchlists and heatmaps across commodities, forex and crypto — one connected workspace instead of twelve tabs.", href: "/platform/market-data", glyph: "chart" },
+  { n: "02", title: "Understand context", linkLabel: "News & research", body: "News, economic calendar and market briefs tied to the instruments they move, with the source and freshness on every number.", href: "/platform/research", glyph: "doc" },
+  { n: "03", title: "Evaluate ideas", linkLabel: "Alerts & strategy tools", body: "Plain-words alerts, screeners and strategy tests — repeated back and confirmed before anything is armed.", href: "/platform/alerts", glyph: "bulb" },
+  { n: "04", title: "Review your trading", linkLabel: "Risk & trade review", body: "Read-only broker connections, exposure, personal limits and a journal. Risk Guardian warns — it never acts on your account.", href: "/platform/risk-review", glyph: "shield" },
+  { n: "05", title: "Connect with traders", linkLabel: "Community", body: "Eight official rooms, one per coverage lane, with shared charts and verified records. No scam channels, by design.", href: "/platform/community", glyph: "users" },
 ] as const;
 
 export const CAPABILITIES_SUB = "Everything you need to understand markets, explore ideas and review your trading, in one place.";
 
 /** W1.1.4 — markets covered (live quotes fill these cards). */
 export const MARKET_GROUPS = [
-  { title: "Commodities", symbols: ["XAUUSD", "XAGUSD", "WTI"], href: "/desk", note: "Gold, silver and crude — the lanes that move first on macro." },
-  { title: "Forex", symbols: ["EURUSD", "USDJPY", "GBPUSD", "NZDUSD"], href: "/desk", note: "Major pairs across London, New York and Asia sessions." },
+  { title: "Commodities", symbols: ["XAUUSD", "XAGUSD", "WTI"], href: "/market/commodities", note: "Gold, silver and crude — the lanes that move first on macro." },
+  { title: "Forex", symbols: ["EURUSD", "USDJPY", "GBPUSD", "NZDUSD"], href: "/market/forex", note: "Major pairs across London, New York and Asia sessions." },
 ] as const;
 
 export const CRYPTO_NOTE = "Bitcoin first, every listed coin through search. 24/7.";

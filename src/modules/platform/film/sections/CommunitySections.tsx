@@ -388,7 +388,7 @@ function Summaries() {
         <Para>It reports what members said. It does not add its own view or a call to trade.</Para>
         <div className="mt-3">
           <Row k="Its own view" v="not added" />
-          <Row k="Buy or sell calls" v="never" />
+          <Row k="Trade calls" v="never" />
           <Row k="Posts it read" v="all 214, each numbered" />
         </div>
       </Win>
