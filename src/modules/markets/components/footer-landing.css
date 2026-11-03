@@ -132,6 +132,9 @@
 }
 .fl-mark-float { position: relative; display: block; width: 100%; height: 100%; }
 .fl-mark picture { display: block; width: 100%; height: 100%; }
+/* The navbar's SignatureMark, stretched to the footer mark's box. */
+.fl-fly-mark { display: block; width: 100%; height: 100%; }
+.fl-fly-mark .afvar-header-symbol { --mark-size: 100%; width: 100%; height: 100%; }
 
 .fl-mark-halo {
   position: absolute;
@@ -166,7 +169,7 @@
   will-change: transform;
   backface-visibility: hidden;
 }
-.fl-fly-mark { padding: 3%; } /* same inset as the navbar mark's artwork */
+.fl-fly-mark { padding: 0; } /* SignatureMark already insets its artwork like the navbar */
 
 /* ---- headline, subline ------------------------------------------------ */
 .fl-sr {
@@ -328,7 +331,7 @@
 .fl-root[data-mode="fly"]:not([data-landed]):focus-within .fl-w-in { transform: none; }
 
 /* ---- touchdown: lock-in, then the pitch reveals in turn --------------------------------- */
-.fl-root[data-landed] .fl-mark-float > picture { animation: fl-pulse 1s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both; }
+.fl-root[data-landed] .fl-mark-float > .fl-fly-mark { animation: fl-pulse 1s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both; }
 .fl-root[data-landed] .fl-mark-ring { animation: fl-ring 1.4s ease-out 0.05s both; }
 .fl-root[data-landed] .fl-mark-halo {
   animation:

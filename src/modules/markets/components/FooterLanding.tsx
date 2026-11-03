@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, type CSSProperties, type MouseEvent } from "react";
 import { FooterLandingCandles } from "./FooterLandingCandles";
 import { FooterLandingEarth } from "./FooterLandingEarth";
+import { SignatureMark } from "@/platform/ui/SignatureMark";
 import "./footer-landing.css";
 
 /* The page's last beat: a dark landing pad under the footer. As it scrolls in,
@@ -36,8 +37,6 @@ const HEADLINE = [
 const QUEUE_ID = "launch-queue";
 
 const WORDMARK = "/afvar-signature/golden-reveal/afvar-wordmark-dock.webp";
-const MARK = "/afvar-signature/assets/approved.webp";
-const MARK_LITE = "/afvar-signature/assets/approved-lite.webp";
 
 /** Scroll progress through the section where the flight starts and touches down. */
 const LIFT = 0.04;
@@ -163,7 +162,7 @@ function arc(from: Box, to: Box, e: number, bank: number, sag: number, spin: num
 
 export function FooterLanding() {
   const root = useRef<HTMLElement>(null);
-  const markImg = useRef<HTMLImageElement>(null);
+  const markImg = useRef<HTMLSpanElement>(null);
   const wordImg = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
@@ -341,10 +340,10 @@ export function FooterLanding() {
             <span className="fl-mark-halo" />
             <span className="fl-mark-ring" />
             <span className="fl-mark-float">
-              <picture>
-                <source media="(max-width: 600px)" srcSet={MARK_LITE} />
-                <img ref={markImg} className="fl-fly fl-fly-mark" src={MARK} alt="" width={640} height={640} draggable={false} />
-              </picture>
+              {/* The navbar's own bull (same SignatureMark component, with its live face). */}
+              <span ref={markImg} className="fl-fly fl-fly-mark">
+                <SignatureMark />
+              </span>
             </span>
           </div>
           <div className="fl-word">
