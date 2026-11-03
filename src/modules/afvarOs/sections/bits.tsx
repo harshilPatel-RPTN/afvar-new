@@ -5,10 +5,11 @@ import type { ReactNode } from "react";
 
 export function Row({ k, v, gold = false }: { k: ReactNode; v?: ReactNode; gold?: boolean }) {
   return (
-    <div className={`flex items-center justify-between gap-3 border-b border-[rgba(255,255,255,0.06)] py-[7px] text-[13px] last:border-b-0 ${gold ? "rounded-md border border-[rgba(168,222,194,0.55)] px-2" : ""}`}>
+    // Phones: a value (status chip) that no longer fits beside its label drops to its own line, right-aligned.
+    <div className={`flex items-center justify-between gap-x-3 gap-y-1 border-b border-[rgba(255,255,255,0.06)] py-[7px] text-[13px] last:border-b-0 max-sm:flex-wrap ${gold ? "rounded-md border border-[rgba(168,222,194,0.55)] px-2" : ""}`}>
       {/* Cards (phones, tablets): wrap instead of cutting. */}
       <span className="min-w-0 truncate text-[#F2F5F2] [.afv-stack_&]:min-w-min [.afv-stack_&]:whitespace-normal [.afv-stack_&]:break-words">{k}</span>
-      {v !== undefined ? <span className="shrink-0 font-mono text-[11.5px] text-[#B7C5BC] [.afv-stack_&]:min-w-0 [.afv-stack_&]:shrink [.afv-stack_&]:break-words [.afv-stack_&]:text-right">{v}</span> : null}
+      {v !== undefined ? <span className="shrink-0 font-mono text-[11.5px] text-[#B7C5BC] max-sm:ml-auto max-sm:max-w-full [.afv-stack_&]:min-w-0 [.afv-stack_&]:shrink [.afv-stack_&]:break-words [.afv-stack_&]:text-right">{v}</span> : null}
     </div>
   );
 }

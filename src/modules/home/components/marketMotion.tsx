@@ -165,7 +165,9 @@ export function CandleWords({ text, delay = 0, renderWord }: { text: string; del
 /* ───────────────────────── scroll-scrubbed copy ───────────────────────── */
 
 function ScrubWord({ progress, start, end, word, tick }: { progress: MotionValue<number>; start: number; end: number; word: string; tick: string | null }) {
-  const opacity = useTransform(progress, [start, end], [0.22, 1]);
+  // Unlit words start at half strength, not fainter: --mk-dim copy on the near-black page
+  // still clears 3:1 before it lights (0.22 was 1.5:1).
+  const opacity = useTransform(progress, [start, end], [0.5, 1]);
   const scaleX = useTransform(progress, [start, end], [0, 1]);
   return (
     <motion.span className="relative" style={{ opacity }}>

@@ -30,6 +30,24 @@ export interface ChapterStage {
   revealRef: RefObject<HTMLDivElement | null>;
 }
 
+/** WebGL support, probed once per page load. The probe context is released
+ *  right away: each chapter used to keep its own until GC, pushing the page
+ *  past the browser's live-context limit ("Too many active WebGL contexts"). */
+let webglProbe: boolean | null = null;
+function probeWebGL(): boolean {
+  if (webglProbe === null) {
+    try {
+      const probe = document.createElement("canvas");
+      const gl = probe.getContext("webgl2") ?? probe.getContext("webgl");
+      webglProbe = Boolean(gl);
+      gl?.getExtension("WEBGL_lose_context")?.loseContext();
+    } catch {
+      webglProbe = false;
+    }
+  }
+  return webglProbe;
+}
+
 /** How much of the story the one-time mobile reveal replays before settling. */
 const REVEAL_SPAN = 0.3;
 
@@ -47,12 +65,7 @@ export function useChapterStage(settledP: number): ChapterStage {
     const update = () => setDesktop(mq.matches);
     update();
     mq.addEventListener("change", update);
-    try {
-      const probe = document.createElement("canvas");
-      setWebgl(Boolean(probe.getContext("webgl2") ?? probe.getContext("webgl")));
-    } catch {
-      setWebgl(false);
-    }
+    setWebgl(probeWebGL());
     return () => mq.removeEventListener("change", update);
   }, []);
 

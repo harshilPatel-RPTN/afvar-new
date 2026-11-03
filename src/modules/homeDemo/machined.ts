@@ -202,6 +202,24 @@ function brushedRoughnessMap(): THREE.DataTexture {
   return tex;
 }
 
+/** Live scenes using the shared brushed map (see retainMachinedFinish). */
+let brushedUsers = 0;
+
+/**
+ * The brushed map is a module-level cache shared by every arc in every canvas,
+ * so a single unmount must not free it. Mounted users retain it; when the last
+ * one releases, its GPU copy is freed (the CPU data stays, so a later mount
+ * simply re-uploads it).
+ */
+export function retainMachinedFinish(): void {
+  brushedUsers += 1;
+}
+
+export function releaseMachinedFinish(): void {
+  brushedUsers = Math.max(0, brushedUsers - 1);
+  if (brushedUsers === 0) brushedCache?.dispose();
+}
+
 /** Dark turned titanium: brushed anisotropic metal with a thin clear coat. */
 export function machinedMetalMaterial(color = "#7b8490"): THREE.MeshPhysicalMaterial {
   return new THREE.MeshPhysicalMaterial({

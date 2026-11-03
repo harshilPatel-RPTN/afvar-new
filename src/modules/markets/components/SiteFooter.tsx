@@ -186,7 +186,7 @@ export async function SiteFooter({ variant = "solid" }: { variant?: keyof typeof
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className={`${linkBase} text-[13px] text-(--mk-dim) hover:text-(--mk-primary)`}
+                      className={`${linkBase} justify-center text-[13px] text-(--mk-dim) hover:text-(--mk-primary) max-md:min-w-11`}
                     >
                       <Label>{t(link.label)}</Label>
                     </Link>

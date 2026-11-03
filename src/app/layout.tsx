@@ -38,6 +38,23 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// Without JavaScript nothing runs the scroll reveals or the full-screen
+// gate, so this shows their finished state: reveal layers visible and in place,
+// and the gated page itself instead of the launch card.
+const NO_SCRIPT_CSS = [
+  // Hero copy staircase (HeroStage) and framer-motion `initial` states (inline opacity / wipes).
+  "[data-afv-enter] [data-afv-copy]>*>*,[data-afv-cue]{opacity:1!important;animation:none!important}",
+  '[style*="opacity:0"]{opacity:1!important;transform:none!important;visibility:visible!important}',
+  '[style*="clip-path:inset"]{clip-path:none!important}',
+  '[style*="transform:translate"],[style*="transform:scale"]{transform:none!important}',
+  // FullscreenGate: show the page, not the launch card.
+  // Its suspended part streams into a hidden <div id="S:n"> that only React's script would move into place.
+  // In Tailwind's base layer: its `[hidden]{display:none!important}` lives there, and layered
+  // !important beats unlayered !important.
+  "[data-fullscreen-gate]{display:none!important}",
+  '@layer base{[data-fullscreen-gate-page]{display:contents!important}body:has([data-fullscreen-gate-page]) div[hidden][id^="S:"]{display:block!important}}',
+].join("");
+
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -52,6 +69,14 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/* First Tab stop on every page; each page's <main> carries id="main". Above the splash (z 2147483000). */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[2147483647] focus:rounded-full focus:bg-(--afvar-text) focus:px-5 focus:py-3 focus:text-[14px] focus:font-semibold focus:text-(--afvar-charcoal) focus:outline-2 focus:outline-offset-2 focus:outline-(--afvar-mint)"
+        >
+          {translate(edition, "mk.shell.skip")}
+        </a>
+        <noscript><style>{NO_SCRIPT_CSS}</style></noscript>
         <SplashReveal />
         <Providers edition={edition}>
           {children}

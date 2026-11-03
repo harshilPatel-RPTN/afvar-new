@@ -125,6 +125,7 @@
   "auth.error.wrong_pin": "That PIN isn't right.",
   "auth.error.pin_locked": "Too many wrong PINs. Sign in with your password.",
   "auth.error.offline": "Can't reach AFVAR right now. Try again in a moment.",
+  "auth.error.rate_limited": "Too many attempts. Please wait a minute and try again.",
   "auth.error.unknown": "Something went wrong. Please try again.",
   "pin.enter": "Enter your AFVAR PIN",
   "pin.create": "Create a 4-digit PIN",

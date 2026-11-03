@@ -107,7 +107,7 @@ export function ResourcesTabs() {
               <Link
                 href={c.href}
                 aria-current={active ? "page" : undefined}
-                className="afvar-glass-tab relative flex h-9 items-center gap-2 rounded-full px-4 text-[13px] font-medium transition-colors"
+                className="afvar-glass-tab relative flex h-10 items-center gap-2 rounded-full px-4 text-[13px] font-medium transition-colors"
               >
                 {active && (
                   <motion.span

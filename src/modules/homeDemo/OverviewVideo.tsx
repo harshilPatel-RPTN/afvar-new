@@ -110,7 +110,7 @@ export function OverviewVideo() {
           <VideoSpotlight playing={playing} badge="PLAYING">
             <video
               ref={videoRef}
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover outline-none focus-visible:outline-2! focus-visible:outline-solid! focus-visible:-outline-offset-2! focus-visible:outline-(--afvar-mint)!"
               src={`/home-demo/overview.${lang}.mp4`}
               onLoadedMetadata={resume}
               onPlay={() => {

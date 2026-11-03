@@ -485,6 +485,19 @@ function Earth({ still, inset, onReady }: { still: boolean; inset: number; onRea
     coinMatRef.current = coinFaceMat;
     streakMatsRef.current = streakMats;
   }, [coinFaceMat, streakMats]);
+  // Everything above is built by hand (not from JSX), so R3F never frees it:
+  // release the GPU buffers, programs and coin-face textures on unmount.
+  useEffect(
+    () => () => {
+      coinEdgeMat.dispose();
+      coinFaceMat.dispose();
+      candleMats.forEach((m) => m.dispose());
+      streakMats.forEach((m) => m.dispose());
+      signTextures.forEach((t) => t.dispose());
+      starGeo.dispose();
+    },
+    [coinEdgeMat, coinFaceMat, candleMats, streakMats, signTextures, starGeo]
+  );
 
   useFrame((state, delta) => {
     const { width, height } = state.size;

@@ -22,7 +22,7 @@
 import { Environment, Lightformer } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
-import { useCallback, useMemo, useRef, useState, type RefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import type { EffectComposer as EffectComposerImpl } from "postprocessing";
 import * as THREE from "three";
 import {
@@ -349,6 +349,14 @@ function Ground({ segments }: { segments: number }) {
     t.colorSpace = THREE.SRGBColorSpace;
     return { geo: g, tex: t };
   }, [segments]);
+  // Built outside JSX, so R3F won't free them: release the GPU buffers on unmount.
+  useEffect(
+    () => () => {
+      geo.dispose();
+      tex.dispose();
+    },
+    [geo, tex],
+  );
 
   return (
     <mesh geometry={geo} name="GRID_AND_TICKS">
@@ -396,6 +404,13 @@ function CandleField({ progress, still }: Driven) {
       wick: new THREE.CylinderGeometry(1, 1, 1, 10),
     }),
     [],
+  );
+  useEffect(
+    () => () => {
+      geos.box.dispose();
+      geos.wick.dispose();
+    },
+    [geos],
   );
 
   useFrame(() => {
@@ -553,6 +568,14 @@ function Paths({ progress, still }: Driven) {
       links: PATHS.links.map((l) => tube(linkCurve(l.a, l.b), 90, 0.02)),
     };
   }, []);
+  useEffect(
+    () => () => {
+      geo.green.dispose();
+      geo.red.dispose();
+      geo.links.forEach((g) => g.dispose());
+    },
+    [geo],
+  );
 
   useFrame(() => {
     const u = readU(progress, still);

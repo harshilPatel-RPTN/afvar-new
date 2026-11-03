@@ -28,7 +28,7 @@ export function SiteFrame({ children, closing }: { children: ReactNode; closing?
         </SiteNav>
         <LaunchReminder />
 
-        <main>{children}</main>
+        <main id="main" tabIndex={-1} className="focus:outline-none">{children}</main>
 
         {closing ? (
           <div data-site-closing="">

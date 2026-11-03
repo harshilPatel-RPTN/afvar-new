@@ -21,13 +21,21 @@ const TWINKLE_GROUPS = [
   { delay: 1.9, duration: 4.9 },
 ];
 
+// Probed once; the probe context is released at once so it never counts
+// toward the browser's live WebGL-context limit.
+let webglOk: boolean | null = null;
 function hasWebGL() {
-  try {
-    const canvas = document.createElement("canvas");
-    return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"));
-  } catch {
-    return false;
+  if (webglOk === null) {
+    try {
+      const canvas = document.createElement("canvas");
+      const gl = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
+      webglOk = Boolean(gl);
+      gl?.getExtension("WEBGL_lose_context")?.loseContext();
+    } catch {
+      webglOk = false;
+    }
   }
+  return webglOk;
 }
 const noSubscribe = () => () => {};
 

@@ -23,7 +23,7 @@
 .home-fx-rate b { color:#fff; font-weight:600; font-variant-numeric:tabular-nums; }
 .home-fx-rate small { font-size:.66rem; }
 .home-fx-picker { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:2px; padding:3px; border-radius:18px; }
-.home-fx-picker button { min-width:0; min-height:36px; font-size:.72rem; border-radius:14px; }
+.home-fx-picker button { min-width:40px; min-height:36px; font-size:.72rem; border-radius:14px; }
 /* The disc plus its 48 px control row always fit the screen below the 72 px
    navbar (with a 16 px breath), at every width and height: the width is the
    smallest of its column, the design cap and the available height. */

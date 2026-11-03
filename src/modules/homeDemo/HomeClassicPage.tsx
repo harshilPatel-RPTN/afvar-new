@@ -43,7 +43,7 @@ export function HomeClassicPage() {
       <ScenePrefetch />
 
       {/* data-candle-trail: "/"'s candle cursor and click burst live inside main. */}
-      <main data-candle-trail>
+      <main id="main" tabIndex={-1} data-candle-trail className="focus:outline-none">
         <Chapter01 />
         <CandleSweep dir="rtl" seed={1} />
         <Chapter02 />

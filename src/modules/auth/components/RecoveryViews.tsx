@@ -7,7 +7,7 @@ import { useT, type MessageKey } from "@/platform/i18n";
 import { authApi } from "../api";
 import { errorKey } from "../locale-data";
 import { useAuthStore } from "../store";
-import { AuthCard, AuthField, FormNotice, SubmitButton, TextLink, useShake } from "./AuthCard";
+import { AuthCard, AuthField, FormNotice, SubmitButton, TextLink, focusField, useShake } from "./AuthCard";
 import { StrengthMeter, passwordStrength } from "./RegisterView";
 
 function BackToSignIn() {
@@ -81,6 +81,7 @@ export function ResetPasswordView() {
     if (mismatch || passwordStrength(password) === 0) {
       setError(mismatch ? "auth.register.mismatch" : "auth.register.tooShort");
       shake();
+      focusField(mismatch ? "confirm" : "password");
       return;
     }
     setPending(true);
@@ -107,10 +108,10 @@ export function ResetPasswordView() {
         </div>
       ) : (
         <form onSubmit={submit} className="flex flex-col gap-4">
-          <AuthField id="password" label={t("auth.field.newPassword")} type="password" required minLength={8} autoComplete="new-password" placeholder={t("auth.field.newPasswordPlaceholder")} value={password} onChange={(event) => setPassword(event.target.value)} hint={<StrengthMeter password={password} />} disabled={!token} />
-          <AuthField id="confirm" label={t("auth.field.confirmPassword")} type="password" required autoComplete="new-password" placeholder={t("auth.field.confirmPlaceholder")} value={confirm} onChange={(event) => setConfirm(event.target.value)} aria-invalid={mismatch} disabled={!token} />
+          <AuthField id="password" label={t("auth.field.newPassword")} type="password" required minLength={8} autoComplete="new-password" placeholder={t("auth.field.newPasswordPlaceholder")} value={password} onChange={(event) => setPassword(event.target.value)} hint={<StrengthMeter password={password} />} aria-invalid={error === "auth.register.tooShort" || undefined} aria-describedby={error ? "reset-error" : undefined} disabled={!token} />
+          <AuthField id="confirm" label={t("auth.field.confirmPassword")} type="password" required autoComplete="new-password" placeholder={t("auth.field.confirmPlaceholder")} value={confirm} onChange={(event) => setConfirm(event.target.value)} aria-invalid={mismatch} aria-describedby={error === "auth.register.mismatch" ? "reset-error" : undefined} disabled={!token} />
           {error && (
-            <FormNotice>
+            <FormNotice id="reset-error">
               {t(error)}{" "}
               {(error === "auth.error.invalid_token" || error === "auth.error.token_expired") && (
                 <Link href="/forgot-password" className="font-semibold underline">

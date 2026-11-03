@@ -35,7 +35,7 @@ export function BadgeSample() {
             onFocus={() => setHot(b.key)}
             onClick={() => setHot(b.key)}
             aria-pressed={hot === b.key}
-            className="afvar-glass-tab rounded-md px-2.5 py-1.5 transition-colors"
+            className="afvar-glass-tab inline-flex min-h-10 items-center rounded-md px-2.5 py-1.5 transition-colors"
           >
             {b.sample}
           </button>
@@ -66,7 +66,7 @@ export function VerdictSample() {
             onFocus={() => setHot(p.key)}
             onClick={() => setHot(p.key)}
             aria-pressed={hot === p.key}
-            className="afvar-glass-tab rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors"
+            className="afvar-glass-tab inline-flex min-h-10 items-center rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors"
           >
             {p.text}
           </button>
@@ -147,7 +147,7 @@ function CommandSample() {
             type="button"
             onClick={() => setPicked(c)}
             aria-pressed={picked === c}
-            className="afvar-glass-tab rounded-full px-3 py-1.5 text-[12.5px] transition-colors"
+            className="afvar-glass-tab inline-flex min-h-10 items-center rounded-full px-3 py-1.5 text-[12.5px] transition-colors"
           >
             {c}
           </button>

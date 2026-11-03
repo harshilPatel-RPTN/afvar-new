@@ -55,7 +55,11 @@ export const authApi = {
     return apiFetch("POST", "/api/v1/auth/login", { email, password });
   },
   loginWithGoogle: () => apiFetch<AuthResponse>("POST", "/api/v1/auth/google", {}),
-  logout: () => apiFetch<{ ok: true }>("POST", "/api/v1/auth/logout"),
+  logout: async () => {
+    // The sheet routes also set an httpOnly session cookie only the server can clear.
+    if (USE_SHEETS) await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
+    return apiFetch<{ ok: true }>("POST", "/api/v1/auth/logout");
+  },
   forgot: (email: string) =>
     apiFetch<{ ok: true } & DevLink<"dev_reset_url">>("POST", "/api/v1/auth/forgot", { email }),
   reset: (token: string, password: string) =>

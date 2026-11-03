@@ -7,7 +7,7 @@ import { useT, type MessageKey } from "@/platform/i18n";
 import { errorKey } from "../locale-data";
 import { useAuthStore } from "../store";
 import type { AuthResponse } from "../types";
-import { AuthCard, AuthField, FormNotice, SubmitButton, TextLink, safeNext, useShake } from "./AuthCard";
+import { AuthCard, AuthField, FormNotice, SubmitButton, TextLink, focusField, safeNext, useShake } from "./AuthCard";
 
 export function GoogleButton({ onClick, pending }: { onClick: () => void; pending: boolean }) {
   const { t } = useT();
@@ -79,10 +79,14 @@ export function LoginView() {
       await attempt();
       afterAuth();
     } catch (failure) {
-      setError(errorKey(failure));
+      const key = errorKey(failure);
+      setError(key);
       setPassword("");
       shake();
       setPending(false);
+      // Wrong credentials: straight back to the (now empty) password; a bad address to the email.
+      if (key === "auth.error.invalid_credentials") focusField("password");
+      else if (key === "auth.error.validation_error") focusField("email");
     }
   };
 
@@ -90,6 +94,9 @@ export function LoginView() {
     event.preventDefault();
     void run(() => login(email, password));
   };
+
+  const credentialsError = error === "auth.error.invalid_credentials" || error === "auth.error.validation_error";
+  const errorProps = { "aria-invalid": credentialsError || undefined, "aria-describedby": error ? "login-error" : undefined };
 
   const registerHref = next ? `/register?next=${encodeURIComponent(next)}` : "/register";
 
@@ -118,6 +125,7 @@ export function LoginView() {
             placeholder={t("auth.field.emailPlaceholder")}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            {...errorProps}
           />
           <AuthField
             id="password"
@@ -131,13 +139,14 @@ export function LoginView() {
               setPassword(event.target.value);
               setError(null);
             }}
+            {...errorProps}
           />
           <div className="flex justify-end text-[12px]">
             <Link href="/forgot-password" className="text-(--afvar-mint) hover:underline">
               {t("auth.login.forgot")}
             </Link>
           </div>
-          {error && <FormNotice>{t(error)}</FormNotice>}
+          {error && <FormNotice id="login-error">{t(error)}</FormNotice>}
           <SubmitButton pending={pending} pendingLabel={t("auth.login.pending")}>
             {t("auth.login.submit")}
           </SubmitButton>

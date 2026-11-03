@@ -1,8 +1,14 @@
 "use client";
 
-import { animate, motion, useInView, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
+import { animate, motion, useInView, useMotionValue, useTransform } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { BearArt, BullArt, haptic, playSfx } from "@/modules/home/kit";
+import { useMediaQuery } from "@/platform/hooks/useMediaQuery";
+
+/** OS reduced motion, false while hydrating so the server HTML matches
+ *  (framer's useReducedMotion reads matchMedia during the first render and
+ *  drops whileTap → tabindex, a hydration mismatch). */
+const useReducedMotion = () => useMediaQuery("(prefers-reduced-motion: reduce)");
 
 /** Timers for one move; cleared on unmount. */
 function useTimers() {
@@ -103,7 +109,7 @@ export function FooterBull({ children }: { children: ReactNode }) {
         data-glass-hit-area=""
         aria-label="Make the bull charge"
         title="Click the bull"
-        className={`relative w-16 shrink-0 cursor-pointer ${focusRing}`}
+        className={`relative min-h-10 w-16 shrink-0 cursor-pointer ${focusRing}`}
         style={{ x, rotate: lean, transformOrigin: "50% 100%" }}
         whileHover={reduce ? undefined : { y: -2 }}
         whileTap={reduce ? undefined : { scale: 0.96 }}

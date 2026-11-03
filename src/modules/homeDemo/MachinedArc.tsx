@@ -4,9 +4,9 @@
 // closed end caps, brushed anisotropic titanium, engraved graduation marks on
 // its front face and one green index mark at the start. Lies in the XY plane
 // like a torus, starting at angle 0, so it drops into torus choreography.
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { bandProfile, graduationMatrices, machinedMetalMaterial, revolveProfile } from "./machined";
+import { bandProfile, graduationMatrices, machinedMetalMaterial, releaseMachinedFinish, retainMachinedFinish, revolveProfile } from "./machined";
 import { COLORS } from "./originConfig";
 
 export function MachinedArc({
@@ -54,6 +54,17 @@ export function MachinedArc({
       }),
     };
   }, [radius, t, depth, phiLength, segments]);
+
+  // Passed via geometry=/material= (not built from JSX), so R3F won't free
+  // them. The brushed roughness map is shared: release it, don't dispose it.
+  useEffect(() => {
+    retainMachinedFinish();
+    return () => {
+      geo.dispose();
+      material.dispose();
+      releaseMachinedFinish();
+    };
+  }, [geo, material]);
 
   useLayoutEffect(() => {
     const write = (mesh: THREE.InstancedMesh | null, list: THREE.Matrix4[]) => {

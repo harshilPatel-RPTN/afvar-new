@@ -144,11 +144,14 @@ export const useAuthStore = create<AuthState>()(
 
 configureApiAuth(() => useAuthStore.getState().token);
 
-// Mirror the session into the cookies the proxy reads and into the active edition.
+// Mirror the session into the routing-hint cookies and into the active edition.
+// `afwar_session` is a JS-readable "signed in" flag ("1"), never an identity:
+// the only server-verifiable session is the httpOnly, HMAC-signed `afwar_sid`
+// cookie set by /api/auth/login and /api/auth/register (server/session-token.ts).
 useAuthStore.subscribe((state, previous) => {
   if (state.status === "loading") return;
   if (state.user?.id !== previous.user?.id || state.status !== previous.status) {
-    setCookie(SESSION_COOKIE, state.user ? state.user.id : null);
+    setCookie(SESSION_COOKIE, state.user ? "1" : null);
   }
   if (state.user?.onboardingCompletedAt !== previous.user?.onboardingCompletedAt || state.user?.id !== previous.user?.id) {
     setCookie(ONBOARDED_COOKIE, state.user ? (state.user.onboardingCompletedAt ? "1" : "0") : null);

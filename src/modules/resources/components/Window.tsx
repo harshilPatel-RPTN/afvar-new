@@ -256,22 +256,26 @@ export function Window({
   );
 }
 
-/** Working traffic lights: glyphs appear when the group is hovered or focused, as on macOS. */
+/**
+ * Working traffic lights: glyphs appear when the group is hovered, as on macOS. They are
+ * mock-window chrome (9 px, too small to be real targets), so they stay pointer-only —
+ * out of the tab order and the accessibility tree.
+ */
 export function Lights({ full = false, onClose, onMin, onZoom }: { full?: boolean; onClose: () => void; onMin: () => void; onZoom: () => void }) {
   const base = "pf-light grid cursor-default place-items-center border-0 p-0 outline-none focus-visible:ring-2 focus-visible:ring-white/60";
   return (
-    <div className="pf-lights relative z-10 [&:focus-within_.pf-light_svg]:opacity-75">
-      <button type="button" aria-label="Close window" title="Close" onClick={onClose} className={`${base} pf-light-close`}>
+    <div className="pf-lights relative z-10" aria-hidden="true">
+      <button type="button" tabIndex={-1} aria-label="Close window" title="Close" onClick={onClose} className={`${base} pf-light-close`}>
         <svg viewBox="0 0 8 8" aria-hidden="true">
           <path d="M2 2l4 4M6 2 2 6" stroke="#4d0000" strokeWidth="1.2" strokeLinecap="round" />
         </svg>
       </button>
-      <button type="button" aria-label="Minimise window" title="Minimise" onClick={onMin} disabled={full} className={`${base} pf-light-min disabled:!bg-[#3a4350]`}>
+      <button type="button" tabIndex={-1} aria-label="Minimise window" title="Minimise" onClick={onMin} disabled={full} className={`${base} pf-light-min disabled:!bg-[#3a4350]`}>
         <svg viewBox="0 0 8 8" aria-hidden="true">
           <path d="M1.5 4h5" stroke="#5a3d00" strokeWidth="1.2" strokeLinecap="round" />
         </svg>
       </button>
-      <button type="button" aria-label={full ? "Exit full screen" : "Enter full screen"} title={full ? "Exit full screen" : "Full screen"} onClick={onZoom} className={`${base} pf-light-zoom`}>
+      <button type="button" tabIndex={-1} aria-label={full ? "Exit full screen" : "Enter full screen"} title={full ? "Exit full screen" : "Full screen"} onClick={onZoom} className={`${base} pf-light-zoom`}>
         <svg viewBox="0 0 8 8" aria-hidden="true">
           {full ? <path d="M1.6 4.4h2v2zM6.4 3.6h-2v-2z" fill="#003d00" /> : <path d="M2 2.2v3.2l3.2-3.2zM6 5.8V2.6L2.8 5.8z" fill="#003d00" />}
         </svg>

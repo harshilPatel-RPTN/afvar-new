@@ -8,7 +8,7 @@
 //   crypto      — a chain of glass blocks joined by hash links, a coin turning above it inside a 24h ring;
 //                 a pulse runs the chain and confirms each new head block, around the clock.
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { COLORS } from "@/modules/afvarOs";
 import { AiSpark, GlassPlate, GlowLine, hdr, useStoryFrame } from "@/modules/afvarOs/gl";
@@ -86,6 +86,14 @@ function CommodityVault() {
   }, []);
   const edges = useMemo(() => frustumEdges(ING.bw, ING.bd, ING.bw * ING.k, ING.bd * ING.k, ING.h), []);
   const fillGeo = useMemo(() => new THREE.CylinderGeometry(BARREL.r - 0.025, BARREL.r - 0.025, 1, 24, 1).translate(0, 0.5, 0), []);
+  // Built outside JSX, so R3F won't free them: release the GPU buffers on unmount.
+  useEffect(
+    () => () => {
+      ingot.dispose();
+      fillGeo.dispose();
+    },
+    [ingot, fillGeo],
+  );
   const rims = useMemo(() => [0, 0.3, 0.65, BARREL.h].map((y) => ringXZ(BARREL.r + 0.006, 28, y)), []);
   const levelRing = useMemo(() => ringXZ(BARREL.r - 0.02, 28), []);
   const pricePts = useMemo(() => span(v(-0.92, PRICE_Y - 0.48, 0.05), v(0.92, PRICE_Y - 0.48, 0.05), 12), []);

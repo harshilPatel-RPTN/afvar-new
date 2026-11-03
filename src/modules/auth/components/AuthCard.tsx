@@ -48,7 +48,7 @@ interface AuthCardProps {
 export function AuthCard({ eyebrow, title, subtitle, shake, children, footer, width = "max-w-[440px]" }: AuthCardProps) {
   const brandInFrame = useContext(BrandInFrame);
   return (
-    <main className="relative z-10 flex min-h-svh flex-col items-center justify-center px-4 py-14 text-(--afvar-text)">
+    <main id="main" tabIndex={-1} className="outline-none relative z-10 flex min-h-svh flex-col items-center justify-center px-4 py-14 text-(--afvar-text)">
       {!brandInFrame && <AuthHomeLink />}
 
       <motion.div
@@ -88,13 +88,27 @@ const FIELD_CLASS =
 
 interface AuthFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
+  /** Shown under the input and linked to it with aria-describedby (`<id>-hint`). */
   hint?: ReactNode;
 }
 
-export function AuthField({ label, hint, id, type, ...input }: AuthFieldProps) {
+/** Longest address RFC 5321 allows, and the server-side password cap. */
+const DEFAULT_MAX_LENGTH: Partial<Record<string, number>> = { email: 254, password: 256 };
+
+/** Moves focus to a field, waiting briefly for one that is still animating in. */
+export function focusField(id: string, tries = 12) {
+  if (typeof document === "undefined") return;
+  const element = document.getElementById(id);
+  if (element) element.focus();
+  else if (tries > 0) window.setTimeout(() => focusField(id, tries - 1), 50);
+}
+
+export function AuthField({ label, hint, id, type, maxLength, "aria-describedby": describedBy, ...input }: AuthFieldProps) {
   const { t } = useT();
   const [revealed, setRevealed] = useState(false);
   const isPassword = type === "password";
+  const hintId = hint && id ? `${id}-hint` : undefined;
+  const describedByIds = [hintId, describedBy].filter(Boolean).join(" ") || undefined;
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -102,12 +116,21 @@ export function AuthField({ label, hint, id, type, ...input }: AuthFieldProps) {
         {label}
       </label>
       <div className="relative">
-        <input id={id} type={isPassword && revealed ? "text" : type} className={`${FIELD_CLASS} ${isPassword ? "pe-10" : ""}`} {...input} />
+        <input
+          id={id}
+          type={isPassword && revealed ? "text" : type}
+          maxLength={maxLength ?? (type ? DEFAULT_MAX_LENGTH[type] : undefined)}
+          aria-describedby={describedByIds}
+          className={`${FIELD_CLASS} ${isPassword ? "pe-10" : ""}`}
+          {...input}
+        />
         {isPassword && (
           <button
             type="button"
             onClick={() => setRevealed((value) => !value)}
-            aria-label={revealed ? t("auth.field.hidePassword") : t("auth.field.showPassword")}
+            aria-label={t("auth.field.showPassword")}
+            aria-pressed={revealed}
+            aria-controls={id}
             className="absolute inset-e-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-lg text-(--afvar-muted) hover:bg-white/10 hover:text-white"
           >
             <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true">
@@ -118,7 +141,7 @@ export function AuthField({ label, hint, id, type, ...input }: AuthFieldProps) {
           </button>
         )}
       </div>
-      {hint}
+      {hint && <div id={hintId}>{hint}</div>}
     </div>
   );
 }
@@ -171,11 +194,12 @@ export function SubmitButton({ children, pending = false, pendingLabel }: { chil
 }
 
 /** Inline status line under a form: errors in red, confirmations in green. */
-export function FormNotice({ tone = "error", children }: { tone?: "error" | "success" | "info"; children: ReactNode }) {
+/** Rendered only with content, so no empty alert sits in the page; pass `id` to link it from inputs. */
+export function FormNotice({ tone = "error", id, children }: { tone?: "error" | "success" | "info"; id?: string; children: ReactNode }) {
   if (!children) return null;
   const color = tone === "error" ? "border-(--afvar-loss)/30 bg-(--afvar-loss)/10 text-(--afvar-loss)" : tone === "success" ? "border-(--afvar-mint)/30 bg-(--afvar-mint)/10 text-(--afvar-mint)" : "border-(--afvar-mint)/30 bg-(--afvar-mint)/10 text-(--afvar-text)";
   return (
-    <p role={tone === "error" ? "alert" : "status"} className={`rounded-xl border px-3 py-2 text-[12px] leading-snug ${color}`}>
+    <p id={id} role={tone === "error" ? "alert" : "status"} className={`rounded-xl border px-3 py-2 text-[12px] leading-snug ${color}`}>
       {children}
     </p>
   );

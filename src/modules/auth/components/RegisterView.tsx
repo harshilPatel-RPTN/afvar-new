@@ -10,7 +10,7 @@ import { useHydrated } from "../hooks/useHydrated";
 import { COUNTRIES, detectedTimeZone, displayName, errorKey } from "../locale-data";
 import { useAuthStore } from "../store";
 import { LEGAL_VERSIONS, type RegisterInput } from "../types";
-import { AuthCard, AuthField, AuthSelect, FormNotice, SubmitButton, TextLink, useShake } from "./AuthCard";
+import { AuthCard, AuthField, AuthSelect, FormNotice, SubmitButton, TextLink, focusField, useShake } from "./AuthCard";
 import { GoogleButton, OrDivider, useAfterAuth, useRedirectIfSignedIn } from "./LoginView";
 
 const STRENGTH: { key: MessageKey; color: string }[] = [
@@ -42,10 +42,10 @@ export function StrengthMeter({ password }: { password: string }) {
   );
 }
 
-function Consent({ checked, onChange, children }: { checked: boolean; onChange: (value: boolean) => void; children: ReactNode }) {
+function Consent({ id, checked, onChange, children }: { id: string; checked: boolean; onChange: (value: boolean) => void; children: ReactNode }) {
   return (
     <label className="flex cursor-pointer items-start gap-2.5 text-[12px] leading-snug text-(--afvar-muted)">
-      <input type="checkbox" required checked={checked} onChange={(event) => onChange(event.target.checked)} className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-(--afvar-mint)" />
+      <input id={id} type="checkbox" required checked={checked} onChange={(event) => onChange(event.target.checked)} className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-(--afvar-mint)" />
       <span>{children}</span>
     </label>
   );
@@ -171,10 +171,12 @@ export function RegisterView() {
     [locale, hydrated],
   );
 
-  const fail = (key: MessageKey) => {
+  /** Shows the error and moves focus to the field that needs fixing, when there is one. */
+  const fail = (key: MessageKey, field?: string) => {
     setError(key);
     shake();
     setPending(false);
+    if (field) focusField(field);
   };
 
   const go = (target: number) => {
@@ -186,13 +188,14 @@ export function RegisterView() {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (step === 1) {
-      if (mismatch) return fail("auth.register.mismatch");
-      if (passwordStrength(password) === 0) return fail("auth.register.tooShort");
+      if (mismatch) return fail("auth.register.mismatch", "confirm");
+      if (passwordStrength(password) === 0) return fail("auth.register.tooShort", "password");
     }
     if (step < LAST_STEP) return go(step + 1);
     // Back from a legal page the password is gone; send the visitor to type it again.
     if (!password) return go(1);
-    if (!consents.terms || !consents.privacy || !consents.risk || !consents.age) return fail("auth.error.consent_required");
+    const missingConsent = (["terms", "privacy", "risk", "age"] as const).find((key) => !consents[key]);
+    if (missingConsent) return fail("auth.error.consent_required", `consent-${missingConsent}`);
     setPending(true);
     setError(null);
     try {
@@ -216,16 +219,17 @@ export function RegisterView() {
       const key = errorKey(failure);
       // A taken email is fixed on the first step.
       if (key === "auth.error.email_taken") go(0);
-      fail(key);
+      fail(key, key === "auth.error.email_taken" ? "email" : undefined);
     }
   };
 
+  const errorId = error ? "register-error" : undefined;
   const consent = (key: keyof typeof consents) => (value: boolean) => setConsents((state) => ({ ...state, [key]: value }));
 
   const fields: ReactNode[] = [
     <Fragment key="about">
       <AuthField id="name" label={t("auth.field.displayName")} required maxLength={80} autoFocus autoComplete="name" placeholder={t("auth.field.displayNamePlaceholder")} value={displayNameValue} onChange={(event) => setDisplayName(event.target.value)} />
-      <AuthField id="email" label={t("auth.field.email")} type="email" required autoComplete="email" placeholder={t("auth.field.emailPlaceholder")} value={email} onChange={(event) => setEmail(event.target.value)} />
+      <AuthField id="email" label={t("auth.field.email")} type="email" required autoComplete="email" placeholder={t("auth.field.emailPlaceholder")} value={email} onChange={(event) => setEmail(event.target.value)} aria-invalid={error === "auth.error.email_taken" || undefined} aria-describedby={error === "auth.error.email_taken" ? errorId : undefined} />
     </Fragment>,
     <Fragment key="security">
       <AuthField
@@ -243,6 +247,8 @@ export function RegisterView() {
           setError(null);
         }}
         hint={<StrengthMeter password={password} />}
+        aria-invalid={error === "auth.register.tooShort" || undefined}
+        aria-describedby={error === "auth.register.tooShort" ? errorId : undefined}
       />
       <AuthField
         id="confirm"
@@ -270,16 +276,16 @@ export function RegisterView() {
     </Fragment>,
     <fieldset key="agreements" className="flex flex-col gap-2.5 rounded-2xl border border-white/15 bg-white/[.05] p-3.5 backdrop-blur-md">
       <legend className="px-1 text-[11px] font-medium text-white/80">{t("auth.register.consentLegend")}</legend>
-      <Consent checked={consents.terms} onChange={consent("terms")}>
+      <Consent id="consent-terms" checked={consents.terms} onChange={consent("terms")}>
         {t("auth.register.consentTermsPrefix")} <LegalLink href="/legal/terms" from={formPath}>{t("legal.terms.title")}</LegalLink>
       </Consent>
-      <Consent checked={consents.privacy} onChange={consent("privacy")}>
+      <Consent id="consent-privacy" checked={consents.privacy} onChange={consent("privacy")}>
         {t("auth.register.consentPrivacyPrefix")} <LegalLink href="/legal/privacy" from={formPath}>{t("legal.privacy.title")}</LegalLink>
       </Consent>
-      <Consent checked={consents.risk} onChange={consent("risk")}>
+      <Consent id="consent-risk" checked={consents.risk} onChange={consent("risk")}>
         {t("auth.register.consentRisk")} <LegalLink href="/legal/risk-disclaimer" from={formPath}>{t("legal.risk.title")}</LegalLink>
       </Consent>
-      <Consent checked={consents.age} onChange={consent("age")}>
+      <Consent id="consent-age" checked={consents.age} onChange={consent("age")}>
         {t("auth.register.consentAge")}
       </Consent>
     </fieldset>,
@@ -330,7 +336,7 @@ export function RegisterView() {
           </div>
 
           <div className="mt-4 flex flex-col gap-4">
-            {error && <FormNotice>{t(error)}</FormNotice>}
+            {error && <FormNotice id="register-error">{t(error)}</FormNotice>}
             <div className="flex items-center gap-2.5">
               {step > 0 && (
                 <button

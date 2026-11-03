@@ -15,12 +15,6 @@ export function SiteShell({ children, footer = true }: { children: ReactNode; fo
   return (
     <div className={`${HOME_SCOPE} flex min-h-svh flex-col`}>
       <HomeStyles />
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-[#F5F7F7] focus:px-5 focus:py-3 focus:text-[14px] focus:font-semibold focus:text-[#030405]"
-      >
-        Skip to content
-      </a>
       {/* The site-wide nav (72px, search, Join Waitlist, live breadth line) — identical on every page. */}
       <SiteNav />
       <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useFullscreen } from "@/platform/hooks";
 import { LaunchCard } from "./LaunchCard";
 import { LiveNebula } from "./LiveNebula";
@@ -12,6 +12,8 @@ import { LiveNebula } from "./LiveNebula";
  * load or after leaving full screen. Browsers with no Fullscreen API at all
  * (e.g. iPhone Safari) see the page directly.
  */
+const noopSubscribe = () => () => {};
+
 export function FullscreenGate({
   children,
   withBackground = false,
@@ -23,6 +25,9 @@ export function FullscreenGate({
   const { isFullscreen, isSupported, enter } = useFullscreen();
   const [requestFailed, setRequestFailed] = useState(false);
   const gated = isSupported && !isFullscreen;
+  // False on the server and during hydration, true after: until then the page also ships hidden
+  // behind the card, so with JavaScript off the layout's <noscript> CSS can show it instead.
+  const hydrated = useSyncExternalStore(noopSubscribe, () => true, () => false);
 
   const open = async () => setRequestFailed(!(await enter()));
 
@@ -42,11 +47,18 @@ export function FullscreenGate({
 
   if (!gated) return <>{children}</>;
   return (
-    <div className="relative min-h-svh overflow-hidden">
-      {withBackground && <LiveNebula />}
-      <main className="relative z-10 grid min-h-svh place-items-center px-4">
-        <LaunchCard isSupported={isSupported} requestFailed={requestFailed} onOpen={() => void open()} />
-      </main>
-    </div>
+    <>
+      <div data-fullscreen-gate="" className="relative min-h-svh overflow-hidden">
+        {withBackground && <LiveNebula />}
+        <main id="main" tabIndex={-1} className="relative z-10 grid min-h-svh place-items-center px-4 focus:outline-none">
+          <LaunchCard isSupported={isSupported} requestFailed={requestFailed} onOpen={() => void open()} />
+        </main>
+      </div>
+      {!hydrated && (
+        <div data-fullscreen-gate-page="" hidden>
+          {children}
+        </div>
+      )}
+    </>
   );
 }

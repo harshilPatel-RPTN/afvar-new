@@ -43,6 +43,7 @@ const KNOWN_ERRORS = [
   "account_suspended",
   "wrong_pin",
   "pin_locked",
+  "rate_limited",
 ] as const;
 
 /** Maps an API failure to a translated message key. */

@@ -118,7 +118,7 @@ export function PricingView() {
   };
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-[980px] flex-col px-6 py-14 text-[#E6EDF3]">
+    <main id="main" tabIndex={-1} className="focus:outline-none mx-auto flex min-h-svh w-full max-w-[980px] flex-col px-6 py-14 text-[#E6EDF3]">
       <header className="mb-10 flex items-center justify-between">
         <Link href={isAuthenticated ? "/markets" : "/"} className="text-[12px] font-semibold tracking-[.22em] text-white/80 hover:text-white">
           {t("brand.name")}

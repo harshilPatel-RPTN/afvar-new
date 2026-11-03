@@ -54,7 +54,7 @@ export function HomeDemoPage({ responsiveHome = false }: { responsiveHome?: bool
 
       {responsiveHome && <MobilePageChrome />}
 
-      <main>
+      <main id="main" tabIndex={-1} className="focus:outline-none">
         <AiStory responsiveHome={responsiveHome} />
         {responsiveHome ? (
           <>

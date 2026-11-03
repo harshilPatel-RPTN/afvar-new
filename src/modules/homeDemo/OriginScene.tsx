@@ -14,7 +14,7 @@
 import { Environment, Lightformer } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
-import { useMemo, useRef, type RefObject } from "react";
+import { useEffect, useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { MachinedArc } from "./MachinedArc";
 import { AdaptiveQuality, CameraRig, FadeGrid, ProgressDamper, SoundCues, setDraw } from "./sceneLib";
@@ -164,6 +164,8 @@ function PathStream({ smoothed, still, curve }: Shared) {
   const dotMatrix = useMemo(() => new THREE.Matrix4(), []);
 
   const lineGeo = useMemo(() => new THREE.TubeGeometry(curve, 220, PATH_RADIUS, 8, false), [curve]);
+  // Built outside JSX, so R3F won't free it: release the GPU buffers on unmount.
+  useEffect(() => () => lineGeo.dispose(), [lineGeo]);
 
   useFrame((s) => {
     const p = smoothed.current ?? 0;
@@ -263,6 +265,7 @@ function Instrument({ smoothed, still, candles }: Shared) {
       }),
     [candles],
   );
+  useEffect(() => () => beamGeos.forEach((g) => g.dispose()), [beamGeos]);
 
   useFrame((s) => {
     const p = smoothed.current ?? 0;

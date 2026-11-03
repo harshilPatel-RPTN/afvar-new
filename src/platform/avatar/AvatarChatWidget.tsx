@@ -14,6 +14,10 @@ const VIEWER_URL = "https://afvar-avatar-final.vercel.app/avatar/AFVAR/index.htm
 
 /** How long the Talk halo invites a first click before it steps aside on its own. */
 const TALK_GLOW_MS = 7000;
+/** The viewer is cross-origin: give up and offer Retry well before the embed's own 30s default. */
+const READY_TIMEOUT_MS = 12000;
+/** Below lg the launcher tucks mostly off-screen while the page scrolls, and returns this long after it stops. */
+const TUCK_IDLE_MS = 450;
 
 type Phase = "idle" | "loading" | "ready" | "failed";
 
@@ -48,6 +52,9 @@ export function AvatarChatWidget() {
   // while they show the avatar themselves: window "afvar:avatar" events with
   // detail { open?: boolean; launcher?: "hide" | "show" }.
   const [launcherHidden, setLauncherHidden] = useState(false);
+  // Below lg: "tucked" while the page scrolls; "back" once it stops, so the return skips the
+  // post-close delay; "none" otherwise.
+  const [tuck, setTuck] = useState<"none" | "tucked" | "back">("none");
   // The same request mirrored on <html data-afvar-launcher="hide">, so a launcher
   // that mounts after the page's event still steps aside.
   const pageHidesLauncher = useSyncExternalStore(subscribeLauncherFlag, readLauncherFlag, () => false);
@@ -70,11 +77,17 @@ export function AvatarChatWidget() {
 
   const ensureMounted = () => {
     if (avatarRef.current || !hostRef.current) return;
+    // Offline: the viewer can't load, so show Retry now rather than after the ready timeout.
+    if (!navigator.onLine) {
+      setPhase("failed");
+      return;
+    }
     setPhase("loading");
     try {
       const avatar = mountAvatar(hostRef.current, {
         viewerUrl: VIEWER_URL,
         title: t("avatar.title"),
+        timeoutMs: READY_TIMEOUT_MS,
         onReady: (state) => {
           avatarStateRef.current = state;
           setPhase("ready");
@@ -92,6 +105,17 @@ export function AvatarChatWidget() {
     }
   };
 
+  // Going offline mid-load fails now too; Retry remounts.
+  useEffect(() => {
+    if (phase !== "loading") return;
+    const onOffline = () => {
+      avatarRef.current?.dispose();
+      avatarRef.current = null;
+      setPhase("failed");
+    };
+    window.addEventListener("offline", onOffline);
+    return () => window.removeEventListener("offline", onOffline);
+  }, [phase]);
 
   // Every open says hello and points the visitor at Talk. Closing cuts the greeting short.
   const greetReady = open && phase === "ready";
@@ -149,6 +173,7 @@ export function AvatarChatWidget() {
   // Hiding pauses rendering and stops voice; showing resumes rendering only.
   const setOpenAndVisibility = (next: boolean) => {
     setOpen(next);
+    setTuck("none");
     if (next) setTalked(false);
     if (next) ensureMounted();
     avatarRef.current?.setVisible(next).catch(() => {});
@@ -157,6 +182,7 @@ export function AvatarChatWidget() {
   // Uses only refs and state setters, so the first render's closure stays valid.
   const openFromPage = () => {
     setOpen(true);
+    setTuck("none");
     setTalked(false);
     ensureMounted();
     avatarRef.current?.setVisible(true).catch(() => {});
@@ -206,15 +232,51 @@ export function AvatarChatWidget() {
     }
     if (wasOpen.current) {
       wasOpen.current = false;
-      const raf = requestAnimationFrame(() => {
+      // The launcher stays visibility:hidden (unfocusable) through its delayed return, so if the
+      // first attempt misses, try again once that delay has run.
+      let timer = 0;
+      const restore = () => {
         const active = document.activeElement;
         if (!active || active === document.body || panelRef.current?.contains(active)) {
           launcherRef.current?.focus({ preventScroll: true });
+          return document.activeElement === launcherRef.current;
         }
+        return true;
+      };
+      const raf = requestAnimationFrame(() => {
+        if (!restore()) timer = window.setTimeout(restore, 500);
       });
-      return () => cancelAnimationFrame(raf);
+      return () => {
+        cancelAnimationFrame(raf);
+        window.clearTimeout(timer);
+      };
     }
   }, [open, compact]);
+  // Focus trap for the compact modal: sentinels either side of the panel loop Tab back into it
+  // (a cross-origin iframe can't be trapped from inside, but Tab out of it lands on a sentinel).
+  const panelFocusables = () =>
+    Array.from(
+      panelRef.current?.querySelectorAll<HTMLElement>('button, iframe, [href], input, [tabindex]:not([tabindex="-1"])') ?? [],
+    );
+  const trap = open && compact;
+
+  // Below lg the launcher tucks mostly off the right edge while the page scrolls, so it stops
+  // covering what's being read; it stays put while it has keyboard focus.
+  useEffect(() => {
+    if (!compact || open) return;
+    let timer = 0;
+    const onScroll = () => {
+      if (document.activeElement === launcherRef.current) return;
+      setTuck("tucked");
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setTuck("back"), TUCK_IDLE_MS);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.clearTimeout(timer);
+    };
+  }, [compact, open]);
   useEffect(() => {
     if (!open || !compact) return;
     const root = document.documentElement;
@@ -251,6 +313,7 @@ export function AvatarChatWidget() {
           open ? "pointer-events-auto visible opacity-100 duration-300 ease-out" : "pointer-events-none invisible opacity-0 duration-200 ease-in"
         }`}
       >
+      {trap && <span tabIndex={0} data-focus-guard="" onFocus={() => panelFocusables().at(-1)?.focus()} />}
       <section
         ref={panelRef}
         role="dialog"
@@ -318,23 +381,29 @@ export function AvatarChatWidget() {
           )}
         </div>
       </section>
+      {trap && <span tabIndex={0} data-focus-guard="" onFocus={() => panelFocusables()[0]?.focus()} />}
       </div>
       <button
         ref={launcherRef}
         type="button"
         onClick={() => setOpenAndVisibility(!open)}
+        onFocus={() => setTuck((current) => (current === "tucked" ? "back" : current))}
         aria-expanded={open}
         aria-label={open ? t("avatar.close") : t("avatar.open")}
         // Opts out of the site-wide smoked-glass button skin (brand.css, unlayered, so it
         // beat these utilities and left the launcher dim); the launcher draws its own ring.
         data-glass-hit-area=""
         // No disc behind the robot: the render itself is the button (larger, so it reads on its own).
-        className={`pointer-events-auto outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#00E676] relative flex h-24 w-20 items-center justify-center rounded-2xl bg-transparent transition-[opacity,scale,translate,visibility] hover:scale-105 motion-reduce:transition-none lg:h-28 lg:w-24 ${
+        className={`pointer-events-auto outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#00E676] relative flex h-18 w-15 items-center justify-center rounded-2xl bg-transparent transition-[opacity,scale,translate,visibility] hover:scale-105 motion-reduce:transition-none sm:h-24 sm:w-20 lg:h-28 lg:w-24 ${
           // The open panel stands in for the launcher, which shrinks and fades out (keeping its space,
           // so the panel doesn't shift), then pops back with an overshoot once the panel has folded away.
           open
             ? "invisible translate-y-2 scale-75 opacity-0 delay-100 duration-[400ms] ease-in"
-            : "visible translate-y-0 scale-100 opacity-100 delay-[450ms] duration-500 ease-[cubic-bezier(.2,1.3,.4,1)] hover:delay-0 hover:duration-150"
+            : tuck === "tucked"
+              ? "visible translate-x-[65%] translate-y-0 scale-100 opacity-60 delay-0 duration-300 ease-out"
+              : `visible translate-y-0 scale-100 opacity-100 duration-500 ease-[cubic-bezier(.2,1.3,.4,1)] hover:delay-0 hover:duration-150 ${
+                  tuck === "back" ? "delay-0" : "delay-[450ms]"
+                }`
         }`}
       >
         {/* The avatar's own render (repo reference.png, background removed). The idle float pauses while the chat is open. */}
@@ -343,7 +412,7 @@ export function AvatarChatWidget() {
           alt=""
           width={107}
           height={128}
-          className={`pointer-events-none relative h-24 w-auto drop-shadow-[0_6px_12px_rgba(0,0,0,0.65)] motion-reduce:animate-none lg:h-28 ${open ? "" : "animate-avatar-float"}`}
+          className={`pointer-events-none relative h-18 w-auto drop-shadow-[0_6px_12px_rgba(0,0,0,0.65)] motion-reduce:animate-none sm:h-24 lg:h-28 ${open ? "" : "animate-avatar-float"}`}
         />
       </button>
     </div>

@@ -7,7 +7,7 @@
 import { Environment, Lightformer } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
-import { useMemo, useRef, type RefObject } from "react";
+import { useEffect, useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import {
   CAMERA_KEYS,
@@ -84,6 +84,8 @@ export default function ContextScene({ progress, active, still }: ContextScenePr
 function PriceLine({ smoothed }: Shared) {
   const line = useRef<THREE.Mesh>(null);
   const geo = useMemo(() => new THREE.TubeGeometry(makeLineCurve(), 220, LINE_RADIUS, 8, false), []);
+  // Built outside JSX, so R3F won't free it: release the GPU buffers on unmount.
+  useEffect(() => () => geo.dispose(), [geo]);
 
   useFrame(() => {
     const p = smoothed.current ?? 0;
@@ -116,6 +118,7 @@ function EventPillars({ smoothed, still }: Shared) {
       }),
     [],
   );
+  useEffect(() => () => threadGeos.forEach((g) => g.dispose()), [threadGeos]);
 
   useFrame((s) => {
     const p = smoothed.current ?? 0;

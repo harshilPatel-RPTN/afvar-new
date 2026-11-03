@@ -23,7 +23,7 @@ function Legal({ id, eyebrow, title, lede, children }: { id: string; eyebrow: st
           <div className="mt-12 space-y-10">{children}</div>
           <p className="mt-14 border-t border-[rgba(255,255,255,0.08)] pt-6 text-[14px] leading-relaxed text-[#B7C5BC]">
             Questions about this page? Write to the team through{" "}
-            <a href="/contact" className="inline-flex min-h-6 items-center text-[#A8DEC2] underline-offset-4 hover:underline">
+            <a href="/contact" className="inline-flex min-h-10 items-center text-[#A8DEC2] underline-offset-4 hover:underline">
               Contact
             </a>
             . AFVAR is operated by RedPhantom Tech Novelty Private Limited, Pandharpur, Maharashtra, India.
@@ -81,7 +81,7 @@ export function PrivacyPage() {
       </Part>
       <Part title="What stays in your browser">
         <p>A few small settings are remembered on your own device so the site behaves the way you left it — your language, sound and motion choices. The{" "}
-          <a href="/cookies" className="inline-flex min-h-6 items-center text-[#A8DEC2] underline-offset-4 hover:underline">
+          <a href="/cookies" className="inline-flex min-h-10 items-center text-[#A8DEC2] underline-offset-4 hover:underline">
             Cookies page
           </a>{" "}
           lists each one.
@@ -89,7 +89,7 @@ export function PrivacyPage() {
       </Part>
       <Part title="Your choices">
         <p>You can clear these settings at any time from your browser. To ask about information held with your account, write to the team through{" "}
-          <a href="/contact" className="inline-flex min-h-6 items-center text-[#A8DEC2] underline-offset-4 hover:underline">
+          <a href="/contact" className="inline-flex min-h-10 items-center text-[#A8DEC2] underline-offset-4 hover:underline">
             Contact
           </a>
           .

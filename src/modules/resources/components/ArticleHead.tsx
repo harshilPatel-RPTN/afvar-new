@@ -6,16 +6,16 @@ export function ArticleHead({ crumb, eyebrow, title, lede }: { crumb: { label: s
     <header className="px-5 pt-16 sm:px-8 sm:pt-20 lg:px-16">
       <div className="mx-auto max-w-6xl">
         <nav aria-label="Breadcrumb" className="flex flex-wrap gap-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[#92A399]">
-          <Link href="/resources" className="inline-flex min-h-6 items-center hover:text-[#F2F5F2]">
+          <Link href="/resources" className="inline-flex min-h-10 items-center hover:text-[#F2F5F2]">
             Resources
           </Link>
           {crumb.map((c, i) => (
             <span key={c.href} className="flex gap-1.5">
               <span aria-hidden="true">/</span>
               {i === crumb.length - 1 ? (
-                <span className="inline-flex min-h-6 items-center text-[#B7C5BC]">{c.label}</span>
+                <span className="inline-flex min-h-10 items-center text-[#B7C5BC]">{c.label}</span>
               ) : (
-                <Link href={c.href} className="inline-flex min-h-6 items-center hover:text-[#F2F5F2]">
+                <Link href={c.href} className="inline-flex min-h-10 items-center hover:text-[#F2F5F2]">
                   {c.label}
                 </Link>
               )}

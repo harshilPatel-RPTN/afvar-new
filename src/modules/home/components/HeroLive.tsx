@@ -18,7 +18,10 @@ function hasWebGL() {
   if (webgl === null) {
     try {
       const c = document.createElement("canvas");
-      webgl = !!(c.getContext("webgl2") ?? c.getContext("webgl"));
+      const gl = c.getContext("webgl2") ?? c.getContext("webgl");
+      webgl = !!gl;
+      // Release the probe context now so it doesn't count toward the live-context limit.
+      gl?.getExtension("WEBGL_lose_context")?.loseContext();
     } catch {
       webgl = false;
     }

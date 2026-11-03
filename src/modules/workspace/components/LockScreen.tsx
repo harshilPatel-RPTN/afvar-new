@@ -46,7 +46,7 @@ export function LockScreen({ onLock }: { onLock?: () => void }) {
   const initial = user?.displayName.trim().charAt(0).toUpperCase() || "A";
 
   return (
-    <main className="relative z-10 flex min-h-svh select-none flex-col items-center text-(--afvar-text)" aria-label={t("lock.label")}>
+    <main id="main" tabIndex={-1} className="relative z-10 flex min-h-svh select-none focus:outline-none flex-col items-center text-(--afvar-text)" aria-label={t("lock.label")}>
       <header className="flex w-full items-center justify-between px-6 pt-5 text-[13px] sm:px-10">
         <span className="flex items-center gap-2 font-semibold tracking-[.22em] text-white/90">
           <BrandMark className="h-8 w-8 text-(--afvar-mint)" />

@@ -125,6 +125,7 @@
   "auth.error.wrong_pin": "यह PIN सही नहीं है।",
   "auth.error.pin_locked": "बहुत बार गलत PIN डाला गया। अपने पासवर्ड से साइन इन करें।",
   "auth.error.offline": "अभी AFVAR से कनेक्ट नहीं हो पा रहा। थोड़ी देर में फिर कोशिश करें।",
+  "auth.error.rate_limited": "बहुत ज़्यादा प्रयास हो गए। एक मिनट रुककर फिर कोशिश करें।",
   "auth.error.unknown": "कुछ गड़बड़ हो गई। कृपया फिर कोशिश करें।",
   "pin.enter": "अपना AFVAR PIN डालें",
   "pin.create": "4 अंकों का PIN बनाएँ",
