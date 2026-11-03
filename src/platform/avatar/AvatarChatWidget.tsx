@@ -11,6 +11,9 @@ import { mountAvatar, type AvatarController, type AvatarState } from "./embed";
 // self-hosted copy of the viewer would render but never reply.
 const VIEWER_URL = "https://afvar-avatar-final.vercel.app/avatar/AFVAR/index.html";
 
+/** How long the Talk halo invites a first click before it steps aside on its own. */
+const TALK_GLOW_MS = 7000;
+
 type Phase = "idle" | "loading" | "ready" | "failed";
 
 function subscribeLauncherFlag(cb: () => void) {
@@ -51,7 +54,7 @@ export function AvatarChatWidget() {
   const avatarRef = useRef<AvatarController | null>(null);
   // Latest viewer state, read by the entrance before it hands the robot back to idle.
   const avatarStateRef = useRef<AvatarState | null>(null);
-  // Set once a voice turn starts; until then the open chat glows its Talk button.
+  // Set once a voice turn starts or the visitor clicks into the viewer; until then the open chat glows its Talk button.
   const [talked, setTalked] = useState(false);
   // True while our greeting holds the talk gesture, whose "speaking" phase is not a voice turn.
   const greeting = useRef(false);
@@ -92,6 +95,26 @@ export function AvatarChatWidget() {
   // Every open says hello and points the visitor at Talk. Closing cuts the greeting short.
   const greetReady = open && phase === "ready";
   const talkGlow = greetReady && !talked;
+  // The halo sits at a fixed spot and can't see the viewer's panels, so it goes on the first click inside
+  // the viewer (e.g. opening Controls over that spot), and on its own after a few pulses regardless.
+  // The viewer is cross-origin: a click inside it shows only as focus moving to its iframe, which the
+  // browser reports a tick after the page's blur.
+  useEffect(() => {
+    if (!talkGlow) return;
+    let tick = 0;
+    const onBlur = () => {
+      tick = window.setTimeout(() => {
+        if (document.activeElement === avatarRef.current?.iframe) setTalked(true);
+      }, 0);
+    };
+    window.addEventListener("blur", onBlur);
+    const fade = window.setTimeout(() => setTalked(true), TALK_GLOW_MS);
+    return () => {
+      window.removeEventListener("blur", onBlur);
+      window.clearTimeout(tick);
+      window.clearTimeout(fade);
+    };
+  }, [talkGlow]);
   useEffect(() => {
     if (!greetReady) return;
     const audio = new Audio(GREETING_AUDIO);
@@ -263,11 +286,13 @@ export function AvatarChatWidget() {
           {/* Replays on every open: the robot materialises out of the hologram ring and waves. */}
           <AvatarEntrance active={open && phase === "ready"} avatarRef={avatarRef} stateRef={avatarStateRef} />
           {/* Halo over the viewer's Talk button (cross-origin, so it can't be styled directly): the viewer
-              centres a 112×46 Talk + Stop pair 22px above the stage bottom, Talk on the left. */}
+              centres a 112×46 Talk + Stop pair 22px above the bottom of its stage, Talk on the left. That
+              stage is never shorter than 360px, so in a shorter panel the pair sits lower (clipped), and the
+              halo is placed from the top to follow it. */}
           {talkGlow && (
             <div
               aria-hidden
-              className="pointer-events-none absolute bottom-[22px] left-[calc(50%-117px)] h-[46px] w-[112px] rounded-[24px] animate-talk-glow motion-reduce:animate-none motion-reduce:shadow-[0_0_0_3px_rgba(64,253,255,.8),0_0_18px_4px_rgba(64,253,255,.45)]"
+              className="pointer-events-none absolute top-[calc(max(100%,360px)-68px)] left-[calc(50%-117px)] h-[46px] w-[112px] rounded-[24px] animate-talk-glow motion-reduce:animate-none motion-reduce:shadow-[0_0_0_3px_rgba(64,253,255,.8),0_0_18px_4px_rgba(64,253,255,.45)]"
             />
           )}
           {phase !== "ready" && (

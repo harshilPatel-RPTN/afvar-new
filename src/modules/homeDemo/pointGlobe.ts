@@ -207,9 +207,9 @@ function paintLabel(ctx: CanvasRenderingContext2D, text: string, anchor: ScreenP
   ctx.fillText(text, box.x + box.w / 2, box.y + box.h / 2);
 }
 
-/** Half-turns of the coin across one leg: an odd count of quarter turns puts
- *  it edge-on exactly at the midpoint, where the sign changes hands. */
-const SPIN = 5 * Math.PI;
+/** Spin across one leg: whole turns, so the coin lands face up still carrying
+ *  FROM; the sign only changes hands in the flip once it reaches the city. */
+const SPIN = 4 * Math.PI;
 
 /** A small metal coin carrying the currency sign; `turn` fakes a 3D spin by
  *  squeezing it horizontally (|cos| of the spin angle). */
@@ -305,9 +305,10 @@ function drawRoutes(ctx: CanvasRenderingContext2D, sin: number, cos: number, ind
       ctx.lineWidth = 1.4;
       ctx.beginPath(); ctx.arc(bead.x, bead.y, coin * (1 + arrive * 1.4), 0, TAU); ctx.stroke();
     }
-    // The sign changes hands edge-on at the midpoint: FROM, then TO.
-    const sign = travelled < .5 ? route.from.symbol : route.to.symbol;
-    paintCoin(ctx, bead, coin, still ? 0 : travelled * SPIN, sign);
+    // FROM rides the whole route; on landing the coin flips once and shows TO from edge-on.
+    const flip = still ? Math.PI : Math.PI * arrive * arrive * (3 - 2 * arrive);
+    const sign = flip < Math.PI / 2 ? route.from.symbol : route.to.symbol;
+    paintCoin(ctx, bead, coin, still ? 0 : travelled * SPIN + flip, sign);
 
     paintLabel(ctx, pair, bead, -side, -1, occupied, font, "#dcf2e2", true);
   }
