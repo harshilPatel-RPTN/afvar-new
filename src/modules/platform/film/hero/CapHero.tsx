@@ -31,7 +31,7 @@ export function CapHeroCopy({ t, compact = false }: { t: CapHeroText; compact?: 
       {t.crumb ? (
         <nav aria-label="Breadcrumb" className={`${MONO} mb-3 flex flex-wrap gap-1.5 text-[#92A399]`}>
           {t.crumb.map((c, i) => (
-            <span key={c.label} className="flex gap-1.5">
+            <span key={c.label} className="flex items-center gap-1.5">
               {i ? <span aria-hidden="true">/</span> : null}
               {c.href ? (
                 <Link href={c.href} prefetch={false} className="inline-flex min-h-10 items-center hover:text-[#F2F5F2]">
@@ -45,11 +45,11 @@ export function CapHeroCopy({ t, compact = false }: { t: CapHeroText; compact?: 
         </nav>
       ) : null}
       <p className={EYEBROW}>{t.eyebrow}</p>
-      <HeroTitle twin={compact} className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]" : `mt-5 ${H1}`}>
+      <HeroTitle twin={compact} className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2] [@media(max-height:700px)_and_(orientation:portrait)]:mt-2 [@media(max-height:700px)_and_(orientation:portrait)]:text-[clamp(1.6rem,7.6vw,2.2rem)]" : `mt-5 ${H1}`}>
         {t.title} <span className="text-[#A8DEC2]">{t.gold}</span>
       </HeroTitle>
-      <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#B7C5BC]" : `mt-6 max-w-[31rem] ${BODY}`}>{compact ? t.short : t.body}</p>
-      <div className={`${compact ? "mt-5" : "mt-8"} flex flex-nowrap items-center gap-2.5 sm:gap-5`}>
+      <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#B7C5BC] [@media(max-height:700px)_and_(orientation:portrait)]:mt-2 [@media(max-height:700px)_and_(orientation:portrait)]:text-[13.5px] [@media(max-height:700px)_and_(orientation:portrait)]:leading-snug" : `mt-6 max-w-[31rem] ${BODY}`}>{compact ? t.short : t.body}</p>
+      <div className={`${compact ? "mt-5 [@media(max-height:700px)_and_(orientation:portrait)]:mt-3.5" : "mt-8"} flex flex-nowrap items-center gap-2.5 sm:gap-5`}>
         <Link href={REGISTER_URL} prefetch={false} className={GOLD_CTA}>
           Register Now
         </Link>
@@ -57,7 +57,7 @@ export function CapHeroCopy({ t, compact = false }: { t: CapHeroText; compact?: 
           {t.second?.label ?? "See the features"}
         </a>
       </div>
-      <div className={`${compact ? "mt-5 pt-3" : "mt-10 pt-5"} flex flex-wrap items-center gap-x-6 gap-y-2 border-t ${HAIR}`}>
+      <div className={`${compact ? "mt-5 pt-3 [@media(max-height:700px)_and_(orientation:portrait)]:mt-3.5 [@media(max-height:700px)_and_(orientation:portrait)]:pt-2.5" : "mt-10 pt-5"} flex flex-wrap items-center gap-x-6 gap-y-2 border-t ${HAIR}`}>
         {t.facts.map((f, i) => (
           <span key={f} className={`${MONO} flex items-center gap-2 ${i === 0 ? "text-[#A8DEC2]" : "text-[#92A399]"}`}>
             {i === 0 ? <AiOrb size={8} /> : null}

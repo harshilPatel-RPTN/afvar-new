@@ -408,7 +408,9 @@ function Spine() {
 
 /* ----------------------------------------------------------------- labels */
 
-/** A layer's name, beside its right corner (smaller on phones, where the stack is small). */
+const projected = new THREE.Vector3();
+
+/** A layer's name, beside its right corner (smaller on phones, where the stack is small). Kept inside the canvas: on near-square desktops (1920×1080 in the 1440 frame) the corner sits at the edge. */
 function LayerLabel({ position, show, compact, children }: { position: [number, number, number]; show: (p: number) => number; compact: boolean; children: ReactNode }) {
   const { smoothed, labels } = useStoryFrame();
   const ref = useRef<HTMLDivElement>(null);
@@ -420,7 +422,19 @@ function LayerLabel({ position, show, compact, children }: { position: [number, 
     }
   });
   return (
-    <Html position={position} portal={labels as RefObject<HTMLElement>} center zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
+    <Html
+      position={position}
+      portal={labels as RefObject<HTMLElement>}
+      center
+      zIndexRange={[20, 0]}
+      style={{ pointerEvents: "none" }}
+      calculatePosition={(el, camera, size) => {
+        projected.setFromMatrixPosition(el.matrixWorld).project(camera);
+        const half = (ref.current?.offsetWidth ?? 0) / 2 + 8;
+        const x = ((projected.x + 1) / 2) * size.width;
+        return [Math.min(Math.max(x, half), size.width - half), ((1 - projected.y) / 2) * size.height];
+      }}
+    >
       <div
         ref={ref}
         style={{ opacity: 0, visibility: "hidden" }}

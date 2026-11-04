@@ -31,6 +31,7 @@ const COLUMNS: FooterColumn[] = [
       { href: "/platform/alerts", label: "mk.nav.platform.alerts" },
       { href: "/platform/risk-review", label: "mk.nav.platform.risk" },
       { href: "/platform/community", label: "mk.nav.platform.community" },
+      { href: "/pricing", label: "mk.nav.pricing" },
     ],
   },
   {
@@ -50,6 +51,7 @@ const COLUMNS: FooterColumn[] = [
 
 /** The Company column's links (rendered under one heading like the other columns). */
 const COMPANY: FooterLink[] = [
+  { href: "/", label: "mk.nav.home" },
   { href: "/about", label: "mk.nav.about" },
   { href: "/contact", label: "mk.nav.contact" },
 ];
@@ -103,9 +105,11 @@ export async function SiteFooter({ variant = "solid" }: { variant?: keyof typeof
       <span aria-hidden="true" className="mk-ft-hairline" />
       <div className="relative mx-auto w-full max-w-[1280px] px-4 pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:pb-4 md:pt-6 lg:px-10">
         {/* The bear idles at the footer's right edge, facing the content: beside
-            the brand row on phones/tablets, near the bottom on wide screens. */}
+            the brand row on phones/tablets (this one); on wide screens it stands in
+            the Company column below (in flow, so it can never cover a link or the
+            Privacy/Terms/Cookies row, whatever the edition's text lengths). */}
         {/* Click it: it swipes with its claws (sound + red claw streaks). */}
-        <FooterBear className="absolute right-4 top-5 z-10 w-16 sm:right-6 md:top-6 lg:top-auto lg:right-10 lg:bottom-20 lg:w-24" />
+        <FooterBear className="absolute right-4 top-5 z-10 w-16 sm:right-6 md:top-6 lg:hidden" />
         <FooterSkew className="grid grid-cols-2 gap-x-6 gap-y-4 max-sm:grid-cols-1 max-sm:gap-y-3 sm:grid-cols-3 lg:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,1fr))] lg:gap-x-10">
           {/* Brand */}
           <div className="mk-ft-group col-span-2 max-sm:col-span-1 max-sm:pb-2 sm:col-span-3 lg:col-span-1">
@@ -172,6 +176,8 @@ export async function SiteFooter({ variant = "solid" }: { variant?: keyof typeof
                 ))}
               </ul>
             </nav>
+            {/* Wide screens: the bear, under the short Company column (see the phone one above). */}
+            <FooterBear className="relative mt-4 ml-auto hidden w-22 lg:block" />
           </div>
         </FooterSkew>
 

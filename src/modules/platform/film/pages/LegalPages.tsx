@@ -43,23 +43,28 @@ function Part({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
+/** Three-column table on tablets and up; on phones each row stacks as a small card so names never break mid-word. */
 function Table({ rows }: { rows: readonly (readonly [string, string, string])[] }) {
+  const label = "font-mono text-[10px] uppercase tracking-[0.1em] text-[#92A399] sm:hidden";
   return (
     <div className="overflow-x-auto rounded-[12px] border border-[rgba(255,255,255,0.1)]">
-      <table className="w-full text-left text-[13.5px] sm:min-w-130">
-        <thead className="bg-[#06110C] font-mono text-[10.5px] uppercase tracking-[0.1em] text-[#92A399]">
+      <table className="block w-full text-left text-[13.5px] sm:table sm:min-w-130">
+        <thead className="sr-only bg-[#06110C] font-mono text-[10.5px] uppercase tracking-[0.1em] text-[#92A399] sm:not-sr-only sm:table-header-group">
           <tr>
             <th className="px-3 py-2.5 sm:px-4 font-normal">Name</th>
             <th className="px-3 py-2.5 sm:px-4 font-normal">What it remembers</th>
             <th className="px-3 py-2.5 sm:px-4 font-normal">Kept</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="block sm:table-row-group">
           {rows.map(([n, w, k]) => (
-            <tr key={n} className="border-t border-[rgba(255,255,255,0.06)]">
-              <td className="px-3 py-2.5 sm:px-4 font-mono text-[12px] text-[#F2F5F2] [overflow-wrap:anywhere]">{n}</td>
-              <td className="px-3 py-2.5 sm:px-4 text-[#C9CFD1]">{w}</td>
-              <td className="px-3 py-2.5 sm:px-4 text-[#B7C5BC]">{k}</td>
+            <tr key={n} className="block border-t border-[rgba(255,255,255,0.06)] px-4 py-3 first:border-t-0 sm:table-row sm:p-0 sm:first:border-t">
+              <td className="block pb-1 font-mono text-[12.5px] text-[#F2F5F2] [overflow-wrap:anywhere] sm:table-cell sm:whitespace-nowrap sm:px-4 sm:py-2.5 sm:text-[12px]">{n}</td>
+              <td className="block text-[#C9CFD1] sm:table-cell sm:px-4 sm:py-2.5">{w}</td>
+              <td className="block pt-1 text-[#B7C5BC] sm:table-cell sm:px-4 sm:py-2.5">
+                <span className={label}>Kept · </span>
+                {k}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -72,7 +77,7 @@ export function PrivacyPage() {
   return (
     <Legal id="privacy" eyebrow="Privacy" title="Privacy." lede="How this preview website handles your information today. The full privacy policy for the AFVAR platform is published before launch.">
       <Part title="What you give us">
-        <p>When you register for the launch queue you give a mobile number and an email address, and confirm each with a code. That creates one account and one queue record.</p>
+        <p>When you register you give a display name, an email address and a password, and you can add your country, a mobile number and your trading experience. Your email address is confirmed with a link. That creates one account.</p>
         <p>If you use the contact form, you give a topic, an email address and a message. Before launch the message is kept in your own browser until the line opens; it is not sent anywhere yet.</p>
       </Part>
       <Part title="What we do not collect">
@@ -80,7 +85,7 @@ export function PrivacyPage() {
         <p>Supported broker accounts connect read-only. AFVAR never asks for a trading or master password.</p>
       </Part>
       <Part title="What stays in your browser">
-        <p>A few small settings are remembered on your own device so the site behaves the way you left it — your language, sound and motion choices. The{" "}
+        <p>A few small items are remembered on your own device so the site behaves the way you left it — your language, sound and motion choices, whether you are signed in, and drafts of forms you have started. The{" "}
           <a href="/cookies" className="inline-flex min-h-10 items-center text-[#A8DEC2] underline-offset-4 hover:underline">
             Cookies page
           </a>{" "}
@@ -120,29 +125,40 @@ export function TermsPage() {
 
 export function CookiesPage() {
   return (
-    <Legal id="cookies" eyebrow="Cookies" title="Cookies and local storage." lede="Every small item this website keeps in your browser, and why. None of them is used for advertising or tracking.">
+    <Legal id="cookies" eyebrow="Cookies" title="Cookies and local storage." lede="The small items this website keeps in your browser, and why. None of them is used for advertising or tracking.">
       <Part title="Cookies">
         <Table
           rows={[
             ["afwar_edition", "Your language edition (English or हिन्दी)", "1 year"],
+            ["afwar_sid", "Your signed-in session, signed by the server and not readable by page scripts", "30 days, or until you sign out"],
             ["afwar_session", "Whether you are signed in, so pages can route you", "30 days"],
             ["afwar_onboarded", "Whether you have finished first-time setup", "30 days"],
-            ["afvar_intro_seen", "That you have seen the opening animation", "1 year"],
           ]}
         />
       </Part>
       <Part title="Local storage">
         <Table
           rows={[
+            ["afwar.edition", "Your language edition, on this device", "until cleared"],
+            ["afwar.auth.v1", "Your signed-in account on this device, so you are not asked to sign in on every page", "until you sign out or clear it"],
             ["afvar-home-sound", "Sound on or off", "until cleared"],
             ["afvar-demo-reduce-motion", "Your reduced-motion choice", "until cleared"],
-            ["afvar.contact.enquiry", "An unsent contact-form draft", "until sent or cleared"],
-            ["afvar.mk.prelaunchDismissed", "That you closed the pre-launch banner", "until the tab is closed"],
+            ["afvar.contact.enquiry", "The contact-form message you submitted, kept on this device because nothing is sent before launch", "until cleared"],
             ["afvar-waitlist-email", "The email you entered for launch news", "until cleared"],
-            ["afvar_intro_seen", "That you have seen the opening animation", "until cleared"],
+            ["afvar-font-preview", "The font picked in the team’s font preview on the Platform page", "until cleared"],
           ]}
         />
-        <p>Signing in to the app also stores your session on this device, so you are not asked to sign in on every page.</p>
+      </Part>
+      <Part title="Session storage">
+        <Table
+          rows={[
+            ["afwar.registerDraft", "Your unfinished registration form — name, email, phone, country and experience, never the password", "until you register or close the tab"],
+            ["afwar.unlocked", "That you unlocked the app with your PIN in this tab", "until it locks or you close the tab"],
+            ["afvar.mk.prelaunchDismissed", "That you closed the pre-launch banner", "until you close the tab"],
+            ["afvar-home-cta-dismissed", "That you closed the floating launch-queue card", "until you close the tab"],
+            ["afvar-demo-reminder-dismissed", "That you closed the launch reminder", "until you close the tab"],
+          ]}
+        />
       </Part>
       <Part title="Turning them off">
         <p>You can clear cookies and site data from your browser settings at any time. The site still works; it will simply forget your choices.</p>

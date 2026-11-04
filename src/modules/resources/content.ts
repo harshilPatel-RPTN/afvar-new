@@ -182,7 +182,7 @@ export const GUIDES: readonly Guide[] = [
     title: "Open a chart and change its timeframe",
     task: "Bring up any instrument in your coverage lanes and read it on the timeframe you trade.",
     access: "OS workspace · desktop or laptop",
-    prerequisites: ["Signed in on the OS workspace", "An instrument from the 8 coverage lanes"],
+    prerequisites: ["Signed in on the OS workspace", "One of the 8 instruments with a live or delayed feed"],
     steps: [
       { title: "Open the command palette", body: "Press ⌘K on a Mac or Ctrl+K on Windows from anywhere on the desktop.", keys: ["⌘", "K"] },
       { title: "Type the instrument and timeframe", body: "For example “gold 4h”. You can also pick the instrument from your Watchlist window." },
@@ -265,7 +265,7 @@ export const GUIDES: readonly Guide[] = [
     title: "Create an alert in plain words",
     task: "Get told when a condition you care about happens — without writing code.",
     access: "OS workspace · desktop or laptop",
-    prerequisites: ["Signed in on the OS workspace", "An instrument from the 8 coverage lanes"],
+    prerequisites: ["Signed in on the OS workspace", "One of the 8 instruments with a live or delayed feed"],
     steps: [
       { title: "Describe the condition", body: "For example: “Alert me if gold closes above the weekly high and RSI is above 70.”" },
       { title: "Check the read-back", body: "AFVAR repeats back exactly what it understood. If your wording is unclear it asks a question instead of guessing." },
@@ -436,8 +436,8 @@ export const FAQ_GROUPS: readonly FaqGroup[] = [
     ref: "W5.5.2",
     title: "Markets & data",
     items: [
-      { q: "Which markets does AFVAR cover?", a: "Eight coverage lanes: gold (XAUUSD), silver (XAGUSD), crude oil (WTI), EURUSD, USDJPY, GBPUSD, NZDUSD and crypto — Bitcoin first, every listed coin through search, 24/7." },
-      { q: "Can I add stocks or other instruments?", a: "Not currently. AFVAR focuses on its eight coverage lanes; more crypto coins are available through search." },
+      { q: "Which markets does AFVAR cover?", a: "Ten instruments in three groups. Eight have a live or delayed feed: gold (XAU/USD), silver (XAG/USD), crude oil (WTI), EUR/USD, USD/JPY, GBP/USD, NZD/USD and Bitcoin (BTC). AUD/USD and Ether (ETH) are listed but their source is still pending, so they show no price yet." },
+      { q: "Can I add stocks or other instruments?", a: "Not currently. AFVAR focuses on its ten listed instruments; the two still waiting for a source get prices once one is approved." },
       { q: "Where do the numbers come from?", a: "Every number is calculated by code from a named data source and carries its source, venue, time, delay and cache age. The AI never guesses a number." },
       { q: "Why is a price labelled delayed or snapshot?", a: "The label tells you exactly how fresh the number is. Futures quotes are delayed; a snapshot is a stored real value shown while the live feed is unavailable." },
       { q: "Why did I get WAIT?", a: "The signals disagree, so the analysis doesn't force a direction. WAIT is graded publicly like every other call." },

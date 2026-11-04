@@ -98,10 +98,10 @@ function AlertSample() {
         <AnimatePresence mode="wait" initial={false}>
           {state === "review" ? (
             <motion.div key="review" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-3 flex gap-2">
-              <button type="button" onClick={() => setState("confirmed")} className="afvar-glass-button afvar-glass-primary rs-btn !h-8 !px-4 !text-[12.5px]">
+              <button type="button" onClick={() => setState("confirmed")} className="afvar-glass-button afvar-glass-primary rs-btn !h-10 !px-4 !text-[12.5px]">
                 Confirm
               </button>
-              <button type="button" onClick={() => setState("editing")} className="afvar-glass-button rs-ghost !h-8 !px-4 !text-[12.5px]">
+              <button type="button" onClick={() => setState("editing")} className="afvar-glass-button rs-ghost !h-10 !px-4 !text-[12.5px]">
                 Edit
               </button>
             </motion.div>
@@ -109,7 +109,7 @@ function AlertSample() {
             <motion.p key={state} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-3 flex items-center gap-2 text-[12.5px]">
               <PIcon name={state === "confirmed" ? "check" : "sliders"} size={14} className="text-(--accent)" />
               {state === "confirmed" ? "Confirmed — in the sample. Nothing is saved before you confirm." : "You'd change the wording, then check the new read-back."}
-              <button type="button" onClick={() => setState("review")} className="ml-auto text-(--text-muted) underline-offset-2 hover:underline">
+              <button type="button" onClick={() => setState("review")} className="ml-auto inline-flex min-h-10 items-center px-1 text-(--text-muted) underline-offset-2 hover:underline">
                 Reset
               </button>
             </motion.p>
@@ -160,7 +160,7 @@ function CommandSample() {
 type MiniState = "open" | "min" | "closed" | "zoom";
 const MINI = [
   { title: "Chart · Gold", x: "6%", y: "12%", w: "46%", icon: "trend" as const, tone: "green" as const },
-  { title: "News", x: "50%", y: "18%", w: "40%", icon: "news" as const, tone: "slate" as const },
+  { title: "News", x: "46%", y: "18%", w: "40%", icon: "news" as const, tone: "slate" as const },
   { title: "Risk & Positions", x: "22%", y: "46%", w: "44%", icon: "shield" as const, tone: "red" as const },
 ];
 
@@ -196,8 +196,8 @@ function WindowsSample() {
                 animate={zoom ? { opacity: 1, scale: 1, left: "3%", top: "11%", width: "94%", height: "66%" } : { opacity: 1, scale: 1, left: w.x, top: w.y, width: w.w, height: "auto" }}
                 exit={{ opacity: 0, scaleX: 0.2, scaleY: 0.1, y: 120, transition: { duration: 0.32 } }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="pf-window pf-window-sm absolute cursor-grab active:cursor-grabbing"
-                style={{ left: w.x, top: w.y, width: w.w, zIndex: front === i ? 3 : 1, originY: 1 }}
+                className="pf-window pf-window-sm !absolute cursor-grab active:cursor-grabbing"
+                style={{ left: w.x, top: w.y, width: w.w, minWidth: 156, zIndex: front === i ? 3 : 1, originY: 1 }}
               >
                 <div className="pf-window-toolbar">
                   <Lights full={zoom} onClose={() => set(i, "closed")} onMin={() => set(i, "min")} onZoom={() => set(i, zoom ? "open" : "zoom")} />
@@ -212,10 +212,10 @@ function WindowsSample() {
             );
           })}
         </AnimatePresence>
-        <ul className="pf-vibrant absolute bottom-3 left-1/2 flex -translate-x-1/2 items-end gap-2 rounded-2xl px-2.5 py-2" aria-label="Sample dock">
+        <ul className="pf-vibrant absolute bottom-3 left-1/2 flex -translate-x-1/2 items-end gap-0.5 rounded-2xl px-1 py-0.5" aria-label="Sample dock">
           {MINI.map((w, i) => (
             <li key={w.title} className="relative">
-              <button type="button" aria-label={states[i] === "open" || states[i] === "zoom" ? `Bring ${w.title} to front` : `Open ${w.title}`} onClick={() => set(i, states[i] === "zoom" ? "zoom" : "open")} className="block transition-transform active:scale-90">
+              <button type="button" aria-label={states[i] === "open" || states[i] === "zoom" ? `Bring ${w.title} to front` : `Open ${w.title}`} onClick={() => set(i, states[i] === "zoom" ? "zoom" : "open")} className="block p-[5px] transition-transform active:scale-90">
                 <AppIcon icon={w.icon} tone={w.tone} size={30} />
               </button>
               {states[i] !== "closed" && <span className="absolute -bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-white/75" />}

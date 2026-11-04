@@ -26,7 +26,8 @@ const isFont = (v: string | null): v is FontId => FONTS.some((f) => f.id === v);
 export function FontPreview() {
   const [font, setFont] = useState<FontId>("default");
   const [ready, setReady] = useState(false);
-  const [open, setOpen] = useState(true);
+  // Collapsed by default: a small "Aa" pill that stays out of the page's way.
+  const [open, setOpen] = useState(false);
 
   // Initial choice: ?font= wins, then the last pick on this browser.
   useEffect(() => {
@@ -60,11 +61,20 @@ export function FontPreview() {
 
   return (
     <div className="fp-panel" data-open={open || undefined}>
-      <button type="button" className="fp-toggle" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-        Aa Font preview
+      <button
+        type="button"
+        className="fp-toggle"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-controls={open ? "fp-list" : undefined}
+        aria-label={open ? "Close font preview" : "Font preview"}
+        title="Font preview"
+      >
+        <span aria-hidden="true" className="fp-aa">Aa</span>
+        {open && <span className="fp-title">Font preview</span>}
       </button>
       {open && (
-        <div className="fp-list" role="radiogroup" aria-label="Font preview">
+        <div id="fp-list" className="fp-list" role="radiogroup" aria-label="Font preview">
           {FONTS.map((f) => (
             <button
               key={f.id}

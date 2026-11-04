@@ -15,8 +15,8 @@ function BackToSignIn() {
   return <TextLink href="/login">{t("auth.recovery.backToSignIn")}</TextLink>;
 }
 
-/** Shown only in the static demo, where no email is actually sent. */
-function DemoLink({ href, label }: { href: string; label: string }) {
+/** A full-width link button: the demo reset link, "Back to sign in", or Contact. */
+function ActionLink({ href, label }: { href: string; label: string }) {
   return (
     <Link href={href} className="afvar-glass-button flex h-10 items-center justify-center rounded-xl text-[12px] font-medium">
       {label}
@@ -24,7 +24,38 @@ function DemoLink({ href, label }: { href: string; label: string }) {
   );
 }
 
+/**
+ * Who answers a reset request. Only a real backend (`NEXT_PUBLIC_API_BASE_URL`) sends email.
+ * Without one, the in-browser mock can only reset its own demo accounts, so it runs as a
+ * labelled demo in development; elsewhere (accounts in Google Sheets, or a static build)
+ * nothing could send or honour a link, so the pages say so instead of faking success.
+ */
+const RECOVERY: "live" | "demo" | "off" = process.env.NEXT_PUBLIC_API_BASE_URL
+  ? "live"
+  : process.env.NEXT_PUBLIC_AUTH_STORE !== "sheets" && process.env.NODE_ENV !== "production"
+    ? "demo"
+    : "off";
+
+/** Shown instead of a recovery form when no backend can reset a password. */
+function RecoveryUnavailable({ eyebrow, title }: { eyebrow: string; title: string }) {
+  const { t } = useT();
+  return (
+    <AuthCard eyebrow={eyebrow} title={title} footer={<BackToSignIn />}>
+      <div className="flex flex-col gap-3">
+        <FormNotice tone="info">{t("auth.forgot.unavailable")}</FormNotice>
+        <ActionLink href="/contact" label={t("mk.nav.contact")} />
+      </div>
+    </AuthCard>
+  );
+}
+
 export function ForgotPasswordView() {
+  const { t } = useT();
+  if (RECOVERY === "off") return <RecoveryUnavailable eyebrow={t("auth.forgot.eyebrow")} title={t("auth.forgot.title")} />;
+  return <ForgotPasswordForm />;
+}
+
+function ForgotPasswordForm() {
   const { t } = useT();
   const { controls, shake } = useShake();
   const [email, setEmail] = useState("");
@@ -51,8 +82,10 @@ export function ForgotPasswordView() {
     <AuthCard eyebrow={t("auth.forgot.eyebrow")} title={t("auth.forgot.title")} subtitle={t("auth.forgot.subtitle")} shake={controls} footer={<BackToSignIn />}>
       {sent ? (
         <div className="flex flex-col gap-3">
-          <FormNotice tone="success">{t("auth.forgot.sent", { email })}</FormNotice>
-          {sent.devUrl && <DemoLink href={sent.devUrl} label={t("auth.forgot.demoLink")} />}
+          <FormNotice tone={RECOVERY === "demo" ? "info" : "success"}>
+            {RECOVERY === "demo" ? t("auth.forgot.demoSent") : t("auth.forgot.sent", { email })}
+          </FormNotice>
+          {sent.devUrl && <ActionLink href={sent.devUrl} label={t("auth.forgot.demoLink")} />}
         </div>
       ) : (
         <form onSubmit={submit} className="flex flex-col gap-4">
@@ -66,6 +99,12 @@ export function ForgotPasswordView() {
 }
 
 export function ResetPasswordView() {
+  const { t } = useT();
+  if (RECOVERY === "off") return <RecoveryUnavailable eyebrow={t("auth.reset.eyebrow")} title={t("auth.reset.title")} />;
+  return <ResetPasswordForm />;
+}
+
+function ResetPasswordForm() {
   const { t } = useT();
   const token = useSearchParams().get("token") ?? "";
   const { controls, shake } = useShake();
@@ -104,7 +143,7 @@ export function ResetPasswordView() {
       {done ? (
         <div className="flex flex-col gap-3">
           <FormNotice tone="success">{t("auth.reset.done")}</FormNotice>
-          <DemoLink href="/login" label={t("auth.recovery.backToSignIn")} />
+          <ActionLink href="/login" label={t("auth.recovery.backToSignIn")} />
         </div>
       ) : (
         <form onSubmit={submit} className="flex flex-col gap-4">
@@ -153,7 +192,7 @@ export function VerifyEmailView() {
         {state === "done" && (
           <>
             <FormNotice tone="success">{t("auth.verify.done")}</FormNotice>
-            <DemoLink href="/" label={t("auth.verify.continue")} />
+            <ActionLink href="/" label={t("auth.verify.continue")} />
           </>
         )}
         {state !== "pending" && state !== "done" && <FormNotice>{t(state)}</FormNotice>}

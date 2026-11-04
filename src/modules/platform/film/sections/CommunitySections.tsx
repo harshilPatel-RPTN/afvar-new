@@ -25,7 +25,7 @@ function LiveRow({ k }: { k: string }) {
 
 /** The source and time of one market's price, as a footer line. */
 function SourceFoot({ k }: { k: string }) {
-  return <p className="mt-2 truncate font-mono text-[10px] text-[#92A399]">{sourceLine(useQuote(k))}</p>;
+  return <p className="mt-2 break-words font-mono text-[10px] leading-snug text-[#92A399] lg:truncate">{sourceLine(useQuote(k))}</p>;
 }
 
 export function CommunitySections() {

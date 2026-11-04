@@ -56,7 +56,7 @@ const W = (a: number, b: number, c: number, d: number) => [U(a), U(b), U(c), U(d
 /* --------------------------------------------------------------- beats */
 
 export const OS_BEATS = [
-  { id: "boot", at: W(0.04, 0.07, 0.085, 0.1), title: "A desktop built for trading.", body: "Your workspace opens around the AI, and the avatar takes its corner of the screen." },
+  { id: "boot", at: W(0, 0.03, 0.085, 0.1), title: "A desktop built for trading.", body: "Your workspace opens around the AI, and the avatar takes its corner of the screen." },
   { id: "apps", at: W(0.1, 0.115, 0.19, 0.205), title: "Every tool is an app.", body: "Charts, research, alerts, calendar, risk and journal open like apps on any computer." },
   { id: "windows", at: W(0.205, 0.22, 0.345, 0.36), title: "Windows that behave.", body: "Drag to resize. Drag to the edge and it snaps. Keep every market in its own tab." },
   { id: "ai", at: W(0.36, 0.375, 0.545, 0.56), title: "Tell it what you need.", body: "Type or say it. The AI plans the work, arranges your desktop and shows every step it took." },
@@ -173,8 +173,9 @@ export function OsDesktop({ mv, quotes, className = "" }: { mv: MotionValue<numb
   const panel = useBoxKeys(mv, OS_KEYS.panel);
 
   // chrome entrance
-  const barY = useTransform(mv, (p) => (1 - ramp(p, U(0.04), U(0.08))) * -32);
-  const dockY = useTransform(mv, (p) => (1 - ramp(p, U(0.05), U(0.095))) * 90);
+  // The desktop is already booting as the OS layer fades in: no empty frame.
+  const barY = useTransform(mv, (p) => (1 - ramp(p, U(0), U(0.03))) * -32);
+  const dockY = useTransform(mv, (p) => (1 - ramp(p, U(0.005), U(0.04))) * 90);
   const trackX = useTransform(mv, (p) => -1200 * (ramp(p, U(0.6), U(0.63)) * (1 - ramp(p, U(0.675), U(0.705)))));
 
   const ghost = useTransform(mv, (p) => window4(p, [U(0.296), U(0.305), U(0.316), U(0.322)]));
@@ -209,12 +210,12 @@ export function OsDesktop({ mv, quotes, className = "" }: { mv: MotionValue<numb
   });
 
   // boot: the AI orb wakes in the middle of the screen, then settles into the dock
-  const orbO = useTransform(mv, (p) => window4(p, [U(0.035), U(0.05), U(0.088), U(0.1)]));
+  const orbO = useTransform(mv, (p) => window4(p, [U(0), U(0.02), U(0.088), U(0.1)]));
   const orbMove = (p: number) => ramp(p, U(0.072), U(0.098));
   const orbX = useTransform(mv, (p) => (AVATAR_CORNER.x - 600) * orbMove(p));
   const orbY = useTransform(mv, (p) => (AVATAR_CORNER.y - 120 - 300) * orbMove(p));
   const orbS = useTransform(mv, (p) => 1 - 0.8 * orbMove(p));
-  const bootText = useTransform(mv, (p) => window4(p, [U(0.045), U(0.055), U(0.07), U(0.078)]));
+  const bootText = useTransform(mv, (p) => window4(p, [U(0.008), U(0.022), U(0.07), U(0.078)]));
 
   return (
     <OsScreen className={className}>
@@ -696,7 +697,8 @@ function Widgets({ step, quotes }: { step: number; quotes: Quotes }) {
 /** Where the avatar is docked: feet position and height, design px (control pill below its feet). */
 export const AVATAR_CORNER = { x: 1105, y: 606, h: 150 };
 /** Stepping forward to talk to you: big, waist-up, in front of the desktop. */
-const FOREGROUND = { x: 500, y: 830, h: 600 };
+// Sized to leave most of the window visible around it.
+const FOREGROUND = { x: 540, y: 680, h: 350 };
 const RISK_SPOT = 655;
 /** os-local windows [in start, in end, out start, out end] of the avatar stepping forward. */
 export const STEP_FORWARD = [

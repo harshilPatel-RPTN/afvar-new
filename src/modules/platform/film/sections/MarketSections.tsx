@@ -9,7 +9,7 @@
 import { useMemo } from "react";
 import { Ask, AvatarLine, Chip, Note, OsSection, Pct, Row, Win } from "@/modules/afvarOs";
 import { useLiveMarket } from "@/modules/home/kit";
-import { asOfText } from "../market/analysis";
+import { asOfText, providerName } from "../market/analysis";
 import { GROUP, GROUP_IDS, INST, type GroupId, type InstInfo } from "./marketMap";
 import { ChartWin, Para, StatusChip, fmt, sourceLine, useQuote, useRange } from "./shared";
 
@@ -240,7 +240,7 @@ function FeedRow({ k, q }: { k: string; q: string }) {
       k={k}
       v={
         <span className="flex items-center gap-2">
-          {quote?.source ?? "stored"} <StatusChip q={quote} />
+          {providerName(quote, "stored")} <StatusChip q={quote} />
         </span>
       }
     />
@@ -425,7 +425,7 @@ function PriceCard({ i, at }: { i: InstInfo; at: number }) {
       <p className="font-mono text-[34px] font-semibold leading-tight text-[#F2F5F2]">{q?.last != null ? fmt(q.last, q.decimals) : "—"}</p>
       <div className="mt-2 flex items-center gap-2">
         <StatusChip q={q} />
-        <span className="min-w-0 truncate font-mono text-[10.5px] text-[#92A399]">{i.key ? sourceLine(q) : "No source yet"}</span>
+        <span className="min-w-0 break-words font-mono text-[10.5px] leading-snug text-[#92A399] lg:truncate">{i.key ? sourceLine(q) : "No source yet"}</span>
       </div>
       <div className="mt-3">
         <Row k="Change · 44 hourly candles" v={r ? <Pct v={r.chg} /> : "—"} gold />
@@ -476,7 +476,7 @@ function AnswerWins({ i, answer, avatar }: { i: InstInfo; answer: string; avatar
         </div>
       </Win>
       <Win at={0.48} x={710} y={234} w={450} h={194} title="Built from" glyph="settings">
-        <Row k="Price" v={i.key ? <span className="flex items-center gap-2">{q?.source ?? "stored"} <StatusChip q={q} /></span> : "No source yet"} />
+        <Row k="Price" v={i.key ? <span className="flex items-center gap-2">{providerName(q, "stored")} <StatusChip q={q} /></span> : "No source yet"} />
         <Row k="As of" v={i.key && q ? asOfText(q.asOf) : "—"} />
         <Row k="Candles" v={i.key ? "hourly · same feed" : "not in preview feed"} />
         <Row k="Reasons" v="sample · sources linked" gold />
@@ -750,7 +750,7 @@ export function BriefsSections() {
           <p className="mt-3 font-mono text-[10.5px] text-[#A8DEC2]">FOREX</p>
           <Para>The euro slipped against the dollar after weak surveys [4].</Para>
           <p className="mt-3 font-mono text-[10.5px] text-[#A8DEC2]">TOMORROW</p>
-          <Para>ECB decision at 18:15 IST [5].</Para>
+          <Para>ECB decision at 18:45 IST [5].</Para>
           <p className="mt-3 font-mono text-[10.5px] text-[#A8DEC2]">SOURCES</p>
           <Row k="[1] US data release" v="economic calendar" />
           <Row k="[2] Dollar index" v="price data" />
@@ -791,7 +791,7 @@ export function BriefsSections() {
               The euro slipped against the dollar after weak surveys <span className="text-[#A8DEC2]">[4]</span>.
             </Para>
             <Para>
-              ECB decision at 18:15 IST <span className="text-[#A8DEC2]">[5]</span>.
+              ECB decision at 18:45 IST <span className="text-[#A8DEC2]">[5]</span>.
             </Para>
           </div>
           <p className="mt-3 font-mono text-[10.5px] text-[#92A399]">Tap a number to open its source</p>

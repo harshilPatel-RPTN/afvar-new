@@ -80,6 +80,18 @@
   html:not([data-reduce-motion="true"]) .afvar-responsive-home .home-hero-price[data-dir="1"] { animation:home-price-up 1.1s ease-out; }
   html:not([data-reduce-motion="true"]) .afvar-responsive-home .home-hero-price[data-dir="-1"] { animation:home-price-down 1.1s ease-out; }
 }
+/* Hero quote grid: the eight tiles keep full symbols, prices and the feed's
+   timestamp at every desktop width. Narrow columns (1100–1300 px windows)
+   tighten the tiles and keep only the status dot (the word stays as its title). */
+.afvar-responsive-home .home-hero-markets { container-type:inline-size; }
+@container (max-width:35.5rem) {
+  .afvar-responsive-home .home-hero-grid { column-gap:6px; }
+  .afvar-responsive-home .home-hero-market { position:relative; padding-inline:7px; }
+  .afvar-responsive-home .home-hero-sym { letter-spacing:.02em; }
+  .afvar-responsive-home .home-hero-status-word { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+  .afvar-responsive-home .home-hero-price { font-size:11.5px; letter-spacing:-.02em; }
+  .afvar-responsive-home .home-hero-pct { font-size:10px; letter-spacing:-.03em; }
+}
 @keyframes home-market-in { from { opacity:0; translate:0 6px; } }
 @keyframes home-price-up { from { color:#00E676; } }
 @keyframes home-price-down { from { color:#FF6B6B; } }
@@ -189,11 +201,37 @@
     --story-midline:calc(50% + (var(--home-header-height) - var(--story-rail-space)) / 2);
   }
   .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-scene { top:var(--home-header-height); bottom:var(--story-rail-space); }
-  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption,
   .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-os-visual { top:var(--story-midline); translate:0 -50%; }
-  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption { left:4%; width:44%; }
+  /* Each caption owns the band between the navbar and the chapter rail and is
+     centred in it. A caption taller than the band is scaled down (--fit, set by
+     CompactStage from its measured height) about its own middle, so it never
+     reaches under the navbar or below the rail. */
+  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption {
+    top:calc(var(--home-header-height) + 8px); bottom:calc(var(--story-rail-space) + 8px);
+    left:4%; width:44%; translate:none; display:flex; flex-direction:column; justify-content:center;
+  }
+  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption > .pointer-events-auto {
+    flex:none; scale:var(--fit,1); transform-origin:0 50%;
+  }
   .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-hint { left:71%; top:75%; }
   .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-os-visual { left:52%; width:44%; }
+}
+/* Short landscape screens (landscape phones): type and cards scale with the
+   height, so the fit above stays a small correction rather than a shrink. */
+@media (orientation:landscape) and (max-height:500px) {
+  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption { left:3.5%; width:47%; }
+  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption h1 { font-size:clamp(22px,7.6svh,32px); margin-top:6px; }
+  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption h2 { font-size:clamp(18px,5.8svh,26px); margin-top:6px; }
+  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption .home-chapter-prose > :is(h1,h2) + p { margin-top:8px; font-size:13px; line-height:1.45; }
+  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption .home-story-actions { margin-top:12px; }
+  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption .home-hero-stats { margin-top:12px; }
+  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption .mc-log-list > li:nth-child(n+4) { display:none; }
+  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption .mt-3:has(> .home-reading-log),
+  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption .mt-3:has(> .mc-sessions),
+  .afvar-responsive-home #afvar-ai[data-mode="compact"] .home-story-caption .mt-3:has(> .home-permissions-card) { margin-top:8px; }
+  /* First paint before the client picks a cut: start below the navbar. */
+  .afvar-responsive-home .home-hero-boot { top:calc(var(--home-header-height) + 8px); bottom:auto; right:50%; }
+  .afvar-responsive-home .home-hero-boot h1 { font-size:clamp(22px,7.6svh,32px); }
 }
 /* Stacked mode must grow with wrapped captions, the complete OS walk-through
    and reduced-motion content. Only spare vertical space is divided around them. */

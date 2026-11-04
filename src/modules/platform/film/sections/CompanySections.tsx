@@ -3,7 +3,8 @@
 // About and Pricing after their heroes: six OS sections each; the avatar speaks once per page.
 import { Ask, AvatarLine, Chip, Note, OsSection, Row, Win } from "@/modules/afvarOs";
 import { COMPANY_FACTS, CONTACT } from "@/modules/company/kit";
-import { PRICING_FAQS, PRICING_TIERS, PRICING_USAGE } from "@/modules/home/kit";
+import { PRICING_FAQS, PRICING_TIERS, PRICING_USAGE, formatInr } from "@/modules/home/kit";
+import { INST } from "./marketMap";
 import { ChartWin, Count, Para, SYM, ScrollSteps, Seq, StatusChip, fmt, useQuote } from "./shared";
 
 /** One market's last price from the live feed, with its freshness label. */
@@ -28,8 +29,12 @@ export { AboutSections } from "./about";
 
 /* ---------------------------------------------------------------- Pricing */
 
-const TIER_PRICE = (m: number) => (m === 0 ? "Free" : `$${m} / month`);
-const PER_MONTH = (m: number) => `$${m} / month`;
+// `monthly` in PRICING_TIERS is the indicative price in ₹ (see home/content.ts).
+const TIER_PRICE = (m: number) => (m === 0 ? "Free" : `${formatInr(m)} / month`);
+const PER_MONTH = (m: number) => `${formatInr(m)} / month`;
+/** Markets the preview feed carries, out of every market listed on /market (8 of 10 today). */
+const FEED_COUNT = Object.keys(SYM).length;
+const LISTED_COUNT = Object.keys(INST).length;
 /** When each tick column of the compare table fills: tier 01, then 02, then 03. */
 const COL_AT = [0.14, 0.24, 0.34];
 
@@ -114,11 +119,11 @@ export function PricingSections() {
             {PRICING_TIERS.map((t) => (
               <div key={t.tag} className={`rounded-lg border px-2 py-2 ${t.highlighted ? "border-[rgba(168,222,194,0.6)]" : "border-[rgba(255,255,255,0.1)]"}`}>
                 <p className="font-mono text-[10px] tracking-[0.08em] text-[#92A399]">{t.tag.toUpperCase()}</p>
-                <p className={`text-[13.5px] font-semibold ${t.highlighted ? "text-[#A8DEC2]" : "text-[#F2F5F2]"}`}>{t.monthly ? `$${t.monthly}` : "Free"}</p>
+                <p className={`text-[13.5px] font-semibold ${t.highlighted ? "text-[#A8DEC2]" : "text-[#F2F5F2]"}`}>{t.monthly ? formatInr(t.monthly) : "Free"}</p>
               </div>
             ))}
           </div>
-          <p className="mt-2.5 text-[12px] text-[#B7C5BC]">Per month · indicative until launch</p>
+          <p className="mt-2.5 text-[12px] text-[#B7C5BC]">Per month, in ₹ · indicative until launch</p>
         </Win>
       </OsSection>
 
@@ -152,7 +157,7 @@ export function PricingSections() {
 
       <OsSection n={5} label="Market data" title="Data at every tier." soft="Labelled the same way." body="Every plan sees the same coverage and the same honesty: each number shows its source, time and whether it is delayed." app="Market data" active="charts">
         <ChartWin k="BTC-USD" at={0.06} x={40} y={20} w={640} h={490} />
-        <Win at={0.32} x={710} y={20} w={450} h={350} title="Coverage · eight lanes, live" glyph="chart">
+        <Win at={0.32} x={710} y={20} w={450} h={350} title={`Coverage · ${FEED_COUNT} of ${LISTED_COUNT} markets, each labelled`} glyph="chart">
           <Seq at={0.36} step={0.02}>
             {Object.keys(SYM).map((k) => (
               <LiveRow key={k} k={k} />

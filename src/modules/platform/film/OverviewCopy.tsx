@@ -53,11 +53,11 @@ export function HeroCopy({ compact = false }: { compact?: boolean }) {
   return (
     <div>
       <p className={EYEBROW}>AFVAR Platform · Pre-launch</p>
-      <HeroTitle twin={compact} className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2]" : `mt-5 ${H1}`}>
+      <HeroTitle twin={compact} className={compact ? "mt-3 text-[clamp(2.05rem,8.8vw,3rem)] font-semibold leading-[1.03] tracking-[-0.03em] text-[#F2F5F2] [@media(max-height:700px)_and_(orientation:portrait)]:mt-2 [@media(max-height:700px)_and_(orientation:portrait)]:text-[clamp(1.6rem,7.6vw,2.2rem)]" : `mt-5 ${H1}`}>
         {OVERVIEW.title[0]} <span className="text-[#A8DEC2]">{OVERVIEW.title[1]}</span>
       </HeroTitle>
-      <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#B7C5BC]" : `mt-6 max-w-[31rem] ${BODY}`}>{compact ? OVERVIEW.summary : OVERVIEW.workWith.summary}</p>
-      <div className={`${compact ? "mt-5" : "mt-8"} flex flex-nowrap items-center gap-2.5 sm:gap-5`}>
+      <p className={compact ? "mt-3 text-[14.5px] leading-relaxed text-[#B7C5BC] [@media(max-height:700px)_and_(orientation:portrait)]:mt-2 [@media(max-height:700px)_and_(orientation:portrait)]:text-[13.5px] [@media(max-height:700px)_and_(orientation:portrait)]:leading-snug" : `mt-6 max-w-[31rem] ${BODY}`}>{compact ? OVERVIEW.summary : OVERVIEW.workWith.summary}</p>
+      <div className={`${compact ? "mt-5 [@media(max-height:700px)_and_(orientation:portrait)]:mt-3.5" : "mt-8"} flex flex-nowrap items-center gap-2.5 sm:gap-5`}>
         <Link href={REGISTER_URL} prefetch={false} className={GOLD_CTA}>
           Register Now
         </Link>
@@ -65,7 +65,7 @@ export function HeroCopy({ compact = false }: { compact?: boolean }) {
           Try it yourself
         </a>
       </div>
-      <div className={`${compact ? "mt-5 pt-3" : "mt-10 pt-5"} flex flex-wrap items-center gap-x-6 gap-y-2 border-t ${HAIR}`}>
+      <div className={`${compact ? "mt-5 pt-3 [@media(max-height:700px)_and_(orientation:portrait)]:mt-3.5 [@media(max-height:700px)_and_(orientation:portrait)]:pt-2.5" : "mt-10 pt-5"} flex flex-wrap items-center gap-x-6 gap-y-2 border-t ${HAIR}`}>
         <span className={`${MONO} flex items-center gap-2 text-[#A8DEC2]`}>
           <AiOrb size={8} /> 5 capability areas
         </span>

@@ -9,13 +9,13 @@ import { INSTRUMENTS, type CoverageStatus } from "../data";
 import { iconButton } from "./ui";
 
 /**
- * Site-wide search (header). Searches only static navigation targets and the
+ * Site-wide search (header). Searches every static page, the market links and the
  * instrument catalogue — never prices. Opens with the button, Ctrl/⌘+K or "/".
  */
 
 type Result = {
   id: string;
-  group: "markets" | "instruments";
+  group: "pages" | "markets" | "instruments";
   labelKey: MessageKey;
   href: string;
   symbol?: string;
@@ -24,15 +24,49 @@ type Result = {
   terms: string[];
 };
 
-const MARKET_LINKS: { key: MessageKey; href: string; terms: string[] }[] = [
-  { key: "mk.nav.markets.overview", href: "/market", terms: ["market", "markets"] },
-  { key: "mk.nav.markets.commodities", href: "/market/commodities", terms: ["commodities"] },
-  { key: "mk.nav.markets.forex", href: "/market/forex", terms: ["forex", "fx", "currency"] },
-  { key: "mk.nav.markets.crypto", href: "/market/crypto", terms: ["crypto"] },
-  { key: "mk.nav.markets.briefs", href: "/market/briefs", terms: ["briefs"] },
+type SiteLink = { key: MessageKey; href: string; terms: string[] };
+
+/** Every static page of the site, with the words people actually type for it. */
+const PAGE_LINKS: SiteLink[] = [
+  { key: "mk.nav.home", href: "/", terms: ["home", "start", "landing", "afvar", "trading os"] },
+  { key: "mk.nav.platform.overview", href: "/platform", terms: ["platform", "overview", "features", "capabilities", "product", "os", "workspace"] },
+  { key: "mk.nav.platform.data", href: "/platform/market-data", terms: ["market data", "charts", "chart", "quotes", "watchlist", "heatmap", "technicals", "prices"] },
+  { key: "mk.nav.platform.research", href: "/platform/research", terms: ["research", "analysis", "news", "calendar", "ai", "insights", "screener"] },
+  { key: "mk.nav.platform.alerts", href: "/platform/alerts", terms: ["alerts", "alert", "notifications", "strategy", "strategies", "backtest", "tools"] },
+  { key: "mk.nav.platform.risk", href: "/platform/risk-review", terms: ["risk", "review", "journal", "trade review", "position size", "calculator"] },
+  { key: "mk.nav.platform.community", href: "/platform/community", terms: ["community", "rooms", "chat", "traders", "social"] },
+  { key: "mk.nav.pricing", href: "/pricing", terms: ["pricing", "price", "plans", "plan", "cost", "subscription", "billing", "launch offer", "free"] },
+  { key: "mk.nav.resources", href: "/resources", terms: ["resources", "learn", "education", "docs", "documentation"] },
+  { key: "mk.nav.resources.start", href: "/resources/getting-started", terms: ["getting started", "start", "onboarding", "setup", "how to", "tutorial"] },
+  { key: "mk.nav.resources.guides", href: "/resources/guides", terms: ["guides", "guide", "product guides", "manual", "how to", "tutorial"] },
+  { key: "mk.nav.resources.sources", href: "/resources/sources-evidence", terms: ["sources", "evidence", "data sources", "provenance", "how we source"] },
+  { key: "mk.nav.resources.faqs", href: "/resources/faqs", terms: ["faq", "faqs", "questions", "answers"] },
+  { key: "mk.nav.resources.help", href: "/resources/help", terms: ["help", "support", "contact support", "troubleshooting", "assistance"] },
+  { key: "mk.nav.about", href: "/about", terms: ["about", "about us", "company", "team", "mission", "story"] },
+  { key: "mk.nav.contact", href: "/contact", terms: ["contact", "contact us", "email", "support", "get in touch", "message"] },
+  { key: "mk.nav.register", href: "/register", terms: ["register", "sign up", "signup", "join", "waitlist", "launch queue", "account"] },
+  { key: "auth.login.submit", href: "/login", terms: ["login", "log in", "sign in", "signin", "account"] },
+  { key: "mk.footer.privacy", href: "/privacy", terms: ["privacy", "privacy policy", "data", "gdpr", "legal", "policy"] },
+  { key: "mk.footer.terms", href: "/terms", terms: ["terms", "terms and conditions", "conditions", "legal", "policy"] },
+  { key: "mk.footer.cookies", href: "/cookies", terms: ["cookies", "cookie policy", "legal", "policy"] },
+];
+
+const MARKET_LINKS: SiteLink[] = [
+  { key: "mk.nav.markets.overview", href: "/market", terms: ["market", "markets", "overview", "instruments", "coverage"] },
+  { key: "mk.nav.markets.commodities", href: "/market/commodities", terms: ["commodities", "metals", "gold", "silver", "oil", "energy"] },
+  { key: "mk.nav.markets.forex", href: "/market/forex", terms: ["forex", "fx", "currency", "currencies", "pairs"] },
+  { key: "mk.nav.markets.crypto", href: "/market/crypto", terms: ["crypto", "bitcoin", "ethereum", "coins"] },
+  { key: "mk.nav.markets.briefs", href: "/market/briefs", terms: ["briefs", "market briefs", "news", "daily", "report"] },
 ];
 
 const ALL_RESULTS: Result[] = [
+  ...PAGE_LINKS.map<Result>((link) => ({
+    id: `p-${link.href === "/" ? "home" : link.href.replace(/\W+/g, "-")}`,
+    group: "pages",
+    labelKey: link.key,
+    href: link.href,
+    terms: link.terms,
+  })),
   ...MARKET_LINKS.map<Result>((link) => ({
     id: `m-${link.href.replace(/\W+/g, "-")}`,
     group: "markets",
@@ -54,6 +88,8 @@ const ALL_RESULTS: Result[] = [
     ],
   })),
 ];
+
+const GROUP_ORDER: Result["group"][] = ["pages", "markets", "instruments"];
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -101,10 +137,15 @@ export function SiteSearch({ open, onOpenChange, menuFocus }: {
     const q = query.trim().toLowerCase();
     if (!q) return ALL_RESULTS;
     const qCompact = q.replace(/\//g, "");
-    return ALL_RESULTS.filter((result) => {
-      const haystack = [t(result.labelKey).toLowerCase(), translate("en", result.labelKey).toLowerCase(), ...result.terms];
-      return haystack.some((value) => value.includes(q) || (qCompact.length > 0 && value.includes(qCompact)));
-    });
+    const hit = (value: string) => value.includes(q) || (qCompact.length > 0 && value.includes(qCompact));
+    // Within each group, results whose name matches come before keyword-only matches.
+    return ALL_RESULTS.map((result, order) => {
+      const labelHit = [t(result.labelKey).toLowerCase(), translate("en", result.labelKey).toLowerCase()].some(hit);
+      return { result, order, rank: labelHit ? 0 : result.terms.some(hit) ? 1 : -1 };
+    })
+      .filter((entry) => entry.rank >= 0)
+      .sort((a, b) => GROUP_ORDER.indexOf(a.result.group) - GROUP_ORDER.indexOf(b.result.group) || a.rank - b.rank || a.order - b.order)
+      .map((entry) => entry.result);
   }, [query, t]);
 
   const activeIndex = results.length === 0 ? -1 : Math.min(active, results.length - 1);
@@ -212,6 +253,7 @@ export function SiteSearch({ open, onOpenChange, menuFocus }: {
   }
 
   const groups: { id: Result["group"]; labelKey: MessageKey }[] = [
+    { id: "pages", labelKey: "mk.search.group.pages" },
     { id: "markets", labelKey: "mk.search.group.markets" },
     { id: "instruments", labelKey: "mk.search.group.instruments" },
   ];

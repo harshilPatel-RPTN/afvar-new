@@ -217,8 +217,11 @@ function useStackedCards(root: RefObject<HTMLElement | null>, calm: boolean) {
         c.dataset.pin = String(pin);
         c.style.top = pin ? `${top}px` : "";
         // Hold: the pinned card stays whole on screen for this much scroll
-        // before the next card starts to slide over it.
-        c.style.marginBottom = pin ? `${20 + Math.round(Math.min(vh * 0.6, 480))}px` : "";
+        // before the next card starts to slide over it. The last chapter has no
+        // next card, so a hold there would only leave an empty black gap
+        // before the next section: it releases straight away.
+        const last = c === chapters[chapters.length - 1];
+        c.style.marginBottom = pin && !last ? `${20 + Math.round(Math.min(vh * 0.6, 480))}px` : "";
         if (pin) k++;
       }
       frame();
@@ -308,6 +311,8 @@ function ThinkScene({ film }: { film: Film }) {
   return (
     <Beam innerRef={ref}>
       <ThinkCard mv={mv} compact />
+      {/* The compact card drops this line; the phone keeps the desktop copy. */}
+      <p className="ms-think-note">Graded in public after 4 hours · not investment advice</p>
     </Beam>
   );
 }

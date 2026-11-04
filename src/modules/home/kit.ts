@@ -4,7 +4,7 @@
 // the theme layer, motion primitives, widgets and sound — comes through here.
 export { useLiveMarket, fmtPrice, type HomeQuote, type QuoteStatus, type Candle } from "./components/useLiveMarket";
 export { NAV, OVERVIEW } from "./content";
-export { PRICING_FAQS, PRICING_TIERS, PRICING_USAGE } from "./content";
+export { PRICING_FAQS, PRICING_TIERS, PRICING_USAGE, formatInr } from "./content";
 
 // theme + shared motion CSS
 export { HOME_SCOPE, HomeStyles } from "./components/HomeStyles";

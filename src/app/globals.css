@@ -44,11 +44,23 @@
 
 /* Phones: the avatar launcher sits bottom-right; while the launch reminder
    banner holds the bottom edge (< 640 px) it steps up above the banner. Only the
-   launcher moves: a translate on the dock would become the containing block of
+   launcher moves (its translate reads --launcher-lift, which it combines with its
+   edge-tab tuck): a translate on the dock would become the containing block of
    the centred chat layer (fixed inset-0) and drag it off-centre. */
 @media (max-width: 639px) {
-  body:has([aria-label="Launch queue reminder"]) [data-avatar-dock] > button[aria-expanded] {
-    translate: 0 -68px;
+  body:has([aria-label="Launch queue reminder"]) [data-avatar-dock] {
+    --launcher-lift: -68px;
+  }
+}
+/* Touch screens of any width (e.g. tablets in landscape at lg+) get the compact
+   60 px launcher too; desktops with a mouse keep the full-size robot. */
+@media (hover: none) and (pointer: coarse) {
+  [data-avatar-launcher] {
+    height: 60px;
+    width: 50px;
+  }
+  [data-avatar-launcher] > img {
+    height: 60px;
   }
 }
 /* Short landscape phones/tablets: the centred chat panel uses nearly the whole

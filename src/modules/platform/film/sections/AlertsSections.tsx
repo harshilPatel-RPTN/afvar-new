@@ -10,7 +10,7 @@ function SourceHead({ k }: { k: string }) {
   return (
     <div className="mb-1.5 flex items-center gap-2">
       <StatusChip q={q} />
-      <span className="min-w-0 truncate font-mono text-[10px] text-[#92A399]">{sourceLine(q)}</span>
+      <span className="min-w-0 break-words font-mono text-[10px] leading-snug text-[#92A399] lg:truncate">{sourceLine(q)}</span>
     </div>
   );
 }

@@ -38,15 +38,21 @@ const QUEUE_ID = "launch-queue";
 
 const WORDMARK = "/afvar-signature/golden-reveal/afvar-wordmark-dock.webp";
 
-/** Scroll progress through the section where the flight starts and touches down. */
-const LIFT = 0.04;
+/** The flight starts once the pad's top has risen to this share of the viewport height: the
+ *  footer above has mostly scrolled away, so the logo travels over the pad's own dark space and the
+ *  navbar stays (with its Menu) until then. */
+const LIFT_TOP = 0.55;
+/** Share of the pad scrolled into view at touchdown (capped at the page's end). */
 const LAND = 0.9;
+/** Shortest flight, as a share of the viewport height of scrolling. */
+const MIN_FLIGHT = 0.3;
 /** Share of the remaining distance the damped progress covers per 60 Hz frame. */
 const FOLLOW = 0.18;
 
 type Box = { x: number; y: number; w: number; h: number };
 
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+const easeOut = (t: number) => 1 - (1 - t) ** 3;
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 const bez = (a: number, c: number, b: number, t: number) =>
   (1 - t) * (1 - t) * a + 2 * (1 - t) * t * c + t * t * b;
@@ -149,12 +155,14 @@ function QueueIcon() {
   );
 }
 
-/** Translate/rotate/scale that moves an element whose natural box is `to` (viewport) so it appears along the arc from `from`. */
-function arc(from: Box, to: Box, e: number, bank: number, sag: number, spin: number) {
+/** Translate/rotate/scale that moves an element whose natural box is `to` (viewport) so it appears along the arc from `from`.
+ *  `e` drives the sideways bank, scale and spin; `ey` the drop, which runs ahead so the logo leaves the top of the
+ *  screen (where the footer's last links still are) early and spends the flight over the pad. */
+function arc(from: Box, to: Box, e: number, ey: number, bank: number, spin: number) {
   const x0 = from.x + from.w / 2, y0 = from.y + from.h / 2;
   const x1 = to.x + to.w / 2, y1 = to.y + to.h / 2;
   const x = bez(x0, x1 + bank, x1, e);
-  const y = bez(y0, y0 + (y1 - y0) * sag, y1, e);
+  const y = bez(y0, y1, y1, ey);
   const s = (from.w / to.w) ** (1 - e);
   const r = Math.sin(Math.PI * e) * spin;
   return `translate3d(${(x - x1).toFixed(2)}px, ${(y - y1).toFixed(2)}px, 0) rotate(${r.toFixed(2)}deg) scale(${s.toFixed(4)})`;
@@ -182,6 +190,8 @@ export function FooterLanding() {
 
     // Cached geometry (layout is read here only).
     let sec = { top: 0, h: 1 };
+    let liftAt = 0; // scrollY where the flight starts / touches down
+    let landAt = 1;
     let slotMark: Box = { x: 0, y: 0, w: 1, h: 1 };
     let slotWord: Box = { x: 0, y: 0, w: 1, h: 1 };
     let from = navBoxes();
@@ -204,6 +214,9 @@ export function FooterLanding() {
       if (!html.hasAttribute("data-fl-nav-away")) from = navBoxes();
       vh = window.innerHeight;
       vw = window.innerWidth;
+      const maxScroll = Math.max(0, html.scrollHeight - vh);
+      landAt = Math.min(sec.top + sec.h * LAND - vh, maxScroll - 2);
+      liftAt = Math.min(sec.top - vh * LIFT_TOP, landAt - vh * MIN_FLIGHT);
     };
 
     // Threshold flags (written only when they change).
@@ -225,7 +238,7 @@ export function FooterLanding() {
     const setLandedFlag = (on: boolean) => flag("landed", on, (v) => (v ? (node.dataset.landed = "") : delete node.dataset.landed));
 
     const render = (p: number) => {
-      const t = clamp01((p - LIFT) / (LAND - LIFT));
+      const t = clamp01((p - liftAt) / (landAt - liftAt));
       setLifted(t > 0);
       setFlying(t > 0 && t < 1);
       setLandedFlag(t >= 1);
@@ -237,22 +250,24 @@ export function FooterLanding() {
       const toWord = { ...slotWord, y: slotWord.y - sy };
       const toMark = { ...slotMark, y: slotMark.y - sy };
       // Wordmark banks out to the right; the mark leaves a beat later and arcs out to the left.
-      word.style.transform = arc(from.word, toWord, easeInOut(t), vw * 0.16, 0.2, 3);
-      mark.style.transform = arc(from.mark, toMark, easeInOut(clamp01(t * 1.12 - 0.12)), -vw * 0.2, 0.55, -24);
+      const tm = clamp01(t * 1.12 - 0.12);
+      word.style.transform = arc(from.word, toWord, easeInOut(t), easeOut(t), vw * 0.16, 3);
+      mark.style.transform = arc(from.mark, toMark, easeInOut(tm), easeOut(clamp01(t * 1.06 - 0.03)), -vw * 0.2, -24);
     };
 
     let reduce = false;
     let cur = -1;
     let raf = 0;
     let lastT = 0;
-    const goal = () => (window.scrollY + vh - sec.top) / sec.h;
+    // Progress is tracked in scroll pixels; render() maps it onto the flight window.
+    const goal = () => window.scrollY;
     const tick = (now: number) => {
       raf = 0;
       const g = goal();
       const dt = lastT ? Math.min(64, now - lastT) : 16.7;
       lastT = now;
       cur = cur < 0 ? g : cur + (g - cur) * (1 - (1 - FOLLOW) ** (dt / 16.7));
-      const settled = Math.abs(g - cur) < 0.0005;
+      const settled = Math.abs(g - cur) < 0.5;
       if (settled) cur = g;
       render(cur);
       if (settled) lastT = 0;
@@ -273,7 +288,7 @@ export function FooterLanding() {
       if (!reduce) mark.style.opacity = word.style.opacity = flags.lifted ? "1" : "0";
       if (reduce) {
         // Still: the landed logo, nothing travels.
-        render(1);
+        render(Number.MAX_SAFE_INTEGER);
         setLifted(false);
         mark.style.opacity = word.style.opacity = "";
       }

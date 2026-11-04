@@ -51,10 +51,13 @@ function Consent({ id, checked, onChange, children }: { id: string; checked: boo
   );
 }
 
-/** Opens a legal page in the same tab, with a way back to this form (`?from=`). */
-function LegalLink({ href, from, children }: { href: string; from: string; children: ReactNode }) {
+/**
+ * Opens a legal page in the same tab. The pages have no way back to this form, so the
+ * browser's Back button returns here and the draft below restores what was typed.
+ */
+function LegalLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link href={`${href}?from=${encodeURIComponent(from)}`} className="font-medium text-(--afvar-mint) underline-offset-2 hover:underline">
+    <Link href={href} className="font-medium text-(--afvar-mint) underline-offset-2 hover:underline">
       {children}
     </Link>
   );
@@ -129,7 +132,6 @@ export function RegisterView() {
   const [error, setError] = useState<MessageKey | null>(null);
   const [pending, setPending] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
-  const formPath = next ? `/register?next=${encodeURIComponent(next)}` : "/register";
 
   // Restore what was typed before reading a legal page (same tab), once, after hydration.
   useEffect(() => {
@@ -277,13 +279,14 @@ export function RegisterView() {
     <fieldset key="agreements" className="flex flex-col gap-2.5 rounded-2xl border border-white/15 bg-white/[.05] p-3.5 backdrop-blur-md">
       <legend className="px-1 text-[11px] font-medium text-white/80">{t("auth.register.consentLegend")}</legend>
       <Consent id="consent-terms" checked={consents.terms} onChange={consent("terms")}>
-        {t("auth.register.consentTermsPrefix")} <LegalLink href="/legal/terms" from={formPath}>{t("legal.terms.title")}</LegalLink>
+        {t("auth.register.consentTermsPrefix")} <LegalLink href="/terms">{t("legal.terms.title")}</LegalLink>
       </Consent>
       <Consent id="consent-privacy" checked={consents.privacy} onChange={consent("privacy")}>
-        {t("auth.register.consentPrivacyPrefix")} <LegalLink href="/legal/privacy" from={formPath}>{t("legal.privacy.title")}</LegalLink>
+        {t("auth.register.consentPrivacyPrefix")} <LegalLink href="/privacy">{t("legal.privacy.title")}</LegalLink>
       </Consent>
+      {/* No risk-disclaimer page yet; until one is written, /terms ("What AFVAR is") states the not-advice terms. */}
       <Consent id="consent-risk" checked={consents.risk} onChange={consent("risk")}>
-        {t("auth.register.consentRisk")} <LegalLink href="/legal/risk-disclaimer" from={formPath}>{t("legal.risk.title")}</LegalLink>
+        {t("auth.register.consentRisk")} <LegalLink href="/terms">{t("legal.risk.title")}</LegalLink>
       </Consent>
       <Consent id="consent-age" checked={consents.age} onChange={consent("age")}>
         {t("auth.register.consentAge")}

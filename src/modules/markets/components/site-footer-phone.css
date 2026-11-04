@@ -30,3 +30,12 @@ html[data-reduce-motion="true"] .mk-ft-hairline, html[data-reduce-motion="true"]
 }
 html[data-reduce-motion="true"] .mk-ft-root button[data-glass-hit-area] { animation: none; }
 @keyframes mk-ft-bob { from { translate: 0 0; } to { translate: 0 -3px; } }
+
+/* Narrowest phones (≤ 359 px): bull, wordmark and bear share one row, so give it air —
+   a slightly smaller, tighter wordmark and smaller beasts (`scale`, so their own click
+   transform and the bob `translate` are untouched). */
+@media (max-width: 359px) {
+  .mk-ft-root .mk-ft-group a[lang="en"] { font-size: 17px; letter-spacing: .3em !important; margin-left: 2px; }
+  .mk-ft-root button[data-glass-hit-area] { scale: .8; transform-origin: left center; }
+  .mk-ft-root button[data-glass-hit-area][aria-label*="bear"] { transform-origin: right top; }
+}

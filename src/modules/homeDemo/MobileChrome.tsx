@@ -12,6 +12,8 @@ import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import "./mobile-page.css";
 
 const PHONE = "(max-width: 639px)";
+/** Scroll left (px) over which the progress bar fades out at the page end. */
+const FADE_PX = 240;
 const REDUCED = "(prefers-reduced-motion: reduce)";
 const reducedMotion = () =>
   window.matchMedia(REDUCED).matches || document.documentElement.dataset.reduceMotion === "true";
@@ -24,6 +26,12 @@ export function MobilePageChrome() {
   const speed = useSpring(useTransform(useVelocity(scrollY), (v) => Math.min(1, Math.abs(v) / 2600)), { stiffness: 260, damping: 30 });
   const glow = useTransform(speed, [0, 1], [0.25, 1]);
   const glowScale = useTransform(speed, [0, 1], [0.7, 1.7]);
+  // Fade the bar out over the last stretch of the page, so it never runs
+  // through the footer's landed logo. Scroll left = total - y, where
+  // total = y / progress (no layout reads).
+  const barOpacity = useTransform([scrollY, scrollYProgress], ([y, p]: number[]) =>
+    p <= 0 ? 1 : Math.min(1, Math.max(0, (y / p - y) / FADE_PX)),
+  );
   const root = useRef<HTMLDivElement>(null);
   const ripples = useRef<HTMLDivElement>(null);
 
@@ -131,12 +139,12 @@ export function MobilePageChrome() {
         <span className="hm-backdrop-scan" />
         <span className="hm-backdrop-grain" />
       </div>
-      <div className="hm-progress">
+      <motion.div className="hm-progress" style={{ opacity: barOpacity }}>
         <motion.div className="hm-progress-bar" style={{ x }}>
           <motion.span className="hm-progress-glow" style={{ opacity: glow, scale: glowScale }} />
           <span className="hm-progress-head" />
         </motion.div>
-      </div>
+      </motion.div>
       <div ref={ripples} className="hm-ripples" />
     </div>
   );

@@ -136,10 +136,10 @@ export function HubSections() {
           {results.map((r, i) => (
             <div key={r.t} className="border-b border-[rgba(255,255,255,0.06)] py-2 last:border-b-0">
               <div className="flex items-baseline justify-between gap-3">
-                <b className={`min-w-0 truncate text-[13.5px] ${i === 0 ? "text-[#A8DEC2]" : "text-[#F2F5F2]"}`}>{r.t}</b>
+                <b className={`min-w-0 break-words lg:truncate text-[13.5px] ${i === 0 ? "text-[#A8DEC2]" : "text-[#F2F5F2]"}`}>{r.t}</b>
                 <span className="shrink-0 font-mono text-[11px] text-[#92A399]">{r.kind}</span>
               </div>
-              <p className="mt-0.5 truncate text-[12.5px] text-[#B7C5BC]">{r.s}</p>
+              <p className="mt-0.5 break-words lg:truncate text-[12.5px] text-[#B7C5BC]">{r.s}</p>
             </div>
           ))}
         </Win>
@@ -573,10 +573,10 @@ export function HelpSections() {
           {TROUBLESHOOTING.map((t, i) => (
             <div key={t.slug} className="border-b border-[rgba(255,255,255,0.06)] py-3 last:border-b-0">
               <div className="flex items-baseline justify-between gap-3">
-                <b className={`min-w-0 truncate text-[13px] ${i === 2 ? "text-[#A8DEC2]" : "text-[#F2F5F2]"}`}>{t.title}</b>
+                <b className={`min-w-0 break-words lg:truncate text-[13px] ${i === 2 ? "text-[#A8DEC2]" : "text-[#F2F5F2]"}`}>{t.title}</b>
                 <span className="shrink-0 font-mono text-[11px] text-[#92A399]">{`${t.checks.length} checks`}</span>
               </div>
-              <p className="mt-0.5 truncate text-[12.5px] leading-relaxed text-[#B7C5BC]">{t.symptom}</p>
+              <p className="mt-0.5 break-words lg:truncate text-[12.5px] leading-relaxed text-[#B7C5BC]">{t.symptom}</p>
             </div>
           ))}
         </Win>

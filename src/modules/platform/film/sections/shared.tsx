@@ -6,7 +6,7 @@ import { animate, backOut, useInView, useMotionValueEvent } from "framer-motion"
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CandleChart, Chip, Steps, Win, useAfvarReducedMotion, useCardEntered, useSection, useSectionRamp, useWinReveal, type AppGlyphName, type ChartLevel2 } from "@/modules/afvarOs";
 import { useLiveMarket, type HomeQuote } from "@/modules/home/kit";
-import { STATUS_LABEL, asOfText } from "../market/analysis";
+import { STATUS_LABEL, asOfText, providerName } from "../market/analysis";
 
 export const SYM: Record<string, string> = { XAUUSD: "Gold", XAGUSD: "Silver", WTI: "Crude oil", EURUSD: "EUR/USD", USDJPY: "USD/JPY", GBPUSD: "GBP/USD", NZDUSD: "NZD/USD", "BTC-USD": "Bitcoin" };
 
@@ -35,7 +35,7 @@ export const fmt = (v: number | null | undefined, d = 2) => (v == null ? "—" :
 /** "Live · Gold-API.com (spot) · 06:40 UTC" for a quote. */
 export function sourceLine(q: HomeQuote | undefined): string {
   if (!q || q.status === "snapshot") return "Stored values · not live";
-  return `${STATUS_LABEL[q.status]} · ${q.source ?? "provider"} · ${asOfText(q.asOf)}`;
+  return `${STATUS_LABEL[q.status]} · ${providerName(q)} · ${asOfText(q.asOf)}`;
 }
 
 export function StatusChip({ q }: { q: HomeQuote | undefined }) {

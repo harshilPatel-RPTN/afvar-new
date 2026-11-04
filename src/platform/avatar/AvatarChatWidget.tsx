@@ -16,8 +16,15 @@ const VIEWER_URL = "https://afvar-avatar-final.vercel.app/avatar/AFVAR/index.htm
 const TALK_GLOW_MS = 7000;
 /** The viewer is cross-origin: give up and offer Retry well before the embed's own 30s default. */
 const READY_TIMEOUT_MS = 12000;
-/** Below lg the launcher tucks mostly off-screen while the page scrolls, and returns this long after it stops. */
-const TUCK_IDLE_MS = 450;
+/** Phones/touch: the launcher folds to an edge tab while the page scrolls, and returns this long after it stops. */
+const TUCK_IDLE_MS = 800;
+/** Desktop (no fold while scrolling): how soon after scrolling stops the launcher checks what it covers. */
+const DESKTOP_IDLE_MS = 200;
+/** Scroll distance (px) that counts as the visitor scrolling rather than a layout nudge. */
+const SCROLL_SLOP = 8;
+/** Anything under the launcher matching this (or carrying visible text) makes it step aside. */
+const INTERACTIVE =
+  'a[href], button, input, select, textarea, summary, label, [role="button"], [role="link"], [role="tab"], [tabindex]:not([tabindex="-1"])';
 
 type Phase = "idle" | "loading" | "ready" | "failed";
 
@@ -260,21 +267,91 @@ export function AvatarChatWidget() {
     );
   const trap = open && compact;
 
-  // Below lg the launcher tucks mostly off the right edge while the page scrolls, so it stops
-  // covering what's being read; it stays put while it has keyboard focus.
+  // The launcher never sits on content. Phones, small tablets and touch screens: it folds to a
+  // thin edge tab while the page scrolls. Every size: once scrolling settles it checks what lies
+  // under its resting spot and stays a tab while a link, button or text would be covered, so
+  // e.g. the footer's legal row stays clickable. It stays out while it has keyboard focus.
   useEffect(() => {
-    if (!compact || open) return;
-    let timer = 0;
-    const onScroll = () => {
-      if (document.activeElement === launcherRef.current) return;
-      setTuck("tucked");
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => setTuck("back"), TUCK_IDLE_MS);
+    if (open) return;
+    const launcher = launcherRef.current;
+    const dock = launcher?.parentElement;
+    if (!launcher || !dock) return;
+    const touch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    const foldOnScroll = compact || touch;
+    const idleMs = foldOnScroll ? TUCK_IDLE_MS : DESKTOP_IDLE_MS;
+    const range = document.createRange();
+    const focused = () => document.activeElement === launcher;
+    const isContent = (x: number, y: number) => {
+      const hit = document.elementFromPoint(x, y);
+      if (!hit || dock.contains(hit)) return false;
+      if (hit.checkVisibility && !hit.checkVisibility({ opacityProperty: true, visibilityProperty: true })) return false;
+      if (hit.closest(INTERACTIVE)) return true;
+      for (const node of Array.from(hit.childNodes)) {
+        if (node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) continue;
+        range.selectNodeContents(node);
+        for (const r of Array.from(range.getClientRects())) {
+          if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true;
+        }
+      }
+      return false;
     };
+    // The launcher's resting box (offsets ignore the tuck translate), sampled on a grid with the
+    // launcher itself made transparent to hit-testing for the duration.
+    const covers = () => {
+      const d = dock.getBoundingClientRect();
+      const lift = parseFloat(getComputedStyle(dock).getPropertyValue("--launcher-lift")) || 0;
+      const left = d.left + launcher.offsetLeft;
+      const top = d.top + launcher.offsetTop + lift;
+      const w = launcher.offsetWidth;
+      const h = launcher.offsetHeight;
+      launcher.style.pointerEvents = "none";
+      try {
+        // 5×6 grid reaching 4% in from each edge, so a link's corner under the box counts too.
+        for (let i = 0; i < 5; i++) {
+          for (let j = 0; j < 6; j++) {
+            if (isContent(left + w * (0.04 + 0.23 * i), top + h * (0.04 + 0.184 * j))) return true;
+          }
+        }
+        return false;
+      } finally {
+        launcher.style.pointerEvents = "";
+      }
+    };
+    // Scroll position when the launcher last settled: 1-2px nudges from late layout shifts
+    // don't count as the visitor scrolling.
+    let restY = window.scrollY;
+    const settle = () => {
+      restY = window.scrollY;
+      if (focused()) return;
+      const covered = covers();
+      setTuck((current) => (covered ? "tucked" : current === "tucked" ? "back" : current));
+    };
+    let timer = 0;
+    let frame = 0;
+    const schedule = (ms: number) => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(settle, ms);
+    };
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        if (foldOnScroll && !focused() && Math.abs(window.scrollY - restY) > SCROLL_SLOP) setTuck("tucked");
+        schedule(idleMs);
+      });
+    };
+    const onResize = () => schedule(DESKTOP_IDLE_MS);
+    const onBlur = () => schedule(DESKTOP_IDLE_MS);
+    schedule(DESKTOP_IDLE_MS);
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+    launcher.addEventListener("focusout", onBlur);
     return () => {
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      launcher.removeEventListener("focusout", onBlur);
       window.clearTimeout(timer);
+      cancelAnimationFrame(frame);
     };
   }, [compact, open]);
   useEffect(() => {
@@ -287,6 +364,8 @@ export function AvatarChatWidget() {
     };
   }, [open, compact]);
 
+  const dockHidden = (launcherHidden || pageHidesLauncher) && !open;
+
   const retry = () => {
     avatarRef.current?.dispose();
     avatarRef.current = null;
@@ -297,8 +376,10 @@ export function AvatarChatWidget() {
   return (
     <div
       data-avatar-dock=""
-      className={`pointer-events-none fixed bottom-[max(16px,env(safe-area-inset-bottom))] right-[max(16px,env(safe-area-inset-right))] z-120 flex flex-col items-end gap-3 transition-[opacity,translate] duration-300 lg:bottom-22 lg:right-11 motion-reduce:transition-none ${
-        (launcherHidden || pageHidesLauncher) && !open ? "invisible opacity-0" : "opacity-100"
+      // --dock-r: the dock's right inset, so the tucked tab can leave exactly 16px on screen.
+      // --launcher-lift: raised by globals.css while the phone launch-queue banner holds the bottom edge.
+      className={`pointer-events-none fixed bottom-[max(16px,env(safe-area-inset-bottom))] right-(--dock-r) z-120 flex flex-col items-end gap-3 transition-[opacity,translate] duration-300 [--dock-r:max(16px,env(safe-area-inset-right))] [--launcher-lift:0px] lg:bottom-22 lg:[--dock-r:--spacing(11)] motion-reduce:transition-none ${
+        dockHidden ? "invisible opacity-0" : "opacity-100"
       }`}
     >
       {/* Below lg: a full-viewport layer that is both the dim backdrop (tap closes) and the
@@ -393,26 +474,39 @@ export function AvatarChatWidget() {
         // Opts out of the site-wide smoked-glass button skin (brand.css, unlayered, so it
         // beat these utilities and left the launcher dim); the launcher draws its own ring.
         data-glass-hit-area=""
-        // No disc behind the robot: the render itself is the button (larger, so it reads on its own).
-        className={`pointer-events-auto outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#00E676] relative flex h-18 w-15 items-center justify-center rounded-2xl bg-transparent transition-[opacity,scale,translate,visibility] hover:scale-105 motion-reduce:transition-none sm:h-24 sm:w-20 lg:h-28 lg:w-24 ${
+        data-avatar-launcher=""
+        data-tucked={!open && tuck === "tucked" ? "" : undefined}
+        // No disc behind the robot: the render itself is the button. Below lg (and on touch screens,
+        // globals.css) it is a compact 60px; lg+ desktops keep the full-size robot.
+        className={`group/launcher pointer-events-auto outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#00E676] relative flex h-15 w-[50px] items-center justify-center rounded-2xl bg-transparent transition-[opacity,scale,translate,visibility] motion-reduce:transition-none lg:h-28 lg:w-24 ${
           // The open panel stands in for the launcher, which shrinks and fades out (keeping its space,
           // so the panel doesn't shift), then pops back with an overshoot once the panel has folded away.
-          open
-            ? "invisible translate-y-2 scale-75 opacity-0 delay-100 duration-[400ms] ease-in"
-            : tuck === "tucked"
-              ? "visible translate-x-[65%] translate-y-0 scale-100 opacity-60 delay-0 duration-300 ease-out"
-              : `visible translate-y-0 scale-100 opacity-100 duration-500 ease-[cubic-bezier(.2,1.3,.4,1)] hover:delay-0 hover:duration-150 ${
-                  tuck === "back" ? "delay-0" : "delay-[450ms]"
-                }`
+          // Tucked: slid right until only a 16px edge tab is left on screen (still tappable).
+          // While a page shows the robot itself, the launcher is invisible too: an explicit `visible`
+          // here would override the dock's `invisible` and leave an unseen button catching taps.
+          dockHidden
+            ? "invisible pointer-events-none opacity-0 duration-300"
+            : open
+              ? "invisible translate-y-[calc(var(--launcher-lift)+8px)] scale-75 opacity-0 delay-100 duration-[400ms] ease-in"
+              : tuck === "tucked"
+                ? "visible translate-x-[calc(100%+var(--dock-r)-16px)] translate-y-(--launcher-lift) scale-100 opacity-100 delay-0 duration-300 ease-out"
+                : `visible translate-y-(--launcher-lift) scale-100 opacity-100 duration-500 ease-[cubic-bezier(.2,1.3,.4,1)] hover:scale-105 hover:delay-0 hover:duration-150 ${
+                    tuck === "back" ? "delay-0" : "delay-[450ms]"
+                  }`
         }`}
       >
+        {/* The edge tab: a glowing green grip, shown only while tucked. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute top-1/2 left-[5px] h-9 w-1.5 -translate-y-1/2 rounded-full bg-[#00E676] opacity-0 shadow-[0_0_10px_rgba(0,230,118,0.75)] transition-opacity duration-300 group-data-tucked/launcher:opacity-100 motion-reduce:transition-none"
+        />
         {/* The avatar's own render (repo reference.png, background removed). The idle float pauses while the chat is open. */}
         <Image
           src="/avatar/launcher.png"
           alt=""
           width={107}
           height={128}
-          className={`pointer-events-none relative h-18 w-auto drop-shadow-[0_6px_12px_rgba(0,0,0,0.65)] motion-reduce:animate-none sm:h-24 lg:h-28 ${open ? "" : "animate-avatar-float"}`}
+          className={`pointer-events-none relative h-15 w-auto drop-shadow-[0_6px_12px_rgba(0,0,0,0.65)] transition-opacity duration-300 group-data-tucked/launcher:opacity-0 motion-reduce:animate-none motion-reduce:transition-none lg:h-28 ${open ? "" : "animate-avatar-float"}`}
         />
       </button>
     </div>

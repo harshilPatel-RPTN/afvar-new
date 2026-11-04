@@ -3,7 +3,7 @@
 // The 3D heroes of the site pages (About, Pricing, the Markets family, the
 // Resources family) — each page's own centrepiece, built from the shared kit.
 // No page reuses another's object, and none uses the home's gold core.
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef, type ReactNode } from "react";
 import * as THREE from "three";
 import { COLORS, useFilmMode, type CameraKey } from "@/modules/afvarOs";
@@ -160,14 +160,10 @@ function animateRules(stack: THREE.Group, mats: RuleMats[], pulse: THREE.Object3
   }
 }
 
-function PrinciplesStack({ portrait = false }: { portrait?: boolean }) {
+function PrinciplesStack() {
   const { still } = useStoryFrame();
-  // Short portrait phones (e.g. 320×640) have ~120 px between the navbar and the copy: shrink the stack
-  // and lift it so its lower tiles never sit behind the headline. 840 px and taller: unchanged.
-  const h = useThree((st) => st.size.height);
-  const k = portrait ? Math.min(1, Math.max(0, (h - 640) / 200)) : 1;
-  const fitS = 0.56 + 0.44 * k;
-  const fitY = (1 - k) * 0.85;
+  // Short portrait phones: the hero (HeroStage) gives the canvas a shorter box between the navbar and
+  // the copy, so the stack keeps its own size here and never sits behind the headline.
   const { lite } = useFilmMode();
   const stack = useRef<THREE.Group>(null);
   const pulse = useRef<THREE.Mesh>(null);
@@ -180,7 +176,7 @@ function PrinciplesStack({ portrait = false }: { portrait?: boolean }) {
     animateRules(g, mats.current, pulse.current, spark.current, s.clock.elapsedTime, still, lite);
   });
   return (
-    <group position={[0.4, -0.9 + fitY, 0]} rotation={[0.3, -0.45, 0]} scale={fitS}>
+    <group position={[0.4, -0.9, 0]} rotation={[0.3, -0.45, 0]}>
       <group ref={stack}>
         {[0, 1, 2, 3, 4].map((i) => (
           <group key={i} position={[0, i * RULE_GAP, 0]}>

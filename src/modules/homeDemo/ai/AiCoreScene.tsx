@@ -183,7 +183,8 @@ type FitPoint = { at: THREE.Vector3; px: number; py: number };
 /** Canvas edge clearance (px); the right edge also clears the chapter rail. */
 const FIT_EDGE = { left: 16, right: 56, top: 14, bottom: 30 };
 const HEADER_PX = 72;
-type Band = { top: number; right: number; bottom: number; left: number };
+/** `copy`: right edge (px from the canvas' left) of the desktop copy column of the cores / pipeline acts. */
+type Band = { top: number; right: number; bottom: number; left: number; copy: number };
 
 /**
  * Measures how much of each canvas edge is hidden: the fixed header over the
@@ -217,7 +218,14 @@ function VisibleBand({ onBand }: { onBand: (band: Band) => void }) {
         // The header covers the pinned stage's top edge.
         top = Math.max(top, st.top + HEADER_PX);
       }
-      onBand({ top: top - k.top, bottom: k.bottom - bottom, left: left - k.left, right: k.right - right });
+      // The cores and pipeline acts share the stage with a copy column on the
+      // left (heading + reasoning card); their 3D must stay clear of it.
+      let copy = 0;
+      for (const el of canvas.closest("#afvar-ai")?.querySelectorAll<HTMLElement>(':is([data-act="cores"], [data-act="stream"], [data-act="think"]) > .pointer-events-auto') ?? []) {
+        const r = el.getBoundingClientRect();
+        if (r.width) copy = Math.max(copy, r.right - k.left);
+      }
+      onBand({ top: top - k.top, bottom: k.bottom - bottom, left: left - k.left, right: k.right - right, copy: copy ? copy + 12 : 0 });
       invalidate();
     };
     measure();
@@ -240,7 +248,7 @@ const labelHalf = (text: string) => (text.length * 10.5 + 22) / 2;
  * pull-back is blended by that act's presence, so it eases in and out.
  */
 function makeContainFit(film: Film, keys: readonly CameraKey[], fov: number, belowHeader: boolean, openingScale: number, portrait: boolean) {
-  let band: Band = { top: 0, right: 0, bottom: 0, left: 0 };
+  let band: Band = { top: 0, right: 0, bottom: 0, left: 0, copy: 0 };
   const track = createCameraTrack(keys);
   const cam = new THREE.PerspectiveCamera(fov, 1, 0.1, 100);
   const pos = new THREE.Vector3();
@@ -263,9 +271,9 @@ function makeContainFit(film: Film, keys: readonly CameraKey[], fov: number, bel
           })
         : [],
     );
-  const column = (squeeze: number, lift: number) =>
+  const column = (squeeze: number, lift: number, aroundCore: boolean) =>
     SATELLITES.flatMap((s, i) => {
-      const c = columnPos(i, squeeze, lift);
+      const c = columnPos(i, squeeze, lift, aroundCore);
       return [pt(c[0], c[1], c[2], 18, 18), pt(c[0], c[1] + ORBIT.size + 0.3, c[2], labelHalf(s.label), 13)];
     });
   const sessionR = RING.radius + 0.16 + 3 * 0.09 + 0.45;
@@ -296,18 +304,22 @@ function makeContainFit(film: Film, keys: readonly CameraKey[], fov: number, bel
   const avatar = makeAvatarTrack(film, portrait);
   const frame = avatarFrame();
   const avatarFinale = (p: number) => film.has("finale") ? easeOut(ramp(p, film.at("finale", 0.12), film.at("finale", 0.45))) : 0;
-  const groups: { points: FitPoint[]; weight: (p: number) => number; scale: (p: number) => number }[] = [
+  const pipeline = (p: number) => Math.max(film.weight(p, "cores"), film.weight(p, "stream"), film.weight(p, "think"));
+  const groups: { points: FitPoint[]; weight: (p: number) => number; scale: (p: number) => number; clearCopy?: boolean }[] = [
     { points: core, weight: (p) => (finaleShift(film, portrait, p) === 0 ? 1 : 0), scale: (p) => coreDrive(p).scale },
     // The finale core, slid left of the robot.
     { points: core.map((c) => pt(c.at.x + (portrait ? -0.5 : -0.95), c.at.y, c.at.z)), weight: (p) => (finaleShift(film, portrait, p) === 0 ? 0 : 1), scale: (p) => coreDrive(p).scale },
     // The robot on stage in its act (not the finale wave, handled below).
     { points: robot(AVATAR.place.x, AVATAR.place.y, AVATAR.place.scale), weight: (p) => (avatarFinale(p) > 0 ? 0 : Math.min(1, avatar(p, 0, frame).visible ? frame.scale / AVATAR.place.scale : 0)), scale: () => 1 },
     { points: robot(portrait ? 1.05 : 1.45, -1.05, 0.42), weight: avatarFinale, scale: () => 1 },
+    // The core again, kept clear of the copy column while it sits beside it.
+    { points: core, weight: (p) => (finaleShift(film, portrait, p) === 0 ? pipeline(p) : 0), scale: (p) => coreDrive(p).scale, clearCopy: true },
     { points: orbit(ORBIT.radius, true), weight: (p) => film.weight(p, "cores"), scale: () => 1 },
     {
-      points: column(portrait ? film.portraitColumnSqueeze : 1, portrait ? film.portraitColumnLift : 0),
+      points: column(portrait ? film.portraitColumnSqueeze : 1, portrait ? film.portraitColumnLift : 0, portrait),
       weight: (p) => Math.max(film.weight(p, "stream"), film.weight(p, "think")),
       scale: () => 1,
+      clearCopy: true,
     },
     // Same group scales as <ClockRing/> and <PolicyGate/>.
     { points: ring, weight: (p) => film.weight(p, "always"), scale: (p) => 0.85 + 0.15 * film.weight(p, "always") },
@@ -333,6 +345,7 @@ function makeContainFit(film: Film, keys: readonly CameraKey[], fov: number, bel
     const oy = v.y;
     const b = band;
     const xL = -1 + (2 * (FIT_EDGE.left + b.left)) / w;
+    const xCopy = portrait || !b.copy ? xL : Math.max(xL, -1 + (2 * b.copy) / w);
     const xR = 1 - (2 * (FIT_EDGE.right + b.right)) / w;
     const yB = -1 + (2 * (FIT_EDGE.bottom + b.bottom)) / h;
     const yT = 1 - (2 * (FIT_EDGE.top + b.top)) / h;
@@ -356,7 +369,7 @@ function makeContainFit(film: Film, keys: readonly CameraKey[], fov: number, bel
       for (const { at, px, py } of group.points) {
         v.copy(at).multiplyScalar(scale).project(cam);
         if (v.z > 1) continue; // behind the camera (the dive into the OS)
-        kg = Math.min(kg, limit(v.x, ox, (2 * px) / w, xL, xR), limit(v.y, oy, (2 * py) / h, yB, yT));
+        kg = Math.min(kg, limit(v.x, ox, (2 * px) / w, group.clearCopy ? xCopy : xL, xR), limit(v.y, oy, (2 * py) / h, yB, yT));
       }
       k = Math.min(k, 1 - wgt * (1 - Math.max(0, kg)));
     }
@@ -513,7 +526,7 @@ const satLabelFade = SATELLITES.map(() => 1);
 const scratchA = new THREE.Vector3();
 const scratchB = new THREE.Vector3();
 
-function place(layout: Layout, i: number, t: number, out: THREE.Vector3, columnSqueeze = 1, columnLift = 0) {
+function place(layout: Layout, i: number, t: number, out: THREE.Vector3, columnSqueeze = 1, columnLift = 0, aroundCore = false) {
   const n = SATELLITES.length;
   switch (layout) {
     case "inside":
@@ -525,7 +538,7 @@ function place(layout: Layout, i: number, t: number, out: THREE.Vector3, columnS
       return out.set(Math.cos(a) * r, Math.sin(a) * r * ORBIT.tilt, Math.sin(a) * r * 0.9);
     }
     case "column": {
-      const c = columnPos(i, columnSqueeze, columnLift);
+      const c = columnPos(i, columnSqueeze, columnLift, aroundCore);
       return out.set(c[0], c[1], c[2]);
     }
     case "ring": {
@@ -549,6 +562,9 @@ function Satellites() {
   const nodes = useRef<(THREE.Group | null)[]>([]);
   const mats = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
   const labelNodes = useRef<(THREE.Group | null)[]>([]);
+  // Right edge of the cores act's copy column, in canvas px (re-read a few times
+  // a second, never per frame): orbit labels are kept to the right of it.
+  const copyEdge = useRef({ at: -1, x: 0 });
 
   useFrame((s) => {
     const p = smoothed.current ?? 0;
@@ -568,13 +584,26 @@ function Satellites() {
     // on another label. In the column the labels sit above their cores.
     const orbitness = film.weight(p, "cores");
     const backZ = ORBIT.radius * 0.9;
+    const edge = copyEdge.current;
+    if (orbitness > 0.001 && !portrait && (edge.at < 0 || Math.abs(s.clock.elapsedTime - edge.at) > 0.3)) {
+      edge.at = s.clock.elapsedTime;
+      const copy = s.gl.domElement.closest("#afvar-ai")?.querySelector<HTMLElement>('[data-act="cores"] > .pointer-events-auto');
+      edge.x = copy ? copy.getBoundingClientRect().right - s.gl.domElement.getBoundingClientRect().left + 14 : 0;
+    }
     nodes.current.forEach((g, i) => {
-      place(seg.from, i, t, scratchA, squeeze, lift);
-      place(seg.to, i, t, scratchB, squeeze, lift);
+      place(seg.from, i, t, scratchA, squeeze, lift, portrait);
+      place(seg.to, i, t, scratchB, squeeze, lift, portrait);
       satPos[i].copy(scratchA.lerp(scratchB, seg.from === seg.to ? 0 : k));
       if (thinkFit !== 1) satPos[i].y = lift + (satPos[i].y - lift) * thinkFit;
       if (!g) return;
       g.position.copy(satPos[i]);
+      const born = easeOut(ramp(p, film.at("cores", 0.1) + i * 0.002, film.at("cores", 0.3) + i * 0.002));
+      const merged = 1 - easeOut(ramp(p, film.at("avatar", 0.0), film.at("avatar", 0.1))) * (1 - ramp(p, film.at("trust", 0.0), film.at("trust", 0.15)));
+      const back = 1 - easeOut(ramp(p, film.at("finale", 0.15), film.at("finale", 0.6)));
+      // The speaking core swells, but only so much that its ring stays clear of
+      // the label of the core above it in the column.
+      const pop = speaking === i ? 1.3 : 1;
+      const size = born * merged * back * quiet * pop;
       const lab = labelNodes.current[i];
       if (lab) {
         const sp = satPos[i];
@@ -591,14 +620,28 @@ function Satellites() {
           if (pxPerUnit > 1) extra = (labelHalf(SATELLITES[i].label) + 6) / pxPerUnit;
         }
         const reach = ORBIT.size * 1.7 + 0.12;
-        lab.position.set(dx * (reach + extra * Math.abs(dx)) * orbitness, (ORBIT.size + 0.3) * (1 - orbitness) + dy * (reach + 0.12) * orbitness, 0);
+        // In the column the label sits just above its core's ring. The label is a
+        // child of the (scaled) core, so a swelling core would otherwise carry its
+        // label up into the row above: keep the gap in screen px instead.
+        let above = ORBIT.size + 0.3;
+        if (orbitness < 0.999 && s.size.width && size > 0.002) {
+          scratchA.copy(sp).project(s.camera);
+          scratchB.copy(sp).setY(sp.y + 1).project(s.camera);
+          const pxPerUnit = Math.abs(scratchB.y - scratchA.y) * 0.5 * s.size.height;
+          if (pxPerUnit > 1) above = ORBIT.size * 1.7 + 19 / pxPerUnit / size;
+        }
+        lab.position.set(dx * (reach + extra * Math.abs(dx)) * orbitness, above * (1 - orbitness) + dy * (reach + 0.12) * orbitness, 0);
+        // Never over the copy column: a label whose left edge would cross it
+        // slides right until it clears the column.
+        if (orbitness > 0.001 && !portrait && edge.x > 0 && s.size.width) {
+          scratchA.copy(sp).add(lab.position).project(s.camera);
+          scratchB.copy(sp).add(lab.position).setX(scratchB.x + 1).project(s.camera);
+          const pxPerUnit = Math.abs(scratchB.x - scratchA.x) * 0.5 * s.size.width;
+          const left = (scratchA.x + 1) * 0.5 * s.size.width - labelHalf(SATELLITES[i].label);
+          if (pxPerUnit > 1 && left < edge.x) lab.position.x += ((edge.x - left) / pxPerUnit) * orbitness;
+        }
       }
       satLabelFade[i] = 1 - orbitness * (1 - ramp(satPos[i].z, -0.3 * backZ, 0.05 * backZ));
-      const born = easeOut(ramp(p, film.at("cores", 0.1) + i * 0.002, film.at("cores", 0.3) + i * 0.002));
-      const merged = 1 - easeOut(ramp(p, film.at("avatar", 0.0), film.at("avatar", 0.1))) * (1 - ramp(p, film.at("trust", 0.0), film.at("trust", 0.15)));
-      const back = 1 - easeOut(ramp(p, film.at("finale", 0.15), film.at("finale", 0.6)));
-      const pop = speaking === i ? 1.55 : 1;
-      const size = born * merged * back * quiet * pop;
       g.scale.setScalar(Math.max(0.0001, size));
       g.visible = size > 0.002;
       const m = mats.current[i];

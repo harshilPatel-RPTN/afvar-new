@@ -21,7 +21,7 @@ import { AiSpark, GlowLine, useStoryFrame } from "@/modules/afvarOs/gl";
 import { fmtPrice, type HomeQuote } from "@/modules/home/kit";
 import { LANE_KEYS, type Quotes } from "@/modules/homeDemo/kit";
 import { closesPoints, dirColor } from "../parts/closes";
-import { STATUS_LABEL, asOfText, signedPct } from "./analysis";
+import { STATUS_LABEL, asOfText, providerName, signedPct } from "./analysis";
 
 /** The wall in its own space: x along time, y up from the floor. */
 export const WALL = { length: 4.6, base: -1.2, low: 0.4, high: 2.1, depth: 1.2 } as const;
@@ -204,15 +204,17 @@ export function PriceWall({ quotes, compact, lite = false, yaw, pitch, x = 0 }: 
 function PriceLabel({ q, at, compact, boxRef }: { q: HomeQuote; at: THREE.Vector3; compact: boolean; boxRef?: Ref<HTMLDivElement> }) {
   const { labels } = useStoryFrame();
   const up = q.changePct >= 0;
-  const fresh = q.status === "snapshot" ? "Stored values · not live" : `${STATUS_LABEL[q.status]} · ${q.source ?? "provider"} · ${asOfText(q.asOf)}`;
+  // Stored values are never shown as a current price: "—" until a live or delayed quote arrives.
+  const stored = q.status === "snapshot";
+  const fresh = stored ? "Waiting for live data" : `${STATUS_LABEL[q.status]} · ${providerName(q)} · ${asOfText(q.asOf)}`;
   const dot = q.status === "live" ? "bg-[#00E676]" : q.status === "delayed" ? "bg-[#F6B94A]" : "bg-[#92A399]";
   return (
     <Html position={[at.x, at.y + (compact ? 0.42 : 0.5), at.z]} center portal={labels as RefObject<HTMLElement>} zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
       <div ref={boxRef} className={`whitespace-nowrap rounded-lg border border-[rgba(255,255,255,0.14)] bg-[rgba(15,18,20,0.88)] font-mono ${compact ? "-translate-x-[34%] px-2 py-1" : "-translate-x-[22%] px-3 py-2"}`}>
         <p className={`${compact ? "text-[8.5px]" : "text-[9.5px]"} uppercase tracking-[0.16em] text-[#8A9295]`}>XAU/USD · 1H closes</p>
         <p className="mt-0.5 flex items-baseline gap-2">
-          <span className={`font-sans font-semibold tabular-nums text-[#F2F5F2] ${compact ? "text-[13px]" : "text-[17px]"}`}>{fmtPrice(q.last, q.decimals)}</span>
-          <span className={`${compact ? "text-[9.5px]" : "text-[11px]"} ${up ? "text-[#00E676]" : "text-[#FF6B6B]"}`}>{signedPct(q.changePct)}</span>
+          <span className={`font-sans font-semibold tabular-nums text-[#F2F5F2] ${compact ? "text-[13px]" : "text-[17px]"}`}>{stored ? "—" : fmtPrice(q.last, q.decimals)}</span>
+          {stored ? null : <span className={`${compact ? "text-[9.5px]" : "text-[11px]"} ${up ? "text-[#00E676]" : "text-[#FF6B6B]"}`}>{signedPct(q.changePct)}</span>}
         </p>
         <p className={`mt-0.5 flex items-center gap-1.5 ${compact ? "text-[8px]" : "text-[9px]"} uppercase tracking-[0.12em] text-[#8A9295]`}>
           <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />

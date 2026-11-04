@@ -181,6 +181,33 @@
     justify-content: flex-start;
     color: var(--afvar-muted);
   }
+  /* The extras sit side by side (Search | Sound), with the CTA across the full width,
+     so the whole menu fits on a phone screen without scrolling inside the card. */
+  .afvar-responsive-home .afvar-menu-extra {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    align-items: stretch;
+  }
+  .afvar-responsive-home .afvar-menu-extra > * { min-width: 0; }
+  .afvar-responsive-home .afvar-menu-column .afvar-menu-extra :is(a, button) { gap: 8px; margin-block: 0; padding-inline: 9px; font-size: 12.5px; line-height: 1.25; }
+  .afvar-responsive-home .afvar-menu-column .afvar-menu-extra > div > button { height: 100%; }
+  .afvar-responsive-home .afvar-menu-extra > :first-child:nth-last-child(2),
+  .afvar-responsive-home .afvar-menu-column .afvar-menu-join { grid-column: 1 / -1; }
+  .afvar-responsive-home .afvar-menu-column .afvar-menu-extra .afvar-menu-join { margin-top: 0; padding-inline: 11px; font-size: 13px; }
+}
+/* Short phones (e.g. 320×568): drop the decorative "Menu" heading and tighten the rows. */
+@media (max-width: 639px) and (max-height: 740px) {
+  .afvar-responsive-home .afvar-home-menu { padding-block: 10px calc(10px + env(safe-area-inset-bottom)); }
+  .afvar-responsive-home .afvar-menu-column {
+    padding: 7px;
+    max-height: calc(100dvh - 72px - 20px - env(safe-area-inset-bottom));
+  }
+  .afvar-responsive-home .afvar-menu-primary > .afvar-menu-heading { display: none; }
+  .afvar-responsive-home .afvar-menu-children > .afvar-menu-heading { padding-block: 4px 8px; margin-bottom: 4px; }
+  .afvar-responsive-home .afvar-menu-column :is(a, button) { min-height: 40px; padding-block: 7px; margin-block: 1px; }
+  .afvar-responsive-home .afvar-menu-column .afvar-menu-join { min-height: 42px; }
+  .afvar-responsive-home .afvar-menu-extra { margin-top: 5px; padding-top: 6px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .afvar-menu-trigger svg path, .afvar-responsive-home .afvar-menu-column :is(a, button) { transition: none; }

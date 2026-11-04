@@ -281,28 +281,28 @@ function HeroMarkets() {
   const latest = shown.reduce<number | null>((m, q) => (q.asOf && (!m || q.asOf > m) ? q.asOf : m), null);
   return (
     <div className="home-hero-markets mt-8">
-      <ul className="grid grid-cols-4 gap-x-2 gap-y-2" aria-label="Markets the AI reads">
+      <ul className="home-hero-grid grid grid-cols-4 gap-x-2 gap-y-2" aria-label="Markets the AI reads">
         {LANE_KEYS.map(([k, sym], i) => {
           const q = quotes[k];
           const up = q ? q.changePct >= 0 : true;
           return (
             <li key={k} style={{ "--i": i } as CSSProperties} className="home-hero-market min-w-0 rounded-lg border border-[rgba(168,222,194,0.12)] bg-[rgba(6,17,12,0.55)] px-2.5 py-1.5">
               <span className="flex items-center justify-between gap-1.5 font-mono text-[10px] tracking-[0.08em] text-[#B7C5BC]">
-                <span className="truncate">{sym}</span>
+                <span className="home-hero-sym whitespace-nowrap">{sym}</span>
                 {ready && q ? (
-                  <span className="flex shrink-0 items-center gap-1 text-[9px] uppercase text-[#92A399]">
-                    <i aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[q.status]}`} />
-                    {STATUS_LABEL[q.status]}
+                  <span className="home-hero-status flex shrink-0 items-center gap-1 text-[9px] uppercase text-[#92A399]" title={STATUS_LABEL[q.status]}>
+                    <i aria-hidden="true" className={`h-1.5 w-1.5 shrink-0 rounded-full ${STATUS_DOT[q.status]}`} />
+                    <span className="home-hero-status-word">{STATUS_LABEL[q.status]}</span>
                   </span>
                 ) : null}
               </span>
               <span className="mt-0.5 flex items-baseline justify-between gap-1.5 font-mono tabular-nums">
                 {ready && q ? (
                   <>
-                    <span key={q.last} data-dir={q.dir} className="home-hero-price truncate text-[12.5px] text-[#F2F5F2]">
+                    <span key={q.last} data-dir={q.dir} className="home-hero-price whitespace-nowrap text-[12.5px] text-[#F2F5F2]">
                       {fmtPrice(q.last, q.decimals)}
                     </span>
-                    <span className={`shrink-0 text-[10.5px] ${up ? "text-[#00E676]" : "text-[#FF6B6B]"}`}>{signedPct(q.changePct)}</span>
+                    <span className={`home-hero-pct shrink-0 text-[10.5px] ${up ? "text-[#00E676]" : "text-[#FF6B6B]"}`}>{signedPct(q.changePct)}</span>
                   </>
                 ) : (
                   <span className="text-[12.5px] text-[#92A399]">—</span>
@@ -312,8 +312,8 @@ function HeroMarkets() {
           );
         })}
       </ul>
-      <p className={`${MONO} mt-2 truncate text-[9.5px] tracking-[0.06em] text-[#92A399]`}>
-        {!ready ? "—" : shown.length ? `${sources || "provider"} · ${asOfText(latest)}` : "Stored values · not live"}
+      <p className={`home-hero-src ${MONO} mt-2 text-[9.5px] leading-[1.45] tracking-[0.06em] text-[#92A399]`}>
+        {!ready ? "—" : shown.length ? <>{sources || "provider"} · <span className="whitespace-nowrap">{asOfText(latest)}</span></> : "Stored values · not live"}
       </p>
     </div>
   );

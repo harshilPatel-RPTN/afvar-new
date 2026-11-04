@@ -288,7 +288,7 @@ export function OsPlayground() {
                   onBlur={() => setTimeout(() => setFocused(false), 150)}
                   placeholder={s.ask}
                   lang={lang}
-                  className="min-w-0 flex-1 bg-transparent text-[16px] text-[#F2F5F2] outline-none placeholder:text-[#92A399]"
+                  className="min-w-0 flex-1 bg-transparent text-[16px] text-[#F2F5F2] outline-none! placeholder:text-[#92A399]"
                 />
                 <span className="font-mono text-[11px] text-[#92A399]">↵</span>
               </label>

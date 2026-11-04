@@ -1,5 +1,6 @@
 "use client";
 
+import { cancelFrame, frame } from "framer-motion";
 import { useEffect, useRef } from "react";
 import "./button-fx.css";
 
@@ -43,18 +44,20 @@ export function ButtonFx() {
       }
       return ok ? el : null;
     };
-    let raf = 0;
+    let following = false;
     const leave = () => {
-      cancelAnimationFrame(raf);
-      raf = 0;
+      if (following) cancelFrame(follow);
+      following = false;
       if (!current) return;
       current.removeAttribute("data-mb-hover");
       box.dataset.on = "false";
       current = null;
     };
     // Keep the beam glued to the hovered button every frame, so it follows when the
-    // button itself moves (menu cards swapping, carousels, sticky sections).
-    const follow = () => {
+    // button itself moves (menu cards swapping, carousels, sticky sections). It runs in
+    // framer-motion's post-render step, i.e. after that frame's layout/transform
+    // animations were written, so the beam never trails a frame behind a moving card.
+    function follow() {
       const el = current;
       if (!el) return;
       if (!el.isConnected) {
@@ -65,8 +68,7 @@ export function ButtonFx() {
       box.style.translate = `${r.left}px ${r.top}px`;
       box.style.width = `${r.width}px`;
       box.style.height = `${r.height}px`;
-      raf = requestAnimationFrame(follow);
-    };
+    }
 
     const onMove = (e: PointerEvent) => {
       if (e.pointerType !== "mouse" || reduce()) return;
@@ -78,6 +80,8 @@ export function ButtonFx() {
       el.setAttribute("data-mb-hover", "");
       box.style.borderRadius = getComputedStyle(el).borderTopLeftRadius;
       follow();
+      following = true;
+      frame.postRender(follow, true);
       // Restart the shine on every new hover.
       box.dataset.on = "false";
       requestAnimationFrame(() => {

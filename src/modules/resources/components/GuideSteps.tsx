@@ -20,7 +20,8 @@ export function GuideSteps({ steps }: { steps: Guide["steps"] }) {
                 type="button"
                 onClick={() => setCurrent(i)}
                 aria-current={active ? "step" : undefined}
-                className={`flex w-full gap-4 rounded-2xl p-5 text-left transition-colors ${active ? "bg-(--card-hover) shadow-[inset_0_0_0_1px_var(--accent-border)]" : "bg-(--card) shadow-[inset_0_0_0_0.5px_var(--card-edge)] hover:bg-(--card-hover)"}`}
+                data-glass-hit-area
+                className={`flex w-full gap-4 rounded-2xl p-5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-white/50 ${active ? "bg-(--card-hover) shadow-[inset_0_0_0_1px_var(--accent-border)]" : "bg-(--card) shadow-[inset_0_0_0_0.5px_var(--card-edge)] hover:bg-(--card-hover)"}`}
               >
                 <span
                   className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-semibold transition-colors ${

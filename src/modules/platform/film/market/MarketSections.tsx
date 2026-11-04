@@ -9,7 +9,7 @@ import { Ask, AvatarLine, Chip, Note, OsSection, Pct, Row, Win } from "@/modules
 import { LANE_KEYS } from "@/modules/homeDemo/kit";
 import { useLiveMarket, type HomeQuote } from "@/modules/home/kit";
 import { ChartWin, Para, StatusChip, SYM, sourceLine, useQuote } from "../sections/shared";
-import { asOfText } from "./analysis";
+import { asOfText, providerName } from "./analysis";
 
 const fmt = (q: HomeQuote | undefined, v?: number) => (q ? (v ?? q.last).toLocaleString("en-US", { minimumFractionDigits: q.decimals, maximumFractionDigits: q.decimals }) : "—");
 
@@ -91,7 +91,7 @@ function Sources() {
       <Win at={0.06} x={40} y={20} w={580} h={228} title="Data sources" glyph="settings">
         {FEEDS.map((f) => {
           const q = quotes[f.keys[0]];
-          return <Row key={f.name} k={f.name} v={<span className="flex items-center gap-2">{q?.source ?? "stored"} <StatusChip q={q} /></span>} />;
+          return <Row key={f.name} k={f.name} v={<span className="flex items-center gap-2">{providerName(q, "stored")} <StatusChip q={q} /></span>} />;
         })}
         <div className="mt-3 flex flex-wrap gap-2">
           <Chip tone="gold">Market core · reading</Chip>

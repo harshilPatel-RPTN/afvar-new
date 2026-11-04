@@ -24,28 +24,48 @@ export function PageProgress() {
 function ProgressLine() {
   const { scrollYProgress } = useScroll();
   const ref = useRef<HTMLDivElement>(null);
-  // Sit under the navbar, wherever it is (measured, never covering it).
+  // Sit under the navbar, wherever it is (measured, never covering it). It fades out
+  // with the navbar once the footer comes on screen (the footer landing sends the bar
+  // away), so it never strikes through the closing CTAs or the footer's links.
   useEffect(() => {
     let raf = 0;
+    const html = document.documentElement;
     const place = () => {
       raf = 0;
+      const line = ref.current;
+      if (!line) return;
       const nav = document.querySelector(NAV);
-      if (ref.current) ref.current.style.top = `${nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0}px`;
+      line.style.top = `${nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0}px`;
+      const footers = document.querySelectorAll("footer");
+      const footer = footers[footers.length - 1];
+      const footerOnScreen = footer ? footer.getBoundingClientRect().top < window.innerHeight : false;
+      const away = html.hasAttribute("data-fl-nav-away") || footerOnScreen;
+      line.style.opacity = away ? "0" : "1";
+      line.style.visibility = away ? "hidden" : "";
     };
     const queue = () => {
       if (!raf) raf = requestAnimationFrame(place);
     };
     queue();
+    const watch = new MutationObserver(queue);
+    watch.observe(html, { attributes: true, attributeFilter: ["data-fl-nav-away"] });
     window.addEventListener("scroll", queue, { passive: true });
     window.addEventListener("resize", queue);
     return () => {
       cancelAnimationFrame(raf);
+      watch.disconnect();
       window.removeEventListener("scroll", queue);
       window.removeEventListener("resize", queue);
     };
   }, []);
   return (
-    <div ref={ref} aria-hidden="true" data-page-progress="" className="pointer-events-none fixed inset-x-0 z-40 h-[2px]" style={{ top: 72 }}>
+    <div
+      ref={ref}
+      aria-hidden="true"
+      data-page-progress=""
+      className="pointer-events-none fixed inset-x-0 z-40 h-[2px] transition-[opacity,visibility] duration-300 motion-reduce:transition-none"
+      style={{ top: 72 }}
+    >
       <motion.div className="h-full w-full origin-left bg-[#A8DEC2]" style={{ scaleX: scrollYProgress }} />
     </div>
   );

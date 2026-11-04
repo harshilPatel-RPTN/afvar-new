@@ -11,7 +11,7 @@
 
 .fl-root {
   --fl-word: min(52vw, 900px, 80svh); /* wordmark width (≈50 % of the viewport on desktop) */
-  --fl-mark: clamp(76px, min(10vw, 16svh), 156px);
+  --fl-mark: clamp(44px, min(10vw, 16svh), 156px);
   --fl-green: #00e676;
   --fl-mint: #a8dec2;
   --fl-text: #eef6f1;
@@ -25,10 +25,10 @@
   /* Full bleed: break out of the footer's centred container, edge to edge (--fl-vw is the viewport minus scrollbar, set in JS). */
   width: var(--fl-vw, 100vw);
   margin-inline: calc(50% - var(--fl-vw, 100vw) / 2);
+  /* Exactly one screen, however short (no fixed minimum: on a landscape phone it would push the landed logo off the top). */
   height: 100svh;
-  min-height: 600px;
-  /* Bottom band belongs to the earth horizon; content stays above it. */
-  padding: clamp(28px, 6svh, 72px) 24px clamp(150px, 25svh, 290px);
+  /* Top: clear of the 72 px navbar line. Bottom band belongs to the earth horizon; content stays above it. */
+  padding: clamp(76px, 10svh, 96px) 24px clamp(90px, 25svh, 290px);
   /* Sideways clip only: the flying logo must be able to rise above the pad to the navbar. */
   overflow-x: clip;
   overflow-y: visible;
@@ -121,6 +121,9 @@
   text-align: center;
 }
 .fl-lockup { display: flex; flex-direction: column; align-items: center; }
+/* The logo (landed or in flight, every wrapper) and all decoration are see-through to the pointer: while it flies
+   over the footer, clicks reach the links underneath. */
+.fl-lockup, .fl-lockup *, .fl-fly, .fl-fly * { pointer-events: none; }
 
 /* ---- mark ------------------------------------------------------------ */
 .fl-mark {
@@ -186,7 +189,7 @@
   /* System serif stack (no web font: the footer is shared site-wide). */
   font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
   font-weight: 700;
-  font-size: clamp(30px, min(4vw, 7.2svh), 74px);
+  font-size: clamp(22px, min(4vw, 7.2svh), 74px);
   line-height: 1.12;
   letter-spacing: -0.012em;
   color: var(--fl-text);
@@ -234,7 +237,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: clamp(48px, 7svh, 58px);
+  height: clamp(42px, 7svh, 58px);
   padding: 0 clamp(22px, 2.2vw, 34px);
   border-radius: 999px;
   font-size: clamp(15px, 1.2vw, 18px);
@@ -395,23 +398,39 @@
 }
 @media (max-width: 639px) {
   .fl-root {
-    --fl-word: 80vw;
-    --fl-mark: clamp(64px, 20vw, 92px);
+    --fl-word: min(80vw, 46svh);
+    --fl-mark: clamp(48px, min(20vw, 11svh), 92px);
     height: auto;
     min-height: 100svh;
-    /* Content ends well above the bottom-right avatar launcher. */
-    padding: 64px 16px 170px;
+    /* Top clears the 72 px navbar line; content ends well above the bottom-right avatar launcher. */
+    padding: 96px 16px clamp(84px, 18svh, 170px);
   }
-  .fl-title { font-size: clamp(27px, 8.4vw, 36px); line-height: 1.16; }
+  .fl-mark { margin-bottom: clamp(10px, 2.4svh, 24px); }
+  .fl-title { margin-top: clamp(10px, 2.4svh, 28px); font-size: clamp(24px, min(8.4vw, 5.2svh), 36px); line-height: 1.16; }
   .fl-sub { font-size: 15px; max-width: 34ch; }
-  .fl-ctas { flex-direction: column; align-items: stretch; width: 100%; max-width: 320px; gap: 12px; }
+  .fl-ctas { flex-direction: column; align-items: stretch; width: 100%; max-width: 320px; gap: 12px; margin-top: clamp(14px, 3svh, 40px); }
   .fl-cta-slot, .fl-cta { width: 100%; }
-  .fl-cta { height: 52px; font-size: 16px; }
+  .fl-cta { height: clamp(44px, 7svh, 52px); font-size: 16px; }
   .fl-grid {
     background:
       repeating-linear-gradient(90deg, rgba(168, 222, 194, 0.06) 0 1px, transparent 1px 44px),
       repeating-linear-gradient(0deg, rgba(168, 222, 194, 0.05) 0 1px, transparent 1px 44px);
   }
+}
+
+/* Short landscape screens (phones on their side, small laptops): every size follows the height so the mark,
+   wordmark, headline and both buttons fit in one screen. */
+@media (max-height: 560px) and (min-width: 640px) {
+  .fl-root {
+    --fl-word: min(52vw, 70svh);
+    --fl-mark: clamp(40px, 13svh, 76px);
+    padding: clamp(60px, 18svh, 76px) 24px clamp(36px, 10svh, 60px);
+  }
+  .fl-mark { margin-bottom: clamp(6px, 2svh, 14px); }
+  .fl-title { margin-top: clamp(6px, 2svh, 14px); font-size: clamp(20px, 7svh, 34px); max-width: none; white-space: nowrap; }
+  .fl-sub { display: none; }
+  .fl-ctas { margin-top: clamp(10px, 3svh, 20px); }
+  .fl-cta { height: clamp(40px, 11svh, 48px); }
 }
 
 /* Reduced motion (OS setting or the site's toggle): the final state, nothing moves. */

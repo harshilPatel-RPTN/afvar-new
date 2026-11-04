@@ -534,6 +534,8 @@ const ROOMS_HULL = (() => {
 
 const NAV_H = 72;
 const tmp = new THREE.Vector3();
+/** The canvas's top edge on screen. */
+const gl0 = (canvas: HTMLCanvasElement) => canvas.getBoundingClientRect().top;
 
 /** The hero's free area in canvas pixels: above the copy (phones, tablets) or right of it (short landscape). */
 function freeArea(canvas: HTMLCanvasElement, w: number, h: number) {
@@ -541,17 +543,19 @@ function freeArea(canvas: HTMLCanvasElement, w: number, h: number) {
   const sec = canvas.closest("section");
   // The copy's outer box (it carries the landscape scale; the inner motion layers don't move it).
   const copy = sec && Array.from(sec.querySelectorAll<HTMLElement>("[data-afv-copy]")).find((e) => e.offsetParent !== null)?.parentElement?.parentElement;
-  const top = NAV_H + m;
-  if (!sec || !copy) return { l: m, t: top, r: w - m, b: h - m, max: 1 };
+  if (!sec || !copy) return { l: m, t: NAV_H + m, r: w - m, b: h - m, max: 1 };
   const sr = sec.getBoundingClientRect();
   const c = copy.getBoundingClientRect();
+  // Canvas coordinates: the hero may give the canvas a shorter, shifted box on short phones.
+  const dy = gl0(canvas) - sr.top;
+  const top = Math.max(m, NAV_H + m - dy);
   const cl = c.left - sr.left;
   const cr = c.right - sr.left;
-  const ct = c.top - sr.top;
+  const ct = c.top - sr.top - dy;
   // A left column (short landscape phones): the scene sits to its right, level with the copy and
   // a little larger (the landscape camera pulls back), clear of the corner chat dock.
-  if (ct < h * 0.5 && cr < w * 0.66 && cl < w * 0.2) return { l: cr + m, t: top, r: w - m, b: Math.min(h - m, c.bottom - sr.top), max: 1.4 };
-  return { l: m, t: top, r: w - m, b: Math.max(top + 40, ct - m), max: 1 };
+  if (ct < h * 0.5 && cr < w * 0.66 && cl < w * 0.2) return { l: cr + m, t: top, r: w - m, b: Math.min(h - m, c.bottom - sr.top - dy), max: 1.4 };
+  return { l: m, t: top, r: w - m, b: Math.min(h - m, Math.max(top + 40, ct - m)), max: 1 };
 }
 
 /**

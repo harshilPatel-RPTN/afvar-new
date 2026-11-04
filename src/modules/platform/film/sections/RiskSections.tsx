@@ -95,22 +95,27 @@ function Portfolio() {
         </div>
       </Win>
       <Win at={0.3} x={630} y={20} w={530} h={218} title="Exposure" glyph="research" ai>
-        <ExposureBar label="Precious metals" pct={58} gold />
-        <ExposureBar label="Short US dollar" pct={71} />
-        <ExposureBar label="Japanese yen" pct={12} />
-        <p className="mt-3 text-[12.5px] leading-relaxed text-[#B7C5BC]">Gold and Silver both rise when the dollar falls — most of this account is one idea.</p>
+        {/* Counted from the four sample positions on the left: Gold and Silver long; EUR/USD short and USD/JPY long are both long the dollar; USD/JPY long is short the yen. */}
+        <ExposureBar label="Precious metals · long" n={2} of={4} gold />
+        <ExposureBar label="US dollar · long" n={2} of={4} />
+        <ExposureBar label="Japanese yen · short" n={1} of={4} />
+        <p className="mt-3 text-[12.5px] leading-relaxed text-[#B7C5BC]">Share of the four sample positions. The two metals trades are largely one idea; both FX trades are long the dollar.</p>
       </Win>
       <ChartWin k="XAGUSD" at={0.55} x={40} y={258} w={1120} h={252} head={false} title="Silver · 1H · the second metals position" last={60} />
     </OsSection>
   );
 }
 
-function ExposureBar({ label, pct, gold = false }: { label: string; pct: number; gold?: boolean }) {
+/** One exposure line: how many of the sample positions lean this way. */
+function ExposureBar({ label, n, of, gold = false }: { label: string; n: number; of: number; gold?: boolean }) {
+  const pct = Math.round((n / of) * 100);
   return (
     <div className="mb-3">
       <div className="mb-1 flex justify-between text-[12.5px]">
         <span className="text-[#F2F5F2]">{label}</span>
-        <span className="font-mono text-[#B7C5BC]">{pct}%</span>
+        <span className="font-mono text-[#B7C5BC]">
+          {n} of {of}
+        </span>
       </div>
       <div className="h-1.5 rounded-full bg-[rgba(255,255,255,0.08)]">
         <div className={`h-full rounded-full ${gold ? "bg-[#A8DEC2]" : "bg-[#B7C5BC]"}`} style={{ width: `${pct}%` }} />

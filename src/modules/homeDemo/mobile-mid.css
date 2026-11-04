@@ -169,6 +169,16 @@
   .mm-pager span[data-on] { transform: scaleX(1); background: #00e676; }
 
   .mm-lq .demo-queue-registration { background: #0a0c0d; border-color: rgba(0, 230, 118, 0.22); }
+  /* Offer CTAs stay one line inside their pill down to 320 px: the label
+     scales a touch and the side padding tightens on narrow cards. */
+  .mm-lq .demo-queue-card .mm-cta {
+    white-space: nowrap;
+    padding-inline: clamp(14px, 4.4vw, 24px);
+    font-size: clamp(13px, 4.1vw, 14.5px);
+  }
+}
+@media (max-width: 359px) {
+  .mm-lq .demo-queue-card { padding: 22px; }
 }
 
 @media (min-width: 640px) {

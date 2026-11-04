@@ -4,6 +4,7 @@ import { CATEGORIES, FAQ_GROUPS, GUIDE_GROUPS, GUIDES, TROUBLESHOOTING } from "@
 import { PageHero, type CapHeroText } from "../hero/CapHero";
 import { AboutSections, ContactSections, PricingSections } from "../sections/CompanySections";
 import { EnquiryForm } from "@/modules/company/kit";
+import { PRICING_TIERS, formatInr } from "@/modules/home/kit";
 import { PfScope } from "./PfScope";
 import { BriefsSections, GroupSections, InstrumentSections, MarketsSections } from "../sections/MarketSections";
 import { EvidenceSections, FaqSections, GuidesSections, HelpSections, HubSections, StartSections } from "../sections/ResourceSections";
@@ -28,12 +29,14 @@ export function AboutFilmPage() {
   return <SitePage id="about" film={<><PageProgress /><PageHero kind="about" id="about-hero" label="About AFVAR" text={ABOUT_T} /><AboutSections /></>} closing="Be early." soft="Join the launch queue." second={{ label: "Contact the team", href: "/contact" }} />;
 }
 
+/** Top indicative tier price, in ₹ (PRICING_TIERS.monthly is rupees). */
+const TOP_PRICE = formatInr(Math.max(...PRICING_TIERS.map((t) => t.monthly)));
 const PRICING_T: CapHeroText = {
   eyebrow: "Pricing",
   title: "Pricing.",
   gold: "Free to start. Pay when the desk earns it.",
-  body: "Three tiers on the same desk, from free to $500 a month. Every price on this page is indicative until launch, and nobody pays before then.",
-  short: "Three tiers, from free to $500 a month — indicative until launch.",
+  body: `Three tiers on the same desk, from free to ${TOP_PRICE} a month. Every price on this page is indicative and in Indian rupees until launch, and nobody pays before then.`,
+  short: `Three tiers, from free to ${TOP_PRICE} a month — indicative until launch.`,
   facts: ["No payment before launch", "Indicative prices", "Two launch offers"],
   second: { label: "Compare tiers", href: "#s03-side-by-side" },
 };

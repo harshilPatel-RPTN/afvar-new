@@ -9,9 +9,10 @@ import { SignatureHomeLink } from "@/platform/ui/SignatureHomeLink";
 
 const BrandInFrame = createContext(false);
 
+/** Scrolls away with the page (not fixed), so it never sits on top of a tall form on small screens. */
 function AuthHomeLink() {
   const { t } = useT();
-  return <SignatureHomeLink label={t("mk.nav.logoLabel")} className="afvar-auth-home" landing />;
+  return <SignatureHomeLink label={t("mk.nav.logoLabel")} className="afvar-auth-home absolute!" landing />;
 }
 
 export function AuthBrandFrame({ children }: { children: ReactNode }) {

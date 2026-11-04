@@ -85,6 +85,12 @@ export function biggestMover(quotes: Record<string, HomeQuote>, keys: readonly s
 
 export const STATUS_LABEL: Record<HomeQuote["status"], string> = { live: "Live", delayed: "Delayed", snapshot: "Stored" };
 
+/** The provider's name for display beside a status: "Yahoo Finance", not "Yahoo Finance (delayed)" next to "Delayed". */
+export function providerName(q: Pick<HomeQuote, "source" | "status"> | undefined, fallback = "provider"): string {
+  const s = q?.source ?? fallback;
+  return q?.status === "delayed" ? s.replace(/\s*\(delayed\)\s*$/i, "") : s;
+}
+
 /** "06:12 UTC" for a provider time; "stored" before the first real price. */
 export function asOfText(asOf: number | null): string {
   if (!asOf) return "stored";

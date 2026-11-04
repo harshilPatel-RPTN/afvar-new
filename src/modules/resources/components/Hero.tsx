@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { AnimatedBackdrop, PIcon } from "@/modules/platform/kit";
 import { CATEGORIES } from "../content";
 
@@ -97,9 +97,17 @@ export function ResourcesHero({
 /** The five W5 destinations as a macOS segmented control; the pill glides to the current page. */
 export function ResourcesTabs() {
   const pathname = usePathname();
+  const track = useRef<HTMLUListElement>(null);
+  // On a phone the five tabs scroll sideways; bring the current one into view (Help sits past the edge otherwise).
+  useEffect(() => {
+    const ul = track.current;
+    const on = ul?.querySelector('[aria-current="page"]')?.closest("li");
+    if (!ul || !on || ul.scrollWidth <= ul.clientWidth) return;
+    ul.scrollLeft = on.offsetLeft - (ul.clientWidth - on.offsetWidth) / 2;
+  }, [pathname]);
   return (
     <nav aria-label="Resources" className="relative z-10 mt-12 flex justify-center px-4">
-      <ul className="afvar-glass-track flex max-w-full gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none]">
+      <ul ref={track} className="relative afvar-glass-track flex max-w-full gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none]">
         {CATEGORIES.map((c) => {
           const active = pathname === c.href || pathname.startsWith(`${c.href}/`);
           return (

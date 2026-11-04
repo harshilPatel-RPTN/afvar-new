@@ -42,6 +42,12 @@ export function useSection() {
 const CardCtx = createContext<{ at: number; entered: MotionValue<number> } | null>(null);
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+/**
+ * Desk: the share of the section's timeline played while the section scrolls into view
+ * (before it pins). The first windows (at ≤ 0.08, open by +0.07) are therefore already
+ * open as the OS screen comes on screen — never an empty desktop at a chapter start.
+ */
+const DESK_LEAD = 0.16;
 /** 0 → 1 → 0 across [a, b]. */
 const bump = (v: number, a: number, b: number) => (v <= a || v >= b ? 0 : Math.sin(((v - a) / (b - a)) * Math.PI));
 
@@ -86,13 +92,17 @@ export function OsSection({
   const capRef = useRef<HTMLElement>(null);
   const queue = useEnterQueue(130);
   const { scrollYProgress } = useScroll({ target: ref, offset: mode === "desk" ? ["start start", "end end"] : ["start 0.9", "end 0.6"] });
+  // Desk: 0 → DESK_LEAD while the section rises from the viewport's foot to 55% of it, then the pinned run.
+  const { scrollYProgress: enter } = useScroll({ target: ref, offset: ["start end", "start 0.55"] });
+  const deskP = useTransform([enter, scrollYProgress], ([e, v]: number[]) => DESK_LEAD * e + (1 - DESK_LEAD) * v);
+  const p = mode === "desk" ? deskP : scrollYProgress;
   const id = `s${String(n).padStart(2, "0")}-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
   const eyebrow = `${String(n).padStart(2, "0")} · ${label}`;
   return (
-    <Ctx.Provider value={{ p: scrollYProgress, mode, on, queue }}>
+    <Ctx.Provider value={{ p, mode, on, queue }}>
       <section ref={ref} id={id} aria-labelledby={`${id}-t`} className={`relative bg-transparent ${mode === "stack" ? "overflow-x-clip" : ""}`} style={mode === "desk" ? { height: `${vh}vh` } : undefined}>
         {mode === "desk" ? (
-          <DeskStage p={scrollYProgress} on={on} label={label} app={app} active={active} caption={<DeskCaption id={id} eyebrow={eyebrow} title={title} soft={soft} body={body} />}>
+          <DeskStage p={p} on={on} label={label} app={app} active={active} caption={<DeskCaption id={id} eyebrow={eyebrow} title={title} soft={soft} body={body} />}>
             {children}
           </DeskStage>
         ) : (
@@ -122,7 +132,7 @@ function DeskStage({ p, on, label, app, active, caption, children }: { p: Motion
   const bounce = useMotionValue(0);
   const bounced = useRef(false);
   useMotionValueEvent(p, "change", (v) => {
-    if (!on || bounced.current || v < 0.004) return;
+    if (!on || bounced.current || v < DESK_LEAD + 0.004) return;
     bounced.current = true;
     animate(bounce, [0, -14, 0, -5, 0], { duration: 0.95, ease: "easeOut" });
   });
@@ -210,6 +220,8 @@ function StickyEyebrow({ section, caption, text }: { section: RefObject<HTMLElem
     <div aria-hidden="true" className="pointer-events-none sticky top-0 z-20 h-0">
       {/* Scrim behind the (transparent) navbar and the label: cards scrolling up pass under it instead of through the logo. */}
       <motion.span style={{ opacity: scrim }} className="absolute inset-x-0 top-0 block h-[116px] bg-[linear-gradient(to_bottom,#050607_0%,#050607_66%,rgba(5,6,7,0)_100%)]" />
+      {/* While the label shows, the solid band reaches below it, so card text passes under the label, never through it. */}
+      <motion.span style={{ opacity }} className="absolute inset-x-0 top-[64px] block h-[64px] bg-[linear-gradient(to_bottom,#050607_0%,#050607_66%,rgba(5,6,7,0)_100%)]" />
       <motion.span
         data-label={text}
         style={{ opacity }}

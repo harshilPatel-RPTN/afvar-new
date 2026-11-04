@@ -6,6 +6,8 @@ import { AppIcon, PIcon, type IconTone, type PlatformIcon } from "@/modules/plat
 
 export type WindowState = "open" | "min" | "closed" | "full";
 
+const SAMPLE_TAIL = " — Sample";
+
 const SPRING = { type: "spring", stiffness: 260, damping: 30 } as const;
 
 /** Exit motion depends on why the window is leaving: minimise pours it down into the dock (genie-like), close just fades. */
@@ -169,7 +171,7 @@ export function Window({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0, transition: { delay: 0.25 } }}
             exit={{ opacity: 0 }}
-            className="pf-vibrant fixed bottom-5 left-1/2 z-[122] flex -translate-x-1/2 items-center gap-2 rounded-full py-2 pl-3 pr-2 text-[12.5px] text-(--text-secondary) hover:text-(--text-primary)"
+            className="pf-vibrant fixed bottom-5 left-1/2 z-[122] flex min-h-10 -translate-x-1/2 items-center gap-2 rounded-full py-2 pl-3 pr-2 text-[12.5px] text-(--text-secondary) hover:text-(--text-primary)"
           >
             <PIcon name="close" size={12} />
             Exit full screen
@@ -206,10 +208,18 @@ export function Window({
               {title && (
                 <span
                   className={`pointer-events-none absolute inset-x-0 truncate text-center font-semibold text-(--text-secondary) ${
-                    sm ? "px-16 text-[11px] max-sm:hidden" : "px-28 text-[13px]"
+                    sm ? "px-16 text-[11px] max-sm:hidden" : "px-28 text-[13px] max-sm:static max-sm:min-w-0 max-sm:flex-1 max-sm:px-0 max-sm:text-left max-sm:text-[12px]"
                   }`}
                 >
-                  {title}
+                  {/* On a phone the SAMPLE chip beside the title already carries the label, so the title drops its "— Sample" tail to stay whole. */}
+                  {title.endsWith(SAMPLE_TAIL) && !sm ? (
+                    <>
+                      {title.slice(0, -SAMPLE_TAIL.length)}
+                      <span className="max-sm:hidden">{SAMPLE_TAIL}</span>
+                    </>
+                  ) : (
+                    title
+                  )}
                 </span>
               )}
               {toolbar && <div className="relative ml-auto flex items-center gap-2">{toolbar}</div>}
@@ -246,7 +256,7 @@ export function Window({
             <span className="min-w-0 flex-1 truncate text-[13.5px] text-(--text-secondary)">
               <span className="font-semibold text-(--text-primary)">{title ?? "Window"}</span> is closed
             </span>
-            <button type="button" onClick={() => go("open")} className="afvar-glass-button rs-ghost !h-8 !text-[12.5px]">
+            <button type="button" onClick={() => go("open")} className="afvar-glass-button rs-ghost !h-10 !text-[12.5px]">
               Reopen
             </button>
           </motion.div>

@@ -127,10 +127,12 @@ export function HomeNavMenu({ id, items, trigger, pathname, onClose, onSearch, c
             <MagnifyingGlass size={18} aria-hidden="true" /><span className="afvar-menu-label">{t("mk.search.button")}</span>
           </button>
           {extra}
-          <a href={REGISTER_URL} className="afvar-glass-button afvar-glass-primary afvar-menu-join">{t("mk.waitlist.cta")}<ArrowUpRight size={16} aria-hidden="true" /></a>
+          <a href={REGISTER_URL} className="afvar-glass-button afvar-glass-primary afvar-menu-join">{t("mk.nav.register")}<ArrowUpRight size={16} aria-hidden="true" /></a>
         </div>
       </motion.nav>
-      <AnimatePresence initial={false} mode="popLayout">
+      {/* The menu is anchored to the right edge, so a closing submenu is popped out from the
+          right too — anchored left it would jump past the screen edge as the row shrinks. */}
+      <AnimatePresence initial={false} mode="popLayout" anchorX="right">
       {group?.children && (
         <motion.nav key={group.href} ref={children} id={`${id}-children`} className="afvar-glass-panel afvar-menu-children afvar-menu-column" style={{ order: 1 }}
           layout="position"

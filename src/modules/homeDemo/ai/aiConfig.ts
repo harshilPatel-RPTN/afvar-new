@@ -50,8 +50,16 @@ export type Layout = "inside" | "orbit" | "tight" | "ring" | "column";
 
 /** The pipeline layout (stream + think): data cores in a column between the sources and the AI. */
 export const COLUMN = { x: 1.9, gap: 1.0, sourceX: 4.6 };
-export const columnPos = (i: number, squeeze = 1, lift = 0): readonly [number, number, number] =>
-  i < 5 ? [COLUMN.x, (2 - i) * COLUMN.gap * squeeze + lift, 0] : i === 6 ? [0.1, 1.55 * squeeze + lift, 0.5] : [0.1, -1.55 * squeeze + lift, 0.5];
+/**
+ * `aroundCore`: verify (above) and voice (below) are placed about the AI core, which
+ * stays at the origin, instead of following the lifted, squeezed column; portrait
+ * framings would otherwise drop voice onto the core.
+ */
+export const columnPos = (i: number, squeeze = 1, lift = 0, aroundCore = false): readonly [number, number, number] => {
+  if (i < 5) return [COLUMN.x, (2 - i) * COLUMN.gap * squeeze + lift, 0];
+  const y = aroundCore ? Math.max(1.55 * squeeze, 1.5) : 1.55 * squeeze + (i === 6 ? lift : -lift);
+  return [0.1, i === 6 ? y : -y, 0.5];
+};
 
 /* ---------------------------------------------------------- data sources */
 

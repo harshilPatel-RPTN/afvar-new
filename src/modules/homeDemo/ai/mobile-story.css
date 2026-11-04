@@ -74,6 +74,10 @@
 }
 .ms-chapter .home-chapter-prose > p:not(:first-child) { font-size: 15px; line-height: 1.6; }
 .ms-chapter .home-story-actions { flex-wrap: wrap !important; }
+/* The phone story scrolls, so the think body copy (hidden on short desktop
+   screens to fit the pinned film) always shows here, matching desktop copy. */
+.ms-chapter[data-chapter="think"] .home-chapter-prose > p { display: block; }
+.ms-think-note { margin: 0; padding: 0 12px 10px; font-size: 11px; line-height: 1.4; color: #92A399; }
 
 /* children slide up one after another once the chapter is in view */
 .ms-stagger > * { opacity: 0; transform: translateY(24px); transition: opacity .7s var(--ms-ease), transform .7s var(--ms-ease); }

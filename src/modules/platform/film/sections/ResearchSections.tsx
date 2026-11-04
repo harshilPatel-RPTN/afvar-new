@@ -27,7 +27,7 @@ function SourceHead({ k }: { k: string }) {
   return (
     <div className="mb-1.5 flex items-center gap-2">
       <StatusChip q={q} />
-      <span className="min-w-0 truncate font-mono text-[10px] text-[#92A399]">{sourceLine(q)}</span>
+      <span className="min-w-0 break-words font-mono text-[10px] leading-snug text-[#92A399] lg:truncate">{sourceLine(q)}</span>
     </div>
   );
 }
@@ -39,7 +39,7 @@ export function ResearchSections() {
         <Win at={0.06} x={40} y={20} w={580} h={236} title="Economic calendar · sample week" glyph="calendar">
           <Row k="Tue · US CPI" v="18:00 IST · high" gold />
           <Row k="Wed · FOMC minutes" v="23:30 IST · medium" />
-          <Row k="Thu · ECB decision" v="18:15 IST · high" />
+          <Row k="Thu · ECB decision" v="18:45 IST · high" />
           <Row k="Fri · US payrolls" v="19:00 IST · high" gold />
           <div className="mt-3">
             <Chip tone="sample">Sample week</Chip>

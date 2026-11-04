@@ -244,7 +244,7 @@ export function GlobeClosing({ children }: { children: ReactNode }) {
   return (
     <section ref={section} onPointerDown={ripple} id="afvar-globe" data-home-globe="" data-globe-lite={lite || undefined}
       data-offscreen={(lite && !onscreen) || undefined} data-entered={(lite && entered) || undefined} className="home-globe-closing" aria-labelledby="demo-closing-title">
-      <span className="home-route-chapter" aria-hidden="true">10 / Close</span>
+      <span className="home-route-chapter" aria-hidden="true">Close</span>
       <div className="home-globe-copy">
         {children}
         <div className="home-fx-route" data-fx-route={activeLeg}>

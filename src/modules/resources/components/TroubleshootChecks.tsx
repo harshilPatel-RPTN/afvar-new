@@ -22,14 +22,19 @@ export function TroubleshootChecks({ topic, supportTopic }: { topic: TroubleTopi
               <button
                 type="button"
                 aria-pressed={on}
+                data-glass-hit-area
                 onClick={() => setTried((t) => (on ? t.filter((x) => x !== i) : [...t, i]))}
-                className="flex w-full items-start gap-4 px-5 py-4 text-left transition-colors hover:bg-white/[.02]"
+                className="flex w-full items-start gap-4 px-5 py-4 text-left outline-none transition-colors hover:bg-white/[.02] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/50"
               >
                 <span className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full transition-colors ${on ? "bg-(--accent) text-(--text-inverse)" : "border border-white/25 text-(--text-muted)"}`}>
                   {on ? <PIcon name="check" size={13} weight="bold" /> : <span className="text-[11px] tabular-nums">{i + 1}</span>}
                 </span>
-                <span className={`flex-1 text-[15.5px] leading-relaxed ${on ? "text-(--text-muted)" : "text-(--text-primary)"}`}>{check}</span>
-                <span className="text-[11.5px] text-(--text-disabled)">{on ? "Tried" : "Tap when tried"}</span>
+                <span className="min-w-0 flex-1">
+                  <span className={`block text-[15.5px] leading-relaxed ${on ? "text-(--text-muted)" : "text-(--text-primary)"}`}>{check}</span>
+                  {/* Phones: the hint sits under the check so the check keeps the row's full width. */}
+                  <span className="mt-1 block text-[11.5px] text-(--text-disabled) sm:hidden">{on ? "Tried" : "Tap when tried"}</span>
+                </span>
+                <span className="shrink-0 text-[11.5px] text-(--text-disabled) max-sm:hidden">{on ? "Tried" : "Tap when tried"}</span>
               </button>
             </li>
           );

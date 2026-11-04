@@ -277,6 +277,9 @@ function DesktopStage({ mv, trackRef, quotes, film, avatarInOs, avatarHost, cent
   const C = film.story.copy;
   const streamAt = useMemo(() => [film.at("stream", 0), film.at("stream", 1)] as const, [film]);
   const osIn = (p: number) => ramp(p, film.at("os", 0.0), film.at("os", 0.05)) * (1 - ramp(p, film.at("os", 0.95), film.at("os", 1)));
+  // The OS layer carries its own caption: the film's "Illustrative 3D" note is
+  // gone before the OS fades in and returns only once the OS layer has left.
+  const osNote = (p: number) => ramp(p, film.at("avatar", 0.97), film.at("os", 0)) * (1 - ramp(p, film.at("os", 0.99), film.at("trust", 0.03)));
 
   return (
     <div className="home-story-content pointer-events-none absolute inset-0">
@@ -325,8 +328,8 @@ function DesktopStage({ mv, trackRef, quotes, film, avatarInOs, avatarHost, cent
         <FinaleCopy />
       </StoryAct>
 
-      <StoryRail mv={mv} story={film.story} trackRef={trackRef} visible={(p) => ramp(p, film.at("hero", 0.4), film.at("hero", 1)) * (1 - osIn(p))} />
-      <Illustrative mv={mv} film={film} hide={osIn} />
+      <StoryRail mv={mv} story={film.story} trackRef={trackRef} numberFirst={false} visible={(p) => ramp(p, film.at("hero", 0.4), film.at("hero", 1)) * (1 - osIn(p)) * (1 - ramp(p, film.at("finale", 0.85), film.at("finale", 0.995)))} />
+      <Illustrative mv={mv} film={film} hide={osNote} />
       {!centeredHome && <ScrollHint mv={mv} />}
     </div>
   );
@@ -370,6 +373,56 @@ function CompactStage({ mv, trackRef, quotes, film, portrait }: { mv: MotionValu
       stage.style.removeProperty("--home-copy-height");
     };
   }, [portrait]);
+  // Landscape: each caption is centred in the band between the navbar and the
+  // rail (responsive-story.css). One that is taller than the band is scaled to
+  // fit it (--fit), so no heading or card ever sits under the navbar or is cut.
+  useLayoutEffect(() => {
+    const chapters = chaptersRef.current;
+    if (portrait || !chapters) return;
+    const captions = Array.from(chapters.querySelectorAll<HTMLElement>(".home-story-caption"));
+    const fit = () => {
+      for (const caption of captions) {
+        const inner = caption.firstElementChild as HTMLElement | null;
+        if (!inner) continue;
+        const room = caption.clientHeight;
+        inner.style.width = "";
+        const need = inner.offsetHeight;
+        let f = 1;
+        if (room > 0 && need > room) {
+          // The scaled caption is laid out 1 / f wider so it keeps its visual
+          // width; wider means shorter, so search the largest f that still fits.
+          const width = caption.clientWidth;
+          const fits = (k: number) => {
+            inner.style.width = `${width / k}px`;
+            return inner.offsetHeight * k <= room;
+          };
+          let lo = Math.max(0.5, room / need);
+          let hi = 1;
+          for (let i = 0; i < 5; i++) {
+            const mid = (lo + hi) / 2;
+            if (fits(mid)) lo = mid;
+            else hi = mid;
+          }
+          f = lo;
+          inner.style.width = `${width / f}px`;
+        }
+        caption.style.setProperty("--fit", f.toFixed(3));
+      }
+    };
+    fit();
+    const size = new ResizeObserver(fit);
+    for (const caption of captions) {
+      size.observe(caption);
+      if (caption.firstElementChild) size.observe(caption.firstElementChild);
+    }
+    return () => {
+      size.disconnect();
+      for (const caption of captions) {
+        caption.style.removeProperty("--fit");
+        (caption.firstElementChild as HTMLElement | null)?.style.removeProperty("width");
+      }
+    };
+  }, [portrait]);
   const C = film.story.copy;
   const streamAt = useMemo(() => [film.at("stream", 0), film.at("stream", 1)] as const, [film]);
   const osWin = film.has("os") ? win(film, "os", [0, .055, .95, 1]) : null;
@@ -378,7 +431,7 @@ function CompactStage({ mv, trackRef, quotes, film, portrait }: { mv: MotionValu
   // The root homepage lays these captions into its shared artwork/copy composition.
   const slot = portrait
     ? "absolute inset-x-0 bottom-0 px-5 pb-[calc(3.6rem+env(safe-area-inset-bottom))] sm:px-8"
-    : "absolute left-6 top-[112px] w-[min(26rem,48vw)] origin-top-left [@media(max-height:520px)]:scale-[0.66]";
+    : "absolute left-6 top-[112px] w-[min(26rem,48vw)]";
   return (
     <div ref={chaptersRef} className="home-compact-chapters pointer-events-none absolute inset-0">
 
@@ -426,7 +479,7 @@ function CompactStage({ mv, trackRef, quotes, film, portrait }: { mv: MotionValu
       </StoryAct>
 
       <div className="home-story-rail [&_nav]:right-1.5 [&_nav_span:first-child]:hidden">
-        <StoryRail mv={mv} story={film.story} trackRef={trackRef} segmented={film.has("os")} visible={(p) => film.has("os") ? 1 : ramp(p, film.at("hero", 0.4), film.at("hero", 1)) * 0.8} />
+        <StoryRail mv={mv} story={film.story} trackRef={trackRef} segmented={film.has("os")} numberFirst={false} visible={(p) => (film.has("os") ? 1 : ramp(p, film.at("hero", 0.4), film.at("hero", 1)) * 0.8) * (1 - ramp(p, film.at("finale", 0.85), film.at("finale", 0.995)))} />
       </div>
       <ScrollHint mv={mv} compact />
     </div>

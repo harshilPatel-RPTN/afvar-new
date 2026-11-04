@@ -92,16 +92,17 @@ export const CATEGORIES: Category[] = [
   },
 ];
 
+/** Coverage matches the live feed: 8 lanes are streamed (see platform marketMap); AUD/USD and ETH are not yet. */
 export const INSTRUMENTS: Instrument[] = [
-  { slug: "gold", displaySymbol: "XAU/USD", nameKey: "mk.inst.gold", category: "commodities", coverage: "planned", quote: null },
-  { slug: "silver", displaySymbol: "XAG/USD", nameKey: "mk.inst.silver", category: "commodities", coverage: "planned", quote: null },
-  { slug: "oil", displaySymbol: "OIL", nameKey: "mk.inst.oil", category: "commodities", coverage: "planned", noteKey: "mk.inst.oil.note", quote: null },
-  { slug: "eurusd", displaySymbol: "EUR/USD", nameKey: "mk.inst.eurusd", category: "forex", coverage: "planned", quote: null },
-  { slug: "usdjpy", displaySymbol: "USD/JPY", nameKey: "mk.inst.usdjpy", category: "forex", coverage: "planned", quote: null },
-  { slug: "gbpusd", displaySymbol: "GBP/USD", nameKey: "mk.inst.gbpusd", category: "forex", coverage: "planned", quote: null },
+  { slug: "gold", displaySymbol: "XAU/USD", nameKey: "mk.inst.gold", category: "commodities", coverage: "available", quote: null },
+  { slug: "silver", displaySymbol: "XAG/USD", nameKey: "mk.inst.silver", category: "commodities", coverage: "available", quote: null },
+  { slug: "oil", displaySymbol: "OIL", nameKey: "mk.inst.oil", category: "commodities", coverage: "available", noteKey: "mk.inst.oil.note", quote: null },
+  { slug: "eurusd", displaySymbol: "EUR/USD", nameKey: "mk.inst.eurusd", category: "forex", coverage: "available", quote: null },
+  { slug: "usdjpy", displaySymbol: "USD/JPY", nameKey: "mk.inst.usdjpy", category: "forex", coverage: "available", quote: null },
+  { slug: "gbpusd", displaySymbol: "GBP/USD", nameKey: "mk.inst.gbpusd", category: "forex", coverage: "available", quote: null },
   { slug: "audusd", displaySymbol: "AUD/USD", nameKey: "mk.inst.audusd", category: "forex", coverage: "planned", quote: null },
-  { slug: "nzdusd", displaySymbol: "NZD/USD", nameKey: "mk.inst.nzdusd", category: "forex", coverage: "planned", quote: null },
-  { slug: "btc", displaySymbol: "BTC", nameKey: "mk.inst.btc", category: "crypto", coverage: "planned", quote: null },
+  { slug: "nzdusd", displaySymbol: "NZD/USD", nameKey: "mk.inst.nzdusd", category: "forex", coverage: "available", quote: null },
+  { slug: "btc", displaySymbol: "BTC", nameKey: "mk.inst.btc", category: "crypto", coverage: "available", quote: null },
   { slug: "eth", displaySymbol: "ETH", nameKey: "mk.inst.eth", category: "crypto", coverage: "planned", quote: null },
 ];
 

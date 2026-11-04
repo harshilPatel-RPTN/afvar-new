@@ -105,6 +105,7 @@ export function StoryRail<Id extends string>({
   trackRef,
   visible,
   segmented = false,
+  numberFirst = true,
 }: {
   mv: MotionValue<number>;
   story: Story<Id>;
@@ -112,6 +113,8 @@ export function StoryRail<Id extends string>({
   /** Rail opacity as a function of progress (default: hidden on the first act). */
   visible?: (p: number) => number;
   segmented?: boolean;
+  /** False: the first act (an unnumbered intro) has no number and the next act is 01. */
+  numberFirst?: boolean;
 }) {
   const [current, setCurrent] = useState<Id>(story.order[0]);
   useMotionValueEvent(mv, "change", (p) => {
@@ -148,7 +151,7 @@ export function StoryRail<Id extends string>({
                 <span
                   className={`${MONO} text-[10px] transition-opacity ${on ? "text-[#A8DEC2] opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 min-[1440px]:opacity-100" : "text-[#8A9295] opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"}`}
                 >
-                  {String(i + 1).padStart(2, "0")} {story.labels[id]}
+                  {numberFirst || i > 0 ? `${String(numberFirst ? i + 1 : i).padStart(2, "0")} ` : ""}{story.labels[id]}
                 </span>
                 <span className={`block h-px transition-all ${on ? "w-8 bg-[#A8DEC2]" : "w-4 bg-[#4A5256] group-hover:bg-[#B7C5BC]"}`} />
               </button>

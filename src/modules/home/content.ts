@@ -227,9 +227,12 @@ export const WAITLIST = {
 export const PRICING_HERO = {
   kicker: "Pricing",
   title: "Simple plans. Confirmed at launch.",
-  sub: "Three plan tiers on the same connected desk — start free, go further from $200 a month. Pricing is indicative until launch — join the queue to hear the final plans first.",
+  sub: "Three plan tiers on the same connected desk — start free, go further from ₹200 a month. Pricing is indicative until launch — join the queue to hear the final plans first.",
   note: "Verification changes offer eligibility, not access priority.",
 } as const;
+
+/** An indicative tier price in rupees, grouped the Indian way: 200 → "₹200", 1500 → "₹1,500". */
+export const formatInr = (amount: number) => `₹${amount.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
 
 /** W4.1.1 — planned tier structure (names open per W4.2.1; prices indicative).
  *  `monthly` is the indicative monthly price in ₹; yearly billing gives 2 months free. */

@@ -224,12 +224,18 @@ function FiveAreas() {
         <ul aria-label="Capability pages">
           {AREAS.map((a) => (
             <li key={a.slug} className="border-b border-[rgba(255,255,255,0.06)] last:border-b-0">
-              <Link href={capabilityPath(a.slug)} className="flex items-center justify-between py-3.5 text-[13px] text-[#F2F5F2] hover:text-[#A8DEC2]">
-                <span className="flex items-center gap-2.5 text-[#A8DEC2]">
+              {/* Phones: the name over its line, the arrow in its own column, so every row reads the same. */}
+              <Link href={capabilityPath(a.slug)} className="flex items-center gap-2.5 py-3 text-[13px] text-[#F2F5F2] hover:text-[#A8DEC2] sm:py-3.5">
+                <span className="shrink-0 text-[#A8DEC2]">
                   <AppGlyph name={a.glyph} size={15} />
-                  <span className="text-[#F2F5F2]">{a.name}</span>
                 </span>
-                <span className="font-mono text-[11px] text-[#B7C5BC]">{a.line} →</span>
+                <span className="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between sm:gap-3">
+                  <span className="block whitespace-nowrap text-[#F2F5F2]">{a.name}</span>
+                  <span className="mt-0.5 block font-mono text-[11px] text-[#B7C5BC] sm:mt-0 sm:text-right">{a.line}</span>
+                </span>
+                <span aria-hidden="true" className="shrink-0 font-mono text-[11px] text-[#B7C5BC]">
+                  →
+                </span>
               </Link>
             </li>
           ))}
