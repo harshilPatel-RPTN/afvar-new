@@ -73,7 +73,7 @@
   "auth.register.haveAccount": "पहले से अकाउंट है?",
   "auth.register.signIn": "साइन इन करें",
   "auth.register.mismatch": "पासवर्ड मेल नहीं खाते।",
-  "auth.register.tooShort": "कम से कम 8 अक्षर रखें।",
+  "auth.register.tooShort": "कम से कम 8 अक्षर रखें, जिनमें अक्षरों के साथ अंक या चिह्न हों।",
   "auth.register.consentLegend": "आगे बढ़ने से पहले",
   "auth.register.consentTermsPrefix": "मैं इनसे सहमत हूँ:",
   "auth.register.consentPrivacyPrefix": "मैंने इसे पढ़ लिया है:",

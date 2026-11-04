@@ -22,8 +22,10 @@ const STRENGTH: { key: MessageKey; color: string }[] = [
 ];
 
 export function passwordStrength(password: string) {
-  if (password.length < 8) return 0;
+  if (password.length < 8 || /^(.)\1+$/.test(password)) return 0;
   const variety = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter((rule) => rule.test(password)).length;
+  // One kind of character only (e.g. "aaaabbbb") is too weak unless it's long.
+  if (variety < 2 && password.length < 12) return 0;
   return Math.min(4, Math.max(1, variety + (password.length >= 12 ? 1 : 0) - 1));
 }
 

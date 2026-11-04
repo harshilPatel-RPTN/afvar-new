@@ -152,10 +152,9 @@ test.describe("unknown routes", () => {
   for (const route of ["/market/nope", "/market/forex/nope", "/market/briefs/nope"]) {
     test(`${route} shows the not-found page`, async ({ page }) => {
       await page.goto(route);
-      await expect(page.getByText(/could not be found/i)).toBeVisible();
-      // Next's not-found page keeps the one-h1 rule: its single heading is "404".
+      // The site's not-found page (src/app/not-found.tsx) keeps the one-h1 rule.
       await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-      await expect(page.getByRole("heading", { level: 1 })).toHaveText("404");
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(/could not be found/i);
     });
 
     test(`${route} responds with HTTP 404`, async ({ page }) => {

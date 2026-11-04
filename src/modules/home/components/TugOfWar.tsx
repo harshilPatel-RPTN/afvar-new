@@ -156,7 +156,7 @@ export function TugOfWar({ quotes }: { quotes: Record<string, HomeQuote> }) {
   const knotColor = leader === "up" ? UP : leader === "down" ? DOWN : "#A3AAAC";
 
   return (
-    <div ref={rootRef} data-tug data-up={up} data-down={down} data-target={target.toFixed(2)} className="relative mt-10">
+    <div ref={rootRef} data-tug data-up={up} data-down={down} data-target={target.toFixed(2)} className="relative mt-10 overflow-x-clip">
       <div
         role="img"
         aria-label={`Breadth across the 8 coverage lanes: ${up} up, ${down} down${tie ? ", balanced" : ""}. Not a forecast.`}

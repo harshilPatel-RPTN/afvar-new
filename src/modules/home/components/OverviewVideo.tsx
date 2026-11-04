@@ -111,7 +111,7 @@ export function OverviewVideoFrame({ onExpand }: { onExpand: () => void }) {
     <VideoSpotlight playing={playing}>
       <video
         ref={ref}
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover outline-none focus-visible:outline-2! focus-visible:outline-solid! focus-visible:-outline-offset-2! focus-visible:outline-(--afvar-mint)!"
         src={OVERVIEW_VIDEO.src}
         poster={OVERVIEW_VIDEO.poster}
         muted

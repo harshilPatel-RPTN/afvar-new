@@ -6,6 +6,15 @@ import "./signature.css";
 
 const runtimeURL = "/afvar-signature/flight.js";
 
+// Runs as soon as the splash is parsed, before React hydrates: a click, tap or skip key hides the
+// overlay right away (and wheel input can't scroll the page blind behind it), and it lets go on its
+// own after 12s even if hydration is slow. The effect below sees the hidden host and finishes the splash.
+const EARLY_SKIP = `(function(){var s=document.currentScript.parentNode,k=["Escape","Tab"," ","PageUp","PageDown","Home","End","ArrowUp","ArrowDown"];
+function skip(){s.hidden=true;s.removeEventListener("pointerdown",skip);removeEventListener("keydown",key,true);}
+function key(e){if(k.indexOf(e.key)>=0)skip();}
+s.addEventListener("pointerdown",skip);addEventListener("keydown",key,true);setTimeout(skip,12000);
+s.addEventListener("wheel",function(e){e.preventDefault();},{passive:false});})();`;
+
 /**
  * The logo signature: forms in the centre, then flies into the header logo.
  * It plays on every full document load (first visit and every refresh); it
@@ -35,7 +44,8 @@ export function SplashReveal() {
     const deadline = window.setTimeout(finish, 12000);
     const startupDeadline = window.setTimeout(finish, 2800);
     const started = () => window.clearTimeout(startupDeadline);
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches || economical) {
+    // host.hidden: the visitor already skipped it before hydration (EARLY_SKIP).
+    if (host.hidden || matchMedia("(prefers-reduced-motion: reduce)").matches || economical) {
       queueMicrotask(finish);
     } else {
       import(/* webpackIgnore: true */ runtimeURL)
@@ -64,6 +74,7 @@ export function SplashReveal() {
   return (
     <div ref={root} className="afvar-flight-splash" data-afvar-splash="" data-phase="preparing" aria-hidden="true" suppressHydrationWarning>
       <noscript><style>{"[data-afvar-splash]{display:none!important}"}</style></noscript>
+      <script dangerouslySetInnerHTML={{ __html: EARLY_SKIP }} />
       <div className="afvar-flight-backdrop" data-signature-backdrop="" />
       <div className="afvar-flight-stage afvar-flight-poster" aria-hidden="true" />
       <div className="afvar-flight-stage" data-signature-stage="" />

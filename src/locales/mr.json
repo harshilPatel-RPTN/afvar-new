@@ -73,7 +73,7 @@
   "auth.register.haveAccount": "आधीच अकाउंट आहे?",
   "auth.register.signIn": "साइन इन करा",
   "auth.register.mismatch": "पासवर्ड जुळत नाहीत.",
-  "auth.register.tooShort": "किमान 8 अक्षरे वापरा.",
+  "auth.register.tooShort": "किमान 8 अक्षरे वापरा, ज्यात अक्षरांसोबत अंक किंवा चिन्हे असतील.",
   "auth.register.consentLegend": "पुढे जाण्यापूर्वी",
   "auth.register.consentTermsPrefix": "मी यांना सहमती देतो/देते:",
   "auth.register.consentPrivacyPrefix": "मी हे वाचले आहे:",

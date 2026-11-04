@@ -228,10 +228,11 @@ export function AvatarChatWidget() {
         }
       };
       window.addEventListener("keydown", onKey);
-      // Next frame: the panel's visibility has flipped by then, so it can take focus.
-      const raf = compact
-        ? requestAnimationFrame(() => panelRef.current?.querySelector<HTMLElement>("button")?.focus({ preventScroll: true }))
-        : 0;
+      // Next frame: the panel's visibility has flipped by then, so it can take focus. On every
+      // breakpoint: on desktop the launcher hides while the panel is open, so focus would drop to the body.
+      const raf = requestAnimationFrame(() =>
+        panelRef.current?.querySelector<HTMLElement>("button")?.focus({ preventScroll: true }),
+      );
       return () => {
         window.removeEventListener("keydown", onKey);
         cancelAnimationFrame(raf);
@@ -351,7 +352,8 @@ export function AvatarChatWidget() {
       window.removeEventListener("resize", onResize);
       launcher.removeEventListener("focusout", onBlur);
       window.clearTimeout(timer);
-      cancelAnimationFrame(frame);
+      // Crossing lg or opening mid-scroll would otherwise leave it tucked, as the reset timer is gone.
+      setTuck((current) => (current === "tucked" ? "back" : current));
     };
   }, [compact, open]);
   useEffect(() => {
@@ -474,11 +476,8 @@ export function AvatarChatWidget() {
         // Opts out of the site-wide smoked-glass button skin (brand.css, unlayered, so it
         // beat these utilities and left the launcher dim); the launcher draws its own ring.
         data-glass-hit-area=""
-        data-avatar-launcher=""
-        data-tucked={!open && tuck === "tucked" ? "" : undefined}
-        // No disc behind the robot: the render itself is the button. Below lg (and on touch screens,
-        // globals.css) it is a compact 60px; lg+ desktops keep the full-size robot.
-        className={`group/launcher pointer-events-auto outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#00E676] relative flex h-15 w-[50px] items-center justify-center rounded-2xl bg-transparent transition-[opacity,scale,translate,visibility] motion-reduce:transition-none lg:h-28 lg:w-24 ${
+        // No disc behind the robot: the render itself is the button (larger, so it reads on its own).
+        className={`pointer-events-auto outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-3 focus-visible:outline-[#00E676] relative flex h-18 w-15 items-center justify-center rounded-2xl bg-transparent transition-[opacity,scale,translate,visibility] hover:scale-105 motion-reduce:transition-none sm:h-24 sm:w-20 lg:h-28 lg:w-24 ${
           // The open panel stands in for the launcher, which shrinks and fades out (keeping its space,
           // so the panel doesn't shift), then pops back with an overshoot once the panel has folded away.
           // Tucked: slid right until only a 16px edge tab is left on screen (still tappable).

@@ -20,9 +20,14 @@ const PAGES = [
 ];
 
 async function open(page: Page, path: string, h1: RegExp) {
-  // Skip the intro splash: the hero holds its 3D back until the splash is gone.
-  await page.addInitScript(() => localStorage.setItem("afvar_intro_seen", "1"));
+  // Skip the intro splash, which plays on every full load: the hero holds its 3D back until the
+  // splash is gone. Escape skips it even before hydration (SplashReveal's early-skip script).
   await page.goto(path);
+  const splash = page.locator("[data-afvar-splash]");
+  if (await splash.count()) {
+    await page.keyboard.press("Escape");
+    await expect(splash).toBeHidden();
+  }
   await expect(page.getByRole("heading", { level: 1, name: h1 })).toBeVisible();
 }
 
@@ -47,9 +52,18 @@ for (const p of PAGES) {
           test.skip(!webgl, "no WebGL; the CSS poster shows instead");
           const canvas = page.locator(`${p.hero} canvas`).first();
           await expect(canvas).toBeVisible({ timeout: 15_000 });
-          const box = await canvas.boundingBox();
-          const hero = await page.locator(p.hero).boundingBox();
-          expect(box && hero && box.width >= hero.width * 0.9 && box.height >= hero.height * 0.9).toBeTruthy();
+          // The canvas mounts at the default 300×150 and fills the hero a frame or so later, once
+          // the renderer has measured it, so wait for that rather than reading the first size.
+          const heroBox = page.locator(p.hero);
+          await expect
+            .poll(
+              async () => {
+                const [box, hero] = await Promise.all([canvas.boundingBox(), heroBox.boundingBox()]);
+                return Boolean(box && hero && box.width >= hero.width * 0.9 && box.height >= hero.height * 0.9);
+              },
+              { timeout: 10_000 },
+            )
+            .toBe(true);
         });
 
         test("section screens sit below their captions", async ({ page }) => {

@@ -129,7 +129,7 @@ export function AuthField({ label, hint, id, type, maxLength, "aria-describedby"
           <button
             type="button"
             onClick={() => setRevealed((value) => !value)}
-            aria-label={t("auth.field.showPassword")}
+            aria-label={`${t("auth.field.showPassword")}: ${label}`}
             aria-pressed={revealed}
             aria-controls={id}
             className="absolute inset-e-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-lg text-(--afvar-muted) hover:bg-white/10 hover:text-white"

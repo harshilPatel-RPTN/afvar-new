@@ -73,7 +73,7 @@
   "auth.register.haveAccount": "Already have an account?",
   "auth.register.signIn": "Sign in",
   "auth.register.mismatch": "Passwords don't match.",
-  "auth.register.tooShort": "Use at least 8 characters.",
+  "auth.register.tooShort": "Use at least 8 characters, mixing letters with numbers or symbols.",
   "auth.register.consentLegend": "Before you continue",
   "auth.register.consentTermsPrefix": "I agree to the",
   "auth.register.consentPrivacyPrefix": "I have read the",

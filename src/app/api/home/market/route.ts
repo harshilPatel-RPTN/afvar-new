@@ -5,6 +5,8 @@ export async function GET() {
   try {
     return NextResponse.json(await fetchHomeMarket());
   } catch (error) {
-    return NextResponse.json({ error: String(error) }, { status: 502 });
+    // The upstream detail (provider hosts, status codes) stays in the server log, not the response.
+    console.error("home market fetch failed", error);
+    return NextResponse.json({ error: "market_unavailable" }, { status: 502 });
   }
 }

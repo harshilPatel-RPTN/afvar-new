@@ -54,10 +54,15 @@ export async function readJsonObject(
   return { body: parsed as Record<string, unknown> };
 }
 
-/** Best-effort client address. Behind a proxy only the first hop is meaningful. */
+/**
+ * Best-effort client address. x-real-ip is set by the hosting proxy and can't be spoofed by the
+ * client; in x-forwarded-for only the right-most entry was added by our proxy, as a client can
+ * prepend any values it likes.
+ */
 export function clientIp(request: Request) {
-  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0].trim();
-  return forwarded || request.headers.get("x-real-ip")?.trim() || "unknown";
+  const real = request.headers.get("x-real-ip")?.trim();
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
+  return real || forwarded || "unknown";
 }
 
 export interface RateLimiter {

@@ -72,7 +72,8 @@ test.describe("buttons", () => {
     await page.locator("#afvar-globe").scrollIntoViewIfNeeded();
     const kicker = page.locator(".home-fx-kicker");
     for (const [code, n] of [["INR", "04"], ["JPY", "06"], ["USD", "01"]] as const) {
-      const pick = page.getByRole("button", { name: new RegExp(`^Show ${code} route`) });
+      // Labels read "Show INR to SGD route from Mumbai to Singapore".
+      const pick = page.getByRole("button", { name: new RegExp(`^Show ${code} to \\w+ route`) });
       await pick.click();
       await expect(pick).toHaveAttribute("aria-pressed", "true");
       await expect(kicker).toContainText(`${n} / 07`);
