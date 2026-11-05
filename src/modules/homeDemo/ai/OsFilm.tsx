@@ -767,12 +767,16 @@ function osAvatarTrack(p: number, t: number, out: AvatarFrame): AvatarFrame {
   const running = runningOut || runningBack;
   const cornerX = AVATAR_CORNER.x + (RISK_SPOT - AVATAR_CORNER.x) * (go - back);
   const cornerY = AVATAR_CORNER.y - (running ? Math.abs(Math.sin(t * 13)) * 7 : 0);
-  const cornerH = AVATAR_CORNER.h * (0.35 + 0.65 * ramp(p, U(0.085), U(0.1)));
+  const enter = ramp(p, U(0.085), U(0.1));
+  // Leaving at the end of the act it shrinks away (and breaks into parts, see AvatarOverlay `build`).
+  const exit = 1 - easeInOut(ramp(p, U(0.96), U(0.985)));
+  const cornerH = AVATAR_CORNER.h * (0.35 + 0.65 * enter);
   // Step forward: dock → foreground and back.
   const f = stepForward(p);
   out.x = cornerX + (FOREGROUND.x - cornerX) * f;
   out.y = cornerY + (FOREGROUND.y - cornerY) * f;
-  out.scale = cornerH + (FOREGROUND.h - cornerH) * f;
+  out.scale = (cornerH + (FOREGROUND.h - cornerH) * f) * Math.max(0.001, exit);
+  out.stage = enter * exit;
   out.lean = running ? 0.28 : 0;
   out.turn = runningOut ? -1.25 : runningBack ? 1.25 : -0.38 * (1 - f);
   if (running) out.gesture = "idle";

@@ -472,6 +472,7 @@ function makeAvatarTrack(film: Film, portrait: boolean) {
       out.x = portrait ? 1.05 : 1.45;
       out.y = -1.05;
       out.scale = 0.42 * Math.max(0.001, k);
+      out.stage = k;
       out.explode = 1 - k;
       out.gesture = "wave";
       out.emotion = "happy";
@@ -486,6 +487,7 @@ function makeAvatarTrack(film: Film, portrait: boolean) {
     out.x = P.x;
     out.y = P.y;
     out.scale = P.scale * Math.max(0.001, grow * leave);
+    out.stage = grow * leave;
     out.explode = 1 - easeInOut(ramp(p, A(0.1), A(AVATAR.assemble[1])));
     if (p < A(AVATAR.wave[0])) {
       out.gesture = "idle";

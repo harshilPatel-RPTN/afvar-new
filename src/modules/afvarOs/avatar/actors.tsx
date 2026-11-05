@@ -62,18 +62,26 @@ function adopt(rig: AvatarRig, holder: THREE.Group | null, scene: THREE.Scene): 
  * scrubbed by scroll: the track's `explode` leaving 1 only TRIGGERS it, then the
  * parts come together over `build` seconds of frame time, whatever the scroll
  * speed — so a fast flick (touch momentum) still shows the whole build, and the
- * robot grows with it (never full-size while still in parts). Still frames
- * (reduced motion) show it assembled.
+ * robot grows with it (never full-size while still in parts). The build waits
+ * until the robot is big enough to see (`stage` ≥ BUILD_FROM) and re-arms once
+ * it has all but left (`stage` < BUILD_RESET), so it plays in full on every
+ * entrance, scrolling down or back up. On the way out (`stage` falling below the
+ * highest it reached this stay) the robot shrinks away breaking into parts, the
+ * build in reverse, scrubbed by scroll. Still frames (reduced motion) show it assembled.
  */
-type Assembly = { held: number; build: number };
-const assembly = (): Assembly => ({ held: -1, build: -1 });
+type Assembly = { held: number; build: number; top: number };
+const assembly = (): Assembly => ({ held: -1, build: -1, top: 0 });
 const smooth = (u: number) => u * u * (3 - 2 * u);
+const BUILD_FROM = 0.35;
+const BUILD_RESET = 0.1;
 function oneWay(f: AvatarFrame, a: Assembly, dt: number, build?: number, still = false): AvatarFrame {
   if (!f.visible) {
     a.held = -1;
     a.build = -1;
+    a.top = 0;
     return f;
   }
+  if (build && build > 0) return timedBuild(f, a, dt, build, still);
   const raw = f.explode;
   let out = 1;
   if (a.held < 0 || raw <= a.held) {
@@ -83,19 +91,28 @@ function oneWay(f: AvatarFrame, a: Assembly, dt: number, build?: number, still =
     out = 1 - smooth(span > 1e-3 ? Math.min(1, (raw - a.held) / span) : 1);
     f.explode = a.held;
   }
-  if (build && build > 0) {
-    if (still) a.build = 1;
-    else if (a.build < 0) {
-      if (raw < 0.999) a.build = 0;
-    } else if (a.build < 1) a.build = Math.min(1, a.build + Math.min(Math.max(dt, 0), 0.1) / build);
-    const b = Math.max(0, a.build);
-    // Parts converge fast (ease-out cubic) while the size rises smoothly from a
-    // fifth: explode ≤ 0.1 before the robot reaches 0.7 of its size.
-    f.explode = (1 - b) ** 3;
-    out *= 0.2 + 0.8 * smooth(b);
-    if (b < 1) f.aura = "connecting";
-  }
   f.scale *= out;
+  return f;
+}
+
+function timedBuild(f: AvatarFrame, a: Assembly, dt: number, build: number, still: boolean): AvatarFrame {
+  const stage = f.stage ?? 1;
+  if (still) a.build = 1;
+  else if (stage < BUILD_RESET) {
+    a.build = -1;
+    a.top = 0;
+  } else if (a.build < 0) {
+    if (f.explode < 0.999 && stage >= BUILD_FROM) a.build = 0;
+  } else if (a.build < 1) a.build = Math.min(1, a.build + Math.min(Math.max(dt, 0), 0.1) / build);
+  const b = Math.max(0, a.build);
+  // Parts converge fast (ease-out cubic) while the size rises smoothly from a
+  // fifth: explode ≤ 0.1 before the robot reaches 0.7 of its size.
+  f.explode = (1 - b) ** 3;
+  f.scale *= 0.2 + 0.8 * smooth(b);
+  // Leaving: as the track shrinks it away, the parts drift apart with it.
+  a.top = Math.max(a.top, stage);
+  if (!still && stage < a.top) f.explode = Math.max(f.explode, 1 - smooth(stage / a.top));
+  if (f.explode > 0.02) f.aura = "connecting";
   return f;
 }
 

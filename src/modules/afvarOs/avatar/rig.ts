@@ -28,6 +28,11 @@ export interface AvatarFrame {
   voice?: number;
   /** 0 assembled … 1 fully exploded into parts. */
   explode: number;
+  /**
+   * 0..1 — how far the robot has come onto the stage (its entrance/exit size ramp).
+   * A timed build waits for this to be visible and re-arms when it drops away. Unset = 1.
+   */
+  stage?: number;
   /** Hologram energy phase: idle, listening, thinking, speaking, serious… */
   aura: string;
   /** Placement of the actor's feet (scene units or px, set by the host). */

@@ -51,7 +51,12 @@ export function HomeNavMenu({ id, items, trigger, pathname, onClose, onSearch, c
   const children = useRef<HTMLElement>(null);
   const timer = useRef<number | undefined>(undefined);
   const [active, setActive] = useState<string | null>(null);
+  // The submenu slot stays reserved after a hovered group is left for a single row
+  // (Home, Pricing…): its card fades out in place, so the main menu doesn't slide
+  // back and forth. Only Back / Escape (or another group) gives the slot up.
+  const [slot, setSlot] = useState<string | null>(null);
   const group = items.find(item => item.href === active && item.children);
+  const shown = group ?? items.find(item => item.href === slot && item.children);
 
   useEffect(() => {
     if (!present) return;
@@ -72,18 +77,24 @@ export function HomeNavMenu({ id, items, trigger, pathname, onClose, onSearch, c
     if (pointerType !== "mouse" || window.matchMedia("(max-width: 639px)").matches) return;
     clearTimeout(timer.current);
     // Give the pointer time to cross a neighboring row on its way into the flyout.
-    if (active === null) setActive(href);
-    else timer.current = window.setTimeout(() => setActive(href), 170);
+    const show = () => {
+      setActive(href);
+      if (href) setSlot(href);
+    };
+    if (active === null) show();
+    else timer.current = window.setTimeout(show, 170);
   }
 
   function enterGroup(href: string) {
     clearTimeout(timer.current);
     setActive(href);
+    setSlot(href);
     requestAnimationFrame(() => children.current?.querySelector<HTMLElement>("a[href]")?.focus());
   }
   function returnToGroup() {
     clearTimeout(timer.current);
     setActive(null);
+    setSlot(null);
     const opener = menu.current?.querySelector<HTMLButtonElement>('button[aria-expanded="true"]');
     requestAnimationFrame(() => opener?.focus());
   }
@@ -133,23 +144,25 @@ export function HomeNavMenu({ id, items, trigger, pathname, onClose, onSearch, c
       {/* The menu is anchored to the right edge, so a closing submenu is popped out from the
           right too — anchored left it would jump past the screen edge as the row shrinks. */}
       <AnimatePresence initial={false} mode="popLayout" anchorX="right">
-      {group?.children && (
-        <motion.nav key={group.href} ref={children} id={`${id}-children`} className="afvar-glass-panel afvar-menu-children afvar-menu-column" style={{ order: 1 }}
+      {shown?.children && (
+        <motion.nav key={shown.href} ref={children} id={`${id}-children`} className="afvar-glass-panel afvar-menu-children afvar-menu-column"
+          style={{ order: 1, pointerEvents: group ? undefined : "none" }}
+          inert={!group} aria-hidden={group ? undefined : true}
           layout="position"
           initial={reducedMotion ? false : { opacity: 0, x: -40, scale: .96 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
+          animate={group ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: reducedMotion ? 0 : -16, scale: reducedMotion ? 1 : .98 }}
           exit={reducedMotion ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, x: -40, scale: .96, transition: { duration: .32, ease: [.4, 0, .2, 1] } }}
           transition={swap}
-          aria-label={t("mk.nav.submenu", { label: t(group.key) })}
+          aria-label={t("mk.nav.submenu", { label: t(shown.key) })}
           onPointerEnter={() => clearTimeout(timer.current)}>
-          <div className="afvar-menu-heading" aria-hidden="true">{t(group.key)}</div>
+          <div className="afvar-menu-heading" aria-hidden="true">{t(shown.key)}</div>
           <button type="button" className="afvar-menu-back" onClick={returnToGroup}>
             <CaretLeft size={16} aria-hidden="true" />{t("common.back")}
           </button>
-          {!group.children.some(child => child.href === group.href) && (
-            <Link href={group.href} onClick={onClose}>{t(group.key)}</Link>
+          {!shown.children.some(child => child.href === shown.href) && (
+            <Link href={shown.href} onClick={onClose}>{t(shown.key)}</Link>
           )}
-          {group.children.map(child => (
+          {shown.children.map(child => (
             <Link key={child.href} href={child.href} onClick={onClose} aria-current={pathname === child.href ? "page" : undefined}>{t(child.key)}</Link>
           ))}
         </motion.nav>
