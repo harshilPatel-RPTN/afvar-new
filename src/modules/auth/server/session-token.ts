@@ -48,11 +48,11 @@ const hmacKey = (key: string) =>
   crypto.subtle.importKey("raw", encoder.encode(key), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
 
 /** Signs a token for `userId`, or null when production has no AUTH_SECRET. */
-export async function signSessionToken(userId: string, now = Date.now()): Promise<string | null> {
+export async function signSessionToken(userId: string, now = Date.now(), ttlSeconds = SESSION_TTL_SECONDS): Promise<string | null> {
   const key = secret();
   if (!key) return null;
   const iat = Math.floor(now / 1000);
-  const claims: SessionClaims = { sub: userId, iat, exp: iat + SESSION_TTL_SECONDS };
+  const claims: SessionClaims = { sub: userId, iat, exp: iat + ttlSeconds };
   const payload = toBase64url(encoder.encode(JSON.stringify(claims)));
   const signature = await crypto.subtle.sign("HMAC", await hmacKey(key), encoder.encode(payload));
   return `${payload}.${toBase64url(new Uint8Array(signature))}`;

@@ -279,6 +279,10 @@ export function AvatarChatWidget() {
     let restY = window.scrollY;
     const settle = () => {
       restY = window.scrollY;
+      if (focused()) return;
+      // It only folds while the page scrolls; once the scroll settles it always comes back.
+      // (On narrow / touch screens there is nearly always content under it, so staying tucked
+      // whenever something is beneath it would leave just a 16px tab almost permanently.)
       setTuck((current) => (current === "tucked" ? "back" : current));
     };
     let timer = 0;
@@ -422,6 +426,7 @@ export function AvatarChatWidget() {
         // Opts out of the site-wide smoked-glass button skin (brand.css, unlayered, so it
         // beat these utilities and left the launcher dim); the launcher draws its own ring.
         data-glass-hit-area=""
+        data-avatar-launcher=""
         // No disc behind the robot: the render itself is the button (larger, so it reads on its own).
         className={`group/launcher pointer-events-auto outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-3 focus-visible:outline-[#00E676] relative flex h-18 w-15 items-center justify-center rounded-2xl bg-transparent transition-[opacity,scale,translate,visibility] hover:scale-105 motion-reduce:transition-none sm:h-24 sm:w-20 lg:h-28 lg:w-24 ${
           // The open panel stands in for the launcher, which shrinks and fades out (keeping its space,

@@ -69,5 +69,5 @@ export const CONTACT = {
     title: "Verified contact options",
     note: "Direct channels — email addresses and phone lines — are published here once verified. AFVAR will never request funds, credentials or codes over chat apps or social media.",
   },
-  formNote: "Pre-launch preview — enquiry delivery activates at launch. A valid enquiry is kept on this device so you can send it the moment the line opens.",
+  formNote: "Your enquiry goes straight to the AFVAR team. We reply by email — no reply-time promises before launch.",
 } as const;

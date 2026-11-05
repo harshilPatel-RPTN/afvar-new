@@ -364,7 +364,7 @@ export function ContactFilmPage() {
       id="contact"
       film={<><PageHero kind="contact" id="contact-hero" label="Contact" text={CONTACT_T} /><ContactSections /></>}
       after={
-        <Directory id="enquiry" title="Write to us." soft="Topic, email, message.">
+        <Directory id="enquiry" title="Write to us." soft="Name, email, message.">
           <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
             <PfScope surface="#06110C" className="rounded-[14px] border border-[rgba(255,255,255,0.1)] p-5 sm:p-6">
               <EnquiryForm />

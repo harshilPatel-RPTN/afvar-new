@@ -143,7 +143,7 @@ export function CookiesPage() {
             ["afwar.auth.v1", "Your signed-in account on this device, so you are not asked to sign in on every page", "until you sign out or clear it"],
             ["afvar-home-sound", "Sound on or off", "until cleared"],
             ["afvar-demo-reduce-motion", "Your reduced-motion choice", "until cleared"],
-            ["afvar.contact.enquiry", "The contact-form message you submitted, kept on this device because nothing is sent before launch", "until cleared"],
+            ["afvar.contact.enquiry", "An unsent contact-form draft, kept on this device so nothing you type is lost", "until the enquiry is sent"],
             ["afvar-waitlist-email", "The email you entered for launch news", "until cleared"],
             ["afvar-font-preview", "The font picked in the team’s font preview on the Platform page", "until cleared"],
           ]}
