@@ -8,7 +8,7 @@ const UPDATED = "1 November 2026";
 
 function Legal({ id, eyebrow, title, lede, children }: { id: string; eyebrow: string; title: string; lede: string; children: ReactNode }) {
   return (
-    <SiteFrame>
+    <SiteFrame nav="back">
       <article aria-labelledby={`${id}-t`} className="bg-transparent px-5 pb-28 pt-[136px] sm:px-8 lg:px-16">
         <div className="mx-auto max-w-3xl">
           <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#A8DEC2]">{eyebrow}</p>
@@ -78,7 +78,7 @@ export function PrivacyPage() {
     <Legal id="privacy" eyebrow="Privacy" title="Privacy." lede="How this preview website handles your information today. The full privacy policy for the AFVAR platform is published before launch.">
       <Part title="What you give us">
         <p>When you register you give a display name, an email address and a password, and you can add your country, a mobile number and your trading experience. Your email address is confirmed with a link. That creates one account.</p>
-        <p>If you use the contact form, you give a topic, an email address and a message. Before launch the message is kept in your own browser until the line opens; it is not sent anywhere yet.</p>
+        <p>If you use the contact form, you give your name, an email address and, if you like, a message. These are stored securely so the team can read and reply to your enquiry; they are not shared or used for marketing. An unsent draft stays only in your own browser.</p>
       </Part>
       <Part title="What we do not collect">
         <p>No payment details are taken before launch. This website runs no advertising trackers and no third-party analytics.</p>

@@ -6,7 +6,7 @@
 import type { ReactNode } from "react";
 import { AfvarStyles } from "@/modules/afvarOs";
 import { BTN_PRIMARY, HOME_SCOPE, HomeStyles } from "@/modules/home/kit";
-import { SiteFooter, SiteNav } from "@/modules/markets";
+import { SiteFooter, SiteNav, BackButton } from "@/modules/markets";
 import { GlobeClosing } from "./GlobeClosing";
 import { HomeAmbient } from "./HomeAmbient";
 import { HomeSoundToggle } from "./HomeSoundToggle";
@@ -15,7 +15,7 @@ import { PauseOffscreen } from "./PauseOffscreen";
 import { DEMO_CSS, REGISTER_HREF } from "./ui";
 import "./home-layout.css";
 
-export function SiteFrame({ children, closing }: { children: ReactNode; closing?: ReactNode }) {
+export function SiteFrame({ children, closing, nav = "menu" }: { children: ReactNode; closing?: ReactNode; /** "back": a Back button in the header instead of the site menu (legal pages). */ nav?: "menu" | "back" }) {
   return (
     <div className="afvar-home-backdrop">
       <HomeAmbient />
@@ -23,7 +23,7 @@ export function SiteFrame({ children, closing }: { children: ReactNode; closing?
         <HomeStyles />
         <style>{DEMO_CSS}</style>
         <AfvarStyles />
-        <SiteNav menuOnly>
+        <SiteNav menuOnly trailing={nav === "back" ? <BackButton /> : undefined}>
           <HomeSoundToggle inMenu />
         </SiteNav>
         <LaunchReminder />

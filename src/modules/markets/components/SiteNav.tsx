@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { BreadthStrip } from "@/modules/home/kit";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
 import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import { useT, type MessageKey } from "@/platform/i18n";
@@ -481,7 +481,34 @@ function MobilePanel({ pathname, onClose, returnFocus }: {
 /* SiteNav                                                             */
 /* ------------------------------------------------------------------ */
 
-export function SiteNav({ menuOnly = false, children }: { menuOnly?: boolean; children?: ReactNode }) {
+/**
+ * "Back" for pages reached from elsewhere on the site (legal pages from the footer):
+ * real browser history when the previous page was ours, otherwise home.
+ */
+export function BackButton() {
+  const { t } = useT();
+  const router = useRouter();
+  const goBack = () => {
+    const cameFromHere = typeof document !== "undefined" && document.referrer.startsWith(window.location.origin);
+    if (window.history.length > 1 && cameFromHere) router.back();
+    else router.push("/");
+  };
+  return (
+    <button
+      type="button"
+      onClick={goBack}
+      aria-label={t("mk.nav.back")}
+      className={`afvar-glass-button afvar-menu-trigger inline-flex h-11 items-center justify-center gap-2 rounded-full px-4 text-(--mk-text) transition-[color,background-color,border-color,opacity,transform] max-[399px]:w-11 max-[399px]:px-0 ${focusRing}`}
+    >
+      <svg viewBox="0 0 20 20" className="h-5 w-5" aria-hidden="true">
+        <path d="M11.5 4.5 6 10l5.5 5.5M6.5 10h10" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <span className="text-[13px] font-medium max-[399px]:hidden">{t("mk.nav.back")}</span>
+    </button>
+  );
+}
+
+export function SiteNav({ menuOnly = false, trailing, children }: { menuOnly?: boolean; /** Replaces the Menu button (and its panel) — e.g. a Back button on legal pages. */ trailing?: ReactNode; children?: ReactNode }) {
   const { t } = useT();
   const pathname = usePathname() ?? "/";
   const [openGroup, setOpenGroup] = useState<string | null>(null);
@@ -589,7 +616,7 @@ export function SiteNav({ menuOnly = false, children }: { menuOnly?: boolean; ch
               {t("mk.waitlist.cta")}
               <ArrowIcon className="h-3.5 w-3.5" />
             </a>}
-            <button
+            {trailing ?? <button
               ref={menuButtonRef}
               type="button"
               onClick={() => setPanel(menuOpen ? null : "menu")}
@@ -617,8 +644,8 @@ export function SiteNav({ menuOnly = false, children }: { menuOnly?: boolean; ch
               </svg>
               {/* Icon-only on the narrowest phones, leaving the header room for the assistant launcher. */}
               {menuOnly && <span className="text-[13px] font-medium max-[399px]:hidden">{t("mk.nav.menu")}</span>}
-            </button>
-            {menuOnly && <AnimatePresence>
+            </button>}
+            {menuOnly && !trailing && <AnimatePresence>
               {menuOpen && <HomeNavMenu id={homeMenuId} items={NAV} pathname={pathname} trigger={menuButtonRef} onClose={closeMenu} onSearch={openSearch}>
                 {children}
               </HomeNavMenu>}

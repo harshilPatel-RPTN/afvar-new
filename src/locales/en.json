@@ -534,7 +534,7 @@
   "mk.nav.about": "About Us",
   "mk.nav.contact": "Contact Us",
   "mk.nav.register": "Register Now",
-  "mk.nav.menu": "Menu",  "mk.nav.close": "Close",
+  "mk.nav.back": "Back",  "mk.nav.menu": "Menu",  "mk.nav.close": "Close",
   "mk.nav.mobileLabel": "Site menu",
   "mk.nav.submenu": "{label} submenu",
   "mk.nav.platform.overview": "Platform Overview",
